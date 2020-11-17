@@ -1,0 +1,1131 @@
+{
+  "__data_type": "ITP ",
+  "MAIN": {
+    "type": "list",
+    "value": [
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 7
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6783
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 22
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Awning"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "plc_balc013"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Awning_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "awning_kled"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 111663
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 6
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Barrel_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "barrel_kled001"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Barrel02_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "barrel_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Basket_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "basket_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Chest_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "chest_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "corpse"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "invis_corpse_bdy"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "corpse"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "invis_corpse_bon"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "corpse"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "invis_corpse_obj"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "corpse"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "invis_corpse_pch"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "corpse"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "invis_corpse_pot"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "corpse"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "invis_corpse_scr"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "corpse"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "invis_corpse_tre"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6782
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 8
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "DS_weapon_rack02_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ds_weapon_rack02"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "DS_weapon_rack03_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ds_weapon_rack03"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6784
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 9
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Banner_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "banner_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Banner09"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "keg"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Bone Fence01_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "bonefence01_kle"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Bonfire"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "bonfire"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "RESREF": {
+                "type": "resref",
+                "value": "campfr_kled"
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 5700
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "DS_Farm_through03_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ds_farm_through0"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "DS_Fence04_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ds_fence04_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "DS_Sign01_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ds_sign01_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "DS_Table07_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ds_table07_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "DS_War_tent03_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ds_war_tent03_kl"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Food Stall 01_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "foodstall01_kl"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Food Stall 02_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "foodstall02_kl"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Large Tent"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "plc_tent_b001"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Large Tent04_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "largetent04_kle"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Market Stall 03_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "marketstall03_"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Market Stall 05_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "marketstall05_"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Markey stall"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "emptywagon002"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Mud_Wall"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "emptywagon"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Round  Tent"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "tent_b002"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "SS_Invisible Object1"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "invisobj001"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Tapestry02_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "tapestry02_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Tapestry03_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "tapestry03_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Tapestry04_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "tapestry04_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Wagon empty_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "wagonempty_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Wall Post01"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "emptywagon001"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 1592
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 10
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Bed Roll_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "bedroll_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Carpet_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "rugoriental"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "RESREF": {
+                "type": "resref",
+                "value": "chair"
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 5822
+              }
+            },
+            {
+              "__struct_id": 0,
+              "RESREF": {
+                "type": "resref",
+                "value": "invchair001_kled"
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 5822
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Cooking table01_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "cookingtable01_"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Cookpot_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "cookpot_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Cushions01_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "cushions01_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Hanging bag_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "hangingbag_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Stonebase_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "stonebase_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Tapestry03"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "plc_bench002"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6785
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 11
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Boaba Tree_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "boabatree_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Boulder01_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "boulder"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Cacti04"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "cacti04"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Cactus02_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "cactus02_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Cactus03_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "cactus03_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "DS_Boulder 2_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ds_boulder2_kle"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Grass002"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "plc_grass002a"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Nat_grass002_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "nat_grass002_kle"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "RESREF": {
+                "type": "resref",
+                "value": "plc_palm002"
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 68941
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Rock001_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "rock_kled"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Water Well"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "h2_waterwell"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6786
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 12
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Active Spawn"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "spawn_ban_a"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Deactivated Spawn"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "spawn_ban_d"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6787
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 14
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 9122
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 15
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 9128
+        }
+      },
+      {
+        "__struct_id": 0,
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 0
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "ASG SpawnKit Area Config (Optional)"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "asgspawnkitareac"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "ASG Spawnkit No Auto Reveal Map"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "asg_noautomap"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Template: Datapoint"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "util_datapoint"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6688
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 1
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6689
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 2
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6690
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 3
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6691
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 4
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Campfire"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "h2_campfire"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Death Corpse"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "h2_deathcorpse"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Death Corpse"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "h2_deathcorpse2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Dropped Items"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "h2_lootbag"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6692
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6687
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 13
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "DS_grain_sack02_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ds_grain_sack02_"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "DS_wheelbarrow02_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ds_wheelbarrow02"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Idol04_kled"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "idol04_kled"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6788
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 16
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 17
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 62485
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 19
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 5836
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 21
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 67585
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 20
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 53151
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 18
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 67132
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 66490
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 5
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6781
+        }
+      }
+    ]
+  }
+}

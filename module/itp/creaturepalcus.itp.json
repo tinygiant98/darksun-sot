@@ -1,0 +1,2295 @@
+{
+  "__data_type": "ITP ",
+  "MAIN": {
+    "type": "list",
+    "value": [
+      {
+        "__struct_id": 0,
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 48
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 63235
+              }
+            },
+            {
+              "__struct_id": 0,
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 5
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6695
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 6
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6696
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 7
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6697
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 8
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6698
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 9
+                    },
+                    "LIST": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "__struct_id": 0,
+                          "NAME": {
+                            "type": "cexostring",
+                            "value": "Crodlu"
+                          },
+                          "RESREF": {
+                            "type": "resref",
+                            "value": "crodlu001"
+                          }
+                        },
+                        {
+                          "__struct_id": 0,
+                          "NAME": {
+                            "type": "cexostring",
+                            "value": "Durge"
+                          },
+                          "RESREF": {
+                            "type": "resref",
+                            "value": "durge_001"
+                          }
+                        },
+                        {
+                          "__struct_id": 0,
+                          "NAME": {
+                            "type": "cexostring",
+                            "value": "Erdlu"
+                          },
+                          "RESREF": {
+                            "type": "resref",
+                            "value": "erdlu001"
+                          }
+                        },
+                        {
+                          "__struct_id": 0,
+                          "NAME": {
+                            "type": "cexostring",
+                            "value": "Inix"
+                          },
+                          "RESREF": {
+                            "type": "resref",
+                            "value": "inix001"
+                          }
+                        },
+                        {
+                          "__struct_id": 0,
+                          "NAME": {
+                            "type": "cexostring",
+                            "value": "Kank"
+                          },
+                          "RESREF": {
+                            "type": "resref",
+                            "value": "kank001"
+                          }
+                        },
+                        {
+                          "__struct_id": 0,
+                          "NAME": {
+                            "type": "cexostring",
+                            "value": "Tame Crodlu"
+                          },
+                          "RESREF": {
+                            "type": "resref",
+                            "value": "crodlu_kled"
+                          }
+                        },
+                        {
+                          "__struct_id": 0,
+                          "NAME": {
+                            "type": "cexostring",
+                            "value": "Tame Kank"
+                          },
+                          "RESREF": {
+                            "type": "resref",
+                            "value": "kank_kled"
+                          }
+                        }
+                      ]
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 201
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6694
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 20
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6712
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 21
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6713
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 22
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6714
+              }
+            },
+            {
+              "__struct_id": 0,
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 34
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6727
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 35
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6728
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 36
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6729
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 37
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6730
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 541
+              }
+            },
+            {
+              "__struct_id": 0,
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 14
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6706
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 15
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6707
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 16
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6708
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 17
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6709
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 18
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6710
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 19
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 537
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 50
+                    },
+                    "LIST": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "__struct_id": 0,
+                          "NAME": {
+                            "type": "cexostring",
+                            "value": "Gith"
+                          },
+                          "RESREF": {
+                            "type": "resref",
+                            "value": "gith001"
+                          }
+                        },
+                        {
+                          "__struct_id": 0,
+                          "NAME": {
+                            "type": "cexostring",
+                            "value": "Gith Earth Cleirc"
+                          },
+                          "RESREF": {
+                            "type": "resref",
+                            "value": "githearthclei001"
+                          }
+                        }
+                      ]
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 201
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6705
+              }
+            },
+            {
+              "__struct_id": 0,
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 10
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6701
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 11
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6702
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6700
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 49
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 63246
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 13
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 1592
+              }
+            },
+            {
+              "__struct_id": 0,
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 23
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6716
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 24
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6717
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 25
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6718
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 47
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6699
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 26
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6719
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6715
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 12
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6703
+              }
+            },
+            {
+              "__struct_id": 0,
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 27
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 2058
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 28
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6722
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 29
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 201
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 30
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 2116
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 31
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6723
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 32
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 2155
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "ID": {
+                      "type": "byte",
+                      "value": 33
+                    },
+                    "STRREF": {
+                      "type": "dword",
+                      "value": 6725
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 547
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6693
+        }
+      },
+      {
+        "__struct_id": 0,
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 38
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Agafya"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "agafya001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Barunus"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "barunus"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Beldak"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "beldak001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Beldak"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "beldak002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Citizen of Kled"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "citizen_kled"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Citizen of Kled"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "citizen_kled002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Dariem"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "dariem"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Gru'den"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "gruden001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "creature008"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Ivan"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ivan"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Kullak"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "kollok"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Omrog"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "omrog001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Omrog"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "omrog002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Sun Cleric Preist"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "sunclericpreist"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 23
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 39
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Anamaus"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "anamaus001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Basettu  the protector of the wall"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "basettuthepro001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Bellas"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "bellas002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Bellas"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "bellas001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Cantrel"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "cantrel001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Ellian"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ellian001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Antteno"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard006"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Bernardi"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard013"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Birdeni"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard010"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Castien"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "castien001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Darcassan"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "darcassan001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Devdan"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "devdan001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Dowler"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard011"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Elpidio"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard012"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Elred"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "elred001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Giullis"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "giullis001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Grisim"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard008"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Haryk"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "haryk001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Inchel"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "inchel001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Iyrandrar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "iyrandrar001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Janha"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard003"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Kakalin"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Lavan"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard007"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Mogon"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard005"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Revalor"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "revalor001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Rhothomir"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "rhothomir001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Rowlyn"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Ryfon"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ryfon001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Tacktar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard009"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Targen"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ssguard004"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Travaran"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "travaran001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard Vulwin"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "vulwin001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Hagen"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "hagen001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Hagwin"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "hagwin002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Jaylin"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "jaylin001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Lieutenant Feno"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lieutenantfen001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Lieutenant Gormar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lieutenantgor001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Lieutenant Katar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lieutenantkat001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Lieutenant Lyklor"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lieutenantlyk001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Locklin"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "locklin001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Patalan"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "patalan001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Quaar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "quaar001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Sontar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "sontar001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Sorisana"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "sorisana001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Sorisana"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "sorisana002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Sundstrom"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "sundstrom001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Sydaria"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "sydaria"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Toramund  Chief of the Silver Hands"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "toramundchief001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Uriwrick"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "uriwrick001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Uriwrick"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "uriwrick002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Zull"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "zull001"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 25
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 40
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 27
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 42
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Cyran"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "cyran001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Cyran"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "cyran002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Fylson"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "fylson001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Fylson"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "fylson002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Heldelia"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "heldelia001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Heldelia"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "heldelia002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Orwick"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "orwick002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Orwick"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "orwick001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Wylen"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "wylen001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Wylen"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "wylen002"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 31
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 41
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Falhace"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "falhace001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Falhace"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "falhace002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Reydi"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "reydi001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Reydi"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "reydi002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Rotwin"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "rotwin001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Rotwin"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "rotwin002"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 29
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 43
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 33
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 44
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Amir"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "amir001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Everia"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "everia001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Everia"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "everia002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Godrick"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "godrick001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Godrick"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "godrick002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Guard"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "guard001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Mion"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "mion001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Mion"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "mion002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pelleas"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pelleas001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pelleas"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pelleas002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Poet"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "dlg_demo_poet"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Ralnor"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ralnor001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Ralnor"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ralnor002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Rilla"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "rilla002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Rilla"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "rilla001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Shop Keep"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "gypfemale001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Vih-Kus"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "vihkus001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Vih-Kus"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "vihkus002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Vulmer"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "vulmer001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Vulmer"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "vulmer002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Zaleria"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "zaleria001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Zaleria"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "zaleria002"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 35
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 45
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Asuth"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "asuth001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Asuth"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "asuth002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Brouzzit"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "brouzzit001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Brouzzit"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "brouzzit002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Chokishk"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "chokishk001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Chokishk"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "chokishk002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Drex"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "drex001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Drex"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "drex002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Gizzixoashk"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "gizzixoashk001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Gizzixoashk"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "gizzixoashk002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Kathrall"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "kathrall001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Kathrall"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "kathrall002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Osdal"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "osdal001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Osdal"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "osdal002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Raosk"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "raosk001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Raosk"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "raosk002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Theftala"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "theftala001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Theftala"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "theftala002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Theodas"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "theodas001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Theodas"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "theodas002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Ugnoth"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ugnoth001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Ugnoth"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "ugnoth002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Valdak"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "valdak001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Valdak"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "valdak002"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Wexler"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "wexler001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Wexler"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "wexler002"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 201
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6731
+        }
+      },
+      {
+        "__struct_id": 0,
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 0
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Crowd Commoner - Female"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "crowd_comf"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Crowd Commoner - Male"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "crowd_commmale"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Crowd Guard"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "crowd_guard001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Crowd Noble - Female"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "crowd_noblefemal"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Crowd Noble - Male"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "crowd_noblemale"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6688
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 1
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6689
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 2
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6690
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 3
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6691
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 4
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6692
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6687
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 46
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6732
+        }
+      }
+    ]
+  }
+}

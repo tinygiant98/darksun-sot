@@ -1,0 +1,267 @@
+{
+  "__data_type": "ITP ",
+  "MAIN": {
+    "type": "list",
+    "value": [
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 5
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Agiy's Dye Store"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "agystore"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Amir's Store"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "amirstore"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Bow & Arrows"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "trusty_bow"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Ellian's Store"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ellianstore"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "RESREF": {
+                "type": "resref",
+                "value": "storgenral002"
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 14813
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Gur'denstore"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "gurdenstore"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "SS_store01"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ssstore001"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "SS_store02"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ssstore002"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "SS_store03"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ssstore003"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "SS_store04"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ssstore004"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "SS_store05"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ssstore005"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "SS_store06"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ssstore006"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "SS_store07"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ssstore007"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "SS_store08"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ssstore008"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "SS_store09"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ssstore009"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "store01"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "store01"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6789
+        }
+      },
+      {
+        "__struct_id": 0,
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 0
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6688
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 1
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6689
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 2
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6690
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 3
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6691
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 4
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6692
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6687
+        }
+      }
+    ]
+  }
+}
