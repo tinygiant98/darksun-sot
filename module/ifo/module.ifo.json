@@ -29,7 +29,7 @@
   },
   "Mod_CustomTlk": {
     "type": "cexostring",
-    "value": "ds_psionicist"
+    "value": ""
   },
   "Mod_CutSceneList": {
     "type": "list",
