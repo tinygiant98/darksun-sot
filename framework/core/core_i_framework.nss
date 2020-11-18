@@ -1143,6 +1143,15 @@ int RunEvent(string sEvent, object oInit = OBJECT_INVALID, object oSelf = OBJECT
         if (nState & EVENT_STATE_ABORT)
             break;
     }
+    
+    // Run tag-based scripts for any object, items are already handled
+    if (oSelf != GetModule())
+    {
+        int nObjectType = GetObjectType(oSelf);
+        if (ENABLE_TAGBASED_SCRIPTS && !(nState & EVENT_STATE_DENIED) &&
+            nObjectType < OBJECT_TYPE_INVALID)
+            RunLibraryScript(GetTag(oSelf));
+    }
 
     // Clean up
     if (nEventLevel)

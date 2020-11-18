@@ -159,7 +159,8 @@ const float LOCAL_EVENT_PRIORITY = 7.0;
 // continue to work. The only reason you might want to turn this off is to
 // completely disable tag-based scripting or to use a plugin to call the desired
 // scripts (e.g., make a plugin for the BioWare X2 functions, which handle
-// tag-based scripting on their own).
+// tag-based scripting on their own).  This setting applies to all object types,
+// not just items as in the base game.
 // Default value: TRUE
 const int ENABLE_TAGBASED_SCRIPTS = TRUE;
 
