@@ -94,10 +94,18 @@ It also provide variables handling methods, and show below.
 Dark Sun is not using the standard Bioware variable handling functions, at least publicly.  In `util_i_data`, there are functions to handle all variables in a manner similar to Bioware's original functions, but allow us to change how variables are set in the future without modifying large amounts of code to change function names.  Any code that uses Bioware's variable handling procedures will either be changed or rejected.  Here's how the custom functions work:
 
 * For PCs, pass the PC object as the first parameter and the functions will get/set/delete the variables off of the PC's item DATAPOINT per the normal methodology for HCR2 variable handling.
-* For the module, pass the `MODULE` object (literally -> `GetLocalInt(MODULE, ...);`).  The MODULE object is a module-wide pointer to the MODULE datapoint we're using to store module variables.  We are not storing module variables directly on the module object normally obtained by `GetModule()`.
-* For all other objects, just pass the arguments normally and the functions will handle the variables just as if they were using the standard Bioware functions
+* For the module, pass the `MODULE` object (literally -> `_GetLocalInt(MODULE, ...);`).  The MODULE object is a module-wide pointer to the MODULE datapoint we're using to store module variables.  We are not storing module variables directly on the module object normally obtained by `GetModule()`.
+* For all other objects, just pass the arguments normally and the functions will handle the variables just as if they were using the standard Bioware functions.
 
-To learn more and understand exactly how the functions work, open up [`util_i_data`](../utilities/util_i_data.nss) and take a look!  You can ignore the first few functions in the script, they are experimental.
+Available functions within `util_i_data`:
+* `_GetIsDM`, `_GetIsDM`: Each PC has a variable set OnClientEnter to demarcate their status.  This prevents having to go through the rigamarole of figuring out if a creature is DM-possessed, a regular PC, etc.  These functions work on all creatures and will return correctly, even if they are possessed.
+* `_GetIsPartyMemeber`: Will return whether the first object is a member of the second object's party.
+* `_[Get|Set|Delete]Local[Int|Float|String|Object|Location|Vector]`: Overrides for Bioware functions of the same name, except for `_*LocalVector`, which there is no Bioware version of.  Any variable set on a PC will instead be set on an undroppable item the PC is assigned during OnClientEnter.  If a variable is not found, this code will also search the PC object for the variable and, if found, move it to the item variable list for future reference.  Module-level variables will be saved on the `MODULE` datapoint.  To save a variable on the module, you can send `MODULE`, `GetModule()` or `OBJECT_INVALID` as the object and the code will assign it to the `MODULE` datapoint.
+* Private functions (any function that is not prototyped) should not be called from outside this script as it may result in undefined behavior.
+
+*Note: The functions within this script are constantly changing, but the basic functionality of variable handling will never change -> `_SetLocalInt(<Object>, <Variable>, <Value>)` should always work.*
+
+To learn more and understand exactly how the functions work, open [`util_i_data`](../utilities/util_i_data.nss) and take a look!  You can ignore the first few functions in the script, they are experimental.
 
 ## Framework System
 
@@ -236,7 +244,7 @@ Here are some notes from our implementation of the library system:
 
 # Timers
 
-Timers are an organic function with the core framework, but they can take up a lot of resources, so use them only when necessary.  Use the follwoing procedure to set up a timer:
+Timers are an organic function within the core framework, but they can take up a lot of resources, so use them only when necessary.  Use the follwoing procedure to set up a timer:
 
 1. Create a script that will be executed when the timer expires.  This is an event script and you are not limited in how you name it, however our convention is `<system>_<subsystem>_OnTimerExpire()`.  As an event, it should be located in the `*_i_events` file of the system or module area you are working on.  Supporting functions can be placed in `*_i_main`.  Here's an example of one of our current prototypes.  As evidenced by the name, it's part of the module travel system and designated for the encounter subsystem.
 
