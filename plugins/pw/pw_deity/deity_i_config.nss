@@ -14,7 +14,7 @@
 // -----------------------------------------------------------------------------
 
 // Set this to false if you don't want to use the deity system.
-const int H2_USE_DEITY_SYSTEM = TRUE;
+const int H2_USE_DEITY_SYSTEM = FALSE;
 
 // This is the base percentage change a PC will be resurrected by their deity.
 //  Value range is 0.0-100.0
