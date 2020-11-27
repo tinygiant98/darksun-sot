@@ -14,7 +14,7 @@
 // -----------------------------------------------------------------------------
 
 // Set this to false if you do not want to use the corpse system
-const int H2_USE_CORPSE_SYSTEM = TRUE;
+const int H2_USE_CORPSE_SYSTEM = FALSE;
 
 //User defined event number sent to an NPC when a corpse token is activated on them.
 //Pick any integer value that is not being used for another event number.
