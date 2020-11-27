@@ -14,7 +14,7 @@
 // -----------------------------------------------------------------------------
 
 // Set this to false if you don't want to use the unid system.
-const int H2_USE_UNID_SYSTEM = TRUE;
+const int H2_USE_UNID_SYSTEM = FALSE;
 
 //Unless an item contains the variable H2_NO_UNID (unid_i_const), the unacquired 
 //  item will be become unidentified after this interval, in real world seconds.

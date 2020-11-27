@@ -1110,10 +1110,13 @@ int RunEvent(string sEvent, object oInit = OBJECT_INVALID, object oSelf = OBJECT
     // Initialize the script list for this event
     object oEvent = InitializeEvent(sEvent, oSelf, oInit);
 
+<<<<<<< HEAD
     // Tag-based scripting requires the current event be set, even if there are
     // not scripts attached to the specified event.  This will be overwritten
     // if there are scripts attached to this event.
     SetLocalObject(EVENTS, EVENT_LAST, oEvent);
+=======
+>>>>>>> 9eda9e5 (Kill Switch Working)
     // Give the tag-based scripting something to work with in case there are no
     // events registered to the event.  This will be overwritten if there are
     // scripts on the event.
