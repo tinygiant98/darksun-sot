@@ -13,7 +13,7 @@
 //                                   Variables
 // -----------------------------------------------------------------------------
 
-const int H2_USE_REST_SYSTEM = FALSE;
+const int H2_USE_REST_SYSTEM = TRUE;
 
 //Minimum Time in real seconds that must pass since the last time a PC rested and
 //recovered spells, feats and health, for them to recover them again when they rest.
