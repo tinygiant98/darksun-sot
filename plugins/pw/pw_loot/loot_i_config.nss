@@ -14,7 +14,7 @@
 // -----------------------------------------------------------------------------
 
 // Set this to false if you don't want to use the loot system.
-const int H2_USE_LOOT_SYSTEM = FALSE;
+const int H2_USE_LOOT_SYSTEM = TRUE;
 
 //This is the resref of the item that will be used to hold all items that are
 //  looted from the PC corpse when the PC is dying or dead.

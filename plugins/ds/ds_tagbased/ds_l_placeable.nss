@@ -26,22 +26,6 @@ void sa_sw_suisw()
     object oPC, oPlaceable = OBJECT_SELF;
     Notice("Event just triggered was " + sEvent);
 
-    if (sEvent == PLACEABLE_EVENT_ON_CLICK)
-    {
-        oPC = GetLastClickedBy();
-        if (!_GetIsPC(oPC))
-          return;
-
-        Notice(GetName(oPC) + " just used the " + GetName(oPlaceable) + " in " + GetName(GetArea(oPC)));
-
-        //OK now let's kill the PC via what looks like spontaneous combustion.
-        int iHP = GetCurrentHitPoints(oPC);
-        effect eDrain = EffectDamage(iHP, DAMAGE_TYPE_FIRE);
-        effect eVis = EffectVisualEffect(VFX_IMP_FLAME_M);
-        ApplyEffectToObject(DURATION_TYPE_INSTANT, eVis, oPC);
-        ApplyEffectToObject(DURATION_TYPE_INSTANT, eDrain, oPC);
-    }
-
     if (sEvent == PLACEABLE_EVENT_ON_USED)
     {
         oPC = GetLastUsedBy();

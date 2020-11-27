@@ -14,7 +14,7 @@
 // -----------------------------------------------------------------------------
 
 // Set this to false if you do not want to use the crowd system.
-const int PW_USE_CROWD_SYSTEM = FALSE;
+const int PW_USE_CROWD_SYSTEM = TRUE;
 
 // The crowd/simulated population system uses custom game objects with specific
 //  variables to initialize crowd objects.  CROWD_ITEM_PREFIX is the prefix
