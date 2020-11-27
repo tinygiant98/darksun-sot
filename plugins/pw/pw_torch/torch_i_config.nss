@@ -14,7 +14,7 @@
 // -----------------------------------------------------------------------------
 
 // Set this to false if you don't want to use the torch system.
-const int H2_USE_TORCH_SYSTEM = TRUE;
+const int H2_USE_TORCH_SYSTEM = FALSE;
 
 //Time in real-life seconds before a torch burns out.
 //PHB rules is 1 hours of burn time.

@@ -14,7 +14,7 @@
 // -----------------------------------------------------------------------------
 
 // Set to false to not use the fugue system.
-const int H2_USE_FUGUE_SYSTEM = TRUE;
+const int H2_USE_FUGUE_SYSTEM = FALSE;
 
 // Tag of the area to be used as the fugue plane.
 const string H2_FUGUE_PLANE = "h2_fugueplane";
