@@ -2030,6 +2030,25 @@
                   },
                   {
                     "__struct_id": 0,
+                    "CR": {
+                      "type": "float",
+                      "value": 9.0
+                    },
+                    "FACTION": {
+                      "type": "cexostring",
+                      "value": "Merchant"
+                    },
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "The Angel"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "theangel"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
                     "NAME": {
                       "type": "cexostring",
                       "value": "Theftala"
