@@ -1114,6 +1114,10 @@ int RunEvent(string sEvent, object oInit = OBJECT_INVALID, object oSelf = OBJECT
     // not scripts attached to the specified event.  This will be overwritten
     // if there are scripts attached to this event.
     SetLocalObject(EVENTS, EVENT_LAST, oEvent);
+    // Give the tag-based scripting something to work with in case there are no
+    // events registered to the event.  This will be overwritten if there are
+    // scripts on the event.
+    SetLocalObject(EVENTS,  EVENT_LAST, oEvent);   // Current event
 
     // Ensure the blacklist is built
     if (!bLocalOnly)
