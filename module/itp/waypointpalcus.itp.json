@@ -456,6 +456,17 @@
               "__struct_id": 0,
               "NAME": {
                 "type": "cexostring",
+                "value": "ah_death"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "ah_death"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
                 "value": "Commoner Waypoint"
               },
               "RESREF": {
