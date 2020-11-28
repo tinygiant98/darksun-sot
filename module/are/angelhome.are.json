@@ -96,11 +96,11 @@
   },
   "OnEnter": {
     "type": "resref",
-    "value": ""
+    "value": "hook_area01"
   },
   "OnExit": {
     "type": "resref",
-    "value": ""
+    "value": "hook_area02"
   },
   "OnHeartbeat": {
     "type": "resref",
@@ -108,7 +108,7 @@
   },
   "OnUserDefined": {
     "type": "resref",
-    "value": ""
+    "value": "hook_area04"
   },
   "PlayerVsPlayer": {
     "type": "byte",
@@ -148,7 +148,7 @@
   },
   "Tag": {
     "type": "cexostring",
-    "value": "AngelHome"
+    "value": "h2_angelhome"
   },
   "Tile_List": {
     "type": "list",
