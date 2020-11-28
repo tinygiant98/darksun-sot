@@ -36,6 +36,8 @@ void sa_sw_suisw()
 
         //OK now let's kill the PC via what looks like spontaneous combustion.
         int iHP = GetCurrentHitPoints(oPC);
+        //Add the 11 to get right to the Death and avoid the Dying part
+        iHP = iHP + 11;
         effect eDrain = EffectDamage(iHP, DAMAGE_TYPE_FIRE);
         effect eVis = EffectVisualEffect(VFX_IMP_FLAME_M);
         ApplyEffectToObject(DURATION_TYPE_INSTANT, eVis, oPC);
