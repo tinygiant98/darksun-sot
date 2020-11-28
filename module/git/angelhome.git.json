@@ -86,7 +86,7 @@
         },
         "Conversation": {
           "type": "resref",
-          "value": ""
+          "value": "dlg_convnozoom"
         },
         "CRAdjust": {
           "type": "int",
