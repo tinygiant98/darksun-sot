@@ -6,13 +6,18 @@
 //    File: ds_fug_i_config.nss
 //  System: Fugue Death and Resurrection (configuration)
 // -----------------------------------------------------------------------------
-// Description:
-//  Configuration File for DS Subsystem.
-// -----------------------------------------------------------------------------
 // Builder Use:
 //  Set the variables below as directed in the comments for each variable.
+//  The General Fugue subsystem is turned on in the pw_fugue_config.nss file.
+//  The waypoints for the Fugue itself are set there.
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
 //                                   Variables
 // -----------------------------------------------------------------------------
+// Tag of the area to be used as the Angel's Home.
+const string H2_ANGEL_PLANE = "h2_angelhome";
+
+// Tag of the waypoint in the Angel's Home to send the PC
+//  to upon death.
+const string H2_WP_ANGEL = "ah_death";
