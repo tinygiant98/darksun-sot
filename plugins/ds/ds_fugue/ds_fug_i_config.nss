@@ -2,6 +2,9 @@
 // Description:
 //      The Fugue System for use with the Dark Sun Module.  This will override the
 //      PW Fugue system and introduce some new capabilities into the Death System.
+//      The intention of this death system is to allow for the PC to be respawned
+//      either in the Fugue with certain penalties or, under certain conditions,
+//      respawned in the Angel's Home with a different set of penalties or not...
 // -----------------------------------------------------------------------------
 //    File: ds_fug_i_config.nss
 //  System: Fugue Death and Resurrection (configuration)
