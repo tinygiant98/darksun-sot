@@ -527,7 +527,7 @@
         },
         "XPosition": {
           "type": "float",
-          "value": 33.9128
+          "value": 30.0678
         },
         "YOrientation": {
           "type": "float",
@@ -535,11 +535,11 @@
         },
         "YPosition": {
           "type": "float",
-          "value": 31.6111
+          "value": 30.0964
         },
         "ZPosition": {
           "type": "float",
-          "value": 0.0
+          "value": 0.01
         }
       }
     ]
@@ -567,7 +567,7 @@
         },
         "Appearance": {
           "type": "dword",
-          "value": 369
+          "value": 15004
         },
         "AutoRemoveKey": {
           "type": "byte",
@@ -717,7 +717,7 @@
         },
         "PortraitId": {
           "type": "word",
-          "value": 833
+          "value": 0
         },
         "Ref": {
           "type": "byte",
@@ -773,11 +773,11 @@
         },
         "X": {
           "type": "float",
-          "value": 37.3397
+          "value": 36.1745
         },
         "Y": {
           "type": "float",
-          "value": 31.3554
+          "value": 30.365
         },
         "Z": {
           "type": "float",
@@ -847,7 +847,7 @@
         },
         "XPosition": {
           "type": "float",
-          "value": 35.0976
+          "value": 35.0393
         },
         "YOrientation": {
           "type": "float",
@@ -855,11 +855,11 @@
         },
         "YPosition": {
           "type": "float",
-          "value": 28.5144
+          "value": 26.8832
         },
         "ZPosition": {
           "type": "float",
-          "value": 0.0
+          "value": -0.0
         }
       }
     ]
