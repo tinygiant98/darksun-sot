@@ -29,6 +29,7 @@ void ds_fug_OnPlayerDeath()
 
     //Generate a Random Number for Now
     int iRnd = Random(100);
+    Notice("The generated random number is " + IntToString(iRnd));
     if (iRnd <= 50)
     {
         if (GetTag(GetArea(oPC)) == H2_FUGUE_PLANE)
@@ -39,6 +40,7 @@ void ds_fug_OnPlayerDeath()
         }
         else
         {
+            Notice("Sending " + GetName(oPC) + " to the Fugue");
             h2_DropAllHenchmen(oPC);
             h2_SendPlayerToFugue(oPC);
         }
@@ -53,6 +55,7 @@ void ds_fug_OnPlayerDeath()
         }
         else
         {
+            Notice("Sending " + GetName(oPC) + " to the Angel");
             h2_DropAllHenchmen(oPC);
             h2_SendPlayerToAngel(oPC);   
         }
