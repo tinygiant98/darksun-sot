@@ -1077,6 +1077,11 @@ int RunEvent(string sEvent, object oInit = OBJECT_INVALID, object oSelf = OBJECT
     // Initialize the script list for this event
     object oEvent = InitializeEvent(sEvent, oSelf, oInit);
 
+    // Tag-based scripting requires the current event be set, even if there are
+    // not scripts attached to the specified event.  This will be overwritten
+    // if there are scripts attached to this event.
+    SetLocalObject(EVENTS, EVENT_LAST, oEvent);
+
     // Ensure the blacklist is built
     if (!bLocalOnly)
         BuildPluginBlacklist(oSelf);
