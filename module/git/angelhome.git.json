@@ -218,55 +218,55 @@
         },
         "ScriptAttacked": {
           "type": "resref",
-          "value": "x2_def_attacked"
+          "value": ""
         },
         "ScriptDamaged": {
           "type": "resref",
-          "value": "x2_def_ondamage"
+          "value": ""
         },
         "ScriptDeath": {
           "type": "resref",
-          "value": "x2_def_ondeath"
+          "value": ""
         },
         "ScriptDialogue": {
           "type": "resref",
-          "value": "x2_def_onconv"
+          "value": ""
         },
         "ScriptDisturbed": {
           "type": "resref",
-          "value": "x2_def_ondisturb"
+          "value": ""
         },
         "ScriptEndRound": {
           "type": "resref",
-          "value": "x2_def_endcombat"
+          "value": ""
         },
         "ScriptHeartbeat": {
           "type": "resref",
-          "value": "x2_def_heartbeat"
+          "value": ""
         },
         "ScriptOnBlocked": {
           "type": "resref",
-          "value": "x2_def_onblocked"
+          "value": ""
         },
         "ScriptOnNotice": {
           "type": "resref",
-          "value": "x2_def_percept"
+          "value": ""
         },
         "ScriptRested": {
           "type": "resref",
-          "value": "x2_def_rested"
+          "value": ""
         },
         "ScriptSpawn": {
           "type": "resref",
-          "value": "x2_def_spawn"
+          "value": ""
         },
         "ScriptSpellAt": {
           "type": "resref",
-          "value": "x2_def_spellcast"
+          "value": ""
         },
         "ScriptUserDefine": {
           "type": "resref",
-          "value": "x2_def_userdef"
+          "value": ""
         },
         "SkillList": {
           "type": "list",
@@ -504,6 +504,26 @@
         "TemplateResRef": {
           "type": "resref",
           "value": "theangel"
+        },
+        "VarTable": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "Name": {
+                "type": "cexostring",
+                "value": "*Dialog"
+              },
+              "Type": {
+                "type": "dword",
+                "value": 3
+              },
+              "Value": {
+                "type": "cexostring",
+                "value": "AngelDialog"
+              }
+            }
+          ]
         },
         "WalkRate": {
           "type": "int",
@@ -847,7 +867,7 @@
         },
         "XPosition": {
           "type": "float",
-          "value": 35.0393
+          "value": 34.4567
         },
         "YOrientation": {
           "type": "float",
