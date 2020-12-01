@@ -17,5 +17,4 @@ void main()
         AddListObject(OBJECT_SELF, oPC, AOE_ROSTER, TRUE);
 
     RunEvent(AOE_EVENT_ON_ENTER, oPC);
-    AddScriptSource(oPC);
 }
