@@ -16,6 +16,5 @@ void main()
     if (GetIsPC(oPC))
         RemoveListObject(OBJECT_SELF, oPC, AOE_ROSTER)
 
-    RemoveScriptSource(oPC);
     RunEvent(AOE_EVENT_ON_EXIT, oPC);
 }
