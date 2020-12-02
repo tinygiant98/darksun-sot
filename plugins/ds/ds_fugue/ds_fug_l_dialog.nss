@@ -1,13 +1,8 @@
 // -----------------------------------------------------------------------------
 //    File: ds_fug_l_dialog.nss
 //  System: Dynamic Dialogs (library script)
-//     URL: https://github.com/squattingmonk/nwn-core-framework
-// Authors: Michael A. Sinclair (Squatting Monk) <squattingmonk@gmail.com>
+// Authors: Anthony Savoca (Jacyn)
 // -----------------------------------------------------------------------------
-// This library contains some example dialogs that show the features of the Core
-// Dialogs system. You can use it as a model for your own dialog libraries.
-// -----------------------------------------------------------------------------
-
 #include "dlg_i_dialogs"
 #include "util_i_library"
 #include "util_i_debug"
@@ -19,6 +14,8 @@
 //                                  Angel Dialog
 // -----------------------------------------------------------------------------
 // What can I say, she's the Angel.
+// Jacyn -  2020-12-01 -Added the Angel Dialogue.  Kinder and Gentler than the
+//          Fugue Lord, but the same.          
 // -----------------------------------------------------------------------------
 
 const string ANGEL_DIALOG = "AngelDialog";
@@ -60,11 +57,10 @@ void angel_Init()
         return;
 
     SetDialogPage(PAGE_MAIN);
-    AddDialogPage(PAGE_MAIN, "Ah, I see your training has not prepared your for the " +
-        "adventures you've recently embarked upon, young <class>.  To make matters worse, " +
-        "it appears your God has forsaken you.  Well, I have no use of an adventurer " +
-        "with so little skill, be gone!  How you accomplish that is your choice, but try to " +
-        "make a better decision than the one that brought you to me.");
+    AddDialogPage(PAGE_MAIN, "Ah, child, approach me. " +
+        "You have attempted something beyond your experience, young <class>. " +
+        "Never fear.  I have brought you here to my home. " +
+        "I will help you. ");
     AddDialogNode(PAGE_MAIN, PAGE_RESPAWN_START, "Respawn to Module Starting Location");
     EnableDialogEnd("I don't want to talk to you any more.");
 
