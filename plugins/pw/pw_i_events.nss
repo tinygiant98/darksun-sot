@@ -147,7 +147,7 @@ void pw_OnClientEnter()
     }
 
     string sTime = FormatSystemTime("h:mmtt on dddd, MMMM d, yyyy", GetSystemTime());
-    string sMessage = "Welcome to Middle Earth.  Today is " + sTime;
+    string sMessage = "Today is " + sTime;
     SendMessageToPC(oPC, sMessage);
 }
 
