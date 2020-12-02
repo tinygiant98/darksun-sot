@@ -14,7 +14,7 @@ void main()
     object oPC = GetExitingObject();
 
     if (GetIsPC(oPC))
-        RemoveListObject(OBJECT_SELF, oPC, AOE_ROSTER)
+        RemoveListObject(OBJECT_SELF, oPC, AOE_ROSTER);
 
     RunEvent(AOE_EVENT_ON_EXIT, oPC);
 }
