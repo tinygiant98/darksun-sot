@@ -10,7 +10,7 @@
 // -----------------------------------------------------------------------------
 
 // Set this to false if you don't want to use bleed system.
-const int H2_USE_BLEED_SYSTEM = TRUE;
+const int H2_USE_BLEED_SYSTEM = FALSE;
 
 //Amount of time in seconds between when the player character bleeds while dying.
 //Note this is seconds in real time, not game time.
