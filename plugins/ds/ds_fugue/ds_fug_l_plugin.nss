@@ -21,9 +21,12 @@
 // -----------------------------------------------------------------------------
 void OnLibraryLoad() 
 {
+    if (!USE_ANGEL_SYSTEM)
+        return;
+
     object oPlugin = GetPlugin("ds");
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "ds_fug_OnPlayerDeath");
+    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "ds_fug_OnPlayerDeath", 4.1);
     // ----- Module Events -----
     RegisterLibraryScript("ds_fug_OnPlayerDeath", 1);
 }
