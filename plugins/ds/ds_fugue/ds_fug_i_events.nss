@@ -10,7 +10,8 @@
 // -----------------------------------------------------------------------------
 #include "ds_fug_i_main"
 #include "util_i_data"
-//
+#include "core_i_framework"
+#include "util_i_math"
 //
 // ---< ds_fug_OnPlayerDeath >---
 // Upon death, drop all henchmen, generate a random number between 0 and 100
@@ -25,26 +26,18 @@ void ds_fug_OnPlayerDeath()
     object oPC = GetLastPlayerDied();
 
     if (_GetLocalInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
-        return;  //<-- Use core-framework cancellation function?
+        return;  //PC ain't dead.  Return.
 
     //Generate a Random Number for Now
-    int iRnd = Random(100);
-    Notice("The generated random number is " + IntToString(iRnd));
-    if (iRnd <= 50)
-    {
-        if (GetTag(GetArea(oPC)) == H2_FUGUE_PLANE)
-        {
-            ApplyEffectToObject(DURATION_TYPE_INSTANT, EffectResurrection(), oPC);
-            ApplyEffectToObject(DURATION_TYPE_INSTANT, EffectHeal(GetMaxHitPoints(oPC)), oPC);
-            return;
-        }
-        else
-        {
-            Notice("Sending " + GetName(oPC) + " to the Fugue");
-            h2_DropAllHenchmen(oPC);
-            h2_SendPlayerToFugue(oPC);
-        }
-    }
+    int iRnd = d100();
+    int iChance = clamp(DS_FUGUE_ANGEL_CHANCE, 0, 100);
+
+    Notice("ds_fug_OnPlayerDeath: " +
+            "\n  iChance = " + IntToString(iChance) +
+            "\n  iRnd   = " + IntToString(iRnd));
+
+    if (iRnd < (100-iChance))
+        Notice("Sending " + GetName(oPC) + " to the Fugue");
     else
     {
         if (GetTag(GetArea(oPC)) == H2_ANGEL_PLANE)
@@ -59,5 +52,6 @@ void ds_fug_OnPlayerDeath()
             h2_DropAllHenchmen(oPC);
             h2_SendPlayerToAngel(oPC);   
         }
+        SetEventState(EVENT_STATE_ABORT);
     }
 }

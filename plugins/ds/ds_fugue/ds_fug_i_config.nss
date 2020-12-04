@@ -18,9 +18,16 @@
 // -----------------------------------------------------------------------------
 //                                   Variables
 // -----------------------------------------------------------------------------
+
+// Turn on / off the Angel system
+const int USE_ANGEL_SYSTEM = TRUE;
+
 // Tag of the area to be used as the Angel's Home.
 const string H2_ANGEL_PLANE = "h2_angelhome";
 
 // Tag of the waypoint in the Angel's Home to send the PC
 //  to upon death.
 const string H2_WP_ANGEL = "ah_death";
+
+// Chance that a player will be sent to the Angel versus the Fugue
+const int DS_FUGUE_ANGEL_CHANCE = 50;
