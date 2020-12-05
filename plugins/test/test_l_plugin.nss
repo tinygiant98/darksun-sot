@@ -31,7 +31,6 @@ void OnLibraryLoad()
         SetPluginLibraries(oPlugin, "test_l_dialog");
     
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "test_OnClientEnter", 10.0);
-        RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_CHAT, "test_OnPlayerChat", 10.0);
     }
 
     RegisterLibraryScript("test_OnClientEnter", 0);

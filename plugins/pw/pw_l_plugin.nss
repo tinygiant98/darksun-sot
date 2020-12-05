@@ -26,7 +26,7 @@ void OnLibraryLoad()
         SetDescription(oPlugin,
             "This plugin controls basic functions of the HCR2-base persistent world system and " +
             "loads all pw subsystems.");
-        SetPluginLibraries(oPlugin, "bleed_l_plugin, chat_l_plugin, corpse_l_plugin, crowd_l_plugin, deity_l_plugin, " +
+        SetPluginLibraries(oPlugin, "bleed_l_plugin, corpse_l_plugin, crowd_l_plugin, deity_l_plugin, " +
             "fugue_l_plugin, fugue_l_dialog, htf_l_plugin, loot_l_plugin, rest_l_plugin, rest_l_dialog, " +
             "torch_l_plugin, unid_l_plugin, gren_l_plugin, bus_l_plugin");
 
@@ -43,6 +43,7 @@ void OnLibraryLoad()
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_STARTED,   "pw_OnPlayerRestStarted",   EVENT_PRIORITY_LAST);
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_CANCELLED, "pw_OnPlayerRestCancelled", 10.0);
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_FINISHED,  "pw_OnPlayerRestFinished",  10.0);
+        RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_CHAT,           "pw_OnPlayerChat",          EVENT_PRIORITY_FIRST);
 
         // ----- Placeable Events -----
         RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_HEARTBEAT,     "pw_OnPlaceableHeartbeat", 10.0);
@@ -96,6 +97,7 @@ void OnLibraryLoad()
     RegisterLibraryScript("pw_OnPlayerRestStarted",    20);
     RegisterLibraryScript("pw_OnPlayerRestCancelled",  21);
     RegisterLibraryScript("pw_OnPlayerRestFinished",   22);
+    RegisterLibraryScript("pw_OnPlayerChat",           23);
 
     // ----- Placeable Events -----
     RegisterLibraryScript("pw_OnPlaceableHeartbeat",   10);
@@ -125,6 +127,7 @@ void OnLibraryScript(string sScript, int nEntry)
         case 20:  pw_OnPlayerRestStarted();    break;
         case 21:  pw_OnPlayerRestCancelled();  break;
         case 22:  pw_OnPlayerRestFinished();   break;
+        case 23:  pw_OnPlayerChat();           break;
 
         // ----- Placeable Events -----
         case 10:  pw_OnPlaceableHeartbeat();   break;

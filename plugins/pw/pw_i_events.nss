@@ -13,6 +13,7 @@
 #include "pw_i_core"
 #include "core_i_constants"
 #include "core_c_config"
+#include "util_i_chat"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -44,6 +45,11 @@ void pw_OnPlayerLevelUp();
 
 // ---< pw_OnPlayerRest >---
 void pw_OnPlayerRest();
+
+// ---< pw_OnPlayerChat >---
+// Controls the chat command system.  Determines if a passed chat line is an attempt
+//  at a command and, if so, runs the appropraite events
+void chat_OnPlayerChat();
 
 // ---< pw_playerdataitem >---
 // Tag based scripting for the player-data item.
@@ -255,6 +261,29 @@ void pw_OnPlaceableHeartbeat()
 {
     if (!GetIsObjectValid(GetFirstItemInInventory(OBJECT_SELF)))
         DestroyObject(OBJECT_SELF);
+}
+
+void pw_OnPlayerChat()
+{
+    string sCommands = "!@#$%^&*;./?`~|\\";
+    string sMessage = GetPCChatMessage();
+    string sChar = GetStringLeft(sMessage, 1);
+
+    if (FindSubString(sCommands, sChar) > -1)
+    {
+        struct COMMAND_LINE cl = ParseCommandLine(sMessage);
+        if (cl.cmdChar != "")
+        {
+            object oPC = GetPCChatSpeaker();
+
+            SaveParsedChatLine(oPC, cl);
+            SetPCChatMessage();
+            
+            int nState = RunEvent("CHAT_" + cl.cmdChar);
+            if (!(nState & EVENT_STATE_DENIED) && cl.cmd != "")
+                RunEvent("CHAT_" + cl.cmdChar + cl.cmd);
+        }
+    }
 }
 
 // ----- Tag-based Scripting -----

@@ -1,3 +1,4 @@
+
 // -----------------------------------------------------------------------------
 //    File: chat_i_main.nss
 //  System: Chat Command System (core)
@@ -9,12 +10,27 @@
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 
-#include "pw_i_core"
-#include "chat_i_const"
-#include "chat_i_config"
-#include "chat_i_text"
 #include "util_i_data"
 #include "util_i_datapoint"
+
+const string CHAT_PREFIX = "CHAT_";
+
+struct COMMAND_LINE
+{
+    string chatLine;
+    string cmdChar;
+    string cmd;
+    string options;
+    string pairs;
+    string args;
+};
+
+const string COMMAND_INVALID = "COMMAND_INVALID";
+const string TOKEN_INVALID = "TOKEN_INVALID";
+
+const int CHAT_ARGUMENTS = 0x01;
+const int CHAT_OPTIONS   = 0x02;
+const int CHAT_PAIRS     = 0x04;
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -278,7 +294,7 @@ void SaveParsedChatLine(object oPC, struct COMMAND_LINE cl)
     _SetLocalString(oChat, "ARGUMENTS", cl.args);
 }
 
-struct COMMAND_LINE GetChatCommandLine(object oPC)
+struct COMMAND_LINE GetParsedChatLine(object oPC)
 {
     object oChat = GetChatItem(oPC);
 
@@ -330,7 +346,7 @@ int FindKey(string sPairs, string sKey)
 int _CountChatComponent(object oPC, int nComponents)
 {
     int nResult;
-    struct COMMAND_LINE cl = GetChatCommandLine(oPC);
+    struct COMMAND_LINE cl = GetParsedChatLine(oPC);
 
     if (nComponents & CHAT_ARGUMENTS)
         nResult += CountList(cl.args);
@@ -361,7 +377,7 @@ int CountChatPairs(object oPC)
 
 int _FindChatComponent(object oPC, int nComponents, string sKey)
 {
-    struct COMMAND_LINE cl = GetChatCommandLine(oPC);
+    struct COMMAND_LINE cl = GetParsedChatLine(oPC);
 
     if (nComponents & CHAT_ARGUMENTS)
         return FindListItem(cl.args, sKey);
@@ -407,7 +423,7 @@ int FindChatKey(object oPC, string sKey)
 
 string _GetChatComponent(object oPC, int nComponents, int nIndex = 0)
 {
-    struct COMMAND_LINE cl = GetChatCommandLine(oPC);
+    struct COMMAND_LINE cl = GetParsedChatLine(oPC);
 
     if (nComponents & CHAT_ARGUMENTS)
         return GetListItem(cl.args, nIndex);
@@ -420,6 +436,8 @@ string _GetChatComponent(object oPC, int nComponents, int nIndex = 0)
         string sPair = GetListItem(cl.pairs, nIndex);
         return GetValue(sPair);
     }
+
+    return "";
 }
 
 string GetChatArgument(object oPC, int nIndex = 0)
@@ -439,25 +457,12 @@ string GetChatValue(object oPC, int nIndex = 0)
 
 string GetChatKeyValue(object oPC, string sKey)
 {
-    struct COMMAND_LINE cl = GetChatCommandLine(oPC);
+    struct COMMAND_LINE cl = GetParsedChatLine(oPC);
     return GetValue(GetListItem(cl.pairs, FindKey(cl.pairs, sKey)));
 }
 
 string GetChatLine(object oPC)
 {
-    struct COMMAND_LINE cl = GetChatCommandLine(oPC);
+    struct COMMAND_LINE cl = GetParsedChatLine(oPC);
     return cl.chatLine;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

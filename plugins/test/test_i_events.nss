@@ -9,10 +9,10 @@
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 
+#include "util_i_data"
 #include "test_i_main"
 #include "x2_inc_switches"
 #include "dlg_i_dialogs"
-#include "util_i_debug"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -54,9 +54,25 @@ void test_OnPlayerChat()
     string sTokens, sCommand, sArguments, sMessage = GetPCChatMessage();
     object oArea = GetArea(oPC);
 
+/*
+
     if (GetSubString(sMessage, 0, 1) != "!")
         return;
 
+    struct COMMAND_LINE cl = ParseCommandLine(sMessage);
+    Notice("Parsing command line entry: " + sMessage);
+
+    if (cl.cmdChar != COMMAND_INVALID)
+        Notice("cl.cmdChar   -> " + cl.cmdChar +
+            "\ncl.cmd       -> " + cl.cmd +
+            "\ncl.shortOpts -> " + cl.shortOpts +
+            "\ncl.longOpts  -> " + cl.longOpts +
+            "\ncl.args      -> " + cl.args);
+    else
+        Error("Unable to parse command line -> " + sMessage +
+              "\n  Error returned: " + cl.cmdChar);*/
+
+/*
     if (sMessage != "")
         sTokens = Tokenize(sMessage);
     else
@@ -121,6 +137,19 @@ void test_OnPlayerChat()
             }
         }
     }
+    else if (sCommand == "stake")
+    {
+        if (CountList(sArguments) > 1)
+        {
+            Error("Stake: Too many arguments, only the first will be used");
+            string sVarName = GetListItem(sArguments);
+            location lPC = GetLocation(oPC);
 
+            Debug("Stake: Setting current location as ''")
+            _SetLocalLocation(oPC, sVarName, lPC);
+        }
+        else
+    }
+*/
     SetPCChatMessage("");
 }

@@ -16,7 +16,8 @@
 #include "util_i_data"
 #include "x3_inc_string"
 
-string RemoveCharacters(string sSource, string sChar = " ")
+/*
+string RemoveCharacter(string sSource, string sChar = " ")
 {
     if (sSource == "" || sChar == "")
         return sSource;
@@ -35,7 +36,7 @@ string RemoveCharacters(string sSource, string sChar = " ")
     return sResult;
 }
 
-string Tokenize(string sMessage, string sDelimiter = " ")
+string Tokenizes(string sMessage, string sDelimiter = " ")
 {
     // Returns a comma-delimited list of tokens
     if (FindSubString(sMessage, sDelimiter, 0) == -1)
@@ -53,4 +54,14 @@ string Tokenize(string sMessage, string sDelimiter = " ")
     }
 
     return AddListItem(sResult, sMessage);
+}
+*/
+
+string Filter(string sArguments, string sCommands)
+{
+    // returns whether any entries in sArguments are not in sCommands
+    // sArguments and sCommands are both comma-separated lists
+    int n, nCount = CountList(sArguments);
+    int c, cCount = CountList(sCommands);
+    return "";
 }
