@@ -13,6 +13,7 @@
 #include "test_i_main"
 #include "x2_inc_switches"
 #include "dlg_i_dialogs"
+#include "util_i_chat"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -48,108 +49,90 @@ void test_PlayerDataItem()
     }
 }
 
-void test_OnPlayerChat()
+void test_convo_OnPlayerChat()
 {
     object oPC = GetPCChatSpeaker();
-    string sTokens, sCommand, sArguments, sMessage = GetPCChatMessage();
-    object oArea = GetArea(oPC);
+    
+    SetLocalString(oPC, "*Dialog", "TestDialog");
+    Debug("Convo:  Starting Test System Dialog");
+    StartDialog(oPC, OBJECT_SELF, "TestDialog", TRUE, TRUE, TRUE);
+    SetPCChatMessage();
+}
 
-/*
-
-    if (GetSubString(sMessage, 0, 1) != "!")
+void test_go_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+    if (!_GetIsPC(oPC))
         return;
 
-    struct COMMAND_LINE cl = ParseCommandLine(sMessage);
-    Notice("Parsing command line entry: " + sMessage);
+    int nArguments;
 
-    if (cl.cmdChar != COMMAND_INVALID)
-        Notice("cl.cmdChar   -> " + cl.cmdChar +
-            "\ncl.cmd       -> " + cl.cmd +
-            "\ncl.shortOpts -> " + cl.shortOpts +
-            "\ncl.longOpts  -> " + cl.longOpts +
-            "\ncl.args      -> " + cl.args);
-    else
-        Error("Unable to parse command line -> " + sMessage +
-              "\n  Error returned: " + cl.cmdChar);*/
-
-/*
-    if (sMessage != "")
-        sTokens = Tokenize(sMessage);
-    else
-        return;
-
-    sCommand = GetSubString(GetListItem(sTokens), 1, 1000);
-    sArguments = DeleteListItem(sTokens);
-
-    // Just for demo purposes, display what we received
-    if (sCommand != "")
-        Notice("Received chat command [" + HexColorString(sCommand, COLOR_GREEN_LIGHT) + "]\n" +
-               "Available arguments are [" + HexColorString(sArguments, COLOR_GREEN_LIGHT) + "]");
-
-    if (sCommand == "convo")
+    if (nArguments = CountChatArguments(oPC))
     {
-        SetLocalString(oPC, "*Dialog", "TestDialog");
-        Debug("Convo:  Starting Test System Dialog");
-        StartDialog(oPC, OBJECT_SELF, "TestDialog", TRUE, TRUE, TRUE);
-    }
-    else if (sCommand == "go")
-    {
-        if (CountList(sArguments))
+        if (nArguments == 1)
         {
-            if (CountList(sArguments) == 1)
-            {
-                string sTarget = GetListItem(sArguments);
-                object oTarget = GetObjectByTag(sTarget);
-                if (GetIsObjectValid(oTarget))
-                {
-                    Debug("Go: TargetFound -> " + GetTag(oTarget));
-                    if (!GetObjectType(oTarget))
-                        oTarget = GetFirstObjectInArea(oTarget);
-
-                    AssignCommand(oPC, ActionJumpToObject(oTarget));
-                }
-                else
-                    Error("Go: " + sTarget + " is not a valid target");
-            }
-            else
-                Error("Go: You can only jump to one place, dumbass.  Make a decision already.");
-        }
-        else
-            Error("Go: No target argument provided");
-    }
-    else if (sCommand == "get")
-    {
-        int n, nCount = CountList(sArguments);
-        string sTarget;
-        object oTarget;
-
-        if (!nCount)
-            Error("Get: No target argument(s) provided");
-        
-        for (n = 0; n < nCount; n++)
-        {
-            sTarget = GetListItem(sArguments, n);
-            oTarget = GetObjectByTag(sTarget);
+            string sTarget = GetChatArgument(oPC, 0);
+            object oTarget = GetObjectByTag(sTarget);
             if (GetIsObjectValid(oTarget))
             {
-                Debug("Get: getting " + sTarget);
-                AssignCommand(oTarget, ActionJumpToObject(oPC));
-            }
-        }
-    }
-    else if (sCommand == "stake")
-    {
-        if (CountList(sArguments) > 1)
-        {
-            Error("Stake: Too many arguments, only the first will be used");
-            string sVarName = GetListItem(sArguments);
-            location lPC = GetLocation(oPC);
+                Debug("Go: TargetFound -> " + GetTag(oTarget));
+                if (!GetObjectType(oTarget))
+                    oTarget = GetFirstObjectInArea(oTarget);
 
-            Debug("Stake: Setting current location as ''")
-            _SetLocalLocation(oPC, sVarName, lPC);
+                AssignCommand(oPC, ActionJumpToObject(oTarget));
+            }
+            else
+                Error("Go: " + sTarget + " is not a valid target");
         }
         else
+            Error("Go: You can only jump to one place, dumbass.  Make a decision already.");
     }
-*/
-    SetPCChatMessage("");
+    else
+        Error("Go: No target argument provided");
+
+    SetPCChatMessage();
+}
+
+void test_get_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+    if (!_GetIsPC(oPC))
+        return;
+
+    int n, nCount = CountChatArguments(oPC);
+    string sTarget;
+    object oTarget;
+
+    if (!nCount)
+        Error("Get: No target argument(s) provided");
+    
+    for (n = 0; n < nCount; n++)
+    {
+        sTarget = GetChatArgument(oPC, n);
+        oTarget = GetObjectByTag(sTarget);
+        if (GetIsObjectValid(oTarget))
+        {
+            Debug("Get: getting " + sTarget);
+            AssignCommand(oTarget, ActionJumpToObject(oPC));
+        }
+    }
+
+    SetPCChatMessage();
+}
+
+void test_stake_OnPlayerChat()
+{
+
+    Debug("Stake chat command not yet active");
+    /*
+    if (CountChatArguments(sArguments) > 1)
+    {
+        Error("Stake: Too many arguments, only the first will be used");
+        string sVarName = GetListItem(sArguments);
+        location lPC = GetLocation(oPC);
+
+        Debug("Stake: Setting current location as ''")
+        _SetLocalLocation(oPC, sVarName, lPC);
+    }*/
+    SetPCChatMessage();
 }

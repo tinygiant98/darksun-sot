@@ -279,9 +279,9 @@ void pw_OnPlayerChat()
             SaveParsedChatLine(oPC, cl);
             SetPCChatMessage();
             
-            int nState = RunEvent("CHAT_" + cl.cmdChar);
+            int nState = RunEvent(CHAT_PREFIX + cl.cmdChar);
             if (!(nState & EVENT_STATE_DENIED) && cl.cmd != "")
-                RunEvent("CHAT_" + cl.cmdChar + cl.cmd);
+                RunEvent(CHAT_PREFIX + cl.cmdChar + cl.cmd);
         }
     }
 }

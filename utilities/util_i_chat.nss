@@ -466,3 +466,10 @@ string GetChatLine(object oPC)
     struct COMMAND_LINE cl = GetParsedChatLine(oPC);
     return cl.chatLine;
 }
+
+int HasParsedChatCommand(object oPC)
+{
+    struct COMMAND_LINE cl = GetParsedChatLine(oPC);
+    return cl.cmdChar != "";
+}
+
