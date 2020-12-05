@@ -437,8 +437,17 @@ string GetChatValue(object oPC, int nIndex = 0)
     return _GetChatComponent(oPC, CHAT_PAIRS, nIndex);
 }
 
+string GetChatKeyValue(object oPC, string sKey)
+{
+    struct COMMAND_LINE cl = GetChatCommandLine(oPC);
+    return GetValue(GetListItem(cl.pairs, FindKey(cl.pairs, sKey)));
+}
 
-
+string GetChatLine(object oPC)
+{
+    struct COMMAND_LINE cl = GetChatCommandLine(oPC);
+    return cl.chatLine;
+}
 
 
 
