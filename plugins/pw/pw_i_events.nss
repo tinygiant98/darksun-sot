@@ -265,24 +265,23 @@ void pw_OnPlaceableHeartbeat()
 
 void pw_OnPlayerChat()
 {
-    string sCommands = "!@#$%^&*;./?`~|\\";
+    object oPC = GetPCChatSpeaker();
     string sMessage = GetPCChatMessage();
-    string sChar = GetStringLeft(sMessage, 1);
 
-    if (FindSubString(sCommands, sChar) > -1)
+    Notice("Running pw_OnPlayerChat");
+
+    if (sMessage == "@")
+        sMessage = "@get argument1 \"group 1\" [group 2] {group 3} <group 4> --kill --longOpt:longOptValue -s:shortOptValue -singles -x --int:3 argument2 --float:2.39f";
+
+    if (ParseCommandLine(oPC, sMessage))
     {
-        struct COMMAND_LINE cl = ParseCommandLine(sMessage);
-        if (cl.cmdChar != "")
-        {
-            object oPC = GetPCChatSpeaker();
+        SetPCChatMessage();
+        string sDes = GetChatDesignator(oPC);
+        string sCmd = GetChatCommand(oPC);
 
-            SaveParsedChatLine(oPC, cl);
-            SetPCChatMessage();
-            
-            int nState = RunEvent(CHAT_PREFIX + cl.cmdChar);
-            if (!(nState & EVENT_STATE_DENIED) && cl.cmd != "")
-                RunEvent(CHAT_PREFIX + cl.cmdChar + cl.cmd);
-        }
+        int nState = RunEvent(CHAT_PREFIX + sDes);
+        if (!(nState & EVENT_STATE_DENIED))
+            RunEvent(CHAT_PREFIX + sDes + sCmd);
     }
 }
 

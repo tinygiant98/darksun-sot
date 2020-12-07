@@ -36,6 +36,7 @@ void OnLibraryLoad()
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!go", "test_go_OnPlayerChat");
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!get", "test_get_OnPlayerChat");
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!stake", "test_stake_OnPlayerChat");
+        RegisterEventScripts(oPlugin, CHAT_PREFIX + "@", "test_OnPlayerChat");
     }
 
     RegisterLibraryScript("test_OnClientEnter", 0);
@@ -43,6 +44,7 @@ void OnLibraryLoad()
     RegisterLibraryScript("test_go_OnPlayerChat", 2);
     RegisterLibraryScript("test_get_OnPlayerChat", 3);
     RegisterLibraryScript("test_stake_OnPlayerChat", 4);
+    RegisterLibraryScript("test_OnPlayerChat", 5);
 
     // Tag-based Scripting
     RegisterLibraryScript("util_playerdata", 30);
@@ -60,6 +62,7 @@ void OnLibraryScript(string sScript, int nEntry)
         case 2:  test_go_OnPlayerChat(); break;
         case 3:  test_get_OnPlayerChat(); break;
         case 4:  test_stake_OnPlayerChat(); break;
+        case 5:  test_OnPlayerChat(); break;
 
         case 30: test_PlayerDataItem(); break;
         default: CriticalError("Library function " + sScript + " not found");
