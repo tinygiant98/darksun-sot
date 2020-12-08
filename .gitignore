@@ -7,3 +7,4 @@
 # Ignore the nasher directory
 .nasher/
 .git/
+server/
