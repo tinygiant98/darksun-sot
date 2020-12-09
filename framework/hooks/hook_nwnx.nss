@@ -13,8 +13,5 @@
 
 void main()
 {
-    string sEvent = NWNX_Events_GetCurrentEvent();
-    
-    Notice("Ping from NWNX Events:  " + sEvent);
-    RunEvent(sEvent);
+    RunEvent(NWNX_Events_GetCurrentEvent());
 }
