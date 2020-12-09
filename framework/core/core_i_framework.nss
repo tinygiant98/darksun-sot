@@ -744,21 +744,20 @@ void RegisterEventScripts(object oTarget, string sEvent, string sScripts, float 
     string sPriority = PriorityToString(fPriority);
     int i, nCount = CountList(sScripts);
 
+    // Handle NWNX hook script subscription.  The NWNX_Events plugin handles multiple
+    // subscription errors, so don't use CountEventScripts here.
+    if (GetStringLeft(sEvent, 4) == "NWNX")
+    {
+        if (!RegisterNWNXEvent(sEvent))
+            Warning("Script Hook registration failed for event " + sEvent +
+                    "; NWNX Events plug-in is not active");
+        else
+            Debug("Registered NWNX event hook for " + sEvent);
+    }
+
     for (i = 0; i < nCount; i++)
     {
         sScript = GetListItem(sScripts, i);
-        if (GetStringLeft(sEvent, 4) == "NWNX")
-        {
-            if (!RegisterNWNXEvent(sEvent))
-            {
-                Debug("Script Hook registration failed for event " + sEvent +
-                      "; NWNX Events plug-in is not active");
-                continue;
-            }
-            else
-                Debug("Registered NWNX event hook for " + sEvent);
-        }
-
         sList = AddListItem(sList, sScript + ":" + sPriority);
         Debug("Registering event script on " + sName + ":" +
               "\n    Event: " + sEvent +

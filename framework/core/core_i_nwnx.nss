@@ -1759,13 +1759,16 @@ _______________________________________
 
     Event Data Tag        | Type   | Notes
     ----------------------|--------|-------
-
-_______________________________________
 */
 const string NWNX_ON_JOURNAL_OPEN_BEFORE = "NWNX_ON_JOURNAL_OPEN_BEFORE";
 const string NWNX_ON_JOURNAL_OPEN_AFTER = "NWNX_ON_JOURNAL_OPEN_AFTER";
 const string NWNX_ON_JOURNAL_CLOSE_BEFORE = "NWNX_ON_JOURNAL_CLOSE_BEFORE";
 const string NWNX_ON_JOURNAL_CLOSE_AFTER = "NWNX_ON_JOURNAL_CLOSE_AFTER";
+
+// ---< RegisterNWNXEvent >---
+// Registers the nwnx hook script to NWNX event sEvent.  Returns FALSE if the NWNX_Events plugin is not
+// available, otherwise returns TRUE.
+int RegisterNWNXEvent(string oEvent);
 
 int RegisterNWNXEvent(string sEvent)
 {
