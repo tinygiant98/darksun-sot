@@ -12,7 +12,12 @@
 
 /*
 Note: util_i_chat will not function without other utility includes from squattingmonk's
-sm-utils.  These utilities can be obtained from https://github.com/squattingmonk/sm-utils.
+sm-utils.  These utilities can be obtained from
+https://github.com/squattingmonk/nwn-core-framework/tree/master/src/utils.
+
+Specificially, the following files are required:  util_i_color.nss, util_i_csvlists.nss,
+util_i_datapoint.nss, util_i_debug.nss, util_i_math.nss, util_i_string.nss, util_dataitem.uti,
+util_datapoint.utp
 
 NWN allows players to chat on several channels.  Using nwscript, builders can intercept
 these chat messages and perform several functions.  This utility allows builders to
@@ -181,6 +186,7 @@ void chat_say(object oPC)
 */
 
 #include "util_i_datapoint"
+#include "util_i_data"
 
 // -----------------------------------------------------------------------------
 //                          Configuration/Defaults
@@ -423,12 +429,12 @@ void _SaveParsedChatLine(object oPC, struct COMMAND_LINE cl)
 {
     object oChat = GetChatItem(oPC);
 
-    SetLocalString(oChat, LINE, cl.chatLine);
-    SetLocalString(oChat, DESIGNATOR, cl.cmdChar);
-    SetLocalString(oChat, COMMAND, cl.cmd);
-    SetLocalString(oChat, OPTIONS, cl.options);
-    SetLocalString(oChat, PAIRS, cl.pairs);
-    SetLocalString(oChat, ARGUMENTS, cl.args);
+    _SetLocalString(oChat, LINE, cl.chatLine);
+    _SetLocalString(oChat, DESIGNATOR, cl.cmdChar);
+    _SetLocalString(oChat, COMMAND, cl.cmd);
+    _SetLocalString(oChat, OPTIONS, cl.options);
+    _SetLocalString(oChat, PAIRS, cl.pairs);
+    _SetLocalString(oChat, ARGUMENTS, cl.args);
 }
 
 // private
@@ -437,12 +443,12 @@ struct COMMAND_LINE _GetParsedChatLine(object oPC)
     object oChat = GetChatItem(oPC);
 
     struct COMMAND_LINE cl;
-    cl.chatLine = GetLocalString(oChat, LINE);
-    cl.cmdChar = GetLocalString(oChat, DESIGNATOR);
-    cl.cmd = GetLocalString(oChat, COMMAND);
-    cl.options = GetLocalString(oChat, OPTIONS);
-    cl.pairs = GetLocalString(oChat, PAIRS);
-    cl.args = GetLocalString(oChat, ARGUMENTS);
+    cl.chatLine = _GetLocalString(oChat, LINE);
+    cl.cmdChar = _GetLocalString(oChat, DESIGNATOR);
+    cl.cmd = _GetLocalString(oChat, COMMAND);
+    cl.options = _GetLocalString(oChat, OPTIONS);
+    cl.pairs = _GetLocalString(oChat, PAIRS);
+    cl.args = _GetLocalString(oChat, ARGUMENTS);
 
     return cl;
 }

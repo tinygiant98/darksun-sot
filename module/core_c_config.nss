@@ -169,7 +169,9 @@ const int ENABLE_TAGBASED_SCRIPTS = TRUE;
 // -----------------------------------------------------------------------------
 
 // This toggles whether to allow the OnHour event. If this is TRUE, the OnHour
-// event will execute each time the hour changes.
+// event will execute each time the hour changes.  If NWNX is active (see below),
+// the NWNX event will be used in place of the module's OnHour.  You can register
+// to either event and the framework will route correctly.
 const int ENABLE_ON_HOUR_EVENT = TRUE;
 
 // This toggles whether the OnAreaEmpty event runs. If this is TRUE, the
@@ -185,6 +187,15 @@ const float ON_AREA_EMPTY_EVENT_DELAY = 60.0;
 // -----------------------------------------------------------------------------
 //                                 Miscellaneous
 // -----------------------------------------------------------------------------
+
+// This toggles whether NWNX functions and events are being used.  If TRUE, the
+// framework will route NWNX Events through the framework to allow normal
+// script registration against those events.
+const int ENABLE_NWNX = TRUE;
+
+// If NWNX will be used, this is the hook script that all NWNX events will be
+// routed to to ensure integration with the framework.
+const string NWNX_EVENTS_HOOK_SCRIPT = "hook_nwnx";
 
 // This is the welcome message that will be sent to all players and DMs that log
 // into the module.

@@ -16,7 +16,9 @@
 #include "util_i_libraries"
 #include "core_i_constants"
 #include "core_i_database"
+#include "core_i_nwnx"
 #include "core_c_config"
+
 
 // -----------------------------------------------------------------------------
 //                               Global Variables
@@ -745,6 +747,18 @@ void RegisterEventScripts(object oTarget, string sEvent, string sScripts, float 
     for (i = 0; i < nCount; i++)
     {
         sScript = GetListItem(sScripts, i);
+        if (GetStringLeft(sEvent, 4) == "NWNX")
+        {
+            if (!RegisterNWNXEvent(sEvent))
+            {
+                Debug("Script Hook registration failed for event " + sEvent +
+                      "; NWNX Events plug-in is not active");
+                continue;
+            }
+            else
+                Debug("Registered NWNX event hook for " + sEvent);
+        }
+
         sList = AddListItem(sList, sScript + ":" + sPriority);
         Debug("Registering event script on " + sName + ":" +
               "\n    Event: " + sEvent +
