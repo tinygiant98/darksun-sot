@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+    db:
+        hostname: db
+        container_name: db
+        image: mysql:5.7.30
+        command: --innodb_use_native_aio=0
+        env_file: ${PWD-.}/config/db.env        
+        restart: unless-stopped
+        expose:
+            - "3306"
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./database:/var/lib/mysql
+            - ${PWD-.}/mysql-db:/docker-entrypoint-initdb.d
+
+    adminer:
+        hostname: adminer
+        container_name: db_admin
+        image: adminer
+        restart: unless-stopped
+        depends_on:
+            - db
+        ports:
+            - "8080:8080"
+
+    ds-server:
+        hostname: ds_server
+        container_name: ds_server
+        image: nwnxee/unified:build8193.16
+        build:
+            dockerfile: ../Dockerfile
+            context: ../
+            args:
+                MODULE_NAME: ds-sot-development
+                UNIFIED_BUILD: build8193.16
+                NASHER_TARGET: ds
+        env_file: ${PWD-.}/config/nwserver.env
+        restart: unless-stopped
+        stdin_open: true
+        tty: true
+        depends_on:
+            - db
+        volumes:
+            - ${PWD-.}/logs:/nwn/run/logs.0
+            - ${PWD-.}/:/nwn/home
+            - ${PWD-.}/logs:/nwn/data/bin/linux-x86/logs.0
+        ports:
+            - "5121:5121/udp"
