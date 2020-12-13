@@ -1,0 +1,1756 @@
+Your cryptographic public identity is: VpZ+wmRGATbo8RBgo1r6h8DSH74LAGVM8M5SV6v6Sxs=
+[Wed Dec  9 00:22:32] Loading Module: ds_sot_dev
+[Wed Dec  9 00:22:33] Initializing Core Framework...
+[Wed Dec  9 00:22:34] Attempting to load libraries dlg_l_plugin, pw_l_plugin, ds_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library dlg_l_plugin
+[Wed Dec  9 00:22:34] Defining plugin dlg
+[Wed Dec  9 00:22:34] Adding PluginControl_Init to PluginControlDialog's OnDialogInit event with a priority of 10.00
+[Wed Dec  9 00:22:34] Adding PluginControl_Page to PluginControlDialog's OnDialogPage event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding PluginControl_Node to PluginControlDialog's OnDialogNode event with a priority of 5.00
+[Wed Dec  9 00:22:34] Attempting to load library pw_l_plugin
+[Wed Dec  9 00:22:34] Defining plugin pw
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnClientEnter
+    Script: pw_OnClientEnter
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnClientLeave
+    Script: pw_OnClientLeave
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnHeartbeat
+    Script: pw_OnModuleHeartbeat
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnModuleLoad
+    Script: pw_OnModuleLoad
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerDeath
+    Script: pw_OnPlayerDeath
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerDying
+    Script: pw_OnPlayerDying
+    Priority: 9.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerLevelUp
+    Script: pw_OnPlayerLevelUp
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerReSpawn
+    Script: pw_OnPlayerReSpawn
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerRest
+    Script: pw_OnPlayerRest
+    Priority: first
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerRestStarted
+    Script: pw_OnPlayerRestStarted
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerRestCancelled
+    Script: pw_OnPlayerRestCancelled
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerRestFinished
+    Script: pw_OnPlayerRestFinished
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlaceableHeartbeat
+    Script: pw_OnPlaceableHeartbeat
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: SavePCLocation_OnTimerExpire
+    Script: pw_SavePCLocation_OnTimerExpire
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: ExportPC_OnTimerExpire
+    Script: pw_ExportPCs_OnTimerExpire
+    Priority: 10.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnAcquireItem
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnActivateItem
+    Script: x2_mod_def_act
+    Priority: 2.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnClientEnter
+    Script: x3_mod_def_enter
+    Priority: 2.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnModuleLoad
+    Script: x2_mod_def_load
+    Priority: 2.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerDeath
+    Script: nw_o0_death
+    Priority: default
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerDying
+    Script: nw_o0_dying
+    Priority: default
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerEquipItem
+    Script: x2_mod_def_equ
+    Priority: 2.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerReSpawn
+    Script: nw_o0_respawn
+    Priority: 2.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerRest
+    Script: x2_mod_def_rest
+    Priority: default
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerUnEquipItem
+    Script: x2_mod_def_unequ
+    Priority: 2.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnUnAcquireItem
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureBlocked
+    Script: nw_c2_defaulte
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureCombatRoundEnd
+    Script: nw_c2_default3
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureConversation
+    Script: nw_c2_default4
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureDamaged
+    Script: nw_c2_default6
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureDeath
+    Script: nw_c2_default7
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureDisturbed
+    Script: nw_c2_default8
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureHeartbeat
+    Script: nw_c2_default1
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreaturePerception
+    Script: nw_c2_default2
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreaturePhysicalAttacked
+    Script: nw_c2_default5
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureRested
+    Script: nw_c2_defaulta
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureSpawn
+    Script: nw_c2_default9
+    Priority: default
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureSpellCastAt
+    Script: nw_c2_defaultb
+    Priority: last
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureUserDefined
+    Script: nw_c2_defaultd
+    Priority: last
+[Wed Dec  9 00:22:34] Attempting to load library ds_l_plugin
+[Wed Dec  9 00:22:34] Defining plugin ds
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] DS :: Core:
+    Event: OnClientEnter
+    Script: ds_OnClientEnter
+    Priority: 4.0
+[Wed Dec  9 00:22:34] Loading plugin 'dlg'
+[Wed Dec  9 00:22:34] Attempting to load library dlg_l_plugin
+[Wed Dec  9 00:22:34] [Error] Library dlg_l_plugin already loaded!
+[Wed Dec  9 00:22:34] Attempting to load library dlg_l_tokens
+[Wed Dec  9 00:22:34] Attempting to load library dlg_l_demo
+[Wed Dec  9 00:22:34] Adding PoetDialog_Init to PoetDialog's OnDialogInit event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding PoetDialog_Page to PoetDialog's OnDialogPage event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding PoetDialog_Quit to PoetDialog's OnDialogEnd event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding PoetDialog_Quit to PoetDialog's OnDialogAbort event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding AnvilDialog to AnvilDialog's OnDialogInit event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding AnvilDialog to AnvilDialog's OnDialogPage event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding AnvilDialog to AnvilDialog's OnDialogNode event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding AnvilDialog to AnvilDialog's OnDialogEnd event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding AnvilDialog to AnvilDialog's OnDialogAbort event with a priority of 5.00
+[Wed Dec  9 00:22:34] Running local event OnPluginActivate on [Plugin] Dynamic Dialogs; oInit: [Plugin] Dynamic Dialogs
+[Wed Dec  9 00:22:34] Generating new event: OnPluginActivate
+[Wed Dec  9 00:22:34] Dumping 0 event scripts for OnPluginActivate
+[Wed Dec  9 00:22:34] Initializing OnPluginActivate on [Plugin] Dynamic Dialogs
+[Wed Dec  9 00:22:34] Dumping 0 event scripts for OnPluginActivate
+[Wed Dec  9 00:22:34] Running library script util_dataitem on Angel Home
+[Wed Dec  9 00:22:34] util_dataitem is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Activated plugin 'dlg'
+[Wed Dec  9 00:22:34] Loading plugin 'pw'
+[Wed Dec  9 00:22:34] Attempting to load library bleed_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library corpse_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library crowd_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library deity_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library fugue_l_plugin
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnClientEnter
+    Script: fugue_OnClientEnter
+    Priority: 4.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerDeath
+    Script: fugue_OnPlayerDeath
+    Priority: 4.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerDying
+    Script: fugue_OnPlayerDying
+    Priority: 4.0
+[Wed Dec  9 00:22:34] Attempting to load library fugue_l_dialog
+[Wed Dec  9 00:22:34] Adding Fugue_Init to FugueDialog's OnDialogInit event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding Fugue_Node to FugueDialog's OnDialogNode event with a priority of 5.00
+[Wed Dec  9 00:22:34] Attempting to load library htf_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library loot_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library rest_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library rest_l_dialog
+[Wed Dec  9 00:22:34] Adding rest_Init to RestDialog's OnDialogInit event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding rest_Node to RestDialog's OnDialogNode event with a priority of 5.00
+[Wed Dec  9 00:22:34] Attempting to load library torch_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library unid_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library gren_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library bus_l_plugin
+[Wed Dec  9 00:22:34] Running local event OnPluginActivate on [Plugin] HCR2 :: Core; oInit: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Got existing event OnPluginActivate
+[Wed Dec  9 00:22:34] Initializing OnPluginActivate on [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Dumping 0 event scripts for OnPluginActivate
+[Wed Dec  9 00:22:34] Running library script util_dataitem on Angel Home
+[Wed Dec  9 00:22:34] util_dataitem is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Activated plugin 'pw'
+[Wed Dec  9 00:22:34] Loading plugin 'ds'
+[Wed Dec  9 00:22:34] Attempting to load library tr_l_plugin
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] DS :: Core:
+    Event: OnAreaEnter
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] DS :: Core:
+    Event: OnAreaExit
+    Script: tr_OnAreaExit
+    Priority: 5.0
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] DS :: Core:
+    Event: tr_encounter_OnTimerExpire
+    Script: tr_encounter_OnTimerExpire
+    Priority: 5.0
+[Wed Dec  9 00:22:34] Attempting to load library ds_htf_l_plugin
+[Wed Dec  9 00:22:34] Attempting to load library ds_l_aoe
+[Wed Dec  9 00:22:34] Attempting to load library ds_l_area
+[Wed Dec  9 00:22:34] Attempting to load library ds_l_creature
+[Wed Dec  9 00:22:34] Attempting to load library ds_l_door
+[Wed Dec  9 00:22:34] Attempting to load library ds_l_encounter
+[Wed Dec  9 00:22:34] Attempting to load library ds_l_merchant
+[Wed Dec  9 00:22:34] Attempting to load library ds_l_placeable
+[Wed Dec  9 00:22:34] Attempting to load library ds_l_trap
+[Wed Dec  9 00:22:34] Attempting to load library ds_l_trigger
+[Wed Dec  9 00:22:34] Attempting to load library ds_fug_l_plugin
+[Wed Dec  9 00:22:34] Registering event script on [Plugin] DS :: Core:
+    Event: OnPlayerDeath
+    Script: ds_fug_OnPlayerDeath
+    Priority: 4.1
+[Wed Dec  9 00:22:34] Attempting to load library ds_fug_l_dialog
+[Wed Dec  9 00:22:34] Adding Angel_Init to AngelDialog's OnDialogInit event with a priority of 5.00
+[Wed Dec  9 00:22:34] Adding Angel_Node to AngelDialog's OnDialogNode event with a priority of 5.00
+[Wed Dec  9 00:22:34] Running local event OnPluginActivate on [Plugin] DS :: Core; oInit: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Got existing event OnPluginActivate
+[Wed Dec  9 00:22:34] Initializing OnPluginActivate on [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Dumping 0 event scripts for OnPluginActivate
+[Wed Dec  9 00:22:34] Running library script util_dataitem on Angel Home
+[Wed Dec  9 00:22:34] util_dataitem is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Activated plugin 'ds'
+[Wed Dec  9 00:22:34] Successfully initialized Core Framework
+[Wed Dec  9 00:22:34] Running event OnAreaEnter on Angel Home; oInit: The Angel
+[Wed Dec  9 00:22:34] Generating new event: OnAreaEnter
+[Wed Dec  9 00:22:34] Expanding event script on [Plugin] DS :: Core:
+    Event: OnAreaEnter
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAreaEnter
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Initializing OnAreaEnter on Angel Home
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAreaEnter
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Executing tr_OnAreaEnter
+[Wed Dec  9 00:22:34] Running library script tr_OnAreaEnter on Angel Home
+[Wed Dec  9 00:22:34] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:22:34] Running library script h2_angelhome on Angel Home
+[Wed Dec  9 00:22:34] h2_angelhome is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: The Fugue Lord
+[Wed Dec  9 00:22:34] Generating new event: OnAcquireItem
+[Wed Dec  9 00:22:34] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnAcquireItem
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on ds_sot
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: The Fugue Lord
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_IT_CREWPSP008 on ds_sot
+[Wed Dec  9 00:22:34] NW_IT_CREWPSP008 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_IT_CREWPSP008 on ds_sot
+[Wed Dec  9 00:22:34] NW_IT_CREWPSP008 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: The Fugue Lord
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: The Fugue Lord
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_IT_CREWPSP008 on ds_sot
+[Wed Dec  9 00:22:34] NW_IT_CREWPSP008 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_IT_CREWPSP008 on ds_sot
+[Wed Dec  9 00:22:34] NW_IT_CREWPSP008 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: The Fugue Lord
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: The Fugue Lord
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_IT_CREITEMUN4 on ds_sot
+[Wed Dec  9 00:22:34] NW_IT_CREITEMUN4 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_IT_CREITEMUN4 on ds_sot
+[Wed Dec  9 00:22:34] NW_IT_CREITEMUN4 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAreaEnter on [Fugue Plane]; oInit: The Fugue Lord
+[Wed Dec  9 00:22:34] Got existing event OnAreaEnter
+[Wed Dec  9 00:22:34] Initializing OnAreaEnter on [Fugue Plane]
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAreaEnter
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Executing tr_OnAreaEnter
+[Wed Dec  9 00:22:34] Running library script tr_OnAreaEnter on [Fugue Plane]
+[Wed Dec  9 00:22:34] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:22:34] Running library script h2_fugueplane on [Fugue Plane]
+[Wed Dec  9 00:22:34] h2_fugueplane is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: Poet
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: Poet
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_CLOTH024 on ds_sot
+[Wed Dec  9 00:22:34] NW_CLOTH024 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_CLOTH024 on ds_sot
+[Wed Dec  9 00:22:34] NW_CLOTH024 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAreaEnter on [Start Area]; oInit: Poet
+[Wed Dec  9 00:22:34] Got existing event OnAreaEnter
+[Wed Dec  9 00:22:34] Initializing OnAreaEnter on [Start Area]
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAreaEnter
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Executing tr_OnAreaEnter
+[Wed Dec  9 00:22:34] Running library script tr_OnAreaEnter on [Start Area]
+[Wed Dec  9 00:22:34] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:22:34] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:22:34] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAreaEnter on [Start Area]; oInit: Boy
+[Wed Dec  9 00:22:34] Got existing event OnAreaEnter
+[Wed Dec  9 00:22:34] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Executing tr_OnAreaEnter
+[Wed Dec  9 00:22:34] Running library script tr_OnAreaEnter on [Start Area]
+[Wed Dec  9 00:22:34] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:22:34] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:22:34] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAreaEnter on [Start Area]; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAreaEnter
+[Wed Dec  9 00:22:34] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Executing tr_OnAreaEnter
+[Wed Dec  9 00:22:34] Running library script tr_OnAreaEnter on [Start Area]
+[Wed Dec  9 00:22:34] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:22:34] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:22:34] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_MAARCL045 on ds_sot
+[Wed Dec  9 00:22:34] NW_MAARCL045 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_MAARCL045 on ds_sot
+[Wed Dec  9 00:22:34] NW_MAARCL045 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_WSWMSS011 on ds_sot
+[Wed Dec  9 00:22:34] NW_WSWMSS011 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_WSWMSS011 on ds_sot
+[Wed Dec  9 00:22:34] NW_WSWMSS011 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_WSWMSS011 on ds_sot
+[Wed Dec  9 00:22:34] NW_WSWMSS011 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_WSWMSS011 on ds_sot
+[Wed Dec  9 00:22:34] NW_WSWMSS011 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAreaEnter on [Start Area]; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAreaEnter
+[Wed Dec  9 00:22:34] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Executing tr_OnAreaEnter
+[Wed Dec  9 00:22:34] Running library script tr_OnAreaEnter on [Start Area]
+[Wed Dec  9 00:22:34] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:22:34] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:22:34] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_CLOTH013 on ds_sot
+[Wed Dec  9 00:22:34] NW_CLOTH013 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_CLOTH013 on ds_sot
+[Wed Dec  9 00:22:34] NW_CLOTH013 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAreaEnter on [Start Area]; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAreaEnter
+[Wed Dec  9 00:22:34] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Executing tr_OnAreaEnter
+[Wed Dec  9 00:22:34] Running library script tr_OnAreaEnter on [Start Area]
+[Wed Dec  9 00:22:34] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:22:34] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:22:34] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAreaEnter on [Start Area]; oInit: Shop Keep
+[Wed Dec  9 00:22:34] Got existing event OnAreaEnter
+[Wed Dec  9 00:22:34] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Executing tr_OnAreaEnter
+[Wed Dec  9 00:22:34] Running library script tr_OnAreaEnter on [Start Area]
+[Wed Dec  9 00:22:34] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:22:34] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:22:34] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: The Shape Shifter
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: The Shape Shifter
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script x2_djinni_robe on ds_sot
+[Wed Dec  9 00:22:34] x2_djinni_robe is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script x2_djinni_robe on ds_sot
+[Wed Dec  9 00:22:34] x2_djinni_robe is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAreaEnter on [Start Area]; oInit: The Shape Shifter
+[Wed Dec  9 00:22:34] Got existing event OnAreaEnter
+[Wed Dec  9 00:22:34] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Executing tr_OnAreaEnter
+[Wed Dec  9 00:22:34] Running library script tr_OnAreaEnter on [Start Area]
+[Wed Dec  9 00:22:34] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:22:34] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:22:34] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: The Dungeon Master
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: The Dungeon Master
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_WBLHW001 on ds_sot
+[Wed Dec  9 00:22:34] NW_WBLHW001 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_WBLHW001 on ds_sot
+[Wed Dec  9 00:22:34] NW_WBLHW001 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: The Dungeon Master
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: The Dungeon Master
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_ASHLW001 on ds_sot
+[Wed Dec  9 00:22:34] NW_ASHLW001 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_ASHLW001 on ds_sot
+[Wed Dec  9 00:22:34] NW_ASHLW001 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAreaEnter on [Start Area]; oInit: The Dungeon Master
+[Wed Dec  9 00:22:34] Got existing event OnAreaEnter
+[Wed Dec  9 00:22:34] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:22:34] Executing tr_OnAreaEnter
+[Wed Dec  9 00:22:34] Running library script tr_OnAreaEnter on [Start Area]
+[Wed Dec  9 00:22:34] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:22:34] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:22:34] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnModuleLoad on ds_sot; oInit: ds_sot
+[Wed Dec  9 00:22:34] Generating new event: OnModuleLoad
+[Wed Dec  9 00:22:34] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnModuleLoad
+    Script: pw_OnModuleLoad
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnModuleLoad
+    Script: x2_mod_def_load
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Dumping 2 event scripts for OnModuleLoad
+[Wed Dec  9 00:22:34] Dumping event script 1/2
+    Script: pw_OnModuleLoad
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Dumping event script 2/2
+    Script: x2_mod_def_load
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Initializing OnModuleLoad on ds_sot
+[Wed Dec  9 00:22:34] Dumping 2 event scripts for OnModuleLoad
+[Wed Dec  9 00:22:34] Dumping event script 1/2
+    Script: pw_OnModuleLoad
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Dumping event script 2/2
+    Script: x2_mod_def_load
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnModuleLoad script 1/2
+    Script: pw_OnModuleLoad
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing pw_OnModuleLoad
+[Wed Dec  9 00:22:34] Running library script pw_OnModuleLoad on ds_sot
+[Wed Dec  9 00:22:34] Library script found at pw_l_plugin:4
+[Wed Dec  9 00:22:34] Creating timer SavePCLocation_OnTimerExpire on Datapoint: MODULE_DATAPOINT: fInterval=     180.000000000, nIterations=0, nJitter=0
+[Wed Dec  9 00:22:34] Successfully created new timer with ID=1
+[Wed Dec  9 00:22:34] Timer elapsed: nTimerID=1 bFirstRun=0
+[Wed Dec  9 00:22:34] Running event SavePCLocation_OnTimerExpire on Datapoint: MODULE_DATAPOINT; oInit: Datapoint: MODULE_DATAPOINT
+[Wed Dec  9 00:22:34] Generating new event: SavePCLocation_OnTimerExpire
+[Wed Dec  9 00:22:34] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: SavePCLocation_OnTimerExpire
+    Script: pw_SavePCLocation_OnTimerExpire
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for SavePCLocation_OnTimerExpire
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: pw_SavePCLocation_OnTimerExpire
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Initializing SavePCLocation_OnTimerExpire on Datapoint: MODULE_DATAPOINT
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for SavePCLocation_OnTimerExpire
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: pw_SavePCLocation_OnTimerExpire
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking SavePCLocation_OnTimerExpire script 1/1
+    Script: pw_SavePCLocation_OnTimerExpire
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing pw_SavePCLocation_OnTimerExpire
+[Wed Dec  9 00:22:34] Running library script pw_SavePCLocation_OnTimerExpire on Datapoint: MODULE_DATAPOINT
+[Wed Dec  9 00:22:34] Library script found at pw_l_plugin:14
+[Wed Dec  9 00:22:34] Running library script util_datapoint on ds_sot
+[Wed Dec  9 00:22:34] util_datapoint is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Calling next iteration of timer 1 in      180.000000000 seconds. Runs remaining: Infinite
+[Wed Dec  9 00:22:34] Checking OnModuleLoad script 2/2
+    Script: x2_mod_def_load
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_load
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_load on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_load is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnCreatureSpawn on The Dungeon Master; oInit: The Dungeon Master
+[Wed Dec  9 00:22:34] Generating new event: OnCreatureSpawn
+[Wed Dec  9 00:22:34] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnCreatureSpawn
+    Script: nw_c2_default9
+    Priority: default
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnCreatureSpawn
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: nw_c2_default9
+    Priority: default
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Initializing OnCreatureSpawn on The Dungeon Master
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnCreatureSpawn
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: nw_c2_default9
+    Priority: default
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnCreatureSpawn script 1/1
+    Script: nw_c2_default9
+    Priority: default
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing nw_c2_default9
+[Wed Dec  9 00:22:34] Running library script nw_c2_default9 on The Dungeon Master
+[Wed Dec  9 00:22:34] nw_c2_default9 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script X2_DUERGAR002 on The Dungeon Master
+[Wed Dec  9 00:22:34] X2_DUERGAR002 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running event OnAcquireItem on ds_sot; oInit: The Dungeon Master
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Executing x2_mod_def_aqu
+[Wed Dec  9 00:22:34] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:22:34] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running local event OnAcquireItem on ; oInit: The Dungeon Master
+[Wed Dec  9 00:22:34] Got existing event OnAcquireItem
+[Wed Dec  9 00:22:34] Initializing OnAcquireItem on 
+[Wed Dec  9 00:22:34] Dumping 1 event scripts for OnAcquireItem
+[Wed Dec  9 00:22:34] Dumping event script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:22:34] Skipping script: not a local event script
+[Wed Dec  9 00:22:34] Running library script NW_IT_SPARSCR213 on ds_sot
+[Wed Dec  9 00:22:34] NW_IT_SPARSCR213 is not a library script; executing directly.
+[Wed Dec  9 00:22:34] Running library script NW_IT_SPARSCR213 on ds_sot
+[Wed Dec  9 00:22:34] NW_IT_SPARSCR213 is not a library script; executing directly.
+Our public address as seen by the masterserver: 108.53.90.111:59940
+[Wed Dec  9 00:22:39] Running event OnHour on ds_sot; oInit: ds_sot
+[Wed Dec  9 00:22:39] Generating new event: OnHour
+[Wed Dec  9 00:22:39] Dumping 0 event scripts for OnHour
+[Wed Dec  9 00:22:39] Initializing OnHour on ds_sot
+[Wed Dec  9 00:22:39] Dumping 0 event scripts for OnHour
+[Wed Dec  9 00:22:52] Running event OnHour on ds_sot; oInit: ds_sot
+[Wed Dec  9 00:22:52] Got existing event OnHour
+[Wed Dec  9 00:24:52] Running event OnHour on ds_sot; oInit: ds_sot
+[Wed Dec  9 00:24:52] Got existing event OnHour
+[Wed Dec  9 00:25:33] Timer elapsed: nTimerID=1 bFirstRun=0
+[Wed Dec  9 00:25:33] Running event SavePCLocation_OnTimerExpire on Datapoint: MODULE_DATAPOINT; oInit: Datapoint: MODULE_DATAPOINT
+[Wed Dec  9 00:25:33] Got existing event SavePCLocation_OnTimerExpire
+[Wed Dec  9 00:25:33] Checking SavePCLocation_OnTimerExpire script 1/1
+    Script: pw_SavePCLocation_OnTimerExpire
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:25:33] Executing pw_SavePCLocation_OnTimerExpire
+[Wed Dec  9 00:25:33] Running library script pw_SavePCLocation_OnTimerExpire on Datapoint: MODULE_DATAPOINT
+[Wed Dec  9 00:25:33] Library script found at pw_l_plugin:14
+[Wed Dec  9 00:25:33] Running library script util_datapoint on ds_sot
+[Wed Dec  9 00:25:33] util_datapoint is not a library script; executing directly.
+[Wed Dec  9 00:25:33] Calling next iteration of timer 1 in      180.000000000 seconds. Runs remaining: Infinite
+[Wed Dec  9 00:26:52] Running event OnHour on ds_sot; oInit: ds_sot
+[Wed Dec  9 00:26:52] Got existing event OnHour
+[Wed Dec  9 00:28:33] Timer elapsed: nTimerID=1 bFirstRun=0
+[Wed Dec  9 00:28:33] Running event SavePCLocation_OnTimerExpire on Datapoint: MODULE_DATAPOINT; oInit: Datapoint: MODULE_DATAPOINT
+[Wed Dec  9 00:28:33] Got existing event SavePCLocation_OnTimerExpire
+[Wed Dec  9 00:28:33] Checking SavePCLocation_OnTimerExpire script 1/1
+    Script: pw_SavePCLocation_OnTimerExpire
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:28:33] Executing pw_SavePCLocation_OnTimerExpire
+[Wed Dec  9 00:28:33] Running library script pw_SavePCLocation_OnTimerExpire on Datapoint: MODULE_DATAPOINT
+[Wed Dec  9 00:28:33] Library script found at pw_l_plugin:14
+[Wed Dec  9 00:28:33] Running library script util_datapoint on ds_sot
+[Wed Dec  9 00:28:33] util_datapoint is not a library script; executing directly.
+[Wed Dec  9 00:28:33] Calling next iteration of timer 1 in      180.000000000 seconds. Runs remaining: Infinite
+[Wed Dec  9 00:28:53] Running event OnHour on ds_sot; oInit: ds_sot
+[Wed Dec  9 00:28:53] Got existing event OnHour
+Connection Attempt made by Jacyn (UXFC6H33)
+[Wed Dec  9 00:29:23] Jacyn (UXFC6H33) Joined as Player 1
+*** ValidateGFFResource sent by user.
+*** ValidateGFFResource sent by user.
+*** ValidateGFFResource sent by user.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script NW_CLOTH001 on ds_sot
+[Wed Dec  9 00:29:28] NW_CLOTH001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script NW_CLOTH001 on ds_sot
+[Wed Dec  9 00:29:28] NW_CLOTH001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnPlayerEquipItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Generating new event: OnPlayerEquipItem
+[Wed Dec  9 00:29:28] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerEquipItem
+    Script: x2_mod_def_equ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Dumping 1 event scripts for OnPlayerEquipItem
+[Wed Dec  9 00:29:28] Dumping event script 1/1
+    Script: x2_mod_def_equ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Initializing OnPlayerEquipItem on ds_sot
+[Wed Dec  9 00:29:28] Dumping 1 event scripts for OnPlayerEquipItem
+[Wed Dec  9 00:29:28] Dumping event script 1/1
+    Script: x2_mod_def_equ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Checking OnPlayerEquipItem script 1/1
+    Script: x2_mod_def_equ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_equ
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_equ on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_equ is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnPlayerEquipItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnPlayerEquipItem
+[Wed Dec  9 00:29:28] Checking OnPlayerEquipItem script 1/1
+    Script: x2_mod_def_equ
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script NW_CLOTH001 on ds_sot
+[Wed Dec  9 00:29:28] NW_CLOTH001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script NW_CLOTH001 on ds_sot
+[Wed Dec  9 00:29:28] NW_CLOTH001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on PC Properties; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script x3_it_pchide on ds_sot
+[Wed Dec  9 00:29:28] x3_it_pchide is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script x3_it_pchide on ds_sot
+[Wed Dec  9 00:29:28] x3_it_pchide is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnPlayerEquipItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnPlayerEquipItem
+[Wed Dec  9 00:29:28] Checking OnPlayerEquipItem script 1/1
+    Script: x2_mod_def_equ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_equ
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_equ on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_equ is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnPlayerEquipItem on PC Properties; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnPlayerEquipItem
+[Wed Dec  9 00:29:28] Checking OnPlayerEquipItem script 1/1
+    Script: x2_mod_def_equ
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script x3_it_pchide on ds_sot
+[Wed Dec  9 00:29:28] x3_it_pchide is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script x3_it_pchide on ds_sot
+[Wed Dec  9 00:29:28] x3_it_pchide is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script NW_AARCL001 on ds_sot
+[Wed Dec  9 00:29:28] NW_AARCL001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script NW_AARCL001 on ds_sot
+[Wed Dec  9 00:29:28] NW_AARCL001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script NW_WBLFL001 on ds_sot
+[Wed Dec  9 00:29:28] NW_WBLFL001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script NW_WBLFL001 on ds_sot
+[Wed Dec  9 00:29:28] NW_WBLFL001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script NW_WSWDG001 on ds_sot
+[Wed Dec  9 00:29:28] NW_WSWDG001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script NW_WSWDG001 on ds_sot
+[Wed Dec  9 00:29:28] NW_WSWDG001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script NW_WBWSH001 on ds_sot
+[Wed Dec  9 00:29:28] NW_WBWSH001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script NW_WBWSH001 on ds_sot
+[Wed Dec  9 00:29:28] NW_WBWSH001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script NW_WAMAR001 on ds_sot
+[Wed Dec  9 00:29:28] NW_WAMAR001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script NW_WAMAR001 on ds_sot
+[Wed Dec  9 00:29:28] NW_WAMAR001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script NW_IT_MPOTION001 on ds_sot
+[Wed Dec  9 00:29:28] NW_IT_MPOTION001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script NW_IT_MPOTION001 on ds_sot
+[Wed Dec  9 00:29:28] NW_IT_MPOTION001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script NW_IT_MPOTION001 on ds_sot
+[Wed Dec  9 00:29:28] NW_IT_MPOTION001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script NW_IT_MPOTION001 on ds_sot
+[Wed Dec  9 00:29:28] NW_IT_MPOTION001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script NW_IT_MPOTION001 on ds_sot
+[Wed Dec  9 00:29:28] NW_IT_MPOTION001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script NW_IT_MPOTION001 on ds_sot
+[Wed Dec  9 00:29:28] NW_IT_MPOTION001 is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on Player Info and Action Item; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script util_playerdata on ds_sot
+[Wed Dec  9 00:29:28] Library script found at pw_l_plugin:13
+[Wed Dec  9 00:29:28] Running library script util_playerdata on ds_sot
+[Wed Dec  9 00:29:28] Library script found at pw_l_plugin:13
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on Healing Skill; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script h2_healwidget on ds_sot
+[Wed Dec  9 00:29:28] h2_healwidget is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script h2_healwidget on ds_sot
+[Wed Dec  9 00:29:28] h2_healwidget is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Executing x2_mod_def_aqu
+[Wed Dec  9 00:29:28] Running library script x2_mod_def_aqu on ds_sot
+[Wed Dec  9 00:29:28] x2_mod_def_aqu is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running local event OnAcquireItem on Torch; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Got existing event OnAcquireItem
+[Wed Dec  9 00:29:28] Checking OnAcquireItem script 1/1
+    Script: x2_mod_def_aqu
+    Priority: 2.0
+    Source: Datapoint: Dynamic Dialogs System
+[Wed Dec  9 00:29:28] Skipping script: not a local event script
+[Wed Dec  9 00:29:28] Running library script h2_torch on ds_sot
+[Wed Dec  9 00:29:28] h2_torch is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running library script h2_torch on ds_sot
+[Wed Dec  9 00:29:28] h2_torch is not a library script; executing directly.
+[Wed Dec  9 00:29:28] Running event OnClientEnter on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:28] Generating new event: OnClientEnter
+[Wed Dec  9 00:29:28] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnClientEnter
+    Script: pw_OnClientEnter
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnClientEnter
+    Script: x3_mod_def_enter
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnClientEnter
+    Script: fugue_OnClientEnter
+    Priority: 4.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Expanding event script on [Plugin] DS :: Core:
+    Event: OnClientEnter
+    Script: ds_OnClientEnter
+    Priority: 4.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:28] Dumping 4 event scripts for OnClientEnter
+[Wed Dec  9 00:29:28] Dumping event script 1/4
+    Script: pw_OnClientEnter
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Dumping event script 2/4
+    Script: fugue_OnClientEnter
+    Priority: 4.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Dumping event script 3/4
+    Script: ds_OnClientEnter
+    Priority: 4.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:28] Dumping event script 4/4
+    Script: x3_mod_def_enter
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:28] Initializing OnClientEnter on ds_sot
+[Wed Dec  9 00:29:28] Dumping 4 event scripts for OnClientEnter
+[Wed Dec  9 00:29:28] Dumping event script 1/4
+    Script: pw_OnClientEnter
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Dumping event script 2/4
+    Script: fugue_OnClientEnter
+    Priority: 4.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Dumping event script 3/4
+    Script: ds_OnClientEnter
+    Priority: 4.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:29] Dumping event script 4/4
+    Script: x3_mod_def_enter
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Checking OnClientEnter script 1/4
+    Script: pw_OnClientEnter
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing pw_OnClientEnter
+[Wed Dec  9 00:29:29] Running library script pw_OnClientEnter on ds_sot
+[Wed Dec  9 00:29:29] Library script found at pw_l_plugin:1
+[Wed Dec  9 00:29:29] Checking OnClientEnter script 2/4
+    Script: fugue_OnClientEnter
+    Priority: 4.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing fugue_OnClientEnter
+[Wed Dec  9 00:29:29] Running library script fugue_OnClientEnter on ds_sot
+[Wed Dec  9 00:29:29] Library script found at fugue_l_plugin:1
+[Wed Dec  9 00:29:29] Checking OnClientEnter script 3/4
+    Script: ds_OnClientEnter
+    Priority: 4.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:29] Executing ds_OnClientEnter
+[Wed Dec  9 00:29:29] Running library script ds_OnClientEnter on ds_sot
+[Wed Dec  9 00:29:29] Library script found at ds_l_plugin:1
+[Wed Dec  9 00:29:29] Checking OnClientEnter script 4/4
+    Script: x3_mod_def_enter
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x3_mod_def_enter
+[Wed Dec  9 00:29:29] Running library script x3_mod_def_enter on ds_sot
+[Wed Dec  9 00:29:29] x3_mod_def_enter is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running event OnPlayerUnEquipItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Generating new event: OnPlayerUnEquipItem
+[Wed Dec  9 00:29:29] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerUnEquipItem
+    Script: x2_mod_def_unequ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Dumping 1 event scripts for OnPlayerUnEquipItem
+[Wed Dec  9 00:29:29] Dumping event script 1/1
+    Script: x2_mod_def_unequ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Initializing OnPlayerUnEquipItem on ds_sot
+[Wed Dec  9 00:29:29] Dumping 1 event scripts for OnPlayerUnEquipItem
+[Wed Dec  9 00:29:29] Dumping event script 1/1
+    Script: x2_mod_def_unequ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Checking OnPlayerUnEquipItem script 1/1
+    Script: x2_mod_def_unequ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unequ
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unequ on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unequ is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnPlayerUnEquipItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnPlayerUnEquipItem
+[Wed Dec  9 00:29:29] Initializing OnPlayerUnEquipItem on 
+[Wed Dec  9 00:29:29] Dumping 1 event scripts for OnPlayerUnEquipItem
+[Wed Dec  9 00:29:29] Dumping event script 1/1
+    Script: x2_mod_def_unequ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Checking OnPlayerUnEquipItem script 1/1
+    Script: x2_mod_def_unequ
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Skipping script: not a local event script
+[Wed Dec  9 00:29:29] Running library script NW_CLOTH001 on ds_sot
+[Wed Dec  9 00:29:29] NW_CLOTH001 is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running library script NW_CLOTH001 on ds_sot
+[Wed Dec  9 00:29:29] NW_CLOTH001 is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running event OnUnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Generating new event: OnUnAcquireItem
+[Wed Dec  9 00:29:29] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnUnAcquireItem
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Dumping 1 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Dumping event script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on ds_sot
+[Wed Dec  9 00:29:29] Dumping 1 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Dumping event script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Checking OnUnAcquireItem script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unaqu
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unaqu on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unaqu is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnUnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on 
+[Wed Dec  9 00:29:29] Dumping 0 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Running event OnUnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Checking OnUnAcquireItem script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unaqu
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unaqu on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unaqu is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnUnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on 
+[Wed Dec  9 00:29:29] Dumping 0 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Running event OnUnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Checking OnUnAcquireItem script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unaqu
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unaqu on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unaqu is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnUnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on 
+[Wed Dec  9 00:29:29] Dumping 0 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Running event OnUnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Checking OnUnAcquireItem script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unaqu
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unaqu on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unaqu is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnUnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on 
+[Wed Dec  9 00:29:29] Dumping 0 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Running event OnUnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Checking OnUnAcquireItem script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unaqu
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unaqu on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unaqu is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnUnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on 
+[Wed Dec  9 00:29:29] Dumping 0 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Running event OnUnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Checking OnUnAcquireItem script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unaqu
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unaqu on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unaqu is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnUnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on 
+[Wed Dec  9 00:29:29] Dumping 0 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Running event OnUnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Checking OnUnAcquireItem script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unaqu
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unaqu on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unaqu is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnUnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on 
+[Wed Dec  9 00:29:29] Dumping 0 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Running event OnUnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Checking OnUnAcquireItem script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unaqu
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unaqu on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unaqu is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnUnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on 
+[Wed Dec  9 00:29:29] Dumping 0 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Running event OnUnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Checking OnUnAcquireItem script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unaqu
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unaqu on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unaqu is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnUnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on 
+[Wed Dec  9 00:29:29] Dumping 0 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Running event OnUnAcquireItem on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Checking OnUnAcquireItem script 1/1
+    Script: x2_mod_def_unaqu
+    Priority: 2.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing x2_mod_def_unaqu
+[Wed Dec  9 00:29:29] Running library script x2_mod_def_unaqu on ds_sot
+[Wed Dec  9 00:29:29] x2_mod_def_unaqu is not a library script; executing directly.
+[Wed Dec  9 00:29:29] Running local event OnUnAcquireItem on ; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Got existing event OnUnAcquireItem
+[Wed Dec  9 00:29:29] Initializing OnUnAcquireItem on 
+[Wed Dec  9 00:29:29] Dumping 0 event scripts for OnUnAcquireItem
+[Wed Dec  9 00:29:29] Running event OnPlayerDeath on ds_sot; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:29] Generating new event: OnPlayerDeath
+[Wed Dec  9 00:29:29] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerDeath
+    Script: pw_OnPlayerDeath
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerDeath
+    Script: nw_o0_death
+    Priority: default
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnPlayerDeath
+    Script: fugue_OnPlayerDeath
+    Priority: 4.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Expanding event script on [Plugin] DS :: Core:
+    Event: OnPlayerDeath
+    Script: ds_fug_OnPlayerDeath
+    Priority: 4.1
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:29] Dumping 4 event scripts for OnPlayerDeath
+[Wed Dec  9 00:29:29] Dumping event script 1/4
+    Script: pw_OnPlayerDeath
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Dumping event script 2/4
+    Script: ds_fug_OnPlayerDeath
+    Priority: 4.1
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:29] Dumping event script 3/4
+    Script: fugue_OnPlayerDeath
+    Priority: 4.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Dumping event script 4/4
+    Script: nw_o0_death
+    Priority: default
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Initializing OnPlayerDeath on ds_sot
+[Wed Dec  9 00:29:29] Dumping 4 event scripts for OnPlayerDeath
+[Wed Dec  9 00:29:29] Dumping event script 1/4
+    Script: pw_OnPlayerDeath
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Dumping event script 2/4
+    Script: ds_fug_OnPlayerDeath
+    Priority: 4.1
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:29] Dumping event script 3/4
+    Script: fugue_OnPlayerDeath
+    Priority: 4.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Dumping event script 4/4
+    Script: nw_o0_death
+    Priority: default
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Checking OnPlayerDeath script 1/4
+    Script: pw_OnPlayerDeath
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing pw_OnPlayerDeath
+[Wed Dec  9 00:29:29] Running library script pw_OnPlayerDeath on ds_sot
+[Wed Dec  9 00:29:29] Library script found at pw_l_plugin:5
+[Wed Dec  9 00:29:29] Unelalundel Thielana_Jacyn was killed by in area 
+[Wed Dec  9 00:29:29] Checking OnPlayerDeath script 2/4
+    Script: ds_fug_OnPlayerDeath
+    Priority: 4.1
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:29] Executing ds_fug_OnPlayerDeath
+[Wed Dec  9 00:29:29] Running library script ds_fug_OnPlayerDeath on ds_sot
+[Wed Dec  9 00:29:29] Library script found at ds_fug_l_plugin:1
+[Wed Dec  9 00:29:29] ds_fug_OnPlayerDeath: 
+  iChance = 50
+  iRnd   = 37
+[Wed Dec  9 00:29:29] Sending Unelalundel Thielana to the Fugue
+[Wed Dec  9 00:29:29] Checking OnPlayerDeath script 3/4
+    Script: fugue_OnPlayerDeath
+    Priority: 4.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:29] Executing fugue_OnPlayerDeath
+[Wed Dec  9 00:29:29] Running library script fugue_OnPlayerDeath on ds_sot
+[Wed Dec  9 00:29:29] Library script found at fugue_l_plugin:2
+[Wed Dec  9 00:29:29] Checking OnPlayerDeath script 4/4
+    Script: nw_o0_death
+    Priority: default
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:29:30] Running event OnAreaEnter on [Start Area]; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:30] Got existing event OnAreaEnter
+[Wed Dec  9 00:29:30] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:30] Executing tr_OnAreaEnter
+[Wed Dec  9 00:29:30] Running library script tr_OnAreaEnter on [Start Area]
+[Wed Dec  9 00:29:30] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:29:30] Moving data from PC Object to Player Data Item.
+   oObject  --> Unelalundel Thielana
+   sVarName --> IS_PC
+[Wed Dec  9 00:29:30] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:29:30] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:29:30] Generating new event: OnAreaEmpty
+[Wed Dec  9 00:29:30] Dumping 0 event scripts for OnAreaEmpty
+[Wed Dec  9 00:29:30] Initializing OnAreaEmpty on [Start Area]
+[Wed Dec  9 00:29:30] Dumping 0 event scripts for OnAreaEmpty
+[Wed Dec  9 00:29:30] Running event OnAreaExit on [Start Area]; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:30] Generating new event: OnAreaExit
+[Wed Dec  9 00:29:30] Expanding event script on [Plugin] DS :: Core:
+    Event: OnAreaExit
+    Script: tr_OnAreaExit
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:30] Dumping 1 event scripts for OnAreaExit
+[Wed Dec  9 00:29:30] Dumping event script 1/1
+    Script: tr_OnAreaExit
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:30] Initializing OnAreaExit on [Start Area]
+[Wed Dec  9 00:29:30] Dumping 1 event scripts for OnAreaExit
+[Wed Dec  9 00:29:30] Dumping event script 1/1
+    Script: tr_OnAreaExit
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:30] Checking OnAreaExit script 1/1
+    Script: tr_OnAreaExit
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:30] Executing tr_OnAreaExit
+[Wed Dec  9 00:29:30] Running library script tr_OnAreaExit on [Start Area]
+[Wed Dec  9 00:29:30] Library script found at tr_l_plugin:3
+[Wed Dec  9 00:29:30] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:29:30] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:29:31] Running event OnAreaEnter on [Fugue Plane]; oInit: Unelalundel Thielana
+[Wed Dec  9 00:29:31] Got existing event OnAreaEnter
+[Wed Dec  9 00:29:31] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:29:31] Executing tr_OnAreaEnter
+[Wed Dec  9 00:29:31] Running library script tr_OnAreaEnter on [Fugue Plane]
+[Wed Dec  9 00:29:31] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:29:31] Running library script h2_fugueplane on [Fugue Plane]
+[Wed Dec  9 00:29:31] h2_fugueplane is not a library script; executing directly.
+[Wed Dec  9 00:30:38] Initializing dialog FugueDialog
+[Wed Dec  9 00:30:38] Sorting 1 scripts for OnDialogInit
+[Wed Dec  9 00:30:38] Dialog event OnDialogInit is running Fugue_Init
+[Wed Dec  9 00:30:38] Running library script Fugue_Init on The Fugue Lord
+[Wed Dec  9 00:30:38] Library script found at fugue_l_dialog:1
+[Wed Dec  9 00:30:38] Adding dialog page PAGE_MAIN
+[Wed Dec  9 00:30:38] Adding dialog node PAGE_MAIN*Node0
+[Wed Dec  9 00:30:38] Adding dialog page PAGE_RESPAWN_START
+[Wed Dec  9 00:30:38] Adding dialog node PAGE_RESPAWN_START*Node0
+[Wed Dec  9 00:30:38] Instantiating dialog FugueDialog for Unelalundel Thielana
+[Wed Dec  9 00:30:38] Initializing dialog page: PAGE_MAIN
+[Wed Dec  9 00:30:38] Sorting 0 scripts for OnDialogPage
+[Wed Dec  9 00:30:38] Dialog event OnDialogPage is running FugueDialog
+[Wed Dec  9 00:30:38] Running library script FugueDialog on The Fugue Lord
+[Wed Dec  9 00:30:38] Library script found at fugue_l_dialog:0
+[Wed Dec  9 00:30:38] Running library script DialogToken_Class on Unelalundel Thielana
+[Wed Dec  9 00:30:38] Library script found at dlg_l_tokens:2
+[Wed Dec  9 00:30:38] Checking dialog node 0
+  Target: PAGE_RESPAWN_START
+  Text: Respawn to Module Starting Location
+  Display: yes
+[Wed Dec  9 00:30:38] Setting response node 0 -> 0
+[Wed Dec  9 00:30:38] Setting response node 1 -> -3
+[Wed Dec  9 00:30:40] Sorting 1 scripts for OnDialogNode
+[Wed Dec  9 00:30:40] Dialog event OnDialogNode is running Fugue_Node
+[Wed Dec  9 00:30:40] Running library script Fugue_Node on The Fugue Lord
+[Wed Dec  9 00:30:40] Library script found at fugue_l_dialog:2
+[Wed Dec  9 00:30:40] Initializing dialog page: PAGE_RESPAWN_START
+[Wed Dec  9 00:30:40] Dialog event OnDialogPage is running FugueDialog
+[Wed Dec  9 00:30:40] Running library script FugueDialog on The Fugue Lord
+[Wed Dec  9 00:30:40] Library script found at fugue_l_dialog:0
+[Wed Dec  9 00:30:40] Checking dialog node 0
+  Target: 
+  Text: Yes, I Want to Respawn!
+  Display: yes
+[Wed Dec  9 00:30:40] Setting response node 0 -> 0
+[Wed Dec  9 00:30:40] Setting response node 1 -> -6
+[Wed Dec  9 00:30:40] Setting response node 2 -> -3
+[Wed Dec  9 00:30:42] Dialog event OnDialogNode is running Fugue_Node
+[Wed Dec  9 00:30:42] Running library script Fugue_Node on The Fugue Lord
+[Wed Dec  9 00:30:42] Library script found at fugue_l_dialog:2
+[Wed Dec  9 00:30:42] Sorting 0 scripts for OnDialogEnd
+[Wed Dec  9 00:30:42] Dialog event OnDialogEnd is running FugueDialog
+[Wed Dec  9 00:30:42] Running library script FugueDialog on The Fugue Lord
+[Wed Dec  9 00:30:42] Library script found at fugue_l_dialog:0
+[Wed Dec  9 00:30:42] Got existing event OnAreaEmpty
+[Wed Dec  9 00:30:42] Initializing OnAreaEmpty on [Fugue Plane]
+[Wed Dec  9 00:30:42] Dumping 0 event scripts for OnAreaEmpty
+[Wed Dec  9 00:30:42] Running event OnAreaExit on [Fugue Plane]; oInit: Unelalundel Thielana
+[Wed Dec  9 00:30:42] Got existing event OnAreaExit
+[Wed Dec  9 00:30:42] Initializing OnAreaExit on [Fugue Plane]
+[Wed Dec  9 00:30:42] Expanding event script on [Fugue Plane]:
+    Event: OnAreaExit
+    Script: fugue_OnPlayerExit
+    Priority: 7.0
+    Source: [Fugue Plane]
+[Wed Dec  9 00:30:42] Dumping 2 event scripts for OnAreaExit
+[Wed Dec  9 00:30:42] Dumping event script 1/2
+    Script: fugue_OnPlayerExit
+    Priority: 7.0
+    Source: [Fugue Plane]
+[Wed Dec  9 00:30:42] Dumping event script 2/2
+    Script: tr_OnAreaExit
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:30:42] Checking OnAreaExit script 1/2
+    Script: fugue_OnPlayerExit
+    Priority: 7.0
+    Source: [Fugue Plane]
+[Wed Dec  9 00:30:42] Executing fugue_OnPlayerExit
+[Wed Dec  9 00:30:42] Running library script fugue_OnPlayerExit on [Fugue Plane]
+[Wed Dec  9 00:30:42] Library script found at fugue_l_plugin:4
+[Wed Dec  9 00:30:42] Running event OnPlayerLives on Unelalundel Thielana; oInit: Unelalundel Thielana
+[Wed Dec  9 00:30:42] Generating new event: OnPlayerLives
+[Wed Dec  9 00:30:42] Dumping 0 event scripts for OnPlayerLives
+[Wed Dec  9 00:30:42] Initializing OnPlayerLives on Unelalundel Thielana
+[Wed Dec  9 00:30:42] Dumping 0 event scripts for OnPlayerLives
+[Wed Dec  9 00:30:42] Checking OnAreaExit script 2/2
+    Script: tr_OnAreaExit
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:30:42] Executing tr_OnAreaExit
+[Wed Dec  9 00:30:42] Running library script tr_OnAreaExit on [Fugue Plane]
+[Wed Dec  9 00:30:42] Library script found at tr_l_plugin:3
+[Wed Dec  9 00:30:42] Running library script h2_fugueplane on [Fugue Plane]
+[Wed Dec  9 00:30:42] h2_fugueplane is not a library script; executing directly.
+[Wed Dec  9 00:30:44] Running event OnAreaEnter on [Start Area]; oInit: Unelalundel Thielana
+[Wed Dec  9 00:30:44] Got existing event OnAreaEnter
+[Wed Dec  9 00:30:44] Checking OnAreaEnter script 1/1
+    Script: tr_OnAreaEnter
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:30:44] Executing tr_OnAreaEnter
+[Wed Dec  9 00:30:44] Running library script tr_OnAreaEnter on [Start Area]
+[Wed Dec  9 00:30:44] Library script found at tr_l_plugin:2
+[Wed Dec  9 00:30:44] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:30:44] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:30:53] Running event OnHour on ds_sot; oInit: ds_sot
+[Wed Dec  9 00:30:53] Got existing event OnHour
+[Wed Dec  9 00:31:03] Running event OnClientLeave on ds_sot; oInit: ds_sot
+[Wed Dec  9 00:31:03] Generating new event: OnClientLeave
+[Wed Dec  9 00:31:03] Expanding event script on [Plugin] HCR2 :: Core:
+    Event: OnClientLeave
+    Script: pw_OnClientLeave
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:31:03] Dumping 1 event scripts for OnClientLeave
+[Wed Dec  9 00:31:03] Dumping event script 1/1
+    Script: pw_OnClientLeave
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:31:03] Initializing OnClientLeave on ds_sot
+[Wed Dec  9 00:31:03] Dumping 1 event scripts for OnClientLeave
+[Wed Dec  9 00:31:03] Dumping event script 1/1
+    Script: pw_OnClientLeave
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:31:03] Checking OnClientLeave script 1/1
+    Script: pw_OnClientLeave
+    Priority: 10.0
+    Source: [Plugin] HCR2 :: Core
+[Wed Dec  9 00:31:03] Executing pw_OnClientLeave
+[Wed Dec  9 00:31:03] Running library script pw_OnClientLeave on ds_sot
+[Wed Dec  9 00:31:03] Library script found at pw_l_plugin:2
+[Wed Dec  9 00:31:03] Jacyn Left as a Player (0 players left)
+[Wed Dec  9 00:31:03] Running event OnAreaExit on [Start Area]; oInit: Unelalundel Thielana
+[Wed Dec  9 00:31:03] Got existing event OnAreaExit
+[Wed Dec  9 00:31:03] Checking OnAreaExit script 1/1
+    Script: tr_OnAreaExit
+    Priority: 5.0
+    Source: [Plugin] DS :: Core
+[Wed Dec  9 00:31:03] Executing tr_OnAreaExit
+[Wed Dec  9 00:31:03] Running library script tr_OnAreaExit on [Start Area]
+[Wed Dec  9 00:31:03] Library script found at tr_l_plugin:3
+[Wed Dec  9 00:31:03] Running library script StartArea on [Start Area]
+[Wed Dec  9 00:31:03] StartArea is not a library script; executing directly.
+[Wed Dec  9 00:31:13] Server Shutting Down
