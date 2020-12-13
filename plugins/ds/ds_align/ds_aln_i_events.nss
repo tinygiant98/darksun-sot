@@ -37,12 +37,14 @@ void al_OnEnterArea()
     {
         //The PC has no alignment value set so we set it to the current player engine alignment
         Notice(GetName(oPC) + " has no Alignment Values in the DB: \n GE Value: " + IntToString(iGE) + "\n LC Value: " + IntToString(iLC));
-        SetDatabaseInt("GE", iGE, oPC);
-        SetDatabaseInt("LC", iLC, oPC);
+        _SetAlignment(iGE, iLC, oPC);
     }
     else
     {
         //The PC has alignment values stored.  Set their alignment values in the engine
         Notice(GetName(oPC) + " has Alignment Values in the DB: \n GE Value: " + IntToString(idbGE) + "\n LC Value: " + IntToString(idbLC));
+        //If the player's current values are the same as what's in the DB, then we do not do anything
+        if (idbGE == iGE && idbLC == iLC)
+            return;
     }
 }
