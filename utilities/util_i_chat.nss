@@ -9,6 +9,17 @@
 // Builder Use:
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
+// Changelog:
+//
+// 20201218:
+//      Added SendChatResult()
+//      Added GetChatTarget()
+//      Modified HasChatOption(), HasChatKey() and GetChatKeyValue() to accept
+//          multiple input values
+//      Added configuration values to optionally log all chat commands and log
+//          all chat results
+// 20201206:
+//      Initial Release
 
 /*
 Note: util_i_chat will not function without other utility includes from squattingmonk's
@@ -31,13 +42,22 @@ The parsed output will include:
 - All long and short non-paired options (--force, -q, etc.)
 - All key:value pairs (--force:true, -q:no, etc.)
 
+Reserved Keys:
+- The following letters and words are used by the chat system for specific functions and should
+    not be used as option or key names in your chat command scripts.
+
+    * l|log - message routing
+    * d|dm|dms - message routing
+    * p|party - message routing
+    * target - targeting specific object with command
+
 Usage Notes:
 - This system uses comma-delimited lists, so commas are not allowed in any position in the
     chat line except the first position (command designator).  Commas will be stripped
     from the chat line when sent through the tokenizer.
 - Command designator characters are limited to that characters passed to ParseCommandLine in
     the sGroup argument.  Generally, command designators should be limited to !@#$%^&*;.,/?`~|\.
-    Some characters must be escaped such a `\\`, so including the backslash would looke like
+    Some characters must be escaped such a `\\`, so including the backslash would look like
     !@#$%^&*;.,/?`~|\\.  See the grouped character note for additional character possibilities.
 - The delimiter between tokens must be only one character and defaults to a single space.
     The system handles multiple consecutive delimiters by ignoring them.  The delimiter can
@@ -65,6 +85,14 @@ Usage Notes:
 - Case is never changed in parsing the chat line to prevent errors in NWN, which is almost always
     case-sensitive
 - Pairs can use either : or = to separate key from value.  --key:jabra is equivalent to --key=jabra
+- Options and keys can be checked against multiple phrases.  For example, if you want to allow the user
+    to use i|int|integer when entering and option or key-value pair, you can check for any of these cases
+    with:
+        HasChatOption("i,int,integer") or
+        HasChatKey("i,int,integer")
+
+    And you can retrive the value of a key value pair the same way:
+        GetChatKeyValue("i,int,integer");
 
 The following usage examples assume defaults as set int he configuration section below.  A common use-case
 would be to allow specific command designators for dms and others for players.  To accomplish this, set
@@ -100,7 +128,7 @@ void main()
 
         if (sDesignator == "!")
         {
-            if (VerifyChatTarget(oPC))  // used a preparatory function for all !-associated command
+            if (VerifyChatTarget(oPC))  // used as preparatory function for all !-associated command
             {
                 if (sCommand == "get")
                     chat_get(oPC);  // or ExecuteScript("scriptname", oPC);
@@ -185,8 +213,76 @@ void chat_say(object oPC)
 }
 */
 
-#include "util_i_datapoint"
+/*
+Sending feedback to the user:
+    SendChatResult() has been added to allow direct feedback to the user and any other
+    pre-defined destination.  Feedback will be routed based on three criteria:
+
+    * PC enters --[d|dm|dms], --[p|party], or --[l|log] into the command line
+    * Admin opts to enable automatically chat command and result logging
+    * Scripter opts to send results of specific commands to pc, dms, party and/or log
+
+    SendChatResult() accepts four parameters:
+        sMessage (required) -> message to be sent.  It should not contain any prefixes or headers,
+            but should be formatted as it will be shown, included string coloring
+        oPC (required) -> the PC that send the chat.
+        nFlag (optional) -> bitmasked integer that will add a prefix for special feedback.  Currently
+            only implemented as single options, so | is not usable.
+            FLAG_ERROR -> Adds a red [Error] prefix
+            FLAG_HELP -> Adds an orange [Help] prefix
+            FLAG_INFO -> Adds a cyan [Info] prefix
+            
+            Note: Using any nFlag will cause the returned message to go only to the PC and any
+            other recipients specified by nRecipients or by chat options are ignored
+        nRecipients (optional) -> bitmasked integer that determines which objects will recieve
+            the message.
+            CHAT_PC -> Only the chatting PC will receive the message
+            CHAT_DMS -> All DMS will receive the message
+            CHAT_PARTY -> All party members of the chatting PC will receive the message
+            CHAT_LOG -> The message will be sent to the server log with a timestamp
+            
+            Note: The above values allow a scripter to always send messages to specified locations and
+            will be in addition to any message routing options in the chat command line
+        
+Examples:
+    
+Selecting Specific Routing:
+    Command line -> !script <scriptname> [--target:<tag>] --log
+    
+    In this command, the user has opted to send the result of the command to himself and the server
+    log.  To allow this behavior as written, use a line similar to this:
+    
+        SendChatResult("Running script " + sScript, oPC);
+
+    If you want to ensure all DMs are aware of any script behind run through the command system, use this:
+    
+        SendChatResult("Running script " + sScript, oPC, FALSE, CHAT_DMS);
+
+        This will result in the message being send to the PC (automatic), the log (optioned by the
+        PC) and all DMs (as flagged by the scripter).
+
+Adding Prefix Flags:
+    If the operation resulted in an error, you can inform the PC and provide help.  Using prefix flags
+    will result in only the PC receiving the message, even if the pc or scripter opted for additional
+    message routing.  This is meant to prevent spamming DMs, party memebers and the log when the user
+    makes a mistake in the command line.
+
+    To send an error message:
+
+        SendChatResult("Could not run script", oPC, FLAG_ERROR);
+
+    To send help with your command:
+
+        SendChatResult(GetScriptHelp(), oPC, FLAG_HELP);
+
+    To send random information:
+
+        SendChatResult("Here's some info!", oPC, FLAG_INFO)
+*/
+
 #include "util_i_data"
+#include "util_i_datapoint"
+#include "util_i_varlists"
 
 // -----------------------------------------------------------------------------
 //                          Configuration/Defaults
@@ -201,7 +297,7 @@ const string DELIMITER = " ";
 
 // These are the command designators for chat commands, if one of the characters in
 // this string isn't the first character in the chat line recieved by ParseCommandLine(),
-// the function will fail and return FALSE.  Do not use "-", "=", ":", any charcters in
+// the function will fail and return FALSE.  Do not use "-", "=", ":", any characters in
 // GROUPS below, or any normal alphabetic characters.
 const string DESIGNATORS = "!@#$%^&*;,./?`~|\\";
 
@@ -209,10 +305,16 @@ const string DESIGNATORS = "!@#$%^&*;,./?`~|\\";
 // characters will result in grouping functions being lost and error provided in log.
 // Do not use "-", "=", ":", any charcters in DESIGNATORS above, or any normal
 // alphabetic characters.
-const string GROUPS = "\"\"{}[]()<>";
+const string GROUPS = "``{}[]()<>";
 
-// To keep grouping symbols as part of the returned data, set this to FALSE
+// To keep grouping symbols as part of the returned data, set this to FALSE.
 const int    REMOVE_GROUPING_SYMBOLS = TRUE;
+
+// To force logging of all chat commands, set this to true.
+const int    LOG_ALL_CHAT_COMMANDS = TRUE;
+
+// To force logging of all chat command results that are not errors, set this to TRUE.
+const int    LOG_ALL_CHAT_RESULTS = TRUE;
 
 // -----------------------------------------------------------------------------
 //                      LEAVE EVERYTHING BELOW HERE ALONE!
@@ -236,6 +338,19 @@ const string PAIRS = "CHAT_PAIRS";
 const int CHAT_ARGUMENTS = 0x01;
 const int CHAT_OPTIONS   = 0x02;
 const int CHAT_PAIRS     = 0x04;
+
+const int CHAT_PC = 0x00;
+const int CHAT_DMS = 0x01;
+const int CHAT_PARTY = 0x02;
+const int CHAT_LOG = 0x04;
+
+const int FLAG_NONE = 0x00;
+const int FLAG_ERROR = 0x01;
+const int FLAG_HELP = 0x02;
+const int FLAG_INFO = 0x04;
+
+const int TARGET_REVERT = 0x01;
+const int TARGET_NO_REVERT = 0x02;
 
 struct COMMAND_LINE
 {
@@ -342,6 +457,34 @@ string GetChatKeyValue(object oPC, string sKey);
 int GetChatKeyValueInt(object oPC, string sKey);
 float GetChatKeyValueFloat(object oPC, string sKey);
 
+// ---< SendChatResultTo >--
+// Dispatches chat command results message to destination specified by bitmasked nRecipients
+// or as desired by command line input (--dm|party|log|...).
+//  sMessage -> message to be passed. String coloring should be accomplished before calling this function
+//  oPC -> object of the PC initiating the chat command
+//  nFlag -> bitmasked integer that determines a specified prefix for the message:
+//    FLAG_ERROR -> prefixes the message with [Error]
+//    FLAG_HELP -> prefixes the message with [Help]
+//    FLAG_INFO -> prefixes the message with [Info]
+//  nRecipients -> bitmasked integers that determines the destination of sMessage
+//    CHAT_DMS -> sends message to all DMs
+//    CHAT_PARTY -> sends message to all party members
+//    CHAT_LOG -> sends message to the server log
+// Note: if any value is passed in nFlag, sMessage will ONLY be routed to oPC
+void SendChatResult(string sMessage, object oPC, int nFlag = FALSE, int nRecipients = CHAT_PC);
+
+// ---< GetChatTarget >---
+// The PC can transfer the requested action by passing a key-value pair with the key "target"
+// and the value <tag> of the target object.  This function will return that value, if it exists.
+// oDefault can be passed as the default object if the target is not found.
+// This function will behave as follows:
+//   Chat does not have target pair -> oPC is returned
+//   Chat has target pair and target is valid -> target object is returned
+//   Chat has target pair and target is invalid:
+//      nRevert == TARGET_NO_REVERT -> OBJECT_INVALID is returned
+//      nRevert == TARGET_REVERT -> oPC or oDefault (if passed) returned
+object GetChatTarget(object oPC, int nRevert = TARGET_NO_REVERT, object oDefault = OBJECT_INVALID);
+
 // -----------------------------------------------------------------------------
 //                             Function Definitions
 // -----------------------------------------------------------------------------
@@ -382,6 +525,7 @@ string _AddKeyValue(string sPairs, string sAdd)
     return sResult;
 }
 
+// private - requires util_i_strings
 int _GetPrecision(string sValue)
 {
     sValue = TrimStringRight(sValue, "f");
@@ -414,6 +558,7 @@ object GetChatItem(object oPC)
     return oChat;
 }
 
+// private - requires util_i_datapoint
 void DestroyChatItem(object oPC)
 {
     object CHAT = GetDatapoint("CHAT_DATA");
@@ -453,6 +598,7 @@ struct COMMAND_LINE _GetParsedChatLine(object oPC)
     return cl;
 }
 
+// private - requires util_i_csvlists
 int _CountChatComponent(object oPC, int nComponents)
 {
     int nResult;
@@ -470,6 +616,7 @@ int _CountChatComponent(object oPC, int nComponents)
     return nResult;
 }
 
+// private - requires util_i_csvlists, util_i_strings
 int _FindChatComponent(object oPC, int nComponents, string sKey)
 {
     struct COMMAND_LINE cl = _GetParsedChatLine(oPC);
@@ -487,6 +634,7 @@ int _FindChatComponent(object oPC, int nComponents, string sKey)
     return -1;
 }
 
+// private - requires util_i_csvlists
 string _GetChatComponent(object oPC, int nComponents, int nIndex = 0)
 {
     struct COMMAND_LINE cl = _GetParsedChatLine(oPC);
@@ -503,6 +651,7 @@ string _GetChatComponent(object oPC, int nComponents, int nIndex = 0)
     return "";
 }
 
+// private
 string _GetChatComponents(object oPC, int nComponents)
 {
     struct COMMAND_LINE cl = _GetParsedChatLine(oPC);
@@ -519,6 +668,7 @@ string _GetChatComponents(object oPC, int nComponents)
     return "";
 }
 
+// requires util_i_debug
 string RemoveCharacters(string sSource, string sChar = " ")
 {
     if (sSource == "" || sChar == "")
@@ -542,7 +692,7 @@ string RemoveCharacters(string sSource, string sChar = " ")
     return sResult;
 }
 
-// requires util_i_strings, util_i_csvlists
+// requires util_i_strings, util_i_csvlists, util_i_debug
 string Tokenize(string sLine, string sDelimiter = DELIMITER, string sGroups = GROUPS,
                 int nRemoveGroups = REMOVE_GROUPING_SYMBOLS)
 {
@@ -632,7 +782,7 @@ int ParseCommandLine(object oPC = OBJECT_INVALID, string sLine = "", string sDes
 {
     // Check for valid inputs
     int nLen;
-    string sNotice, sError, sMessage;
+    string sDebug, sError, sMessage;
     if ((nLen = GetStringLength(sDelimiter)) != 1)
     {
         sMessage = "sDelimiter limited to one character; received " + IntToString(nLen) + ".";
@@ -641,13 +791,13 @@ int ParseCommandLine(object oPC = OBJECT_INVALID, string sLine = "", string sDes
         else
             sDelimiter = " ";
 
-        sNotice += (GetStringLength(sError) ? "\n " : "") + sMessage;
+        sDebug += (GetStringLength(sError) ? "\n " : "") + sMessage;
     }
 
     if (!GetStringLength(sGroups))
     {
         sMessage = "Grouping symbols not received; grouped tokens will not be returned.";
-        sNotice += (GetStringLength(sError) ? "\n " : "") + sMessage;
+        sDebug += (GetStringLength(sError) ? "\n " : "") + sMessage;
     }
 
     if (GetStringLength(sGroups) % 2)
@@ -691,8 +841,8 @@ int ParseCommandLine(object oPC = OBJECT_INVALID, string sLine = "", string sDes
         if (FindSubString(sDesignators, GetStringLeft(sLine, 1)) == -1)
             return FALSE;
 
-    if (GetStringLength(sNotice))
-        Notice("ParseCommandLine info:\n  " + sNotice);
+    if (GetStringLength(sDebug))
+        Debug("ParseCommandLine info:\n  " + sDebug);
 
     if (GetStringLength(sError))
     {
@@ -772,9 +922,16 @@ int ParseCommandLine(object oPC = OBJECT_INVALID, string sLine = "", string sDes
               "\n    Pairs             -> " + (GetStringLength(cl.pairs) ? cl.pairs : "<none>") +
               "\n    Arguments         -> " + (GetStringLength(cl.args) ? cl.args : "<none>"));
 
+    if (LOG_ALL_CHAT_COMMANDS)
+        WriteTimestampedLogEntry("\n" +
+                                 "Automatic Log Entry: Chat Command" +
+                                 "\n  PC -> " + GetName(oPC) + " in " + GetName(GetArea(oPC)) +
+                                 "\n  Line -> " + cl.chatLine);
+
     _SaveParsedChatLine(oPC, cl);
     return GetStringLength(cl.cmdChar);
 }
+
 string GetKey(string sPair)
 {
     int nIndex;
@@ -860,14 +1017,32 @@ int HasChatArgument(object oPC, string sKey)
     return _FindChatComponent(oPC, CHAT_ARGUMENTS, sKey) > -1;
 }
 
-int HasChatOption(object oPC, string sKey)
-{
-    return _FindChatComponent(oPC, CHAT_OPTIONS, sKey) > -1;
+int HasChatOption(object oPC, string sKeys)
+{   
+    string sKey;
+    int n, nCount = CountList(sKeys);
+    for (n = 0; n < nCount; n++)
+    {
+        sKey = GetListItem(sKeys, n);
+        if (_FindChatComponent(oPC, CHAT_OPTIONS, sKey) > -1)
+            return TRUE;
+    }
+
+    return FALSE;
 }
 
-int HasChatKey(object oPC, string sKey)
+int HasChatKey(object oPC, string sKeys)
 {
-    return _FindChatComponent(oPC, CHAT_PAIRS, sKey) > -1;
+    string sKey;
+    int n, nCount = CountList(sKeys);
+    for (n = 0; n < nCount; n++)
+    {
+        sKey = GetListItem(sKeys, n);
+        if (_FindChatComponent(oPC, CHAT_PAIRS, sKey) > -1)
+            return TRUE;
+    }
+
+    return FALSE;
 }
 
 int FindChatArgument(object oPC, string sKey)
@@ -925,10 +1100,21 @@ string GetChatPairs(object oPC)
     return _GetChatComponents(oPC, CHAT_PAIRS);
 }
 
-string GetChatKeyValue(object oPC, string sKey)
+string GetChatKeyValue(object oPC, string sKeys)
 {
     struct COMMAND_LINE cl = _GetParsedChatLine(oPC);
-    return GetValue(GetListItem(cl.pairs, FindKey(cl.pairs, TrimString(sKey, "-"))));
+    
+    string sKey, sValue;
+    int n, nCount = CountList(sKeys);
+    for (n = 0; n < nCount; n++)
+    {
+        sKey = GetListItem(sKeys, n);
+        sValue = GetValue(GetListItem(cl.pairs, FindKey(cl.pairs, TrimString(sKey, "-"))));
+        if (sValue != "")
+            return sValue;
+    }
+        
+    return "";
 }
 
 int GetChatKeyValueInt(object oPC, string sKey)
@@ -940,4 +1126,83 @@ float GetChatKeyValueFloat(object oPC, string sKey)
 {
     string sValue = GetChatKeyValue(oPC, sKey);
     return StringToFloat(sValue);
+}
+
+void SendChatResult(string sMessage, object oPC, int nFlag = FALSE, int nRecipients = CHAT_PC)
+{
+    string sPrefix;
+
+    if (nFlag & FLAG_ERROR)
+        sPrefix = HexColorString("[Error] ", COLOR_RED);
+    else if (nFlag & FLAG_HELP)
+        sPrefix = HexColorString("[Help] ", COLOR_ORANGE);
+    else if (nFlag & FLAG_INFO)
+        sPrefix = HexColorString("[Info] ", COLOR_CYAN);
+    
+    SendMessageToPC(oPC, (nFlag ? sPrefix : "") + sMessage);
+
+    if (nFlag)
+        return;
+    
+    if (nRecipients & CHAT_DMS || HasChatOption(oPC, "d,dm,dms"))
+    {
+        SendMessageToAllDMs(HexColorString("[Chat command system message]" +
+                            "\n[Source -> " + GetName(oPC) + " in " + GetName(GetArea(oPC)), COLOR_GRAY_LIGHT) + 
+                            "\n\n" + sMessage +
+                            HexColorString("\n[End chat command message]", COLOR_GRAY_LIGHT));
+    }
+
+    if (nRecipients & CHAT_PARTY || HasChatOption(oPC, "p,party"))
+    {
+        object oParty = GetFirstFactionMember(oPC);
+        while (GetIsObjectValid(oParty))
+        {
+            if (oParty != oPC)
+                SendMessageToPC(oParty, HexColorString("[Chat command system message]" +
+                                        "\n[Source -> " + GetName(oPC) + " in " + GetName(GetArea(oPC)), COLOR_GRAY_LIGHT) + 
+                                        "\n\n" + sMessage +
+                                        HexColorString("\n[End chat command message]", COLOR_GRAY_LIGHT));
+
+            oParty = GetNextFactionMember(oPC);
+        }
+    }
+
+    if (nRecipients & CHAT_LOG || LOG_ALL_CHAT_RESULTS || HasChatOption(oPC, "l,log"))
+        WriteTimestampedLogEntry("\n" +
+                                 (LOG_ALL_CHAT_RESULTS ? "Automatic " : "User Directed ") + "Log Entry: Chat Command Results" +
+                                 "\n  PC -> " + GetName(oPC) + " in " + GetName(GetArea(oPC)) +
+                                 "\n  Command -> " + GetChatLine(oPC) +
+                                 "\n  Result -> " + sMessage);
+}
+
+object GetChatTarget(object oPC, int nRevert = TARGET_NO_REVERT, object oDefault = OBJECT_INVALID)
+{
+    object oTarget;
+    if (oDefault == OBJECT_INVALID)
+        oDefault = oPC;
+    
+    if (HasChatKey(oPC, "target"))
+    {
+        oTarget = GetObjectByTag(GetChatKeyValue(oPC, "target"));
+        if (!GetIsObjectValid(oTarget))
+        {
+            if (nRevert & TARGET_REVERT)
+            {
+                SendChatResult("Cannot find object passed by user; reverting to default" +
+                            "\n  Tag received -> " + GetChatKeyValue(oPC, "target"), oPC, FLAG_ERROR);
+                oTarget = oDefault;
+            }
+            else
+                oTarget = OBJECT_INVALID;
+        }
+    }
+    else
+        oTarget = oDefault;
+
+    if (oTarget == OBJECT_INVALID)
+        SendChatResult("Unable to determine chat target or target is invalid", oPC, FLAG_ERROR);
+    else       
+        SendChatResult("Chat target is " + (_GetIsPC(oTarget) ? GetName(oTarget) : GetTag(oTarget)), oPC, FLAG_INFO);
+    
+    return oTarget;
 }
