@@ -13,10 +13,14 @@ void main()
 {
     object oPC = GetExitingObject();
 
-    if (GetIsPC(oPC))
+    if (INCLUDE_NPC_IN_AOE_ROSTER || GetIsPC(oPC))
         RemoveListObject(OBJECT_SELF, oPC, AOE_ROSTER);
 
-    RunEvent(AOE_EVENT_ON_EXIT, oPC);
-    if (!CountObjectList(OBJECT_SELF, AOE_ROSTER))
-        RunEvent(AOE_EVENT_ON_EMPTY);
+    int nState = RunEvent(AOE_EVENT_ON_EXIT, oPC);
+    
+    if (!(nState & EVENT_STATE_ABORT))
+    {
+        if (!CountObjectList(OBJECT_SELF, AOE_ROSTER))
+            RunEvent(AOE_EVENT_ON_EMPTY);
+    }
 }

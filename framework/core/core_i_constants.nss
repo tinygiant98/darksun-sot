@@ -102,6 +102,8 @@ const string AOE_ROSTER        = "AOE_ROSTER";
 const string IS_PC             = "IS_PC";
 const string IS_DM             = "IS_DM";
 
+const int INCLUDE_NPC_IN_AOE_ROSTER = TRUE;
+
 // ----- Miscellaneous ---------------------------------------------------------
 
 const string CURRENT_HOUR = "CURRENT_HOUR";
