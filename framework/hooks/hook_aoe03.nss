@@ -17,4 +17,6 @@ void main()
         RemoveListObject(OBJECT_SELF, oPC, AOE_ROSTER);
 
     RunEvent(AOE_EVENT_ON_EXIT, oPC);
+    if (!CountObjectList(OBJECT_SELF, AOE_ROSTER))
+        RunEvent(AOE_EVENT_ON_EMPTY);
 }

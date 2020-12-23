@@ -152,6 +152,7 @@ const string AREA_EVENT_ON_EMPTY                      = "OnAreaEmpty";
 const string AOE_EVENT_ON_ENTER                       = "OnAoEEnter";
 const string AOE_EVENT_ON_EXIT                        = "OnAoEExit";
 const string AOE_EVENT_ON_HEARTBEAT                   = "OnAoEHeartbeat";
+const string AOE_EVENT_ON_EMPTY                       = "OnAoEEmpty";
 
 // ----- Creature Events -------------------------------------------------------
 
