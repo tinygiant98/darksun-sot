@@ -107,12 +107,12 @@ const int PERCEPTION_DEBUG_LEVEL = DEBUG_LEVEL_ERROR;
 // This is a comma-separated list of libraries that should be loaded
 // OnModuleLoad. These libraries are loaded before plugins are installed, so
 // they can programatically generate plugins to be installed.
-const string INSTALLED_LIBRARIES = "dlg_l_plugin, pw_l_plugin, ds_l_plugin";
+const string INSTALLED_LIBRARIES = "dlg_l_plugin, pw_l_plugin, ds_l_plugin, test_l_plugin";
 
 // This is a comma-separated list of plugins that should be loaded OnModuleLoad.
 // Plugins can define libraries to install. If the IDs for those libraries are
 // in this list, they will be loaded.
-const string INSTALLED_PLUGINS = "dlg, pw, ds";
+const string INSTALLED_PLUGINS = "dlg, pw, ds, test";
 
 // -----------------------------------------------------------------------------
 //                               Event Management
@@ -169,7 +169,9 @@ const int ENABLE_TAGBASED_SCRIPTS = TRUE;
 // -----------------------------------------------------------------------------
 
 // This toggles whether to allow the OnHour event. If this is TRUE, the OnHour
-// event will execute each time the hour changes.
+// event will execute each time the hour changes.  If NWNX is active (see below),
+// the NWNX event will be used in place of the module's OnHour.  You can register
+// to either event and the framework will route correctly.
 const int ENABLE_ON_HOUR_EVENT = TRUE;
 
 // This toggles whether the OnAreaEmpty event runs. If this is TRUE, the

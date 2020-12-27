@@ -13,7 +13,7 @@ void main()
 {
     object oPC = GetEnteringObject();
 
-    if (GetIsPC(oPC))
+    if (INCLUDE_NPC_IN_AOE_ROSTER || GetIsPC(oPC))
         AddListObject(OBJECT_SELF, oPC, AOE_ROSTER, TRUE);
 
     RunEvent(AOE_EVENT_ON_ENTER, oPC);

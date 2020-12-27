@@ -13,6 +13,7 @@
 #include "pw_i_core"
 #include "core_i_constants"
 #include "core_c_config"
+#include "util_i_chat"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -44,6 +45,11 @@ void pw_OnPlayerLevelUp();
 
 // ---< pw_OnPlayerRest >---
 void pw_OnPlayerRest();
+
+// ---< pw_OnPlayerChat >---
+// Controls the chat command system.  Determines if a passed chat line is an attempt
+//  at a command and, if so, runs the appropraite events
+void chat_OnPlayerChat();
 
 // ---< pw_playerdataitem >---
 // Tag based scripting for the player-data item.
@@ -147,7 +153,7 @@ void pw_OnClientEnter()
     }
 
     string sTime = FormatSystemTime("h:mmtt on dddd, MMMM d, yyyy", GetSystemTime());
-    string sMessage = "Welcome to Middle Earth.  Today is " + sTime;
+    string sMessage = "Today is " + sTime;
     SendMessageToPC(oPC, sMessage);
 }
 
