@@ -1111,16 +1111,22 @@ int RunEvent(string sEvent, object oInit = OBJECT_INVALID, object oSelf = OBJECT
     object oEvent = InitializeEvent(sEvent, oSelf, oInit);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // Tag-based scripting requires the current event be set, even if there are
     // not scripts attached to the specified event.  This will be overwritten
     // if there are scripts attached to this event.
     SetLocalObject(EVENTS, EVENT_LAST, oEvent);
 =======
+=======
+>>>>>>> 871c710d539c53e8242f2a73b0374483213bc17b
     // Give the tag-based scripting something to work with in case there are no
     // events registered to the event.  This will be overwritten if there are
     // scripts on the event.
     SetLocalObject(EVENTS,  EVENT_LAST, oEvent);   // Current event
+<<<<<<< HEAD
 >>>>>>> 9eda9e5 (Kill Switch Working)
+=======
+>>>>>>> 871c710d539c53e8242f2a73b0374483213bc17b
 
     // Ensure the blacklist is built
     if (!bLocalOnly)

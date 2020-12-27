@@ -370,6 +370,7 @@
           "type": "cexostring",
           "value": "Merchants Shingle - 8"
         }
+<<<<<<< HEAD
       },
       {
         "__struct_id": 9,
@@ -384,6 +385,8 @@
           "type": "cexostring",
           "value": "Floor Lever - 1"
         }
+=======
+>>>>>>> 871c710d539c53e8242f2a73b0374483213bc17b
       }
     ]
   },

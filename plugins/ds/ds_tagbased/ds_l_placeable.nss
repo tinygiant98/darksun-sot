@@ -28,6 +28,7 @@ void sa_sw_suisw()
     Notice("Event just triggered was " + sEvent);
 
     if (sEvent == PLACEABLE_EVENT_ON_USED)
+<<<<<<< HEAD
     {
         oPC = GetLastUsedBy();
         if (!_GetIsPC(oPC))
@@ -55,13 +56,27 @@ void sa_sw_evil()
     Notice("Event just triggered was " + sEvent);
 
     if (sEvent == PLACEABLE_EVENT_ON_USED)
+=======
+>>>>>>> 871c710d539c53e8242f2a73b0374483213bc17b
     {
         oPC = GetLastUsedBy();
         if (!_GetIsPC(oPC))
           return;
 
         Notice(GetName(oPC) + " just used the " + GetName(oPlaceable) + " in " + GetName(GetArea(oPC)));
+<<<<<<< HEAD
         AdjustAlignment(oPC, ALIGNMENT_EVIL, 5, FALSE);
+=======
+
+        //OK now let's kill the PC via what looks like spontaneous combustion.
+        int iHP = GetCurrentHitPoints(oPC);
+        //Add the 11 to get right to the Death and avoid the Dying part
+        iHP = iHP + 11;
+        effect eDrain = EffectDamage(iHP, DAMAGE_TYPE_FIRE);
+        effect eVis = EffectVisualEffect(VFX_IMP_FLAME_M);
+        ApplyEffectToObject(DURATION_TYPE_INSTANT, eVis, oPC);
+        ApplyEffectToObject(DURATION_TYPE_INSTANT, eDrain, oPC);
+>>>>>>> 871c710d539c53e8242f2a73b0374483213bc17b
     }
 }
 // -----------------------------------------------------------------------------
@@ -70,7 +85,10 @@ void sa_sw_evil()
 void OnLibraryLoad()
 {
     RegisterLibraryScript("sa_sw_suisw", 1);
+<<<<<<< HEAD
     RegisterLibraryScript("sa_sw_evil", 2);
+=======
+>>>>>>> 871c710d539c53e8242f2a73b0374483213bc17b
 }
 
 void OnLibraryScript(string sScript, int nEntry)
@@ -78,7 +96,10 @@ void OnLibraryScript(string sScript, int nEntry)
     switch (nEntry)
     {
         case 1:  sa_sw_suisw(); break;
+<<<<<<< HEAD
         case 2:  sa_sw_evil(); break;
+=======
+>>>>>>> 871c710d539c53e8242f2a73b0374483213bc17b
         default: CriticalError("Library function " + sScript + " not found");
     }
 }

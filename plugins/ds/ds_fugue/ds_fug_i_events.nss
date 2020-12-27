@@ -65,7 +65,11 @@ void ds_fug_OnPlayerDeath()
     {
         if (GetTag(GetArea(oPC)) == H2_ANGEL_PLANE)
         {
+<<<<<<< HEAD
             //If you're already at the Angel, just make sure you're alive and healed.
+=======
+            //If you're already at the Angel, just make sure your alive and healed.
+>>>>>>> 871c710d539c53e8242f2a73b0374483213bc17b
             ApplyEffectToObject(DURATION_TYPE_INSTANT, EffectResurrection(), oPC);
             ApplyEffectToObject(DURATION_TYPE_INSTANT, EffectHeal(GetMaxHitPoints(oPC)), oPC);
             return;
