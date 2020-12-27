@@ -370,6 +370,20 @@
           "type": "cexostring",
           "value": "Merchants Shingle - 8"
         }
+      },
+      {
+        "__struct_id": 9,
+        "Comment": {
+          "type": "cexostring",
+          "value": "Merchants Shingle - 2"
+        }
+      },
+      {
+        "__struct_id": 9,
+        "Comment": {
+          "type": "cexostring",
+          "value": "Floor Lever - 1"
+        }
       }
     ]
   },

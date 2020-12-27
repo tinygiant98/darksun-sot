@@ -3,16 +3,21 @@
 //  System: Alignment System
 // -----------------------------------------------------------------------------
 // Description:
-//  Event functions for DS Subsystem.
+//  Event functions for DS Align Subsystem.
+// -----------------------------------------------------------------------------
+// The goal is to keep the game engine from running away with the PCs alignment.
+// Our module alignment functions will always attempt to write the PCs new alignment
+// to the DB and then set the engine alignment to match.  Scripters should be a little
+// careful with this.  You can easily slide the PCs alignment way out of bounds if you
+// move the alignment more than a very small amount.  You should really only be adjusting
+// the PC's alignment for significant transgressions against alignment.
 // -----------------------------------------------------------------------------
 // Builder Use:
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 //
 #include "ds_aln_i_main"
-// al_OnEnterArea() Runs when the PC gets into an area.  
-//         TODO - Sets an alignment set of
-// variables so that the Alignment system doesn't run away with the PC's alignment
+// al_OnEnterArea() Runs when the PC gets into an area.
 void al_OnEnterArea();
 
 // -------------------------------------------------------------------------------
@@ -46,5 +51,6 @@ void al_OnEnterArea()
         //If the player's current values are the same as what's in the DB, then we do not do anything
         if (idbGE == iGE && idbLC == iLC)
             return;
+        //TODO - If the engine and the database do not match, override the engine with what we stored in the DB
     }
 }
