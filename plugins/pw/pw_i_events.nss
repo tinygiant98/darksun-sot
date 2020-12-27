@@ -263,28 +263,6 @@ void pw_OnPlaceableHeartbeat()
         DestroyObject(OBJECT_SELF);
 }
 
-void pw_OnPlayerChat()
-{
-    object oPC = GetPCChatSpeaker();
-    string sMessage = GetPCChatMessage();
-
-    Notice("Running pw_OnPlayerChat");
-
-    if (sMessage == "@")
-        sMessage = "@get argument1 \"group 1\" [group 2] {group 3} <group 4> --kill --longOpt:longOptValue -s:shortOptValue -singles -x --int:3 argument2 --float:2.39f";
-
-    if (ParseCommandLine(oPC, sMessage))
-    {
-        SetPCChatMessage();
-        string sDes = GetChatDesignator(oPC);
-        string sCmd = GetChatCommand(oPC);
-
-        int nState = RunEvent(CHAT_PREFIX + sDes);
-        if (!(nState & EVENT_STATE_DENIED))
-            RunEvent(CHAT_PREFIX + sDes + sCmd);
-    }
-}
-
 // ----- Tag-based Scripting -----
 
 void pw_playerdataitem()
