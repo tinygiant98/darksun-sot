@@ -188,15 +188,6 @@ const float ON_AREA_EMPTY_EVENT_DELAY = 60.0;
 //                                 Miscellaneous
 // -----------------------------------------------------------------------------
 
-// This toggles whether NWNX functions and events are being used.  If TRUE, the
-// framework will route NWNX Events through the framework to allow normal
-// script registration against those events.
-const int ENABLE_NWNX = TRUE;
-
-// If NWNX will be used, this is the hook script that all NWNX events will be
-// routed to to ensure integration with the framework.
-const string NWNX_EVENTS_HOOK_SCRIPT = "hook_nwnx";
-
 // This is the welcome message that will be sent to all players and DMs that log
 // into the module.
 const string WELCOME_MESSAGE = "Welcome to Athas.  Good luck.";
