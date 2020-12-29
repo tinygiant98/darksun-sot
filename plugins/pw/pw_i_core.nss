@@ -19,7 +19,6 @@
 
 #include "core_i_database"
 #include "core_i_framework"
-#include "util_i_debug"
 #include "util_i_data"
 #include "util_i_override"
 #include "util_i_time"
@@ -1168,6 +1167,9 @@ void h2_RegisterPC(object oPC)
     SetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX, registeredCharCount + 1);
     SendMessageToPC(oPC, H2_TEXT_CHAR_REGISTERED);
     SendMessageToPC(oPC, H2_TEXT_MAX_REGISTERED_CHARS + IntToString(H2_REGISTERED_CHARACTERS_ALLOWED));
+
+    // Run an event for character registration
+    RunEvent(MODULE_EVENT_ON_CHARACTER_REGISTRATION, oPC);
 }
 
 void h2_InitializePC(object oPC)
