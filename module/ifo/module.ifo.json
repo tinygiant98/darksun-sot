@@ -20,6 +20,13 @@
           "type": "resref",
           "value": "startarea"
         }
+      },
+      {
+        "__struct_id": 6,
+        "Area_Name": {
+          "type": "resref",
+          "value": "angelhome"
+        }
       }
     ]
   },
@@ -91,7 +98,7 @@
   },
   "Mod_MinGameVer": {
     "type": "cexostring",
-    "value": "1.81"
+    "value": "1.82"
   },
   "Mod_MinPerHour": {
     "type": "byte",

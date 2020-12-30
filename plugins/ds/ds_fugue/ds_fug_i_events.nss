@@ -19,13 +19,12 @@
 // Upon death, drop all henchmen, generate a random number between 0 and 100
 // If it is below the Angel value, the PC goes to the Fugue
 // If it is greater the PC goes to the Angel's Home
-// TODO -   Develop a real rule based on many other things including recency
-//          of last death, etc.         
 void ds_fug_OnPlayerDeath();
 
 // ---< ds_fug_OnClientEnter >---
 // When the Player Character enters the module, store the date / time they showed up.
-// This will be used later on to see how long it has been since they last died. 
+// This will be used later on to see how long it has been since they last died.
+// TODO - This will be replaced by the OnPlayerRegistration capability that tinygiant is producing
 void ds_fug_OnClientEnter();
 
 void ds_fug_OnClientEnter()
@@ -47,7 +46,8 @@ void ds_fug_OnPlayerDeath()
     if (_GetLocalInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
         return;  //PC ain't dead.  Return.
 
-    //Generate a Random Number for Now
+    // Generate a Random Number for Now
+    // TODO -   Develop real rules based on many other things including recency of last death, alignment stray...
     int iRnd = d100();
     int iChance = clamp(DS_FUGUE_ANGEL_CHANCE, 0, 100);
 
@@ -63,7 +63,7 @@ void ds_fug_OnPlayerDeath()
         Notice("Sending " + GetName(oPC) + " to the Fugue");
         return;
 
-	if (GetTag(GetArea(oPC)) == H2_ANGEL_PLANE)
+	if (GetTag(GetArea(oPC)) == ANGEL_PLANE)
     {
 		//If you're already at the Angel, just make sure you're alive and healed.
 		ApplyEffectToObject(DURATION_TYPE_INSTANT, EffectResurrection(), oPC);
@@ -74,7 +74,7 @@ void ds_fug_OnPlayerDeath()
     {
 		Notice("Sending " + GetName(oPC) + " to the Angel");
 		h2_DropAllHenchmen(oPC);
-        h2_SendPlayerToAngel(oPC);   
+        SendPlayerToAngel(oPC);   
     }
-        SetEventState(EVENT_STATE_ABORT);
+    SetEventState(EVENT_STATE_ABORT);
 }
