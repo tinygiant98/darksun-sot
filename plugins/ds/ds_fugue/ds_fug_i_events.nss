@@ -14,6 +14,7 @@
 #include "util_i_math"
 #include "util_i_time"
 #include "core_i_database"
+#include "util_i_chat"
 //
 // ---< ds_fug_OnPlayerDeath >---
 // Upon death, drop all henchmen, generate a random number between 0 and 100
@@ -26,6 +27,10 @@ void ds_fug_OnPlayerDeath();
 // This will be used later on to see how long it has been since they last died.
 // TODO - This will be replaced by the OnPlayerRegistration capability that tinygiant is producing
 void ds_fug_OnClientEnter();
+
+// ---< chat_die >---
+// Used for testing.  When the PC types the command .die in chat, it kills the PC
+void chat_die();
 
 void ds_fug_OnClientEnter()
 {
@@ -55,13 +60,12 @@ void ds_fug_OnPlayerDeath()
             "\n  iChance = " + IntToString(iChance) +
             "\n  iRnd   = " + IntToString(iRnd));
 
-    int iGE = GetGoodEvilValue(oPC);
-    int iLC = GetLawChaosValue(oPC);
-    Notice(GetName(oPC) + ": \n GE Value: " + IntToString(iGE) + "\n LC Value: " + IntToString(iLC));
-
+    // Let the PW Fugue system take it from here.
     if (iRnd < (100-iChance))
+    {
         Notice("Sending " + GetName(oPC) + " to the Fugue");
         return;
+    }
 
 	if (GetTag(GetArea(oPC)) == ANGEL_PLANE)
     {
@@ -77,4 +81,16 @@ void ds_fug_OnPlayerDeath()
         SendPlayerToAngel(oPC);   
     }
     SetEventState(EVENT_STATE_ABORT);
+}
+
+void chat_die()
+{
+    object oTarget, oPC = GetPCChatSpeaker();
+    if ((oTarget = GetChatTarget(oPC)) == OBJECT_INVALID)
+        return;
+    
+    int iHP = GetCurrentHitPoints(oPC) + 11;
+    effect eDam = EffectDamage(iHP);
+    ApplyEffectToObject(DURATION_TYPE_INSTANT, eDam, oPC);
+    SendChatResult("OK.  You're dead, then.", oPC);
 }
