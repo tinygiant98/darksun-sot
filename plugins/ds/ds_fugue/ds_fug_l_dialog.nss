@@ -15,6 +15,7 @@
 //                                  Angel Dialog
 // -----------------------------------------------------------------------------
 // What can I say, she's the Angel
+// TODO - Write a Real Dialog for the Angel
 // -----------------------------------------------------------------------------
 
 const string ANGEL_DIALOG = "AngelDialog";
