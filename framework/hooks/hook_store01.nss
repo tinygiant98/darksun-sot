@@ -12,8 +12,10 @@
 
 void main()
 {
+    object oPC = GetLastOpenedBy();
+
     if (GetIsPC(oPC))
         AddListObject(OBJECT_SELF, oPC, STORE_ROSTER, TRUE);
 
-    RunEvent(STORE_EVENT_ON_OPEN, GetLastOpenedBy());
+    RunEvent(STORE_EVENT_ON_OPEN, oPC);
 }
