@@ -57,14 +57,9 @@ void angel_Init()
         return;
 
     SetDialogPage(PAGE_MAIN);
-    AddDialogPage(PAGE_MAIN, "Ah, I see your training has not prepared your for the " +
-        "adventures you've recently embarked upon, young <class>.  To make matters worse, " +
-        "it appears your God has forsaken you.  Well, I have no use of an adventurer " +
-        "with so little skill, be gone!  How you accomplish that is your choice, but try to " +
-        "make a better decision than the one that brought you to me.");
+    AddDialogPage(PAGE_MAIN, "Ah, child.  Come.  Speak with me, <FirstName>.");
     AddDialogNode(PAGE_MAIN, PAGE_RESPAWN_START, "Respawn to Module Starting Location");
     EnableDialogEnd("I don't want to talk to you any more.");
-
     AddDialogPage(PAGE_RESPAWN_START, "This is the basic respawn option provided with the system.  The " +
         "module builder has not customized this system yet.  Press 'Yes, I Want to Respawn!' to respawn " +
         "to the module's start location.  No penalties will be applied.");
