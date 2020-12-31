@@ -14,6 +14,9 @@
 #include "x2_inc_switches"
 #include "dlg_i_dialogs"
 #include "util_i_chat"
+#include "util_i_libraries"
+#include "core_c_config"
+#include "util_i_time"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -33,6 +36,76 @@ void test_OnClientEnter()
     object oItem = GetItemPossessedBy(oPC, "util_playerdata");
     if (!GetIsObjectValid(oItem))
         CreateItemOnObject("util_playerdata", oPC);
+}
+
+void test_script_OnPlayerChat()
+{
+    object oTarget, oPC = GetPCChatSpeaker();
+    if ((oTarget = GetChatTarget(oPC)) == OBJECT_INVALID)
+        return;
+
+    string sScript = GetChatArgument(oPC);
+    if (sScript != "")
+    {
+        SendChatResult("Running script " + sScript + " on " + (_GetIsPC(oTarget) ? GetName(oTarget) : GetTag(oTarget)), oPC);
+        RunLibraryScript(sScript, oTarget);
+    }
+    else
+        SendChatResult("Cannot run script; script argument blank" +
+                       "\n  Arguments received -> " + GetChatArguments(oPC), oPC, FLAG_ERROR);
+}
+
+void test_identify_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+    object oItem = GetFirstItemInInventory(oPC);
+    while (GetIsObjectValid(oItem))
+    {
+        if (!GetIdentified(oItem))
+        {
+            SetIdentified(oItem, TRUE);
+            SendChatResult("Identifying " + GetTag(oItem) + " as " + GetName(oItem), oPC);
+        }
+
+        oItem = GetNextItemInInventory(oPC);
+    }
+}
+
+void test_items_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+    string sObject, sObjects = GetChatArguments(oPC);
+    int n, nQty, nIndex, nCount = CountList(sObjects);
+
+    for (n = 0; n < nCount; n++)
+    {
+        sObject = GetListItem(sObjects, n);
+        if ((nIndex = FindSubString(sObject, ":")) != -1)
+            nQty = StringToInt(StringParse(sObject, ":", TRUE));
+        else
+            nQty = 1;
+
+        object oItem = CreateItemOnObject(sObject, oPC, nQty);
+        SetIdentified(oItem, TRUE);
+
+        SendChatResult("Created item {tag} " + GetTag(oItem) +
+                       "{name} " + GetName(oItem) + " on " + GetName(oPC), oPC);
+    }
+}
+
+void test_unlock_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+    object oLocked = GetNearestObject(OBJECT_TYPE_DOOR, oPC);
+    if (GetIsObjectValid(oLocked) && GetLocked(oLocked))
+        SetLocked(oLocked, FALSE);
+
+    oLocked = GetNearestObject(OBJECT_TYPE_PLACEABLE, oPC);
+    if (GetIsObjectValid(oLocked) && GetLocked(oLocked))
+    {
+        SetLocked(oLocked, FALSE);
+        SendChatResult("Unlocking " + GetTag(oLocked), oPC);
+    }
 }
 
 void test_PlayerDataItem()
@@ -56,15 +129,28 @@ void test_convo_OnPlayerChat()
     SetLocalString(oPC, "*Dialog", "TestDialog");
     Debug("Convo:  Starting Test System Dialog");
     StartDialog(oPC, OBJECT_SELF, "TestDialog", TRUE, TRUE, TRUE);
-    SetPCChatMessage();
+}
+
+void test_libraries_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+    if (!CountChatArguments(oPC))
+        LoadLibraries(INSTALLED_LIBRARIES, TRUE);
+    else
+        LoadLibraries(GetChatArguments(oPC), TRUE);
+}
+
+void test_destroy_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+    object oTarget = GetChatTarget(oPC);
+    object oDestroy = GetNearestObjectByTag(GetChatArgument(oPC), oTarget);
+    DestroyObject(oDestroy);
 }
 
 void test_go_OnPlayerChat()
 {
     object oPC = GetPCChatSpeaker();
-    if (!_GetIsPC(oPC))
-        return;
-
     int nArguments;
 
     if (nArguments = CountChatArguments(oPC))
@@ -82,29 +168,27 @@ void test_go_OnPlayerChat()
                 AssignCommand(oPC, ActionJumpToObject(oTarget));
             }
             else
-                Error("Go: " + sTarget + " is not a valid target");
+                SendChatResult("Go: " + sTarget + " is not a valid target", oPC, FLAG_ERROR);
         }
         else
-            Error("Go: You can only jump to one place, dumbass.  Make a decision already.");
+            SendChatResult("Go: You can only jump to one place, dumbass.  Make a decision already.", oPC, FLAG_ERROR);
     }
     else
-        Error("Go: No target argument provided");
-
-    SetPCChatMessage();
+        SendChatResult("Go: No target argument provided", oPC, FLAG_ERROR);
 }
 
 void test_get_OnPlayerChat()
 {
     object oPC = GetPCChatSpeaker();
-    if (!_GetIsPC(oPC))
-        return;
 
     int n, nCount = CountChatArguments(oPC);
     string sTarget;
-    object oTarget;
+    object oTarget, oStake;
 
     if (!nCount)
-        Error("Get: No target argument(s) provided");
+        SendChatResult("Get: No target argument(s) provided", oPC, FLAG_ERROR);
+
+    oStake = GetChatTarget(oPC);
     
     for (n = 0; n < nCount; n++)
     {
@@ -112,76 +196,96 @@ void test_get_OnPlayerChat()
         oTarget = GetObjectByTag(sTarget);
         if (GetIsObjectValid(oTarget))
         {
-            Debug("Get: getting " + sTarget);
-            AssignCommand(oTarget, ActionJumpToObject(oPC));
+            SendChatResult("Get: getting " + sTarget, oPC);
+            AssignCommand(oTarget, ActionJumpToObject(oStake));
         }
     }
-
-    SetPCChatMessage();
 }
 
-void test_OnPlayerChat()
+void test_time_OnPlayerChat()
 {
-    Notice("Testing all functions");
-    object oPC = GetPCChatSpeaker();
+    object oTarget, oPC = GetPCChatSpeaker();
+    if ((oTarget = GetChatTarget(oPC)) == OBJECT_INVALID)
+        return;
 
-    if (HasParsedChatCommand(oPC))
+    int nHours;
+    string sTime;
+
+    if (HasChatKey(oPC, "add"))
     {
-        Debug("  " + GetName(oPC) + " has a parsed chat command");
-
-        string sChat = GetChatLine(oPC);
-        string sDes = GetChatDesignator(oPC);
-        string sCmd = GetChatCommand(oPC);
-        string sArgs = GetChatArguments(oPC);
-        string sOpts = GetChatOptions(oPC);
-        string sPairs = GetChatPairs(oPC);
-
-        Debug("\n    Chat Line -> " + sChat +
-              "\n    GetChatLine(oPC)          -> " + GetChatLine(oPC) +
-              "\n    GetChatDesignator(oPC)    -> " + GetChatDesignator(oPC) +
-              "\n    GetChatCommand(oPC)       -> " + GetChatCommand(oPC));
-
-        Debug("\n  Testing Argument-Specific Functions" +
-              "\n    GetChatArguments(oPC)                -> " + GetChatArguments(oPC) +
-              "\n    CountChatArguments(oPC)              -> " + IntToString(CountChatArguments(oPC)) +
-              "\n    HasChatArgument(oPC, \"argument1\")  -> " + (HasChatArgument(oPC, "arg1") ? "TRUE" : "FALSE") +
-              "\n    HasChatArgument(oPC, \"none\")       -> " + (HasChatArgument(oPC, "none") ? "TRUE" : "FALSE") +
-              "\n    FindChatArgument(oPC, \"argument2\") -> " + IntToString(FindChatArgument(oPC, "argument2")) +
-              "\n    GetChatArgument(oPC, 1)              -> " + GetChatArgument(oPC, 1));
-
-        Debug("\n  Testing Option-Specific Functions" +
-              "\n    GetChatOptions(oPC)        -> " + GetChatOptions(oPC) +
-              "\n    CountChatOptions(oPC)      -> " + IntToString(CountChatOptions(oPC)) +
-              "\n    HasChatOption(oPC, \"g\")  -> " + (HasChatOption(oPC, "g") ? "TRUE" : "FALSE") +
-              "\n    HasChatOption(oPC, \"-g\") -> " + (HasChatOption(oPC, "-g") ? "TRUE" : "FALSE") +
-              "\n    HasChatOption(oPC, \"q\")  -> " + (HasChatOption(oPC, "q") ? "TRUE" : "FALSE") +
-              "\n    FindChatOption(oPC, \"i\") -> " + IntToString(FindChatOption(oPC, "i")) +
-              "\n    GetChatOption(oPC, 1)      -> " + GetChatOption(oPC, 1));
-
-        Debug("\n  Testing Pairs-Specific Functions" +
-              "\n    GetChatPairs(oPC)                    -> " + GetChatPairs(oPC) +
-              "\n    CountChatPairs(oPC)                  -> " + IntToString(CountChatPairs(oPC)) +
-              "\n    HasChatKey(oPC, \"longOpt\")         -> " + (HasChatKey(oPC, "longOpt") ? "TRUE" : "FALSE") +
-              "\n    HasChatKey(oPC, \"s\")               -> " + (HasChatKey(oPC, "s") ? "TRUE" : "FALSE") +
-              "\n    HasChatKey(oPC, \"--longOpt\")       -> " + (HasChatKey(oPC, "--longOpt") ? "TRUE" : "FALSE") +
-              "\n    HasChatKey(oPC, \"-s\")              -> " + (HasChatKey(oPC, "-s") ? "TRUE" : "FALSE" ) +
-              "\n    HasChatKey(oPC, \"short\")           -> " + (HasChatKey(oPC, "short") ? "TRUE" : "FALSE") +
-              "\n    FindChatKey(oPC, \"-s\")             -> " + IntToString(FindChatKey(oPC, "-s")) +
-              "\n    GetChatKey(oPC, 1)                   -> " + GetChatKey(oPC, 1) +
-              "\n    GetChatValue(oPC, 1)                 -> " + GetChatValue(oPC, 1) +
-              "\n    GetChatKeyValue(oPC, \"longOpt\")    -> " + GetChatKeyValue(oPC, "longOpt") +
-              "\n    GetChatKeyValueInt(oPC, \"int\")     -> " + IntToString(GetChatKeyValueInt(oPC, "int")) +
-              "\n    GetChatKeyValueInt(oPC, \"none\")    -> " + IntToString(GetChatKeyValueInt(oPC, "none")) +
-              "\n    GetChatKeyValueFloat(oPC, \"float\") -> " + FloatToString(GetChatKeyValueFloat(oPC, "float"), 0, _GetPrecision(GetChatKeyValue(oPC, "float"))) +
-              "\n    GetChatKeyValueFloat(oPC, \"none\")  -> " + FloatToString(GetChatKeyValueFloat(oPC, "none"), 0, _GetPrecision(GetChatKeyValue(oPC, "none"))));
+        nHours = StringToInt(GetChatKeyValue(oPC, "add"));
+        sTime = AddGameTimeElement(TIME_HOURS, nHours);
+    }
+    else if (HasChatKey(oPC, "sub,subtract"))
+    {
+        nHours = StringToInt(GetChatKeyValue(oPC, "sub,subtract"));
+        sTime = SubtractGameTimeElement(TIME_HOURS, nHours);
     }
     else
-        Error(GetName(oPC) + " does not have a parsed commmand line");
+        SendChatResult("Current game time is " + FormatGameTime(), oPC, FLAG_INFO);
+
+    if (sTime != "")
+    {
+        Notice("test_time_OnPlayerChat: sTime -> " + sTime);
+        sTime = ConvertGameTimeToSystemTime(sTime);
+        _SetCalendar(sTime, TRUE, TRUE);   
+        SendChatResult("Game time has been set to " + FormatGameTime(), oPC);
+    } 
+}
+
+void test_var_OnPlayerChat()
+{
+    object oTarget, oPC = GetPCChatSpeaker();
+    int bHelp;
+    
+    // If no variable names passed, abort
+    if (!CountChatArguments(oPC))
+    {
+        SendChatResult("Variable names required, but not received", oPC, FLAG_ERROR);
+        return;
+    }
+
+    if (HasChatOption(oPC, "h,help"))
+        bHelp = TRUE;
+
+    if ((oTarget = GetChatTarget(oPC)) == OBJECT_INVALID)
+        return;
+
+    if (HasChatOption(oPC, "set"))
+    {
+        if (bHelp)
+            SendChatResult(SetVariableHelp(), oPC, FLAG_HELP);
+        else
+            SetVariable(oPC, oTarget);
+    }
+    else if (HasChatOption(oPC, "d,del,delete"))
+    {
+        if (bHelp)
+            SendChatResult(DeleteVariableHelp(), oPC, FLAG_HELP);
+        else
+            DeleteVariable(oPC, oTarget);
+    }
+    else
+    {
+        if (bHelp)
+            SendChatResult(GetVariableHelp(), oPC, FLAG_HELP);
+        else
+            GetVariable(oPC, oTarget);
+    }
+}
+
+void test_level_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+    int nLevel = StringToInt(GetChatArgument(oPC, 0));
+    int nLevelXP = 500 * nLevel * (nLevel - 1);
+    int nPC = GetXP(oPC);
+
+    GiveXPToCreature(oPC, nLevelXP - nPC);
 }
 
 void test_stake_OnPlayerChat()
 {
-
     Debug("Stake chat command not yet active");
     /*
     if (CountChatArguments(sArguments) > 1)
@@ -194,4 +298,35 @@ void test_stake_OnPlayerChat()
         _SetLocalLocation(oPC, sVarName, lPC);
     }*/
     SetPCChatMessage();
+}
+
+void test_debug_OnPlayerChat()
+{
+    object oTarget, oPC = GetPCChatSpeaker();
+    if ((oTarget = GetChatTarget(oPC, TARGET_NO_REVERT, GetModule())) == OBJECT_INVALID)
+        return;
+
+    int nLevel;
+    if (HasChatOption(oPC, "5,debug"))
+        nLevel = 5;
+    else if (HasChatOption(oPC, "4,notice"))
+        nLevel = 4;
+    else if (HasChatOption(oPC, "3,warning,warn"))
+        nLevel = 3;
+    else if (HasChatOption(oPC, "2,error"))
+        nLevel = 2;
+    else if (HasChatOption(oPC, "1,critical,crit"))
+        nLevel = 1;
+    else if (HasChatOption(oPC, "0,none"))
+        nLevel = 0;
+    else
+        nLevel = 5;
+
+    SetDebugLevel(nLevel, oTarget);
+    SendChatResult("Debug level for " + (oTarget == GetModule() ? GetName(oTarget) : GetTag(oTarget)) + " set to " +
+                   (nLevel == 5 ? "DEBUG" : 
+                    nLevel == 4 ? "NOTICE" :
+                    nLevel == 3 ? "WARNING" :
+                    nLevel == 2 ? "ERROR" :
+                    nLevel == 1 ? "CRITICAL ERROR" : "NONE"), oPC);
 }

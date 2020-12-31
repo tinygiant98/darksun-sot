@@ -12,5 +12,8 @@
 
 void main()
 {
+    if (GetIsPC(oPC))
+        RemoveListObject(OBJECT_SELF, oPC, STORE_ROSTER);
+
     RunEvent(STORE_EVENT_ON_CLOSE, GetLastClosedBy());
 }

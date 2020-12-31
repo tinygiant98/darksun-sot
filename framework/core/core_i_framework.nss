@@ -738,13 +738,28 @@ float StringToPriority(string sPriority, float fDefaultPriority)
         return fPriority;
 }
 
+int GetIsNWNXRunning()
+{
+    effect e = TagEffect(EffectDarkness(), "NWNXEE!ABIv2!TEST_PLUGIN!TEST_FUNCTION!PUSH");
+    return GetEffectTag(e) != "NWNXEE!ABIv2!TEST_PLUGIN!TEST_FUNCTION!PUSH";
+}
+
 int RegisterNWNXEventScripts(string sEvent)
 {
+    if (!GetIsNWNXRunning())
+    {
+        Warning("NWNX event hook registration failed; NWNX core is not running");
+        return FALSE;
+    }
+
     if (NWNX_Util_PluginExists("NWNX_Events"))
     {
         NWNX_Events_SubscribeEvent(sEvent, "hook_nwnx");
         return TRUE;
     }
+    else
+        Warning("Script Hook registration failed for event " + sEvent +
+              "; NWNX Util plug-in is not active");
 
     return FALSE;
 }
@@ -765,13 +780,7 @@ void RegisterEventScripts(object oTarget, string sEvent, string sScripts, float 
     // subscription errors, so don't use CountEventScripts here.
     if (GetStringLeft(sEvent, 4) == "NWNX")
     {
-        if (!RegisterNWNXEventScripts(sEvent))
-        {
-            Warning("Script Hook registration failed for event " + sEvent +
-                    "; NWNX Events plug-in is not active");
-            return;
-        }
-        else
+        if (RegisterNWNXEventScripts(sEvent))
             Debug("Registered NWNX event hook for " + sEvent);
     }
 
