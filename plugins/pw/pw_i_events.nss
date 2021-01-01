@@ -257,12 +257,6 @@ void pw_OnPlayerRestFinished()
         ExportSingleCharacter(oPC);
 }
 
-void pw_OnPlaceableHeartbeat()
-{
-    if (!GetIsObjectValid(GetFirstItemInInventory(OBJECT_SELF)))
-        DestroyObject(OBJECT_SELF);
-}
-
 // ----- Tag-based Scripting -----
 
 void pw_playerdataitem()

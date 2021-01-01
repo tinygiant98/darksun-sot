@@ -28,7 +28,8 @@ void OnLibraryLoad()
             "loads all pw subsystems.");
         SetPluginLibraries(oPlugin, "bleed_l_plugin, corpse_l_plugin, crowd_l_plugin, deity_l_plugin, " +
             "fugue_l_plugin, fugue_l_dialog, htf_l_plugin, loot_l_plugin, rest_l_plugin, rest_l_dialog, " +
-            "torch_l_plugin, unid_l_plugin, gren_l_plugin, bus_l_plugin");
+            "torch_l_plugin, unid_l_plugin, gren_l_plugin, bus_l_plugin, res_l_plugin, res_l_placeables, " +
+            "res_l_creatures");
 
         // ----- Module Events -----
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,          "pw_OnClientEnter",         10.0);
@@ -43,9 +44,6 @@ void OnLibraryLoad()
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_STARTED,   "pw_OnPlayerRestStarted",   EVENT_PRIORITY_LAST);
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_CANCELLED, "pw_OnPlayerRestCancelled", 10.0);
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_FINISHED,  "pw_OnPlayerRestFinished",  10.0);
-
-        // ----- Placeable Events -----
-        RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_HEARTBEAT,     "pw_OnPlaceableHeartbeat", 10.0);
 
         // ----- Timer Events -----
         RegisterEventScripts(oPlugin, H2_SAVE_LOCATION_ON_TIMER_EXPIRE, "pw_SavePCLocation_OnTimerExpire", 10.0);
@@ -67,19 +65,20 @@ void OnLibraryLoad()
             RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST,          "x2_mod_def_rest",  EVENT_PRIORITY_DEFAULT);
             RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_UNEQUIP_ITEM,  "x2_mod_def_unequ", 2.0);
             RegisterEventScripts(oPlugin, MODULE_EVENT_ON_UNACQUIRE_ITEM,       "x2_mod_def_unaqu", 2.0);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_BLOCKED,            "nw_c2_defaulte",   EVENT_PRIORITY_LAST);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_COMBAT_ROUND_END,   "nw_c2_default3",   EVENT_PRIORITY_LAST);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_CONVERSATION,       "nw_c2_default4",   EVENT_PRIORITY_LAST);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_DAMAGED,            "nw_c2_default6",   EVENT_PRIORITY_LAST);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_DEATH,              "nw_c2_default7",   EVENT_PRIORITY_LAST);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_DISTURBED,          "nw_c2_default8",   EVENT_PRIORITY_LAST);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_HEARTBEAT,          "nw_c2_default1",   EVENT_PRIORITY_LAST);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_PERCEPTION,         "nw_c2_default2",   EVENT_PRIORITY_LAST);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_PHYSICAL_ATTACKED,  "nw_c2_default5",   EVENT_PRIORITY_LAST);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_RESTED,             "nw_c2_defaulta",   EVENT_PRIORITY_LAST);
+
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_BLOCKED,            "nw_c2_defaulte",   EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_COMBAT_ROUND_END,   "nw_c2_default3",   EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_CONVERSATION,       "nw_c2_default4",   EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_DAMAGED,            "nw_c2_default6",   EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_DEATH,              "nw_c2_default7",   EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_DISTURBED,          "nw_c2_default8",   EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_HEARTBEAT,          "nw_c2_default1",   EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_PERCEPTION,         "nw_c2_default2",   EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_PHYSICAL_ATTACKED,  "nw_c2_default5",   EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_RESTED,             "nw_c2_defaulta",   EVENT_PRIORITY_DEFAULT);
             RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_SPAWN,              "nw_c2_default9",   EVENT_PRIORITY_DEFAULT);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_SPELL_CAST_AT,      "nw_c2_defaultb",   EVENT_PRIORITY_LAST);
-            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_USER_DEFINED,       "nw_c2_defaultd",   EVENT_PRIORITY_LAST);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_SPELL_CAST_AT,      "nw_c2_defaultb",   EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_USER_DEFINED,       "nw_c2_defaultd",   EVENT_PRIORITY_DEFAULT);
         }
     }
 
@@ -96,9 +95,6 @@ void OnLibraryLoad()
     RegisterLibraryScript("pw_OnPlayerRestStarted",    20);
     RegisterLibraryScript("pw_OnPlayerRestCancelled",  21);
     RegisterLibraryScript("pw_OnPlayerRestFinished",   22);
-
-    // ----- Placeable Events -----
-    RegisterLibraryScript("pw_OnPlaceableHeartbeat",   10);
 
     // ----- Tag-based Scripting -----
     RegisterLibraryScript(H2_PLAYER_DATA_ITEM,         13);
@@ -125,9 +121,6 @@ void OnLibraryScript(string sScript, int nEntry)
         case 20:  pw_OnPlayerRestStarted();    break;
         case 21:  pw_OnPlayerRestCancelled();  break;
         case 22:  pw_OnPlayerRestFinished();   break;
-
-        // ----- Placeable Events -----
-        case 10:  pw_OnPlaceableHeartbeat();   break;
 
         // ----- Tag-based Scripting -----
         case 13:  pw_playerdataitem();         break;
