@@ -8,16 +8,20 @@
 // Builder Use:
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
+
 #include "ds_i_const"
 #include "fugue_i_main"
 #include "ds_fug_i_const"
 #include "ds_fug_i_config"
 #include "ds_fug_i_text"
 #include "pw_i_core"
-#include "util_i_color"
+
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
+
+// ---< SendPlayerToAngel >---
+// Sends dead player character to the angel plane.
 void SendPlayerToAngel(object oPC);
 
 // -----------------------------------------------------------------------------
