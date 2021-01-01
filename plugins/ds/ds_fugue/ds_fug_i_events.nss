@@ -20,6 +20,7 @@
 // Upon death, drop all henchmen, generate a random number between 0 and 100
 // If it is below the Angel value, the PC goes to the Fugue
 // If it is greater the PC goes to the Angel's Home
+// TODO - Druids or Rangers who die cannot respawn their familiar until they clear a condition.
 void ds_fug_OnPlayerDeath();
 
 // ---< ds_fug_OnClientEnter >---
