@@ -1,3 +1,5 @@
+[![Discord](https://img.shields.io/discord/744704910842527815.svg?colorB=7289DA&label=Discord&logo=Discord&logoColor=7289DA&style=flat-square)](https://discord.gg/VVvrb4CkeG)
+
 # Dark Sun
 
 This repo contains the developmental Dark Sun: Sands of Time module content.  If you want to contribute, please fork this repository and send a pull request when your testing is complete.
