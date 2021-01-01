@@ -1854,6 +1854,25 @@
                 "value": [
                   {
                     "__struct_id": 0,
+                    "CR": {
+                      "type": "float",
+                      "value": 20.0
+                    },
+                    "FACTION": {
+                      "type": "cexostring",
+                      "value": "Defender"
+                    },
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Angel"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "angel"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
                     "NAME": {
                       "type": "cexostring",
                       "value": "Asuth"
