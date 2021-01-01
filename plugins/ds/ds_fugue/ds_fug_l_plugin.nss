@@ -34,13 +34,11 @@ void OnLibraryLoad()
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "ds_fug_OnPlayerDeath", 4.1);
 
     // No priority needed here.
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CHARACTER_REGISTRATION, "ds_fug_OnCharacterRegistration");
     RegisterEventScripts(oPlugin, CHAT_PREFIX + ".die", "ds_fug_OnPlayerChat");
 
     // ----- Module Scripts -----
     RegisterLibraryScript("ds_fug_OnPlayerDeath", 1);
-    RegisterLibraryScript("ds_fug_OnCharacterRegistration", 2);
-    RegisterLibraryScript("ds_fug_OnPlayerChat", 3);
+    RegisterLibraryScript("ds_fug_OnPlayerChat", 2);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
@@ -48,8 +46,7 @@ void OnLibraryScript(string sScript, int nEntry)
     switch (nEntry)
     {
         case 1: ds_fug_OnPlayerDeath(); break;
-        case 2: ds_fug_OnCharacterRegistration(); break;
-        case 3: ds_fug_OnPlayerChat(); break;
+        case 2: ds_fug_OnPlayerChat(); break;
 
         default: CriticalError("Library function " + sScript + " not found");
     }

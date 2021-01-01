@@ -26,12 +26,6 @@
 // TODO - Druids or Rangers who die cannot respawn their familiar until they clear a condition.
 void ds_fug_OnPlayerDeath();
 
-// ---< ds_fug_OnClientEnter >---
-// When the Player Character enters the module, store the date / time they showed up.
-// This will be used later on to see how long it has been since they last died.
-// TODO - This will be replaced by the OnPlayerRegistration capability that tinygiant is producing
-void ds_fug_OnClientEnter();
-
 // ---< ds_fug_OnPlayerChat >---
 // Used for testing.  When the PC types the command .die in chat, it kills the PC
 void ds_fug_OnPlayerChat();
@@ -39,14 +33,6 @@ void ds_fug_OnPlayerChat();
 // -----------------------------------------------------------------------------
 //                              Function Definitions
 // -----------------------------------------------------------------------------
-
-void ds_fug_OnCharacterRegistration()
-{
-    object oPC = GetEnteringObject();
-    string sTime = GetGameTime();
-
-    SetDatabaseString("pc_enter_time", sTime, oPC);
-}
 
 void ds_fug_OnPlayerDeath()
 {
