@@ -13,8 +13,4 @@
 //                                   Constants
 // -----------------------------------------------------------------------------
 
-<<<<<<< HEAD
 // There are no constants associated with this system.
-=======
-// There are no constants associated with this system.
->>>>>>> e0e61b8f2061593c8ce96cabf361be022b7ecc35
