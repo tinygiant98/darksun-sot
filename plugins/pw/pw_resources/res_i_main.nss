@@ -19,20 +19,20 @@
 // ---< Register[object]ToFramework >---
 // Registers the correct framework hook scripts to all standard events for the
 // passed object type.
-void RegisterAreaToFramework(object oArea);
+void RegisterAreaToFramework(object oArea, int bIncludeHeartbeat = FALSE);
 void RegisterAreaOfEffectToFramework(object oAoE);
-void RegisterCreatureToFramework(object oCreature);
-void RegisterDoorToFramework(object oDoor);
-void RegisterEncounterToFramework(object oEncounter);
-void RegisterPlaceableToFramework(object oPlaceable);
+void RegisterCreatureToFramework(object oCreature, int bIncludeHeartbeat = FALSE);
+void RegisterDoorToFramework(object oDoor, int bIncludeHeartbeat = FALSE);
+void RegisterEncounterToFramework(object oEncounter, int bIncludeHeartbeat = FALSE);
+void RegisterPlaceableToFramework(object oPlaceable, int bIncludeHeartbeat = FALSE);
 void RegisterStoreToFramework(object oStore);
-void RegisterTriggerToFramework(object oTrigger);
+void RegisterTriggerToFramework(object oTrigger, int bIncludeHeartbeat = FALSE);
 
 // -----------------------------------------------------------------------------
 //                             Function Definitions
 // -----------------------------------------------------------------------------
 
-void RegisterAreaToFramework(object oArea, int bIncluldeHeartbeat = FALSE)
+void RegisterAreaToFramework(object oArea, int bIncludeHeartbeat = FALSE)
 {
     /* For future use
     _SetLocalString(oArea, AREA_EVENT_ON_ENTER, GetEventScript(oArea, EVENT_SCRIPT_AREA_ON_ENTER) + HOOK_PRIORITY);
@@ -43,7 +43,7 @@ void RegisterAreaToFramework(object oArea, int bIncluldeHeartbeat = FALSE)
 
     SetEventScript(oArea, EVENT_SCRIPT_AREA_ON_ENTER, "hook_area01");
     SetEventScript(oArea, EVENT_SCRIPT_AREA_ON_EXIT, "hook_area02");
-    SetEventScript(oArea, EVENT_SCRIPT_AREA_ON_HEARTBEAT, (bIncludeHeartbeat ? "hook_area03" : "");
+    SetEventScript(oArea, EVENT_SCRIPT_AREA_ON_HEARTBEAT, (bIncludeHeartbeat ? "hook_area03" : ""));
     SetEventScript(oArea, EVENT_SCRIPT_AREA_ON_USER_DEFINED_EVENT, "hook_area04");
 
     Debug("Base game area resource has been registered to the framework" + 
@@ -54,9 +54,6 @@ void RegisterAreaToFramework(object oArea, int bIncluldeHeartbeat = FALSE)
 
 void RegisterAreaOfEffectToFramework(object oAoE)
 {
-    if (_GetLocalInt(oAoE, HOOK_SKIP))
-        return;
-
     /* For future us
     _SetLocalString(oAoE, AOE_EVENT_ON_ENTER, GetEventScript(oAoE, EVENT_SCRIPT_AREAOFEFFECT_ON_OBJECT_ENTER) + HOOK_PRIORITY);
     _SetLocalString(oAoE, AOE_EVENT_ON_HEARTBEAT, GetEventScript(oAoE, EVENT_SCRIPT_AREAOFEFFECT_ON_HEARTBEAT) + HOOK_PRIORITY);
@@ -141,7 +138,7 @@ void RegisterCreatureToFramework(object oCreature, int bIncludeHeartbeat = FALSE
             "\n  Area   -> " + GetName(GetArea(oCreature)));
 }
 
-void RegisterDoorToFramework(object oDoor)
+void RegisterDoorToFramework(object oDoor, int bIncludeHeartbeat = FALSE)
 {
     /* For future us
     _SetLocalString(oDoor, DOOR_EVENT_ON_AREA_TRANSITION_CLICK, GetEventScript(oDoor, EVENT_SCRIPT_DOOR_ON_CLICKED) + HOOK_PRIORITY);
@@ -166,7 +163,7 @@ void RegisterDoorToFramework(object oDoor)
     SetEventScript(oDoor, EVENT_SCRIPT_DOOR_ON_DAMAGE, "hook_door03");
     SetEventScript(oDoor, EVENT_SCRIPT_DOOR_ON_DEATH, "hook_door04");
     SetEventScript(oDoor, EVENT_SCRIPT_DOOR_ON_FAIL_TO_OPEN, "hook_door05");
-    SetEventScript(oDoor, EVENT_SCRIPT_DOOR_ON_HEARTBEAT, "");
+    SetEventScript(oDoor, EVENT_SCRIPT_DOOR_ON_HEARTBEAT, (bIncludeHeartbeat ? "hook_door04" : ""));
     SetEventScript(oDoor, EVENT_SCRIPT_DOOR_ON_LOCK, "hook_door07");
     SetEventScript(oDoor, EVENT_SCRIPT_DOOR_ON_MELEE_ATTACKED, "hook_door08");
     SetEventScript(oDoor, EVENT_SCRIPT_DOOR_ON_OPEN, "hook_door09");
@@ -184,7 +181,7 @@ void RegisterDoorToFramework(object oDoor)
         "\n  Area   -> " + GetName(GetArea(oDoor)));
 }
 
-void RegisterEncounterToFramework(object oEncounter)
+void RegisterEncounterToFramework(object oEncounter, int bIncludeHeartbeat = FALSE)
 {
     /* For future use
     _SetLocalString(oEncounter, ENCOUNTER_EVENT_ON_ENTER, GetEventScript(oEncounter, EVENT_SCRIPT_ENCOUNTER_ON_OBJECT_ENTER) + HOOK_PRIORITY);
@@ -197,7 +194,7 @@ void RegisterEncounterToFramework(object oEncounter)
     SetEventScript(oEncounter, EVENT_SCRIPT_ENCOUNTER_ON_OBJECT_ENTER, "hook_encounter01");
     SetEventScript(oEncounter, EVENT_SCRIPT_ENCOUNTER_ON_ENCOUNTER_EXHAUSTED, "hook_encounter02");
     SetEventScript(oEncounter, EVENT_SCRIPT_ENCOUNTER_ON_OBJECT_EXIT, "hook_encounter03");
-    SetEventScript(oEncounter, EVENT_SCRIPT_ENCOUNTER_ON_HEARTBEAT, "");
+    SetEventScript(oEncounter, EVENT_SCRIPT_ENCOUNTER_ON_HEARTBEAT, (bIncludeHeartbeat ? "hook_encounter04" : ""));
     SetEventScript(oEncounter, EVENT_SCRIPT_ENCOUNTER_ON_USER_DEFINED_EVENT, "hook_encounter05");
 
     Debug("Base game creature resource has been registered to the framework" + 
@@ -256,15 +253,15 @@ void RegisterPlaceableToFramework(object oPlaceable, int bIncludeHeartbeat = FAL
         string sFrameworkEvent = GetListItem(PLACEABLE_FRAMEWORK_EVENTS, n);
         int    nNWNEvent = StringToInt(GetListItem(PLACEABLE_NWN_EVENTS, n));
         string sFrameworkEventScript = GetListItem(PLACEABLE_FRAMEWORK_SCRIPTS, n);
-        string sNWNEventScript = GetEventScript(oCreature, nNWNEvent);
+        string sNWNEventScript = GetEventScript(oPlaceable, nNWNEvent);
 
         if (sNWNEventScript != "")
-            _SetLocalString(oCreature, sFrameworkEvent, sNWNEventScript);
+            _SetLocalString(oPlaceable, sFrameworkEvent, sNWNEventScript);
 
         if (sFrameworkEventScript == "~")
             sFrameworkEventScript = bIncludeHeartbeat ? "hook_placeable06" : "";
         
-        SetEventScript(oCreature, nNWNEvent, sFrameworkEventScript);
+        SetEventScript(oPlaceable, nNWNEvent, sFrameworkEventScript);
     }
 
     Debug("Base game placeable resource has been registered to the framework" + 
@@ -291,7 +288,7 @@ void RegisterStoreToFramework(object oStore)
             "\n  Area   -> " + GetName(GetArea(oStore)));
 }
 
-void RegisterTriggerToFramework(object oTrigger)
+void RegisterTriggerToFramework(object oTrigger, int bIncludeHeartbeat = FALSE)
 {
     /* For future use
     _SetLocalString(oTrigger, TRIGGER_EVENT_ON_CLICK, GetEventScript(oStore, EVENT_SCRIPT_TRIGGER_ON_CLICKED) + HOOK_PRIORITY);
@@ -307,7 +304,7 @@ void RegisterTriggerToFramework(object oTrigger)
     SetEventScript(oTrigger, EVENT_SCRIPT_TRIGGER_ON_CLICKED, "hook_trigger01");
     SetEventScript(oTrigger, EVENT_SCRIPT_TRIGGER_ON_OBJECT_ENTER, "hook_trigger02");
     SetEventScript(oTrigger, EVENT_SCRIPT_TRIGGER_ON_OBJECT_EXIT, "hook_trigger03");
-    SetEventScript(oTrigger, EVENT_SCRIPT_TRIGGER_ON_HEARTBEAT, "");
+    SetEventScript(oTrigger, EVENT_SCRIPT_TRIGGER_ON_HEARTBEAT, (bIncludeHeartbeat ? "hook_trigger04" : ""));
     SetEventScript(oTrigger, EVENT_SCRIPT_TRIGGER_ON_USER_DEFINED_EVENT, "hook_trigger05");
 
     SetEventScript(oTrigger, EVENT_SCRIPT_TRIGGER_ON_DISARMED, "hook_trap01");

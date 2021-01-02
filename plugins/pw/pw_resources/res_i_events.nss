@@ -185,7 +185,7 @@ void resources_OnModuleLoad()
     {
         if (GetStringLeft(GetEventScript(oArea, EVENT_SCRIPT_AREA_ON_ENTER), GetStringLength(HOOK_SCRIPT_PREFIX)) != HOOK_SCRIPT_PREFIX)
         {
-            if (!_GetLocalInt(oArea, SKIP_HOOK))
+            if (!_GetLocalInt(oArea, HOOK_SKIP))
             {
                 _SetLocalInt(oArea, FRAMEWORK_OUTSIDER, TRUE);
                 RegisterAreaToFramework(oArea);
@@ -195,7 +195,7 @@ void resources_OnModuleLoad()
         oObject = GetFirstObjectInArea(oArea);
         while (GetIsObjectValid(oObject))
         {
-            if (_GetLocalInt(oObject, SKIP_HOOK);
+            if (_GetLocalInt(oObject, HOOK_SKIP))
                 continue;
 
             int nObjectType = GetObjectType(oObject);
