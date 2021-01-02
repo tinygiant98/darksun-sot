@@ -19,8 +19,8 @@
 // -----------------------------------------------------------------------------
 
 const string ANGEL_DIALOG = "AngelDialog";
-const string ANGEL_INIT = "Angel_Init";
-const string ANGEL_NODE = "Angel_Node";
+const string ANGEL_INIT = "angel_Init";
+const string ANGEL_NODE = "angel_Node";
 
 const string PAGE_MAIN = "PAGE_MAIN";
 const string PAGE_RESPAWN_START = "PAGE_RESPAWN_START";
@@ -60,10 +60,12 @@ void angel_Init()
     AddDialogPage(PAGE_MAIN, "Ah, child.  Come.  Speak with me, <FirstName>.");
     AddDialogNode(PAGE_MAIN, PAGE_RESPAWN_START, "Respawn to Module Starting Location");
     EnableDialogEnd("I don't want to talk to you any more.");
+    
     AddDialogPage(PAGE_RESPAWN_START, "This is the basic respawn option provided with the system.  The " +
         "module builder has not customized this system yet.  Press 'Yes, I Want to Respawn!' to respawn " +
         "to the module's start location.  No penalties will be applied.");
     AddDialogNode(PAGE_RESPAWN_START, "", "Yes, I Want to Respawn!", "respawn_start");
+
     EnableDialogBack("I don't want to respawn right now.", PAGE_RESPAWN_START);
 
     ClearDialogHistory();
@@ -87,7 +89,6 @@ void angel_Node()
 
 void OnLibraryLoad()
 {
-    RegisterLibraryScript(ANGEL_DIALOG, 0);
     RegisterLibraryScript(ANGEL_INIT, 1);
     RegisterLibraryScript(ANGEL_NODE, 2);
 
@@ -99,7 +100,6 @@ void OnLibraryScript(string sScript, int nEntry)
 {
     switch (nEntry)
     {
-        case 0: angel_StartDialog(); break;
         case 1: angel_Init(); break;
         case 2: angel_Node(); break;
     }

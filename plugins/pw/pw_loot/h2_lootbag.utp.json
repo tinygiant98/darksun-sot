@@ -94,7 +94,7 @@
   },
   "OnClosed": {
     "type": "resref",
-    "value": ""
+    "value": "hook_placeable02"
   },
   "OnDamaged": {
     "type": "resref",
@@ -110,7 +110,7 @@
   },
   "OnHeartbeat": {
     "type": "resref",
-    "value": "hook_placeable05"
+    "value": ""
   },
   "OnInvDisturbed": {
     "type": "resref",
@@ -211,6 +211,26 @@
   "Useable": {
     "type": "byte",
     "value": 1
+  },
+  "VarTable": {
+    "type": "list",
+    "value": [
+      {
+        "__struct_id": 0,
+        "Name": {
+          "type": "cexostring",
+          "value": "OnPlaceableClose"
+        },
+        "Type": {
+          "type": "dword",
+          "value": 3
+        },
+        "Value": {
+          "type": "cexostring",
+          "value": "loot_OnPlaceableClose"
+        }
+      }
+    ]
   },
   "Will": {
     "type": "byte",

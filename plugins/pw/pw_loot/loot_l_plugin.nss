@@ -31,6 +31,7 @@ void OnLibraryLoad()
     // ----- Module Events -----
     RegisterLibraryScript("loot_OnPlayerDying", 1);
     RegisterLibraryScript("loot_OnPlayerDeath", 2);
+    RegisterLibraryScript("loot_OnPlaceableClose", 3);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
@@ -40,6 +41,8 @@ void OnLibraryScript(string sScript, int nEntry)
         // ----- Module Events -----
         case 1:  loot_OnPlayerDying(); break;
         case 2:  loot_OnPlayerDeath(); break;
+        case 3:  loot_OnPlaceableClose(); break;
+
         default: CriticalError("Library function " + sScript + " not found");
     }
 }

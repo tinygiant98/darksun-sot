@@ -27,6 +27,10 @@ void loot_OnPlayerDying();
 //  the PC's lootbag and fills it will all items in PC's inventory.
 void loot_OnPlayerDeath();
 
+// ---< loot_OnPlaceableClose >---
+// Run from loot placeable to destroy the lootbag once it's empty.
+void loot_OnPlaceableClose();
+
 // -----------------------------------------------------------------------------
 //                             Function Definitions
 // -----------------------------------------------------------------------------
@@ -53,4 +57,10 @@ void loot_OnPlayerDeath()
     object oLootBag = h2_CreateLootBag(oPC);
     h2_MovePossessorInventory(oPC, TRUE, oLootBag);
     h2_MoveEquippedItems(oPC, oLootBag);
+}
+
+void loot_OnPlaceableClose()
+{
+    if (!GetIsObjectValid(GetFirstItemInInventory(OBJECT_SELF)))
+        DestroyObject(OBJECT_SELF);
 }

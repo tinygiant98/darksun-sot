@@ -107,7 +107,7 @@ void OnLibraryScript(string sScript, int nEntry)
 {
     switch (nEntry)
     {
-        case 0: fugue_StartDialog(); break;
+        //case 0: fugue_StartDialog(); break;
         case 1: Fugue_Init(); break;
         case 2: Fugue_Node(); break;
     }

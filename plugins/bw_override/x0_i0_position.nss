@@ -111,7 +111,7 @@ location GetOppositeLocation(object oTarget);
 
 // Returns location directly ahead of the target and facing
 // same direction as the target
-location GetAheadLocation(object oTarget);
+location GetAheadLocation(object oTarget, float distance = DISTANCE_MEDIUM);
 
 // Returns location directly behind the target and facing same
 // direction as the target (useful for backstabbing attacks)
@@ -383,11 +383,11 @@ location GetOppositeLocation(object oTarget)
 
 // Returns location directly ahead of the target and facing
 // same direction as the target
-location GetAheadLocation(object oTarget)
+location GetAheadLocation(object oTarget, float distance = DISTANCE_MEDIUM)
 {
     float fDir = GetFacing(oTarget);
     return GenerateNewLocation(oTarget,
-                               DISTANCE_MEDIUM,
+                               distance,
                                fDir,
                                fDir);
 }
