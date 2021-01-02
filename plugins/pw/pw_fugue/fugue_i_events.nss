@@ -10,6 +10,7 @@
 // -----------------------------------------------------------------------------
 
  #include "fugue_i_main"
+ #include "util_i_chat"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -84,4 +85,27 @@ void fugue_OnPlayerExit()  // TODO is this for the area exit?
     _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
     //DelayCommand(0.0, DelayEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC));
     RunEvent(H2_EVENT_ON_PLAYER_LIVES, OBJECT_INVALID, oPC);
+}
+
+void fugue_OnPlayerChat()
+{
+    object oTarget, oPC = GetPCChatSpeaker();
+    if ((oTarget = GetChatTarget(oPC)) == OBJECT_INVALID)
+        return;
+    
+    string sCommand = GetChatCommand(oPC);
+    if (sCommand == "die")
+    {
+        int iHP = GetCurrentHitPoints(oPC) + 11;
+        effect eDam = EffectDamage(iHP);
+        ApplyEffectToObject(DURATION_TYPE_INSTANT, eDam, oTarget);
+        SendChatResult("You killed " + GetName(oTarget) + ".  You murderer!", oPC);
+    }
+    else if (sCommand == "dying")
+    {
+        int iHP = GetCurrentHitPoints(oPC) + 5;
+        effect eDam = EffectDamage(iHP);
+        ApplyEffectToObject(DURATION_TYPE_INSTANT, eDam, oTarget);
+        SendChatResult("Oh no!  " + GetName(oTarget) + " is dying. :)", oPC);
+    }
 }

@@ -11,7 +11,6 @@
 
 #include "util_i_data"
 #include "util_i_time"
-#include "util_i_chat"
 #include "core_i_framework"
 #include "ds_fug_i_main"
 
@@ -64,19 +63,4 @@ void ds_fug_OnPlayerDeath()
     }
 
     SetEventState(EVENT_STATE_ABORT);
-}
-
-void ds_fug_OnPlayerChat()
-{
-    object oTarget, oPC = GetPCChatSpeaker();
-    if ((oTarget = GetChatTarget(oPC)) == OBJECT_INVALID)
-        return;
-    
-    if (GetChatCommand(oPC) == "die")
-    {
-        int iHP = GetCurrentHitPoints(oPC) + 11;
-        effect eDam = EffectDamage(iHP);
-        ApplyEffectToObject(DURATION_TYPE_INSTANT, eDam, oPC);
-        SendChatResult("OK.  You're dead, then.", oPC);
-    }
 }
