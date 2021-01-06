@@ -9,4 +9,7 @@
 .git/
 
 server/
+plugins/pw/_plugin_prototype/
+plugins/pw/pw_dmfi/
 nasher.cfg
+dockerfile
