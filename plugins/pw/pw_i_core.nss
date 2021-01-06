@@ -373,10 +373,11 @@ void h2_BootPlayer(object oPC, string sMessage = "", float delay = 0.0)
     if (sMessage != "")
         SendMessageToPC(oPC, sMessage);
 
-    sMessage = GetPCPlayerName(oPC) + " BOOTED: " + sMessage;
-    SendMessageToAllDMs(sMessage);
-    Debug(sMessage);
-    DelayCommand(delay, BootPC(oPC));
+    string sAdminMessage = GetPCPlayerName(oPC) + " BOOTED: " + sMessage;
+    SendMessageToAllDMs(sAdminMessage);
+    Debug(sAdminMessage);
+    DelayCommand(delay, BootPC(oPC, sMessage));
+    SetEventState(EVENT_STATE_DENIED);
 }
 
 void h2_BanPlayerByCDKey(object oPC)
@@ -1340,4 +1341,33 @@ void h2_LimitPostRestHeal(object oPC, int postRestHealAmt)
         effect eDamage = EffectDamage(nDam, DAMAGE_TYPE_MAGICAL, DAMAGE_POWER_NORMAL);
         ApplyEffectToObject(DURATION_TYPE_INSTANT, eDamage, oPC);
     }
+}
+
+int AssignRole(object oPC)
+{
+    _DeleteLocalInt(oPC, IS_PC);
+    _DeleteLocalInt(oPC, IS_DM);
+    _DeleteLocalInt(oPC, IS_DEVELOPER);
+
+    if (GetIsDM(oPC) && !_GetIsRegisteredDM(oPC))
+    {
+        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+        BootPC(oPC, "You are not a registered DM.  If you believe this is an " +
+                "error, contact server admin on discord or via email.");
+        
+        string sMessage = GetLocalString(oPC, PC_PLAYER_NAME) + " attempted to login as a DM, but is not " +
+                "on the registered DM list in env_dm.2da" +
+                "\n  Character  -> " + GetName(oPC) +
+                "\n  CD Key     -> " + GetLocalString(oPC, PC_CD_KEY) +
+                "\n  IP Address -> " + GetLocalString(oPC, PC_IP_ADDRESS);
+
+        Warning(sMessage);
+        SendMessageToAllDMs(sMessage);
+        return FALSE;
+    }
+
+    if (_GetIsDeveloper(oPC))
+        _SetLocalInt(oPC, IS_DEVELOPER, TRUE);
+
+    return TRUE;
 }

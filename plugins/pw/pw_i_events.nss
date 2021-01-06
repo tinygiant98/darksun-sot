@@ -89,13 +89,21 @@ void pw_OnModuleHeartbeat()
 void pw_OnClientEnter()
 {
     object oPC = GetEnteringObject();
+    
+    if (!AssignRole(oPC))
+    {
+        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+        SetEventState(EVENT_STATE_DENIED);
+        return;
+    }
+    
     h2_CreatePlayerDataItem(oPC);
 
     int bIsDM = _GetIsDM(oPC);
     int iNameLength = GetStringLength(GetName(oPC));
     if (iNameLength > H2_MAX_LENGTH_PCNAME)
     {
-        _SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
         h2_BootPlayer(oPC, H2_TEXT_PCNAME_TOO_LONG);
         return;
     }
@@ -105,21 +113,21 @@ void pw_OnClientEnter()
     
     if (sBannedByCDKey != "" || sBannedByIPAddress != "")
     {
-        _SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
         h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
         return;
     }
 
     if (!bIsDM && h2_MaximumPlayersReached())
     {
-        _SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
         h2_BootPlayer(oPC, H2_TEXT_SERVER_IS_FULL, 10.0);
         return;
     }
 
     if (!bIsDM && _GetLocalInt(MODULE, H2_MODULE_LOCKED))
     {
-        _SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
         h2_BootPlayer(oPC, H2_TEXT_MODULE_LOCKED, 10.0);
         return;
     }
@@ -127,7 +135,7 @@ void pw_OnClientEnter()
     int iPlayerState = _GetLocalInt(oPC, H2_PLAYER_STATE);
     if (!bIsDM && iPlayerState == H2_PLAYER_STATE_RETIRED)
     {
-        _SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
         h2_BootPlayer(oPC, H2_TEXT_RETIRED_PC_BOOT, 10.0);
         return;
     }
@@ -137,7 +145,7 @@ void pw_OnClientEnter()
         int registeredCharCount = GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
         if (registeredCharCount >= H2_REGISTERED_CHARACTERS_ALLOWED)
         {
-            _SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+            SetLocalInt(oPC, LOGIN_BOOT, TRUE);
             h2_BootPlayer(oPC, H2_TEXT_TOO_MANY_CHARS_BOOT, 10.0);
             return;
         }
