@@ -64,7 +64,7 @@ const float H2_EXPORT_CHARACTERS_INTERVAL = 0.0;
 //A value of zero means there is no limit to the number of characters they can play.
 //When this value is zero the option to retire a character doesn't display.
 //The default value is 0.
-const int H2_REGISTERED_CHARACTERS_ALLOWED = 10;
+const int H2_REGISTERED_CHARACTERS_ALLOWED = 0;
 
 //Force the game clock to update itself each heartbeat (to fix clock update problem for large modules)
 //Set this to true if your module has trouble with the clock updating to see if it helps.
