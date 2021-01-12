@@ -92,6 +92,7 @@ const int QUEST_OBJECTIVE_SPEAK = 6;
 // Quest Status
 const int QUEST_ASSIGNED = 0;
 const int QUEST_COMPLETE = -1;
+const int QUEST_NOT_ASSIGNED = -2;
 
 // -----------------------------------------------------------------------------
 //                          Public Function Prototypes
@@ -630,7 +631,10 @@ void AssignQuest(object oPC, string sQuestTag)
         if (AddListString(oPC, sQuestTag, QUESTS_ASSIGNED, TRUE))
             AddListString(oPC, IntToString(QUEST_ASSIGNED), QUEST_STATUS);
         else
-            Warning("Quest already exists on PC object");
+        {
+            int nIndex = FindListString(oPC, sQuestTag, QUESTS_ASSIGNED);
+            SetListString(oPC, IntToString(QUEST_ASSIGNED), QUEST_STATUS);
+        }
     }
     else
         Warning("Doesn't meet prerequisites");
@@ -651,6 +655,15 @@ void DeleteQuest(object oPC, string sQuestTag)
 
 int GetQuestState(object oPC, string sQuestTag)
 {
+    if (!GetIsQuestAssigned)
+        return QUEST_NOT_ASSIGNED;
+    else if (GetIsQuestComplete(oPC, sQuestTag))
+        return QUEST_COMPLETE;
+    else if (GetIsQuest)
+    // TODO if steps in any order, list total number of step
+    // TODO if in specific order, return number of step
+
+
     // Returns the quest state
     // - QUEST_STATE_NOT_ASSIGNED -> Quest has never been assigned
     // - ##  -> Quest has been assigned and 0 or more
