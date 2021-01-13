@@ -13,7 +13,6 @@
 // 20210112:
 //      Initial Release
 
-
 #include "util_i_datapoint"
 #include "util_i_csvlists"
 #include "util_i_varlists"
@@ -93,6 +92,16 @@ const int QUEST_OBJECTIVE_SPEAK = 6;
 const int QUEST_ASSIGNED = 0;
 const int QUEST_COMPLETE = -1;
 const int QUEST_NOT_ASSIGNED = -2;
+const int QUEST_INVALID = -3
+
+// Quest Prerequisite Types
+// Race, Level, Class, Item, Gold, Alignment, Quest
+const int QUEST_PREREQUISITE_RACE = 1;
+const int QUEST_PREREQUISITE_LEVEL = 2;
+const int QUEST_PREREQUISITE_CLASS = 3;
+const int QUEST_PREREQUISITE_GOLD = 4;
+const int QUEST_PREREQUISITE_ALIGNMENT = 5;
+const int QUEST_PREREQUISITE_QUEST = 6;
 
 // -----------------------------------------------------------------------------
 //                          Public Function Prototypes
@@ -601,6 +610,76 @@ void SetQuestOnAdvanceScript(string sQuestTag, string sScript)
     SetQuestPropertyString(sQuestTag, SCRIPT_ON_ADVANCE, sScript);
 }
 
+// Prereq Types
+// Race, Level, Class, Item, Gold, Alignment, Quest
+
+
+// Prerequisite Stuff
+void SetQuestPrerequisite(string sQuestTag, int nPrerequisiteType, string sValue, int nValue)
+{
+    object oQuest = GetQuestDataItem(sQuestTag);
+
+    switch (nPrerequisiteType)
+    {
+        case QUEST_PREREQUISITE_RACE:
+            SetLocalInt(oQuest, "QUEST_PRE_RACE", nValue);
+            break;
+        case QUEST_PREREQUISITE_LEVEL:
+            SetLocalInt(oQuest, "QUEST_PRE_LEVEL", nValue);
+            break;
+        case QUEST_PREREQUISITE_CLASS:
+            string sClass = i
+    }
+
+
+}
+
+// Data:  On quest data item
+// QuestTag_Prerequisites
+// Int List -> Type     String List -> Match     Int List -> Value
+
+void SetQuestPrerequisiteRace(string sQuestTag, int nRace)
+{
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_RACE, "", nRace);
+}
+
+void SetQuestPrerequisiteLevel(string sQuestTag, int nLevel)
+{
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_LEVEL, "", nLevel);
+}
+
+void SetQuestPrerequisiteClass(string sQuestTag, int nClass, int nLevels);
+{
+    string sClass = IntToString(nClass);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_CLASS, sClass, nLevels);
+}
+
+void SetQuestPrerequisiteGold(string sQuestTag, int nGold)
+{
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_GOLD, "", nGold);
+}
+
+void SetQuestPrerequisiteAlignment(string sQuestTag, int nAxis, int nValue)
+{
+    string sAxis = IntToString(nAxis);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_ALIGNMENT, sAxis, nValue);
+}
+
+void SetQuestPrerequisiteQuest(string sQuestTag, string sPreQuestTag)
+{
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_QUEST, sPreQuestTag, 0);
+}
+
+void SetQuestPrerequisiteItem(string sQuestTag, string sResRef, int nQuantity)
+{
+    SetQuestPrerequisite(sQuestTag, sResref, nQuantity);
+}
+
+
+
+
+
+
 
 struct NWNX_Player_JournalEntry CreateNWNXJournalEntryStruct(object oPC, string sQuestTag)
 {
@@ -622,7 +701,15 @@ struct NWNX_Player_JournalEntry CreateNWNXJournalEntryStruct(object oPC, string 
 
 
 
+int GetQuestIndex(object oPC, string sQuestTag)
+{
+    return FindListString(oPC, sQuestTag, QUESTS_ASSIGNED);
+}
 
+int GetIsQuestAssigned(object oPC, string sQuestTag)
+{
+    return FindListString(oPC, sQuestTag, QUESTS_ASSIGNED) != -1;
+}
 
 void AssignQuest(object oPC, string sQuestTag)
 {
@@ -642,44 +729,47 @@ void AssignQuest(object oPC, string sQuestTag)
 
 void DeleteQuest(object oPC, string sQuestTag)
 {
-    int nIndex = FindListString(oPC, sQuestTag, QUESTS_ASSIGNED);
-    if (nIndex == -1)
-    {
-        Notice("Quest not found");
-        return;
-    }
+    int nIndex = GetQuestIndex(oPC, sQuestTag);
 
-    DeleteListString(oPC, nIndex, QUESTS_ASSIGNED);
-    DeleteListString(oPC, nIndex, QUEST_STATUS);
+    if (nIndex != -1)
+    {
+        DeleteListString(oPC, nIndex, QUESTS_ASSIGNED);
+        DeleteListString(oPC, nIndex, QUEST_STATUS);
+    }
+}
+
+int CountQuestSteps(string sQuestTag)
+{
+    object oQuest = GetQuestDataItem(sQuestTag);
+    return CountIntList(oQuest, QUEST_STEP);
 }
 
 int GetQuestState(object oPC, string sQuestTag)
 {
-    if (!GetIsQuestAssigned)
+    int bAssigned = GetIsQuestAssigned(oPC, sQuestTag);
+    int bComplete = GetIsQuestComplete(oPC, sQuestTag);
+
+    if (!bAssigned)
         return QUEST_NOT_ASSIGNED;
     else if (GetIsQuestComplete(oPC, sQuestTag))
         return QUEST_COMPLETE;
-    else if (GetIsQuest)
-    // TODO if steps in any order, list total number of step
-    // TODO if in specific order, return number of step
+    else
+    {
+        int nIndex = GetQuestIndex(oPC, sQuestTag);
+        string sQuestStatus = GetListString(oPC, nIndex, QUEST_STATUS);
 
+        int nQuestSteps = CountQuestSteps(sQuestTag);
+        int nCompletedSteps = CountList(sQuestStatus);
 
-    // Returns the quest state
-    // - QUEST_STATE_NOT_ASSIGNED -> Quest has never been assigned
-    // - ##  -> Quest has been assigned and 0 or more
-    //          steps have been completed
-    // -  If steps are in order, this will be the step number the pc is on
-    // -  if steps are any order, this will be the number of steps the pc has
-    //      completed
-    // - QUEST_STATE_COMPLETE -> PC has completed all requirements for quest
-    return 0;
+        if (GetQuestPropertyInt(sQuestTag, QUEST_ALLOW_RANDOM_ORDER))
+            return nCompletedSteps;
+        else
+            return StringToInt(GetListItem(sQuestStatus, nCompletedSteps -1));
+    }
+
+    return QUEST_INVALID;
 }
-
-int GetIsQuestAssigned(object oPC, string sQuestTag)
-{
-    return 0;
-}
-
+   
 int GetIsQuestAssignable(object oPC, string sQuestTag, int nStep = 0)
 {
     // Quests are assignable if
@@ -690,15 +780,16 @@ int GetIsQuestAssignable(object oPC, string sQuestTag, int nStep = 0)
 
 int GetIsQuestComplete(object oPC, string sQuestTag, int nStep = 0)
 {
+    int nIndex = GetQuestIndex(oPC, sQuestTag);
+    string sQuestStatus = GetListString(oPC, nIndex, QUEST_STATUS);
 
-    return 0;
-}
+    int nQuestSteps = CountQuestSteps(sQuestTag);
+    int nCompletedSteps = CountList(sQuestStatus);
 
-int GetIsQuestCompletable(object oPC, string sQuestTag, int nStep = 0)
-{
-    // Necessary?  Primarily for non-ordered quests since steps have to be hecked.
-    // For oredered quests, just finishing the last step should do it.
-    return 0;
+    if (!nStep)
+        return nCompletedSteps == nQuestSteps;
+    else
+        return HasListItem(sQuestStatus, IntToString(nStep));
 }
 
 void GiveQuestRewards(object oPC, string sQuestTag, int nStep = 0, int nRewardType = REWARD_ALL, int bParty = FALSE)
