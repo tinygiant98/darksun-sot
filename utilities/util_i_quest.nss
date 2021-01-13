@@ -611,16 +611,66 @@ void SetQuestOnAdvanceScript(string sQuestTag, string sScript)
     SetQuestPropertyString(sQuestTag, SCRIPT_ON_ADVANCE, sScript);
 }
 
-// Prerequisite Stuff
-void SetQuestPrerequisite(string sQuestTag, int nPrerequisiteType, string sValue, int nValue)
+int FindQuestPrerequisite(string sQuestTag, int nPrerequisiteType)
 {
     object oQuest = GetQuestDataItem(sQuestTag);
+    return FindListInt(oQuest, nPrerequisiteType, "QUEST_PREREQ_TYPE");
+}
+
+// Prerequisite Stuff
+void SetQuestPrerequisite(string sQuestTag, int nPrerequisiteType, string sKey, string sValue)
+{
+    object oQuest = GetQuestDataItem(sQuestTag);
+    int nIndex = FindQuestPrerequisite(sQuestTag, nPrerequisiteType);
 
     // TODO, do this by type to add csv lists?
+    switch (nPrerequisiteType)
+    {
+        case QUEST_PREREQUISITE_ALIGNMENT:
+        case QUEST_PREREQUISITE_CLASS:
+        case QUEST_PREREQUISITE_ITEM:
+        case QUEST_PREREQUISITE_QUEST:
+        {
+            string sKeys, sValues;
+            if (nIndex != -1)
+            {
+                // Type already exists add it?
+                sKeys = GetListString(oQuest, nIndex, "QUEST_PREREQ_KEY");
+                sValues = GetListString(oQuest, nIndex, "QUEST_PREREQ_VALUE");
+            }
+        
+            sKeys = AddListItem(sKeys, sKey);
+            sValues = AddListItem(sValues, sValue);
 
-    AddListInt   (oQuest, nPrerequisiteType, "QUEST_PREREQ_TYPE");
-    AddListString(oQuest, sValue, "QUEST_PREREQ_KEY");
-    AddListInt   (oQuest, nValue, "QUEST_PREREQ_VALUE");
+            if (nIndex != -1)
+            {
+                SetListString(oQuest, nIndex, sKeys, "QUEST_PREREQ_KEY");
+                SetListString(oQuest, nIndex, sValues, "QUEST_PREREQ_VALUE");
+            }
+            else
+            {
+                AddListInt   (oQuest, nPrerequisiteType, "QUEST_PREREQ_TYPE");
+                AddListString(oQuest, sKeys, "QUEST_PREREQ_KEY");
+                AddListSTring(oQuest, sValues, "QUEST_PREREQ_VALUE");
+            }
+            break;
+        }
+        case QUEST_PREREQUISITE_GOLD:
+        case QUEST_PREREQUISITE_LEVEL_MAX:
+        case QUEST_PREREQUISITE_LEVEL_MIN:
+        case QUEST_PREREQUISITE_RACE:
+        {
+            if (nIndex != -1)
+                SetListString(oQuest, nIndex, sValue, "QUEST_PREREQ_VALUE");
+            else
+            {
+                AddListInt   (oQuest, nPrerequisiteType, "QUEST_PREREQ_TYPE");
+                AddListString(oQuest, sKey, "QUEST_PREREQ_KEY");
+                AddListString(oQuest, sValue, "QUEST_PREREQ_VALUE");
+            }
+            break;
+        }
+    }
 }
 
 int GetIsQuestAssignable(object oPC, string sQuestTag)
@@ -632,12 +682,37 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
     (for n = 0; n < nCount; n++)
     {
         int nPrerequisiteType = GetListInt(oQuest, n, "QUEST_PREREQ_TYPE");
-        string sKey = GetListString(oQuest, n, "QUEST_PREREQ_KEY");
-        int nValue = GetListInt(oQuest, n, "QUEST_PREREQ_VALUE");
+        string sKeys = GetListString(oQuest, n, "QUEST_PREREQ_KEY");
+        string sValues = GetListString(oQuest, n, "QUEST_PREREQ_VALUE");
 
         switch (nPrerequisiteType)
         {
             case QUEST_PREREQUISITE_ALIGNMENT:
+            {   // ALIGNMENT PREREQS ARE &&, so any failures return FALSE
+                int n, nAxis, nValue, nCount = CountList(sKeys);
+                int nAlignmentGE = GetAlignmentGoodEvil(oPC);
+                int nAlignmentLC = GetAlignmentLawChaos(oPC);
+                int nValueGE = GetGoodEvilValue(oPC);
+                int nValueLC = GetLawChaosValue(oPC);
+
+                for (n = 0; n < nCount; n++)
+                {
+                    // nKey is the ALignment axis, nvalue is the amount
+                    nAxis = StringToInt(GetListItem(sKeys, n));
+                    nValue = StringToInt(GetListItem(sValues, n));
+                    
+                    switch (nValue)
+                    {
+                        case -1:
+                        {
+                            if (nAlignmentGE == nAxis || nAlignmentLC == xAxis)
+                                bAssignable = TRUE;
+                            
+                        }
+                    }
+                }
+
+
                 int nAxis = StringToInt(sKey);
                 int nAlignmentGE = GetAlignmentGoodEvil(oPC);
                 int nAlignmentLC = GetAlignmentLawChaos(oPC);
@@ -649,27 +724,58 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                     // Check the actual value
 
                 break;
+            }
             case QUEST_PREREQUISITE_CLASS:
             {
-                int n, nClass, nKey = StringToInt(sKey);
-
-                for (n = 1; n <= 3; n++)
+                int n, nKey, nValue, nCount = CountList(sKeys);
+                int nClass1 = GetClassByPosition(1, oPC);
+                int nClass2 = GetClassByPosition(2, oPC);
+                int nClass3 = GetClassByPosition(3, oPC);
+                int nLevels1 = GetLevelsByClass(nClass1, oPC);
+                int nLevels2 = GetLevelsByClass(nClass2, oPC);
+                int nLevels3 = GetLevelsByClass(nClass3, oPC);
+                
+                for (n = 0; n < nCount; n++);
                 {
-                    nClass = GetClassByPosition(n, oPC);
-                    if (nClass == nKey && GetLevelByClass(nKey, oPC) >= nValue)
+                    nKey = StringToInt(GetListItem(sKeys, n));
+                    nValue = StringToInt(GetListItem(sValues, n));
+
+                    switch (nValue)
                     {
-                        bAssignable = TRUE;
-                        break;
+                        case -1:
+                            // Any number of levels in this class, but must
+                            // have class
+                            if (nClass1 == nKey || nClass2 == nKey || nClass3 == nKey)
+                                bAssignable = TRUE;
+                            break;
+                        case 0:
+                            // Can't have any levels in this class (exlusionary)
+                            if (nClass1 == nKey || nClass2 == nKey || nClass3 == nKey)
+                                return FALSE;
+                            break;
+                        default:
+                            // Specific number or more of levels in a specified class
+                            if (nClass1 == nKey && nLevels1 >= nValue)
+                                bAssignable == TRUE;
+                            else if (nClass2 == nKey && nLevels2 >= nValue)
+                                bAssignable == TRUE;
+                            else if (nClass3 == nKey && nLevels3 >= nValue)
+                                bAssignable == TRUE;
+                            else
+                                return FALSE;
                     }
                 }
                 break;
             }
             case QUEST_PREREQUISITE_GOLD:
+            {
+                int nValue = StrintToInt(SValues);
                 if (GetGold(oPC) >= nValue)
                     bAssignable = TRUE;
                 else
                     return FALSE;
                 break;
+            }
             case QUEST_PREREQUISITE_LEVEL_MIN:
                 if (GetHitDice(oPC) >= nValue)
                     bAssignable = TRUE;
@@ -693,6 +799,7 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                     bAssignable = TRUE;
                 break;
             }
+        
             case QUEST_PREREQUISITE_ITEM:
             {
                 if (!nValue)
@@ -746,44 +853,44 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
 
 void SetQuestPrerequisiteRace(string sQuestTag, int nRace)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_RACE, "", nRace);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_RACE, "", IntToString(nRace));
 }
 
 void SetQuestPrerequisiteLevelMin(string sQuestTag, int nLevel)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_LEVEL_MIN, "", nLevel);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_LEVEL_MIN, "", IntToString(nLevel));
 }
 
 void SetQuestPrerequisiteLevelMax(string sQuestTag, int nLevel)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_LEVEL_MAX, "", nLevel);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_LEVEL_MAX, "", IntToString(nLevel));
 }
 
 void SetQuestPrerequisiteClass(string sQuestTag, int nClass, int nLevels = 1);
 {
     string sClass = IntToString(nClass);
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_CLASS, sClass, nLevels);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_CLASS, sClass, IntToString(nLevels));
 }
 
 void SetQuestPrerequisiteGold(string sQuestTag, int nGold)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_GOLD, "", nGold);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_GOLD, "", IntToString(nGold));
 }
 
 void SetQuestPrerequisiteAlignment(string sQuestTag, int nAxis, int nValue = -1)
 {
     string sAxis = IntToString(nAxis);
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_ALIGNMENT, sAxis, nValue);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_ALIGNMENT, sAxis, IntToString(nValue));
 }
 
 void SetQuestPrerequisiteQuest(string sQuestTag, string sPrereqQuestTag, int nValue = 0)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_QUEST, sPrereqQuestTag, 0);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_QUEST, sPrereqQuestTag, "");
 }
 
 void SetQuestPrerequisiteItem(string sQuestTag, string sResRef, int nQuantity = 1)
 {
-    SetQuestPrerequisite(sQuestTag, sResref, nQuantity);
+    SetQuestPrerequisite(sQuestTag, sResref, IntToString(nQuantity));
 }
 
 
