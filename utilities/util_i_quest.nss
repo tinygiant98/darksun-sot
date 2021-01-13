@@ -95,13 +95,14 @@ const int QUEST_NOT_ASSIGNED = -2;
 const int QUEST_INVALID = -3
 
 // Quest Prerequisite Types
-// Race, Level, Class, Item, Gold, Alignment, Quest
 const int QUEST_PREREQUISITE_RACE = 1;
-const int QUEST_PREREQUISITE_LEVEL = 2;
+const int QUEST_PREREQUISITE_LEVEL_MIN = 2;
 const int QUEST_PREREQUISITE_CLASS = 3;
 const int QUEST_PREREQUISITE_GOLD = 4;
 const int QUEST_PREREQUISITE_ALIGNMENT = 5;
 const int QUEST_PREREQUISITE_QUEST = 6;
+const int QUEST_PREREQUISITE_LEVEL_MAX = 7;
+const int QUEST_PREREQUISITE_ITEM = 8;
 
 // -----------------------------------------------------------------------------
 //                          Public Function Prototypes
@@ -610,28 +611,133 @@ void SetQuestOnAdvanceScript(string sQuestTag, string sScript)
     SetQuestPropertyString(sQuestTag, SCRIPT_ON_ADVANCE, sScript);
 }
 
-// Prereq Types
-// Race, Level, Class, Item, Gold, Alignment, Quest
-
-
 // Prerequisite Stuff
 void SetQuestPrerequisite(string sQuestTag, int nPrerequisiteType, string sValue, int nValue)
 {
     object oQuest = GetQuestDataItem(sQuestTag);
 
-    switch (nPrerequisiteType)
+    // TODO, do this by type to add csv lists?
+
+    AddListInt   (oQuest, nPrerequisiteType, "QUEST_PREREQ_TYPE");
+    AddListString(oQuest, sValue, "QUEST_PREREQ_KEY");
+    AddListInt   (oQuest, nValue, "QUEST_PREREQ_VALUE");
+}
+
+int GetIsQuestAssignable(object oPC, string sQuestTag)
+{
+    object oQuest = GetQuestDatItem(sQuestTag);
+    int n, nCount = CountIntList(oQuest, "QUEST_PREREQ_TYPE");
+    int bAssignable = FALSE;
+
+    (for n = 0; n < nCount; n++)
     {
-        case QUEST_PREREQUISITE_RACE:
-            SetLocalInt(oQuest, "QUEST_PRE_RACE", nValue);
-            break;
-        case QUEST_PREREQUISITE_LEVEL:
-            SetLocalInt(oQuest, "QUEST_PRE_LEVEL", nValue);
-            break;
-        case QUEST_PREREQUISITE_CLASS:
-            string sClass = i
+        int nPrerequisiteType = GetListInt(oQuest, n, "QUEST_PREREQ_TYPE");
+        string sKey = GetListString(oQuest, n, "QUEST_PREREQ_KEY");
+        int nValue = GetListInt(oQuest, n, "QUEST_PREREQ_VALUE");
+
+        switch (nPrerequisiteType)
+        {
+            case QUEST_PREREQUISITE_ALIGNMENT:
+                int nAxis = StringToInt(sKey);
+                int nAlignmentGE = GetAlignmentGoodEvil(oPC);
+                int nAlignmentLC = GetAlignmentLawChaos(oPC);
+
+                if (nAlignmentGE == nAxis || nAlignment LC == nAxis)
+                    bAssignable = TRUE;
+
+                if (bAssignable && nValue >= 0)
+                    // Check the actual value
+
+                break;
+            case QUEST_PREREQUISITE_CLASS:
+            {
+                int n, nClass, nKey = StringToInt(sKey);
+
+                for (n = 1; n <= 3; n++)
+                {
+                    nClass = GetClassByPosition(n, oPC);
+                    if (nClass == nKey && GetLevelByClass(nKey, oPC) >= nValue)
+                    {
+                        bAssignable = TRUE;
+                        break;
+                    }
+                }
+                break;
+            }
+            case QUEST_PREREQUISITE_GOLD:
+                if (GetGold(oPC) >= nValue)
+                    bAssignable = TRUE;
+                else
+                    return FALSE;
+                break;
+            case QUEST_PREREQUISITE_LEVEL_MIN:
+                if (GetHitDice(oPC) >= nValue)
+                    bAssignable = TRUE;
+                else
+                    return FALSE;
+                break;
+            case QUEST_PREREQUISITE_LEVEL_MAX:
+                if (GetHitDice(oPC) <= nValue)
+                    bAssignable = TRUE;
+                else
+                    return FALSE;
+                break;
+            case QUEST_PREREQUISITE_QUEST:
+                if (GetIsQuestComplete(oPC, sKey))
+                    bAssignable = TRUE;
+                break;
+            case QUEST_PREREQUISITE_RACE:
+            {
+                int nRace = StringToInt(sKey);
+                if (GetRacialType(oPC) == nRace)
+                    bAssignable = TRUE;
+                break;
+            }
+            case QUEST_PREREQUISITE_ITEM:
+            {
+                if (!nValue)
+                {
+                    if (GetIsObjectValid(GetItemPossessedBy(oPC, sKey)))
+                        return FALSE;
+                }
+                else if (nValue == 1)
+                {
+                    if (GetIsObjectValid(GetItemPossessedBy(oPC, sKey)))
+                    {
+                        bAssignable = TRUE;
+                        break;
+                    }
+                }
+                else
+                {
+                    int nItemCount = 0;
+
+                    object oItem = GetFirstItemInInventory(oTarget);
+                    while (GetIsObjectValid(oItem))
+                    {
+                        if (GetTag(oItem) == sKey)
+                            nItemCount += GetNumStackedItems(oItem);
+
+                        if (nItemCount >= nValue)
+                        {
+                            bAssignable = TRUE;
+                            break;
+                        }
+
+                        oItem = GetNextItemInInventory(oTarget);
+                    }
+                }
+                break;
+            }
+        }
     }
-
-
+    
+    return bAssignable;   
+    
+    
+    // Quests are assignable if
+    // - The PC doesn't have the quest, but meets prerequisites
+    // - The PC has completed the quest, and the quest is repeatable
 }
 
 // Data:  On quest data item
@@ -643,12 +749,17 @@ void SetQuestPrerequisiteRace(string sQuestTag, int nRace)
     SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_RACE, "", nRace);
 }
 
-void SetQuestPrerequisiteLevel(string sQuestTag, int nLevel)
+void SetQuestPrerequisiteLevelMin(string sQuestTag, int nLevel)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_LEVEL, "", nLevel);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_LEVEL_MIN, "", nLevel);
 }
 
-void SetQuestPrerequisiteClass(string sQuestTag, int nClass, int nLevels);
+void SetQuestPrerequisiteLevelMax(string sQuestTag, int nLevel)
+{
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_LEVEL_MAX, "", nLevel);
+}
+
+void SetQuestPrerequisiteClass(string sQuestTag, int nClass, int nLevels = 1);
 {
     string sClass = IntToString(nClass);
     SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_CLASS, sClass, nLevels);
@@ -659,18 +770,18 @@ void SetQuestPrerequisiteGold(string sQuestTag, int nGold)
     SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_GOLD, "", nGold);
 }
 
-void SetQuestPrerequisiteAlignment(string sQuestTag, int nAxis, int nValue)
+void SetQuestPrerequisiteAlignment(string sQuestTag, int nAxis, int nValue = -1)
 {
     string sAxis = IntToString(nAxis);
     SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_ALIGNMENT, sAxis, nValue);
 }
 
-void SetQuestPrerequisiteQuest(string sQuestTag, string sPreQuestTag)
+void SetQuestPrerequisiteQuest(string sQuestTag, string sPrereqQuestTag, int nValue = 0)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_QUEST, sPreQuestTag, 0);
+    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_QUEST, sPrereqQuestTag, 0);
 }
 
-void SetQuestPrerequisiteItem(string sQuestTag, string sResRef, int nQuantity)
+void SetQuestPrerequisiteItem(string sQuestTag, string sResRef, int nQuantity = 1)
 {
     SetQuestPrerequisite(sQuestTag, sResref, nQuantity);
 }
@@ -770,13 +881,7 @@ int GetQuestState(object oPC, string sQuestTag)
     return QUEST_INVALID;
 }
    
-int GetIsQuestAssignable(object oPC, string sQuestTag, int nStep = 0)
-{
-    // Quests are assignable if
-    // - The PC doesn't have the quest, but meets prerequisites
-    // - The PC has completed the quest, and the quest is repeatable
-    return 0;
-}
+
 
 int GetIsQuestComplete(object oPC, string sQuestTag, int nStep = 0)
 {
