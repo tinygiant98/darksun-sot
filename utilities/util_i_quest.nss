@@ -847,7 +847,10 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                     if (nPC == nRace)
                     {
                         if (bInclude)
+                        {
                             bAssignable = TRUE;
+                            break;
+                        }
                         else
                             return FALSE;
                     }
@@ -867,7 +870,7 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                         if (GetIsObjectValid(GetItemPossessedBy(oPC, sItem)))
                             return FALSE;
                     }
-                    else if (nQuantity = 1)
+                    else if (nQuantity == 1)
                     {
                         if (GetIsObjectValid(GetItemPossessedBy(oPC, sItem)))
                             bAssignable = TRUE;
