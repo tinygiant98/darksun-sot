@@ -17,6 +17,8 @@
 #include "util_i_csvlists"
 #include "util_i_varlists"
 #include "util_i_data"
+#include "util_i_time"
+#include "util_i_libraries"
 #include "nwnx_player"
 
 // -----------------------------------------------------------------------------
@@ -32,6 +34,7 @@
 // implementation.
 const int QUEST_SAVE_QUEST_STATE_TO_DATABASE = FALSE;
 
+// TODO reward, preward, objective, etc. stucts for easy addition of steps to quests?
 
 
 // -----------------------------------------------------------------------------
@@ -43,69 +46,112 @@ object QUESTS = GetDatapoint("QUEST_DATA");
 
 // Quest Identification Variable Names
 const string QUEST_ID = "QUEST_ID";
-const string NEXT_QUEST_ID = "NEXT_QUEST_ID";
+const string QUEST_NEXT_ID = "NEXT_QUEST_ID";
 const string QUEST_TAG = "QUEST_TAG";
 const string QUEST_TITLE = "QUEST_TITLE";
 
 // Quest Properties Variable Names
 const string QUEST_ALLOW_RANDOM_ORDER = "QUEST_ALLOW_RANDOM_ORDER";
 const string QUEST_ACTIVE = "QUEST_ACTIVE";
-const string QUEST_REPETITIONS = "QUEST_REPITITIONS";
-const string QUEST_OBJECTIVE_TYPE = "QUEST_OBJECTIVE_TYPE";
-const string SCRIPT_ON_ACCEPT = "SCRIPT_ON_ACCEPT";
-const string SCRIPT_ON_ADVANCE = "SCRIPT_ON_ADVANCE";
-const string SCRIPT_ON_COMPLETE = "SCRIPT_ON_COMPLETE";
+const string QUEST_REPETITIONS = "QUEST_REPETITIONS";
+const string QUEST_SCRIPT_ON_ACCEPT = "QUEST_SCRIPT_ON_ACCEPT";
+const string QUEST_SCRIPT_ON_ADVANCE = "QUEST_SCRIPT_ON_ADVANCE";
+const string QUEST_SCRIPT_ON_COMPLETE = "QUEST_SCRIPT_ON_COMPLETE";
+const string QUEST_DISPLAY_ON_COMPLETE = "QUEST_DISPLAY_ON_COMPLETE";
 
 // Quest Data Variable Names (on PC Object)
-const string QUESTS_ASSIGNED = "QUESTS_ASSIGNED";
-const string QUEST_STATE = "QUEST_STATE";
+const string QUEST_ASSIGNED = "QUEST_ASSIGNED";
+const string QUEST_STATUS = "QUEST_STATUS";
+const string QUEST_TIME_ASSIGNED = "QUEST_TIME_ASSIGNED";
+const string QUEST_COMPLETION_COUNT = "QUEST_COMPLETION_COUNT";
 
 // Quest Pseudo-Array List Names
 const string QUEST_STEP = "QUEST_STEP";
 const string QUEST_JOURNAL_ENTRY = "QUEST_JOURNAL_ENTRY";
-const string REWARD_TYPE_GOLD = "REWARD_TYPE_GOLD";
-const string REWARD_TYPE_XP = "REWARD_TYPE_XP";
-const string REWARD_TYPE_ITEM = "REWARD_TYPE_ITEM";
-const string REWARD_TYPE_ALIGNMENT = "REWARD_TYPE_ALIGNMENT";
+const string QUEST_OBJECTIVE = "QUEST_OBJECTIVE";
+const string QUEST_TIME_LIMIT = "QUEST_TIME_LIMIT";
+const string QUEST_PARTY_COMPLETION = "QUEST_PARTY_COMPLETION";
+
+const string QUEST_REWARD_TYPE = "QUEST_REWARD_TYPE";
+const string QUEST_REWARD_KEY = "QUEST_REWARD_KEY";
+const string QUEST_REWARD_VALUE = "QUEST_REWARD_VALUE";
+
+const string QUEST_PREWARD_TYPE = "QUEST_PREWARD_TYPE";
+const string QUEST_PREWARD_KEY = "QUEST_PREWARD_KEY";
+const string QUEST_PREWARD_VALUE = "QUEST_PREWARD_VALUE";
+
+const string QUEST_PREREQUISITE_TYPE = "QUEST_PREREQUISITE_TYPE";
+const string QUEST_PREREQUISITE_KEY = "QUEST_PREREQUISITE_KEY";
+const string QUEST_PREREQUISITE_VALUE = "QUEST_PREREQUISITE_VALUE";
+
+// Quest Property and Value Types
+const int QUEST_PROPERTY_TYPE_NONE = 0;
+const int QUEST_PROPERTY_TYPE_PREREQUISITE = 1;
+const int QUEST_PROPERTY_TYPE_REWARD = 2;
+const int QUEST_PROPERTY_TYPE_PREWARD = 3;
+
+const int QUEST_VALUE_TYPE_NONE = 0;
+const int QUEST_VALUE_TYPE_ALIGNMENT = 1;
+const int QUEST_VALUE_TYPE_CLASS = 2;
+const int QUEST_VALUE_TYPE_ITEM = 3;
+const int QUEST_VALUE_TYPE_QUEST = 4;
+const int QUEST_VALUE_TYPE_RACE = 5;
+const int QUEST_VALUE_TYPE_GOLD = 6;
+const int QUEST_VALUE_TYPE_LEVEL_MAX = 7;
+const int QUEST_VALUE_TYPE_LEVEL_MIN = 8;
+const int QUEST_VALUE_TYPE_XP = 9;
 
 // Quest Reward Bitmasks
-const int REWARD_ALL = 0x00;
-const int REWARD_GOLD = 0x01;
-const int REWARD_XP = 0x02;
-const int REWARD_ITEM = 0x04;
-const int REWARD_ALIGNMENT = 0x08;
+const int AWARD_ALL = 0x00;
+const int AWARD_GOLD = 0x01;
+const int AWARD_XP = 0x02;
+const int AWARD_ITEM = 0x04;
+const int AWARD_ALIGNMENT = 0x08;
 
 // Quest Reward Quantity Operations
 const int QUEST_OPERATION_REPLACE = 0;
 const int QUEST_OPERATION_ADD = 1;
 
 // Quest Entry Validity
-const string QUANTITY_INVALID = "QUANTITY_INVALID";
-const string QUEST_INVALID = "QUEST_INVALID";
+const string REQUEST_INVALID = "REQUEST_INVALID";
+const int    OPERATION_INVALID = FALSE;
 
 // Quest Objective Types
-const int QUEST_OBJECTIVE_GATHER = 1;
-const int QUEST_OBJECTIVE_KILL = 2;
-const int QUEST_OBJECTIVE_DELIVER = 3;
-const int QUEST_OBJECTIVE_ESCORT = 4;
-const int QUEST_OBJECTIVE_CAPTURE = 5;
-const int QUEST_OBJECTIVE_SPEAK = 6;
+const int QUEST_OBJECTIVE_TYPE_GATHER = 1;
+const int QUEST_OBJECTIVE_TYPE_KILL = 2;
+const int QUEST_OBJECTIVE_TYPE_DELIVER = 3;
+const int QUEST_OBJECTIVE_TYPE_ESCORT = 4;
+const int QUEST_OBJECTIVE_TYPE_CAPTURE = 5;
+const int QUEST_OBJECTIVE_TYPE_SPEAK = 6;
 
-// Quest Status
-const int QUEST_ASSIGNED = 0;
-const int QUEST_COMPLETE = -1;
-const int QUEST_NOT_ASSIGNED = -2;
-//const int nQUEST_INVALID = -3
+// Odds and Ends
+const string PAIR_KEY = "PAIR_KEY";
+const string PAIR_VALUE = "PAIR_VALUE";
 
-// Quest Prerequisite Types
-const int QUEST_PREREQUISITE_RACE = 1;
-const int QUEST_PREREQUISITE_LEVEL_MIN = 2;
-const int QUEST_PREREQUISITE_CLASS = 3;
-const int QUEST_PREREQUISITE_GOLD = 4;
-const int QUEST_PREREQUISITE_ALIGNMENT = 5;
-const int QUEST_PREREQUISITE_QUEST = 6;
-const int QUEST_PREREQUISITE_LEVEL_MAX = 7;
-const int QUEST_PREREQUISITE_ITEM = 8;
+struct QUEST_Step_Objective
+{
+    int nType;
+    string sTag1;
+    int nQuantity;
+    string sTag2;
+    string sTime;
+};
+/*
+struct NWNX_Player_JournalEntry
+{
+    string sName;///< @todo Describe
+    string sText;///< @todo Describe
+    string sTag;///< @todo Describe
+    int nState;///< @todo Describe
+    int nPriority;///< @todo Describe
+    int nQuestCompleted;///< @todo Describe
+    int nQuestDisplayed;///< @todo Describe
+    int nUpdated;///< @todo Describe
+    int nCalendarDay;///< @todo Describe
+    int nTimeOfDay;///< @todo Describe
+};*/
+
+
 
 // -----------------------------------------------------------------------------
 //                          Public Function Prototypes
@@ -134,26 +180,26 @@ void SetQuestInactive(string sQuestTag);
 int GetQuestRepetitions(string sQuestTag);
 void SetQuestRepetitions(string sQuestTag, int nRepetitions = 1);
 
-// ---< GetQuestRewardItems >---
+// ---< GetQuestRewardItems >---  // TODO
 // Gets a comma-delimited string of key:value pairs that represent
 // quest reward items and quantities -> resref:qty[,resref:qty...]
-string GetQuestRewardItems(string sQuestTag, int nStep = 0);
+string GetQuestRewardItemKeys(string sQuestTag, int nStep = 0);
 
-// ---< GetQuestRewardItem >---
+// ---< GetQuestRewardItem >---  // TODO
 // Gets a specific key:value pair that represents a single quest
 // reward items at index nItemIndex.
-string GetQuestRewardItem(string sQuestTag, int nItemIndex, int nStep = 0);
+string GetQuestRewardItemValues(string sQuestTag, int nStep = 0);
 
 // ---< SetQuestRewardItem >---
 // Sets a specified item and quantity as a reward for completing a quest or
 // quest step.
-void SetQuestRewardItem(string sQuestTag, string sResref, int nQuantity = 1, int nStep = 0, int nOperation = QUEST_OPERATION_REPLACE);
+void SetQuestRewardItem(string sQuestTag, string sResref, int nQuantity = 1, int nStep = 0);
 
 // ---< SetQuestRewardItems >---
 // Accepts a comma-delimited list of key:value pairs that define a set of item
 // rewards and quantities to be awarded upon completion of a specific quest or
 // quest step. This function is advanced usage.
-void SetQuestRewardItems(string sQuestTag, string sItemPairs, int nStep = 0, int nOperation = QUEST_OPERATION_REPLACE);
+void SetQuestRewardItems(string sQuestTag, string sResref, string sQuantity, int nStep = 0);
 
 // ---< CountQuestRewardItems >----
 // Returns the count of quest reward items
@@ -161,21 +207,21 @@ int CountQuestRewardItems(string sQuestTag, int nStep = 0);
 
 // ---< GetQuestRewardItemResref >---
 // Returns the resref of a specified item reward
-string GetQuestRewardItemResref(string sQuestTag, int nItemIndex = 0, int nStep = 0);
+string GetQuestRewardItemResref(string sQuestTag, int nIndex = 0, int nStep = 0);
 
 // ---< GetQuestRewardItemQuantity >---
 // Returns the quantity associated with a specified item reward
-int GetQuestRewardItemQuantity(string sQuestTag, int nItemIndex = 0, int nStep = 0);
+int GetQuestRewardItemQuantity(string sQuestTag, int nIndex = 0, int nStep = 0);
 
 // ---< [Get|Set]QuestGoldReward >---
 // Gets/Sets a gold reward for completing a quest or a quest step
-int GetQuestGoldReward(string sQuestTag, int nStep = 0);
-void SetQuestGoldReward(string sQuestTag, int nGold, int nStep = 0, int nOperation = QUEST_OPERATION_REPLACE);
+int GetQuestRewardGold(string sQuestTag, int nStep = 0);
+void SetQuestRewardGold(string sQuestTag, int nGold, int nStep = 0);
 
 // ---< [Get|Set]QuestXPReward >---
 // Gets/Sets an xp reward for completing a quest or a quest step
-int GetQuestXPReward(string sQuestTag, int nStep = 0);
-void SetQuestXPReward(string sQuestTag, int nXP, int nStep = 0, int nOperation = QUEST_OPERATION_REPLACE);
+int GetQuestRewardXP(string sQuestTag, int nStep = 0);
+void SetQuestRewardXP(string sQuestTag, int nXP, int nStep = 0);
 
 // ---< [Get|Set]QuestJournalEntry >---
 // Gets/Sets a journal entry for a quest or quest step
@@ -185,12 +231,12 @@ void SetQuestJournalEntry(string sQuestTag, string sJournalEntry, int nStep = 0)
 // ---< GetQuestAlignmentReward[Axis|Shift] >---
 // Returns the alignment reward axis (as an ALIGNMENT_* constant) or the amount of the
 // alignment shift
-int GetQuestAlignmentRewardAxis(string sQuestTag, int nStep = 0);
-int GetQuestAlignmentRewardShift(string sQuestTag, int nStep = 0);
+int GetQuestRewardAlignmentAxis(string sQuestTag, int nStep = 0);
+int GetQuestRewardAlignmentShift(string sQuestTag, int nStep = 0);
 
 // ---< SetQuestAlignmentReward >---
 // Sets an alignment reward for completing a quest or quest step
-void SetQuestAlignmentReward(string sQuestTag, int nAxis, int nShift, int nStep = 0);
+void SetQuestRewardAlignment(string sQuestTag, int nAxis, int nShift, int nStep = 0);
 
 // ---< [Set|Get]QuestOn[Accept|Advance|Complete]Script >---
 // Gets or sets a specified script that runs on the OnAccept/OnAdvance/OnComplete
@@ -266,7 +312,7 @@ string GetKey(string sPair, string sSeparator = ":")
 // ---< GetValue >---
 // Returns the value portion of key:value pair sPair; if the sSeparator is
 // not found, returns sDefault
-string GetValue(string sPair, string sDefault = QUANTITY_INVALID, string sSeparator = ":")
+string GetValue(string sPair, string sDefault = REQUEST_INVALID, string sSeparator = ":")
 {
     int nIndex;
 
@@ -274,13 +320,6 @@ string GetValue(string sPair, string sDefault = QUANTITY_INVALID, string sSepara
         return sDefault;
     else
         return GetSubString(sPair, ++nIndex, GetStringLength(sPair));
-}
-
-// ---< GetNextQuestID >---
-// Returns the next available quest ID
-int GetNextQuestID()
-{
-    return IncrementLocalInt(NEXT_QUEST_ID);
 }
 
 // ---< GetQuestStepIndex >---
@@ -361,37 +400,61 @@ string GetQuestEntry(string sQuestTag, string sEntryType, int nStep = 0)
 
     if (nIndex == -1)
     {
-        Error("Attempt to get a quest reward for a step that does not exist" +
+        Error("Attempting to get a quest reward for a step that does not exist" +
               "\n  sQuestTag -> " + sQuestTag +
               "\n  sEntryType -> " + sEntryType +
               "\n  nStep -> " + IntToString(nStep));
-        return QUEST_INVALID;
+        return REQUEST_INVALID;
     }
     
     return GetListString(oQuest, nIndex, sEntryType);
 }
 
-void AddQuestStep(string sQuestTag, int nStep = 0)
+int CountQuestSteps(string sQuestTag)
 {
     object oQuest = GetQuestDataItem(sQuestTag);
-    
+    return CountIntList(oQuest, QUEST_STEP);
+}
+
+// Adds a quest step to sQuestTag and 
+int AddQuestStep(string sQuestTag, string sJournalEntry = "")
+{
+    object oQuest = GetQuestDataItem(sQuestTag);
+    int nStep = CountQuestSteps(sQuestTag) + 1;
+
     if (AddListInt(oQuest, nStep, QUEST_STEP, TRUE))
     {
-        AddListInt   (oQuest, 0, QUEST_OBJECTIVE_TYPE, 0);
-        AddListString(oQuest, "", QUEST_JOURNAL_ENTRY);
-        AddListString(oQuest, "", REWARD_TYPE_GOLD);
-        AddListString(oQuest, "", REWARD_TYPE_XP);
-        AddListString(oQuest, "", REWARD_TYPE_ITEM);
-        AddListString(oQuest, "", REWARD_TYPE_ALIGNMENT);
+        AddListString(oQuest, sJournalEntry, QUEST_JOURNAL_ENTRY);
+        AddListString(oQuest, "0,~,~,~", QUEST_OBJECTIVE);
+        AddListString(oQuest, "", QUEST_TIME_LIMIT);
+        AddListInt   (oQuest, 0, QUEST_PARTY_COMPLETION);
     }
     else
         Warning("Attempted to add step " + IntToString(nStep) + " to " + sQuestTag + "; " +
                 "step already exists, no action taken");
+
+    return nStep;
+}
+
+void SetQuestStepObjective(string sQuestTag, struct QUEST_Step_Objective qso, int nStep)
+{
+    object oQuest = GetQuestDataItem(sQuestTag);
+    int nIndex = GetQuestStepIndex(sQuestTag, nStep);
+    
+    string sObjective;
+    sObjective = AddListItem(sObjective, IntToString(qso.nType));
+    sObjective = AddListItem(sObjective, qso.sTag1);
+    sObjective = AddListItem(sObjective, IntToString(qso.nQuantity));
+    sObjective = AddListItem(sObjective, qso.sTag2);
+
+    SetListString(oQuest, nIndex, sObjective, QUEST_OBJECTIVE);
 }
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
+
+////// QUEST DATA ADMIN /////////////
 
 int AddQuest(string sQuestTag, string sQuestTitle)
 {
@@ -403,9 +466,7 @@ int AddQuest(string sQuestTag, string sQuestTitle)
 
     // TODO see what datapoint already sets and use that
     object oQuest = GetQuestDataItem(sQuestTag);
-    int nNextID = GetNextQuestID();
 
-    SetLocalInt(oQuest, QUEST_ID, nNextID);
     SetLocalString(oQuest, QUEST_TAG, sQuestTag);
     SetLocalString(oQuest, QUEST_TITLE, sQuestTitle);
 
@@ -414,13 +475,16 @@ int AddQuest(string sQuestTag, string sQuestTitle)
     SetLocalInt(oQuest, QUEST_REPETITIONS, 1);
     SetLocalInt(oQuest, QUEST_ALLOW_RANDOM_ORDER, FALSE);
 
-    return nNextID;
+    return TRUE;
 }
 
 void DeleteQuest(string sQuestTag)
 {
     DeleteQuestDataItem(sQuestTag);
 }
+
+/////////// QUEST PROPERTIES //////////////
+// APPLIES TO ENTIRE QUEST OBJECT ///////
 
 int GetQuestActive(string sQuestTag)
 {
@@ -447,203 +511,62 @@ void SetQuestRepetitions(string sQuestTag, int nRepetitions = 1)
     SetQuestPropertyInt(sQuestTag, QUEST_REPETITIONS, nRepetitions);
 }
 
-string GetQuestRewardItems(string sQuestTag, int nStep = 0)
-{
-    return GetQuestEntry(sQuestTag, REWARD_TYPE_ITEM, nStep);
-}
-
-string GetQuestRewardItem(string sQuestTag, int nItemIndex, int nStep = 0)
-{
-    string sItems = GetQuestRewardItems(sQuestTag, nStep);
-    return GetListItem(sItems, nItemIndex);
-}
-
-void SetQuestRewardItem(string sQuestTag, string sResref, int nQuantity = 1, int nStep = 0, int nOperation = QUEST_OPERATION_REPLACE)
-{
-    string sRewards, sReward = sResref + ":" + IntToString(nQuantity);
-
-    if (nOperation == QUEST_OPERATION_ADD)
-    {
-        sRewards = GetQuestRewardItems(sQuestTag, nStep);
-        sRewards = AddListItem(sRewards, sReward);
-    }
-    else
-        sRewards = sReward;
-
-    SetQuestEntry(sQuestTag, REWARD_TYPE_ITEM, sRewards, nStep);
-}
-
-void SetQuestRewardItems(string sQuestTag, string sItemPairs, int nStep = 0, int nOperation = QUEST_OPERATION_REPLACE)
-{
-    string sRewards;
-
-    if (nOperation = QUEST_OPERATION_ADD)
-    {
-        sRewards = GetQuestRewardItems(sQuestTag, nStep);
-        sRewards = MergeLists(sRewards, sItemPairs);
-    }
-    else
-        sRewards = sItemPairs;
-
-    SetQuestEntry(sQuestTag, REWARD_TYPE_ITEM, sRewards, nStep = 0);
-}
-
-int CountQuestRewardItems(string sQuestTag, int nStep = 0)
-{
-    return CountList(GetQuestRewardItems(sQuestTag, nStep));
-}
-
-string GetQuestRewardItemResref(string sQuestTag, int nItemIndex = 0, int nStep = 0)
-{
-    string sItemPair = GetQuestRewardItem(sQuestTag, nItemIndex, nStep);
-    return GetKey(sItemPair);
-}
-
-int GetQuestRewardItemQuantity(string sQuestTag, int nItemIndex = 0, int nStep = 0)
-{
-    string sItemPair = GetQuestRewardItem(sQuestTag, nItemIndex, nStep);
-    string sValue = GetValue(sItemPair, QUANTITY_INVALID);
-    
-    if (sValue == QUANTITY_INVALID)
-        return 1;
-    else
-        return StringToInt(sValue);
-}
-
-int GetQuestGoldReward(string sQuestTag, int nStep = 0)
-{
-    string sGold = GetQuestEntry(sQuestTag, REWARD_TYPE_GOLD, nStep);
-    return StringToInt(sGold);
-}
-
-void SetQuestGoldReward(string sQuestTag, int nGold, int nStep = 0, int nOperation = QUEST_OPERATION_REPLACE)
-{   
-    if (nOperation == QUEST_OPERATION_ADD)
-        nGold += GetQuestGoldReward(sQuestTag, nStep);
-
-    SetQuestEntry(sQuestTag, REWARD_TYPE_GOLD, IntToString(nGold), nStep);
-}
-
-int GetQuestXPReward(string sQuestTag, int nStep = 0)
-{
-    string sXP = GetQuestEntry(sQuestTag, REWARD_TYPE_XP, nStep);
-    return StringToInt(sXP);
-}
-
-void SetQuestXPReward(string sQuestTag, int nXP, int nStep = 0, int nOperation = QUEST_OPERATION_REPLACE)
-{
-    if (nOperation == QUEST_OPERATION_ADD)
-        nXP += GetQuestXPReward(sQuestTag, nStep);
-
-    SetQuestEntry(sQuestTag, REWARD_TYPE_XP, IntToString(nXP), nStep);
-}
-
-string GetQuestJournalEntry(string sQuestTag, int nStep = 0)
-{
-    return GetQuestEntry(sQuestTag, QUEST_JOURNAL_ENTRY, nStep);
-}
-
-void SetQuestJournalEntry(string sQuestTag, string sJournalEntry, int nStep = 0)
-{
-    SetQuestEntry(sQuestTag, QUEST_JOURNAL_ENTRY, sJournalEntry, nStep);
-}
-
-int GetQuestAlignmentRewardAxis(string sQuestTag, int nStep = 0)
-{
-    string sEntry = GetQuestEntry(sQuestTag, REWARD_TYPE_ALIGNMENT, nStep);
-    return StringToInt(GetKey(sEntry));
-}
-
-int GetQuestAlignmentRewardShift(string sQuestTag, int nStep = 0)
-{
-    string sEntry = GetQuestEntry(sQuestTag, REWARD_TYPE_ALIGNMENT, nStep);
-    return StringToInt(GetValue(sEntry));
-}
-
-void SetQuestAlignmentReward(string sQuestTag, int nAxis, int nShift, int nStep = 0)
-{
-    if (nShift < 0)
-    {
-        switch (nAxis)
-        {
-            case ALIGNMENT_EVIL:
-                nAxis = ALIGNMENT_GOOD;
-                break;
-            case ALIGNMENT_GOOD:
-                nAxis = ALIGNMENT_EVIL;
-                break;
-            case ALIGNMENT_CHAOTIC:
-                nAxis = ALIGNMENT_LAWFUL;
-                break;
-            case ALIGNMENT_LAWFUL:
-                nAxis = ALIGNMENT_CHAOTIC;
-                break;
-        }
-
-        nAxis = abs(nAxis);
-    }
-
-    string sEntry = IntToString(nAxis) + ":" + IntToString(nShift);
-    SetQuestEntry(sQuestTag, REWARD_TYPE_ALIGNMENT, sEntry, nStep);
-}
-
 string GetQuestOnAcceptScript(string sQuestTag)
 {
-    return GetQuestPropertyString(sQuestTag, SCRIPT_ON_ACCEPT);
+    return GetQuestPropertyString(sQuestTag, QUEST_SCRIPT_ON_ACCEPT);
 }
 
 void SetQuestOnAcceptScript(string sQuestTag, string sScript)
 {
-    SetQuestPropertyString(sQuestTag, SCRIPT_ON_ACCEPT, sScript);
+    SetQuestPropertyString(sQuestTag, QUEST_SCRIPT_ON_ACCEPT, sScript);
 }
 
 string GetQuestOnCompleteScript(string sQuestTag)
 {
-    return GetQuestPropertyString(sQuestTag, SCRIPT_ON_COMPLETE);
+    return GetQuestPropertyString(sQuestTag, QUEST_SCRIPT_ON_COMPLETE);
 }
 
 void SetQuestOnCompleteScript(string sQuestTag, string sScript)
 {
-    SetQuestPropertyString(sQuestTag, SCRIPT_ON_COMPLETE, sScript);
+    SetQuestPropertyString(sQuestTag, QUEST_SCRIPT_ON_COMPLETE, sScript);
 }
 
 string GetQuestOnAdvanceScript(string sQuestTag)
 {
-    return GetQuestPropertyString(sQuestTag, SCRIPT_ON_ADVANCE);
+    return GetQuestPropertyString(sQuestTag, QUEST_SCRIPT_ON_ADVANCE);
 }
 
 void SetQuestOnAdvanceScript(string sQuestTag, string sScript)
 {
-    SetQuestPropertyString(sQuestTag, SCRIPT_ON_ADVANCE, sScript);
+    SetQuestPropertyString(sQuestTag, QUEST_SCRIPT_ON_ADVANCE, sScript);
 }
 
-int FindQuestPrerequisite(string sQuestTag, int nPrerequisiteType)
+int GetQuestDisplayOnComplete(string sQuestTag)
 {
-    object oQuest = GetQuestDataItem(sQuestTag);
-    return FindListInt(oQuest, nPrerequisiteType, "QUEST_PREREQ_TYPE");
+    return GetQuestPropertyInt(sQuestTag, QUEST_DISPLAY_ON_COMPLETE);
 }
 
+void SetQuestDisplayOnComplete(string sQuestTag, int nDisplay = TRUE)
+{
+    SetQuestPropertyInt(sQuestTag, QUEST_DISPLAY_ON_COMPLETE, nDisplay);
+}
+
+//////////// HELPERS ///////////////
 
 int GetIsQuestAssigned(object oPC, string sQuestTag)
 {
-    return FindListString(oPC, sQuestTag, QUESTS_ASSIGNED) != -1;
-}
-
-int CountQuestSteps(string sQuestTag)
-{
-    object oQuest = GetQuestDataItem(sQuestTag);
-    return CountIntList(oQuest, QUEST_STEP);
+    return FindListString(oPC, sQuestTag, QUEST_ASSIGNED) != -1;
 }
 
 int GetQuestIndex(object oPC, string sQuestTag)
 {
-    return FindListString(oPC, sQuestTag, QUESTS_ASSIGNED);
+    return FindListString(oPC, sQuestTag, QUEST_ASSIGNED);
 }
    
 int GetIsQuestComplete(object oPC, string sQuestTag, int nStep = 0)
 {
     int nIndex = GetQuestIndex(oPC, sQuestTag);
-    string sQuestStatus = GetListString(oPC, nIndex, QUEST_STATE);
+    string sQuestStatus = GetListString(oPC, nIndex, QUEST_STATUS);
 
     int nQuestSteps = CountQuestSteps(sQuestTag);
     int nCompletedSteps = CountList(sQuestStatus);
@@ -654,60 +577,302 @@ int GetIsQuestComplete(object oPC, string sQuestTag, int nStep = 0)
         return HasListItem(sQuestStatus, IntToString(nStep));
 }
 
-// Prerequisite Stuff
-void SetQuestPrerequisite(string sQuestTag, int nPrerequisiteType, string sKey, string sValue)
+// This will award reward or prewards, send the right argument to nPropertyType
+// QUEST_PROPERTY_TYPE_REWARD
+// QUEST_PROPERTY_TYPE_PREWARD
+int AwardQuestAllotments(object oPC, string sQuestTag, int nPropertyType,
+                        int nStep = 0, int nAwardType = AWARD_ALL, int bParty = FALSE)
 {
     object oQuest = GetQuestDataItem(sQuestTag);
-    int nIndex = FindQuestPrerequisite(sQuestTag, nPrerequisiteType);
+    string sTypeList, sKeyList, sValueList, sStep = "_" + IntToString(nStep);
 
-    // TODO, do this by type to add csv lists?
-    switch (nPrerequisiteType)
+    if (nPropertyType == QUEST_PROPERTY_TYPE_REWARD)
     {
-        case QUEST_PREREQUISITE_ALIGNMENT:
-        case QUEST_PREREQUISITE_CLASS:
-        case QUEST_PREREQUISITE_ITEM:
-        case QUEST_PREREQUISITE_QUEST:
-        case QUEST_PREREQUISITE_RACE:
+        sTypeList = QUEST_REWARD_TYPE + sStep;
+        sKeyList = QUEST_REWARD_KEY + sStep;
+        sValueList = QUEST_REWARD_VALUE + sStep;
+    }
+    else if (nPropertyType == QUEST_PROPERTY_TYPE_PREWARD)
+    {
+        sTypeList = QUEST_PREWARD_TYPE + sStep;
+        sKeyList = QUEST_PREWARD_KEY + sStep;
+        sValueList = QUEST_PREWARD_VALUE + sStep;
+    }
+
+    if (sTypeList == "" || sKeyList == "" || sValueList == "")
+        return FALSE;
+
+    string sKeys, sValues;
+    int n, nType, nCount = CountIntList(oQuest, sTypeList);
+    for (n = 0; n < nCount; n++)
+    {
+        nType = GetListInt(oQuest, n, sTypeList);
+        sKeys = GetListString(oQuest, n, sKeyList);
+        sValues = GetListString(oQuest, n, sValueList);
+
+        if (nType == QUEST_VALUE_TYPE_GOLD)
+        {
+            if ((nAwardType && AWARD_GOLD) || nAwardType == AWARD_ALL)
+            {
+                int nGold = StringToInt(sValues);
+                if (bParty) 
+                    Error(""); // TODO GiveGoldToAll(oPC, nGold);
+                else        
+                    GiveGoldToCreature(oPC, nGold);
+            }
+            continue;
+        }
+        
+        if (nType == QUEST_VALUE_TYPE_XP)
+        {
+            if ((nAwardType && AWARD_XP) || nAwardType == AWARD_ALL)
+            {
+                int nXP = StringToInt(sValues);
+                if (bParty)
+                    Error(""); // TODO GiveXPToAll(oPC, nXP);
+                else
+                    GiveXPToCreature(oPC, nXP);
+            }
+            continue;
+        }
+        
+        if (nType == QUEST_VALUE_TYPE_ALIGNMENT)
+        {
+            if ((nAwardType && AWARD_ALIGNMENT) || nAwardType == AWARD_ALL)
+            {
+                int n, nAxis, nShift, nCount = CountList(sKeys);
+                for (n = 0; n < nCount; n++)
+                {
+                    nAxis = StringToInt(GetListItem(sKeys, n));
+                    nShift = StringToInt(GetListItem(sValues, n));
+
+                    if (bParty)
+                        Error("");  // TODO AdjustAlignmentOnAll(oPC, nAxis, nShift);
+                    else
+                        AdjustAlignment(oPC, nAxis, nShift, FALSE);
+                }
+            }
+            continue;
+        }        
+        
+        if (nType == QUEST_VALUE_TYPE_ITEM)
+        {
+            if ((nAwardType && AWARD_ITEM) || nAwardType == AWARD_ALL)
+            {
+                int n, nQuantity, nCount = CountList(sKeys);
+                string sResref;
+            
+                for (n = 0; n < nCount; n++)
+                {
+                    sResref = GetListItem(sKeys, n);
+                    nQuantity = StringToInt(GetListItem(sValues, n));
+
+                    if (bParty)
+                    {
+                        object oPartyMember = GetFirstFactionMember(oPC, TRUE);
+                        while (GetIsObjectValid(oPartyMember))
+                        {
+                            CreateItemOnObject(sResref, oPartyMember, nQuantity);
+                            oPartyMember = GetNextFactionMember(oPC, TRUE);
+                        }
+                    }
+                    else
+                        CreateItemOnObject(sResref, oPC, nQuantity);
+                }
+            }
+        }
+    }
+
+    return TRUE;
+}
+
+int HasMinimumItemCount(object oPC, string sItemTag, int nMinQuantity = 1, int bIncludeParty = FALSE)
+{
+    int nItemCount = 0;
+    object oItem = GetItemPossessedBy(oPC, sItemTag);
+    if (GetIsObjectValid(oItem))
+    {
+        oItem = GetFirstItemInInventory(oPC);
+        while (GetIsObjectValid(oItem))
+        {
+            if (GetTag(oItem) == sItemTag)
+                nItemCount += GetNumStackedItems(oItem);
+
+            if (nItemCount >= nMinQuantity)
+                return TRUE;
+
+            oItem = GetNextItemInInventory(oPC);
+        }
+    }
+
+    if (bIncludeParty)
+    {
+        object oPartyMember = GetFirstFactionMember(oPC, TRUE);
+        while (GetIsObjectValid(oPartyMember))
+        {
+            oItem = GetItemPossessedBy(oPC, sItemTag);
+            if (GetIsObjectValid(oItem))
+            {
+                oItem = GetFirstItemInInventory(oPartyMember);
+                while (GetIsObjectValid(oItem))
+                {
+                    if (GetTag(oItem) == sItemTag)
+                        nItemCount += GetNumberStackedItems(oItem);
+                    
+                    if (nItemCount >= nMinQuantity)
+                        return TRUE;
+
+                    oItem = GetNextItemInInventory(oPartyMember);
+                }
+            }
+
+            oPartyMember = GetNextFactionMember(oPC, TRUE);
+        }
+    }
+
+    return FALSE;
+}
+
+string GetQuestProperty(string sQuestTag, int nPropertyType, int nValueType,
+                        string nComponent = PAIR_VALUE, int nStep = 0)
+{
+    object oQuest = GetQuestDataItem(sQuestTag);
+    string sTypeList, sKeyList, sValueList, sStep = "_" + IntToString(nStep);
+
+    if (nPropertyType == QUEST_PROPERTY_TYPE_PREREQUISITE)
+    {
+        sStep = "_0";
+
+        sTypeList = QUEST_PREREQUISITE_TYPE + sStep;
+        sKeyList = QUEST_PREREQUISITE_KEY + sStep;
+        sValueList = QUEST_PREREQUISITE_VALUE + sStep;
+    }
+    else if (nPropertyType == QUEST_PROPERTY_TYPE_REWARD)
+    {
+        sTypeList = QUEST_REWARD_TYPE + sStep;
+        sKeyList = QUEST_REWARD_KEY + sStep;
+        sValueList = QUEST_REWARD_VALUE + sStep;
+    }
+    else if (nPropertyType == QUEST_PROPERTY_TYPE_PREWARD)
+    {
+        sTypeList = QUEST_PREWARD_TYPE + sStep;
+        sKeyList = QUEST_PREWARD_KEY + sStep;
+        sValueList = QUEST_PREWARD_VALUE + sStep;
+    }
+    
+    if (sTypeList == "" || sKeyList == "" || sValueList == "")
+        return REQUEST_INVALID;
+
+    int nIndex = FindListInt(oQuest, nValueType, sTypeList);
+    if (nIndex == -1)
+        return REQUEST_INVALID;
+
+    switch (nValueType)
+    {
+        case QUEST_VALUE_TYPE_ALIGNMENT:
+        case QUEST_VALUE_TYPE_CLASS:
+        case QUEST_VALUE_TYPE_ITEM:
+        case QUEST_VALUE_TYPE_QUEST:
+        case QUEST_VALUE_TYPE_RACE:
+            return GetListString(oQuest, nIndex, (nComponent == PAIR_KEY ? sKeyList : sValueList));
+            break;
+        case QUEST_VALUE_TYPE_GOLD:
+        case QUEST_VALUE_TYPE_LEVEL_MAX:
+        case QUEST_VALUE_TYPE_LEVEL_MIN:
+            return GetListString(oQuest, nIndex, sValueList);
+            break;
+    }
+
+    return REQUEST_INVALID;
+}
+
+int SetQuestProperty(string sQuestTag, int nPropertyType, int nValueType, 
+                     string sKey, string sValue, int nStep = 0)
+{
+    if (nPropertyType == QUEST_PROPERTY_TYPE_PREREQUISITE)
+        nStep = 0;
+
+    object oQuest = GetQuestDataItem(sQuestTag);
+    string sTypeList, sKeyList, sValueList, sStep = "_" + IntToString(nStep);
+
+    if (nPropertyType == QUEST_PROPERTY_TYPE_PREREQUISITE)
+    {
+        sTypeList = QUEST_PREREQUISITE_TYPE + sStep;
+        sKeyList = QUEST_PREREQUISITE_KEY + sStep;
+        sValueList = QUEST_PREREQUISITE_VALUE + sStep;
+    }
+    else if (nPropertyType == QUEST_PROPERTY_TYPE_REWARD)
+    {
+        sTypeList = QUEST_REWARD_TYPE + sStep;
+        sKeyList = QUEST_REWARD_KEY + sStep;
+        sValueList = QUEST_REWARD_VALUE + sStep;
+    }
+    else if (nPropertyType == QUEST_PROPERTY_TYPE_PREWARD)
+    {
+        sTypeList = QUEST_PREWARD_TYPE + sStep;
+        sKeyList = QUEST_PREWARD_KEY + sStep;
+        sValueList = QUEST_PREWARD_VALUE + sStep;
+    }
+
+    if (sTypeList == "" || sKeyList == "" || sValueList == "")
+        return FALSE;
+
+    int nIndex = FindListInt(oQuest, nValueType, sTypeList);
+    
+    switch (nValueType)
+    {
+        case QUEST_VALUE_TYPE_ALIGNMENT:
+        case QUEST_VALUE_TYPE_CLASS:
+        case QUEST_VALUE_TYPE_ITEM:
+        case QUEST_VALUE_TYPE_QUEST:
+        case QUEST_VALUE_TYPE_RACE:
         {
             string sKeys, sValues;
             if (nIndex != -1)
             {
-                // Type already exists add it?
-                sKeys = GetListString(oQuest, nIndex, "QUEST_PREREQ_KEY");
-                sValues = GetListString(oQuest, nIndex, "QUEST_PREREQ_VALUE");
+                sKeys = GetListString(oQuest, nIndex, sKeyList);
+                sValues = GetListString(oQuest, nIndex, sValueList);
             }
         
-            sKeys = MergeLists(sKeys, sKey);
-            sValues = MergeLists(sValues, sValue);
+            if (CountList(sKey) == CountList(sValue))
+            {
+                sKeys = MergeLists(sKeys, sKey);
+                sValues = MergeLists(sValues, sValue);
+            }
+            else
+                return FALSE;
 
             if (nIndex != -1)
             {
-                SetListString(oQuest, nIndex, sKeys, "QUEST_PREREQ_KEY");
-                SetListString(oQuest, nIndex, sValues, "QUEST_PREREQ_VALUE");
+                SetListString(oQuest, nIndex, sKeys, sKeyList);
+                SetListString(oQuest, nIndex, sValues, sValueList);
             }
             else
             {
-                AddListInt   (oQuest, nPrerequisiteType, "QUEST_PREREQ_TYPE");
-                AddListString(oQuest, sKeys, "QUEST_PREREQ_KEY");
-                AddListString(oQuest, sValues, "QUEST_PREREQ_VALUE");
+                AddListInt   (oQuest, nValueType, sTypeList);
+                AddListString(oQuest, sKeys, sKeyList);
+                AddListString(oQuest, sValues, sValueList);
             }
             break;
         }
-        case QUEST_PREREQUISITE_GOLD:
-        case QUEST_PREREQUISITE_LEVEL_MAX:
-        case QUEST_PREREQUISITE_LEVEL_MIN:
+        case QUEST_VALUE_TYPE_GOLD:
+        case QUEST_VALUE_TYPE_LEVEL_MAX:
+        case QUEST_VALUE_TYPE_LEVEL_MIN:
+        case QUEST_VALUE_TYPE_XP:
         {
             if (nIndex != -1)
-                SetListString(oQuest, nIndex, sValue, "QUEST_PREREQ_VALUE");
+                SetListString(oQuest, nIndex, sValue, sValueList);
             else
             {
-                AddListInt   (oQuest, nPrerequisiteType, "QUEST_PREREQ_TYPE");
-                AddListString(oQuest, sKey, "QUEST_PREREQ_KEY");
-                AddListString(oQuest, sValue, "QUEST_PREREQ_VALUE");
+                AddListInt   (oQuest, nValueType, sTypeList);
+                AddListString(oQuest, sKey, sKeyList);
+                AddListString(oQuest, sValue, sValueList);
             }
             break;
         }
     }
+
+    return TRUE;
 }
 
 int GetIsQuestAssignable(object oPC, string sQuestTag)
@@ -717,24 +882,30 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
     if (GetIsQuestComplete(oPC, sQuestTag) && GetQuestRepetitions(sQuestTag) > 1)
         return TRUE;
 
+    // TODO store a quest completion count on the pc for checking against questrepitition count
+
     // If the quest is already assigned, can't reassign
     if (GetIsQuestAssigned(oPC, sQuestTag))
         return FALSE;
 
+    // If there are no prerequisites for this quest, assign
+    if (!CountStringList(oQuest, QUEST_PREREQUISITE_TYPE))
+        return TRUE;
+
     // Other types not met, check for prerequisites to meet quest assignment
     object oQuest = GetQuestDataItem(sQuestTag);
-    int n, nCount = CountIntList(oQuest, "QUEST_PREREQ_TYPE");
+    int n, nCount = CountIntList(oQuest, QUEST_PREREQUISITE_TYPE);
     int bAssignable = FALSE;
 
     for (n = 0; n < nCount; n++)
     {
-        int nPrerequisiteType = GetListInt(oQuest, n, "QUEST_PREREQ_TYPE");
-        string sKeys = GetListString(oQuest, n, "QUEST_PREREQ_KEY");
-        string sValues = GetListString(oQuest, n, "QUEST_PREREQ_VALUE");
+        int nPrerequisiteType = GetListInt(oQuest, n, QUEST_PREREQUISITE_TYPE);
+        string sKeys = GetListString(oQuest, n, QUEST_PREREQUISITE_KEY);
+        string sValues = GetListString(oQuest, n, QUEST_PREREQUISITE_VALUE);
 
         switch (nPrerequisiteType)
         {
-            case QUEST_PREREQUISITE_ALIGNMENT:
+            case QUEST_VALUE_TYPE_ALIGNMENT:
             {
                 int n, nAxis, nValue, nMeets, nCount = CountList(sKeys);
                 int nAlignmentGE = GetAlignmentGoodEvil(oPC);
@@ -755,7 +926,7 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                     return FALSE;
                 break;
             }
-            case QUEST_PREREQUISITE_CLASS:
+            case QUEST_VALUE_TYPE_CLASS:
             {
                 int n, nKey, nValue, nCount = CountList(sKeys);
                 int nClass1 = GetClassByPosition(1, oPC);
@@ -793,7 +964,7 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                 }
                 break;
             }
-            case QUEST_PREREQUISITE_GOLD:
+            case QUEST_VALUE_TYPE_GOLD:
             {   // Mandata, no meet = FALSE
                 int nValue = StringToInt(sValues);
                 if (GetGold(oPC) >= nValue)
@@ -802,7 +973,7 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                     return FALSE;
                 break;
             }
-            case QUEST_PREREQUISITE_LEVEL_MIN:
+            case QUEST_VALUE_TYPE_LEVEL_MIN:
             {   // Mandate, no meet = FALSE
                 int nValue = StringToInt(sValues);
                 if (GetHitDice(oPC) >= nValue)
@@ -811,7 +982,7 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                     return FALSE;
                 break;
             }
-            case QUEST_PREREQUISITE_LEVEL_MAX:
+            case QUEST_VALUE_TYPE_LEVEL_MAX:
             {   // Mandate, no meet = FALSE
                 int nValue = StringToInt(sValues);
                 if (GetHitDice(oPC) <= nValue)
@@ -820,7 +991,7 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                     return FALSE;
                 break;
             }
-            case QUEST_PREREQUISITE_QUEST:
+            case QUEST_VALUE_TYPE_QUEST:
             {   // && must meet all
                 int n, nCount = CountList(sValues);
                 string sQuest;
@@ -835,7 +1006,7 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                 }
                 break;
             }
-            case QUEST_PREREQUISITE_RACE:
+            case QUEST_VALUE_TYPE_RACE:
             {   // Since players are only one race, this is an OR || unless excluded
                 int n, nPC, nRace, bInclude, nCount = CountList(sKeys);
                 for (n = 0; n < nCount; n++)
@@ -857,9 +1028,10 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                 }
                 break;
             }        
-            case QUEST_PREREQUISITE_ITEM:
+            case QUEST_VALUE_TYPE_ITEM:
             {
-                int n, nCount = CountList(sKeys);
+                string sItem;
+                int n, nQuantity, nCount = CountList(sKeys);
                 for (n = 0; n < nCount; n++)
                 {
                     sItem = GetListItem(sKeys, n);
@@ -876,23 +1048,9 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                             bAssignable = TRUE;
                     }
                     else if (nQuantity > 1)
-                    {
-                        int nItemCount = 0;
-                        object oItem = GetFirstItemInInventory(oPC);
-
-                        while (GetIsObjectValid(oItem))
-                        {
-                            if (GetTag(oItem) == sKey)
-                                nItemCount += GetNumStackedItems(oItem);
-
-                            if (nItemCount >= nValue)
-                            {
-                                bAssignable = TRUE;
-                                break;
-                            }
-
-                            oItem = GetNextItemInInventory(oPC);
-                        }
+                    {   // TODO allow party complete status
+                        if (HasMinimumItemCount(oPC, sItem, nQuantity)
+                            bAssignable = TRUE;
                     }
                 }
 
@@ -904,53 +1062,285 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
     return bAssignable;
 }
 
+///////////////////////////// PREREQUISITE CONVENIENCE /////////////////////////////////
+
 void SetQuestPrerequisiteRace(string sQuestTag, int nRace, int bInclude = TRUE)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_RACE, IntToString(nRace), IntToString(bInclude));
+    string sRace = IntToString(nRace);
+    string sInclude = IntToString(bInclude);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_PREREQUISITE, QUEST_VALUE_TYPE_RACE, sRace, sInclude);
 }
 
 void SetQuestPrerequisiteLevelMin(string sQuestTag, int nLevel)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_LEVEL_MIN, "", IntToString(nLevel));
+    string sLevel = IntToString(nLevel);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_PREREQUISITE, QUEST_VALUE_TYPE_LEVEL_MIN, "", sLevel);
 }
 
 void SetQuestPrerequisiteLevelMax(string sQuestTag, int nLevel)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_LEVEL_MAX, "", IntToString(nLevel));
+    string sLevel = IntToString(nLevel);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_PREREQUISITE, QUEST_VALUE_TYPE_LEVEL_MAX, "", sLevel);
 }
 
 void SetQuestPrerequisiteClass(string sQuestTag, int nClass, int nLevels = 1)
 {
     string sClass = IntToString(nClass);
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_CLASS, sClass, IntToString(nLevels));
+    string sLevels = IntToString(nLevels);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_PREREQUISITE, QUEST_VALUE_TYPE_CLASS, sClass, sLevels);
 }
 
 void SetQuestPrerequisiteGold(string sQuestTag, int nGold)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_GOLD, "", IntToString(nGold));
+    string sGold = IntToString(nGold);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_PREREQUISITE, QUEST_VALUE_TYPE_GOLD, "", sGold);
 }
 
 void SetQuestPrerequisiteAlignment(string sQuestTag, int nAxis)
 {
     string sAxis = IntToString(nAxis);
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_ALIGNMENT, sAxis, "");
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_PREREQUISITE, QUEST_VALUE_TYPE_ALIGNMENT, sAxis, "");
 }
 
-void SetQuestPrerequisiteQuest(string sQuestTag, string sPrereqQuestTag, int nValue = 0)
+void SetQuestPrerequisiteQuest(string sQuestTag, string sPrereqQuestTag)
 {
-    SetQuestPrerequisite(sQuestTag, QUEST_PREREQUISITE_QUEST, sPrereqQuestTag, "");
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_PREREQUISITE, QUEST_VALUE_TYPE_QUEST, sPrereqQuestTag, "");
 }
 
-void SetQuestPrerequisiteItem(string sQuestTag, string sResRef, int nQuantity = 1)
+void SetQuestPrerequisiteItem(string sQuestTag, string sResref, int nQuantity = 1)
 {
-    SetQuestPrerequisite(sQuestTag, sResref, IntToString(nQuantity));
+    string sQuantity = IntToString(nQuantity);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_PREREQUISITE, QUEST_VALUE_TYPE_ITEM, sResref, sQuantity);
+}
+
+///////////////////////////// REWARD CONVENIENCE /////////////////////////////////
+////// ITEM REWARD STUFF ////////
+string GetQuestRewardItemKeys(string sQuestTag, int nStep = 0)
+{
+    return GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ITEM, PAIR_KEY, nStep);
+}
+
+string GetQuestRewardItemValues(string sQuestTag, int nStep = 0)
+{
+    return GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ITEM, PAIR_VALUE, nStep);
+}
+
+int CountQuestRewardItems(string sQuestTag, int nStep = 0)
+{
+    return CountList(GetQuestRewardItemKeys(sQuestTag, nStep));
+}
+
+string GetQuestRewardItemResref(string sQuestTag, int nIndex = 0, int nStep = 0)
+{
+    string sKeys = GetQuestRewardItemKeys(sQuestTag, nStep);
+    return GetListItem(sKeys, nIndex);
+}
+
+int GetQuestRewardItemQuantity(string sQuestTag, int nIndex = 0, int nStep = 0)
+{
+    string sValues = GetQuestRewardItemValues(sQuestTag, nStep);
+    return StringToInt(GetListItem(sValues, nIndex));
+}
+
+void SetQuestRewardItem(string sQuestTag, string sResref, int nQuantity = 1, int nStep = 0)
+{
+    string sQuantity = IntToString(nQuantity);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ITEM, sResref, sQuantity, nStep);
+}
+
+void SetQuestRewardItems(string sQuestTag, string sResref, string sQuantity, int nStep = 0)
+{
+    if (CountList(sResref) == CountList(sQuantity))
+        SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ITEM, sResref, sQuantity, nStep);
+}
+
+//// GOLD REWARD STUFF ///////
+
+int GetQuestRewardGold(string sQuestTag, int nStep = 0)
+{
+    return StringToInt(GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_GOLD, PAIR_VALUE, nStep));
+}
+
+void SetQuestRewardGold(string sQuestTag, int nGold, int nStep = 0)
+{   
+    string sGold = IntToString(nGold);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_GOLD, "", sGold, nStep);
+}
+
+////// XP REWARD STUFF //////
+
+int GetQuestRewardXP(string sQuestTag, int nStep = 0)
+{
+    return StringToInt(GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_XP, PAIR_VALUE, nStep));
+}
+
+void SetQuestRewardXP(string sQuestTag, int nXP, int nStep = 0)
+{
+    string sXP = IntToString(nXP);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_XP, "", sXP, nStep);
+}
+
+//// ALIGNMENT REWARD STUFF /////
+int GetQuestRewardAlignmentAxis(string sQuestTag, int nStep = 0)
+{
+    return StringToInt(GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ALIGNMENT, PAIR_KEY, nStep));
+}
+
+int GetQuestRewardAlignmentShift(string sQuestTag, int nStep = 0)
+{
+    return StringToInt(GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ALIGNMENT, PAIR_VALUE, nStep));
+}
+
+void SetQuestRewardAlignment(string sQuestTag, int nAxis, int nShift, int nStep = 0)
+{
+    if (nShift < 0)
+    {
+        switch (nAxis)
+        {
+            case ALIGNMENT_EVIL:
+                nAxis = ALIGNMENT_GOOD;
+                break;
+            case ALIGNMENT_GOOD:
+                nAxis = ALIGNMENT_EVIL;
+                break;
+            case ALIGNMENT_CHAOTIC:
+                nAxis = ALIGNMENT_LAWFUL;
+                break;
+            case ALIGNMENT_LAWFUL:
+                nAxis = ALIGNMENT_CHAOTIC;
+                break;
+        }
+
+        nShift = abs(nShift);
+    }
+
+    string sAxis = IntToString(nAxis);
+    string sShift = IntToString(nShift);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ALIGNMENT, sAxis, sShift, nStep);
+}
+
+///////////////////////////// PREWARD CONVENIENCE /////////////////////////////////
+////// ITEM PREWARD STUFF ////////
+string GetQuestPrewardItemKeys(string sQuestTag, int nStep = 0)
+{
+    return GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ITEM, PAIR_KEY, nStep);
+}
+
+string GetQuestPrewardItemValues(string sQuestTag, int nStep = 0)
+{
+    return GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ITEM, PAIR_VALUE, nStep);
+}
+
+int CountQuestPrewardItems(string sQuestTag, int nStep = 0)
+{
+    return CountList(GetQuestRewardItemKeys(sQuestTag, nStep));
+}
+
+string GetQuestPrewardItemResref(string sQuestTag, int nIndex = 0, int nStep = 0)
+{
+    string sKeys = GetQuestRewardItemKeys(sQuestTag, nStep);
+    return GetListItem(sKeys, nIndex);
+}
+
+int GetQuestPrewardItemQuantity(string sQuestTag, int nIndex = 0, int nStep = 0)
+{
+    string sValues = GetQuestRewardItemValues(sQuestTag, nStep);
+    return StringToInt(GetListItem(sValues, nIndex));
+}
+
+void SetQuestPrewardItem(string sQuestTag, string sResref, int nQuantity = 1, int nStep = 0)
+{
+    string sQuantity = IntToString(nQuantity);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ITEM, sResref, sQuantity, nStep);
+}
+
+void SetQuestPrewardItems(string sQuestTag, string sResref, string sQuantity, int nStep = 0, int nOperation = QUEST_OPERATION_REPLACE)
+{
+    if (CountList(sResref) == CountList(sQuantity))
+        SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ITEM, sResref, sQuantity, nStep);
+}
+
+//// GOLD PREWARD STUFF ///////
+
+int GetQuestPrewardGold(string sQuestTag, int nStep = 0)
+{
+    return StringToInt(GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_GOLD, PAIR_VALUE, nStep));
+}
+
+void SetQuestPrewardGold(string sQuestTag, int nGold, int nStep = 0)
+{   
+    string sGold = IntToString(nGold);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_GOLD, "", sGold, nStep);
+}
+
+////// XP PREWARD STUFF //////
+
+int GetQuestPrewardXP(string sQuestTag, int nStep = 0)
+{
+    return StringToInt(GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_XP, PAIR_VALUE, nStep));
+}
+
+void SetQuestPrewardXP(string sQuestTag, int nXP, int nStep = 0)
+{
+    string sXP = IntToString(nXP);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_XP, "", sXP, nStep);
+}
+
+//// ALIGNMENT PREWARD STUFF /////
+int GetQuestPrewardAlignmentAxis(string sQuestTag, int nStep = 0)
+{
+    return StringToInt(GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ALIGNMENT, PAIR_KEY, nStep));
+}
+
+int GetQuestPrewardAlignmentShift(string sQuestTag, int nStep = 0)
+{
+    return StringToInt(GetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ALIGNMENT, PAIR_VALUE, nStep));
+}
+
+void SetQuestPrewardAlignment(string sQuestTag, int nAxis, int nShift, int nStep = 0)
+{
+    if (nShift < 0)
+    {
+        switch (nAxis)
+        {
+            case ALIGNMENT_EVIL:
+                nAxis = ALIGNMENT_GOOD;
+                break;
+            case ALIGNMENT_GOOD:
+                nAxis = ALIGNMENT_EVIL;
+                break;
+            case ALIGNMENT_CHAOTIC:
+                nAxis = ALIGNMENT_LAWFUL;
+                break;
+            case ALIGNMENT_LAWFUL:
+                nAxis = ALIGNMENT_CHAOTIC;
+                break;
+        }
+
+        nShift = abs(nShift);
+    }
+
+    string sAxis = IntToString(nAxis);
+    string sShift = IntToString(nShift);
+    SetQuestProperty(sQuestTag, QUEST_PROPERTY_TYPE_REWARD, QUEST_VALUE_TYPE_ALIGNMENT, sAxis, sShift, nStep);
+}
+
+////////////////// END PREWARD CONVENIENCE /////////////////
+
+//////// JOURNAL ENTRY STUFF, where does this go? ////////
+/// With step creation? ////////////
+
+string GetQuestJournalEntry(string sQuestTag, int nStep = 0)
+{
+    string sJournalEntry = GetQuestEntry(sQuestTag, QUEST_JOURNAL_ENTRY, nStep);
+    return sJournalEntry;
 }
 
 
-
-
-
-
+void SetQuestJournalEntry(string sQuestTag, string sJournalEntry, int nStep = 0)
+{
+    SetQuestEntry(sQuestTag, QUEST_JOURNAL_ENTRY, sJournalEntry, nStep);
+}
 
 struct NWNX_Player_JournalEntry CreateNWNXJournalEntryStruct(object oPC, string sQuestTag)
 {
@@ -970,122 +1360,123 @@ struct NWNX_Player_JournalEntry CreateNWNXJournalEntryStruct(object oPC, string 
     return je;
 }
 
-
-
-
-
-void AssignQuest(object oPC, string sQuestTag)
+// Assigns a quest to a PC object
+int AssignQuest(object oPC, string sQuestTag)
 {
     if (GetIsQuestAssignable(oPC, sQuestTag))
     {
-        if (AddListString(oPC, sQuestTag, QUESTS_ASSIGNED, TRUE))
-            AddListString(oPC, IntToString(QUEST_ASSIGNED), QUEST_STATUS);
+        if (AddListString(oPC, sQuestTag, QUEST_ASSIGNED, TRUE))
+        {
+            AddListString(oPC, "", QUEST_STATUS);
+            AddListString(oPC, GetSystemTime(), QUEST_TIME_ASSIGNED);
+            AddListInt   (oPC, 0, QUEST_COMPLETION_COUNT);
+        }
         else
         {
-            int nIndex = FindListString(oPC, sQuestTag, QUESTS_ASSIGNED);
-            SetListString(oPC, IntToString(QUEST_ASSIGNED), QUEST_STATUS);
+            int nIndex = FindListString(oPC, sQuestTag, QUEST_ASSIGNED);
+            SetListString(oPC, nIndex, "", QUEST_STATUS);
+            SetListString(oPC, nIndex, GetSystemTime(), QUEST_TIME_ASSIGNED);
         }
+
+        string sScript = GetQuestOnAcceptScript(sQuestTag);
+        RunLibraryScript(sScript, oPC);
+
+        return TRUE;
+
     }
     else
-        Warning("Doesn't meet prerequisites");
+        return FALSE;
 }
 
-void DeleteQuest(object oPC, string sQuestTag)
+// Deletes quest from PC object
+void UnassignQuest(object oPC, string sQuestTag)
 {
     int nIndex = GetQuestIndex(oPC, sQuestTag);
 
     if (nIndex != -1)
     {
-        DeleteListString(oPC, nIndex, QUESTS_ASSIGNED);
+        DeleteListString(oPC, nIndex, QUEST_ASSIGNED);
         DeleteListString(oPC, nIndex, QUEST_STATUS);
+        DeleteListString(oPC, nIndex, QUEST_TIME_ASSIGNED);
+        DeleteListInt   (oPC, nIndex, QUEST_COMPLETION_COUNT);
     }
 }
 
-
-int GetQuestState(object oPC, string sQuestTag)
+int GetCurrentStep(object oPC, string sQuestTag)
 {
-    int bAssigned = GetIsQuestAssigned(oPC, sQuestTag);
-    int bComplete = GetIsQuestComplete(oPC, sQuestTag);
+    int nIndex = GetQuestIndex(oPC, sQuestTag);
 
-    if (!bAssigned)
-        return QUEST_NOT_ASSIGNED;
-    else if (GetIsQuestComplete(oPC, sQuestTag))
-        return QUEST_COMPLETE;
+    if (nIndex != -1)
+    {
+        sStatus = GetListString(oPC, nIndex, QUEST_STATUS);
+        return CountList(sStatus);
+    }
     else
-    {
-        int nIndex = GetQuestIndex(oPC, sQuestTag);
-        string sQuestStatus = GetListString(oPC, nIndex, QUEST_STATUS);
+        return OPERATION_INVALID;
 
-        int nQuestSteps = CountQuestSteps(sQuestTag);
-        int nCompletedSteps = CountList(sQuestStatus);
-
-        if (GetQuestPropertyInt(sQuestTag, QUEST_ALLOW_RANDOM_ORDER))
-            return nCompletedSteps;
-        else
-            return StringToInt(GetListItem(sQuestStatus, nCompletedSteps -1));
-    }
-
-    return QUEST_INVALID;
+    return 0;
 }
 
-void GiveQuestRewards(object oPC, string sQuestTag, int nStep = 0, int nRewardType = REWARD_ALL, int bParty = FALSE)
+// TODO RestoreJournalEntries (after login)
+void RestoreJournalEntries(object oPC)
 {
-    if ((nRewardType && REWARD_GOLD) || nRewardType == REWARD_ALL)
+    int n, nStep, nCount = CountStringList(oPC, QUEST_ASSIGNED);
+    string sQuestTag, sJournalEntry;
+
+    for (n = 0; n < nCount; n++)
     {
-        int nGold = GetQuestGoldReward(sQuestTag, nStep);
-        if (bParty)
-            GiveGoldToAll(oPC, nGold);
-        else        
-            GiveGoldToCreature(oPC, nGold);
+        sQuestTag = GetListString(oPC, n, QUEST_ASSIGNED);
+        nStep = GetCurrentStep(oPC, sQuestTag);
+        sJournalEntry = GetQuestJournalEntry(sQuestTag, nStep);
+        // TODO etc.
     }
 
-    if ((nRewardType && REWARD_XP) || nRewardType == REWARD_ALL)
-    {
-        int nXP = GetQuestXPReward(sQuestTag, nStep);
-        if (bParty)
-            GiveXPToAll(oPC, nXP);
-        else
-            GiveXPToCreature(oPC, StringToInt(sReward));
-    }
+    // Loop each quest
+    // Get state/journal entry for the current step of each quest
+    // Set the correct journal entry
+}
 
-    if ((nRewardType && REWARD_ALIGNMENT) || nRewardType == REWARD_ALL)
-    {
-        int nAxis = GetQuestAlignmentRewardAxis(sQuestTag, nStep);
-        int nShift = GetQuestAlignmentRewardShift(sQuestTag, nStep);
+// TODO advance the quest step, running the 
+void AdvanceQuestStep(object oPC, string sQuestTag)
+{
+    // This function evaluates step completion based on step objective
+    object oQuest = GetQuestDataItem(sQuestTag);
+    int nStep = GetCurrentStep(oPC, sQuestTag);
+    int nIndex = GetQuestStepIndex(sQuestTag, nStep);
 
-        if (bParty)
-            AdjustAlignmentOnAll(oPC, nAxis, nShift);
-        else
-            AdjustAlignment(oPC, nAxis, nShift, FALSE);
-    }
+    string sObjective = GetListString(oQuest, nIndex, QUEST_OBJECTIVE);
+    int nObjectiveType = StringToInt(GetListItem(sObjective, 0));
+    string sTag1 = GetListItem(sObjective, 1);
+    int nQuantity = StringToInt(GetListItem(sObjective, 2));
+    string sTag2 = GetListItem(sObjective, 3);
 
-    if ((nRewardType && REWARD_ITEM) || nRewardType == REWARD_ALL)
+    int bAllowPartyCompletion = GetListInt(oQuest, nIndex, QUEST_PARTY_COMPLETION);
+
+    if (nObjectiveType == QUEST_OBJECTIVE_TYPE_GATHER)
     {
-        int n, nQuantity, nCount = CountQuestRewardItems(sQuestTag, nStep);
-    
-        for (n = 0; n < nCount; n++)
+        // sTag1 will be the tag to gather
+        // nQuantity will be how many to gather
+        object oItem = GetFirstItemInInventory(oPC);
+        while (GetIsObjectValid(oItem))
         {
-            sItemResref = GetQuestRewardItemResref(sQuestTag, n, nStep);
-            nItemQuantity = GetQuestRewardItemQuantity(sQuestTag, n, nStep);
+            if (GetTag(oItem) == sTag1)
+                nItemCount++;
+            
+            if (nItemCount >= nQuantity)
+                // Advance the quest step
+            
+        }
 
-            if (bParty)
-            {
-                object oParty = GetFirstFactionMember(oPC, TRUE);
-                while (GetIsObjectValid(oParty))
-                {
-                    CreateItemOnObject(sItemResref, oParty, nItemQuantity);
-                    oParty = GetNextFactionMember(oPC, TRUE);
-                }
-            }
-            else
-                CreateItemOnObject(sItemResref, oPC, nItemQuantity);
+
+        if (bAllowPartyCompletion)
+        {
+            // Search the entire party for these items between them
+            object oPartyMember = GetFirstFactionMember(oPC);
+
         }
     }
+
 
 }
 
 void main(){}
-
-
-
-
