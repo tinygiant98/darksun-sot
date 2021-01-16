@@ -45,15 +45,15 @@ const int QUEST_SAVE_QUEST_STATE_TO_DATABASE = FALSE;
 object QUESTS = GetDatapoint("QUEST_DATA");
 
 // Quest Identification Variable Names
-const string QUEST_ID = "QUEST_ID";
-const string QUEST_NEXT_ID = "NEXT_QUEST_ID";
 const string QUEST_TAG = "QUEST_TAG";
 const string QUEST_TITLE = "QUEST_TITLE";
 
 // Quest Properties Variable Names
 const string QUEST_ALLOW_RANDOM_ORDER = "QUEST_ALLOW_RANDOM_ORDER";
+const string QUEST_ALLOW_PARTY_PREREQUISITES = "QUEST_ALLOW_PARTY_PREREQUISITES";
 const string QUEST_ACTIVE = "QUEST_ACTIVE";
 const string QUEST_REPETITIONS = "QUEST_REPETITIONS";
+const string QUEST_ASSIGN_TO_PARTY = "QUEST_ASSIGN_TO_PARTY";
 const string QUEST_SCRIPT_ON_ACCEPT = "QUEST_SCRIPT_ON_ACCEPT";
 const string QUEST_SCRIPT_ON_ADVANCE = "QUEST_SCRIPT_ON_ADVANCE";
 const string QUEST_SCRIPT_ON_COMPLETE = "QUEST_SCRIPT_ON_COMPLETE";
@@ -128,6 +128,7 @@ const int QUEST_OBJECTIVE_TYPE_SPEAK = 6;
 const string PAIR_KEY = "PAIR_KEY";
 const string PAIR_VALUE = "PAIR_VALUE";
 
+// TODO structs necessary?
 struct QUEST_Step_Objective
 {
     int nType;
@@ -136,22 +137,6 @@ struct QUEST_Step_Objective
     string sTag2;
     string sTime;
 };
-/*
-struct NWNX_Player_JournalEntry
-{
-    string sName;///< @todo Describe
-    string sText;///< @todo Describe
-    string sTag;///< @todo Describe
-    int nState;///< @todo Describe
-    int nPriority;///< @todo Describe
-    int nQuestCompleted;///< @todo Describe
-    int nQuestDisplayed;///< @todo Describe
-    int nUpdated;///< @todo Describe
-    int nCalendarDay;///< @todo Describe
-    int nTimeOfDay;///< @todo Describe
-};*/
-
-
 
 // -----------------------------------------------------------------------------
 //                          Public Function Prototypes
@@ -294,32 +279,6 @@ int DecrementLocalInt(string sVarName, object oTarget = OBJECT_INVALID)
     SetLocalInt(oTarget, sVarName, --nValue);
 
     return nValue;
-}
-
-// ---< GetKey >---
-// Returns the key portion of key:value pair sPair; if the sSeparator is
-//  not found, returns sPair
-string GetKey(string sPair, string sSeparator = ":")
-{
-    int nIndex;
-
-    if ((nIndex = FindSubString(sPair, sSeparator)) == -1)
-        return sPair;
-    else
-        return GetSubString(sPair, 0, nIndex);
-}
-
-// ---< GetValue >---
-// Returns the value portion of key:value pair sPair; if the sSeparator is
-// not found, returns sDefault
-string GetValue(string sPair, string sDefault = REQUEST_INVALID, string sSeparator = ":")
-{
-    int nIndex;
-
-    if ((nIndex = FindSubString(sPair, sSeparator)) == -1)
-        return sDefault;
-    else
-        return GetSubString(sPair, ++nIndex, GetStringLength(sPair));
 }
 
 // ---< GetQuestStepIndex >---
@@ -474,6 +433,8 @@ int AddQuest(string sQuestTag, string sQuestTitle)
     SetLocalInt(oQuest, QUEST_ACTIVE, TRUE);
     SetLocalInt(oQuest, QUEST_REPETITIONS, 1);
     SetLocalInt(oQuest, QUEST_ALLOW_RANDOM_ORDER, FALSE);
+    SetLocalInt(oQuest, QUEST_ALLOW_PARTY_PREREQUISITES, FALSE);
+    // TODO convenience functions to setting properties
 
     return TRUE;
 }
@@ -896,6 +857,7 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
     object oQuest = GetQuestDataItem(sQuestTag);
     int n, nCount = CountIntList(oQuest, QUEST_PREREQUISITE_TYPE);
     int bAssignable = FALSE;
+    int bPartyPrerequisites = GetLocalInt(oQuest, QUEST_ALLOW_PARTY_PREREQUISITES);
 
     for (n = 0; n < nCount; n++)
     {
@@ -1048,8 +1010,8 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
                             bAssignable = TRUE;
                     }
                     else if (nQuantity > 1)
-                    {   // TODO allow party complete status
-                        if (HasMinimumItemCount(oPC, sItem, nQuantity)
+                    {
+                        if (HasMinimumItemCount(oPC, sItem, nQuantity, bPartyPrerequisites)
                             bAssignable = TRUE;
                     }
                 }
@@ -1436,6 +1398,35 @@ void RestoreJournalEntries(object oPC)
     // Set the correct journal entry
 }
 
+int HasKilledObjective(object oPC, object oKiller, int bAllowPartyCompletion = FALSE)
+{
+    if (oPC == oKiller)
+        return TRUE;
+
+    if (bAllowPartyCompletion)
+    {  
+        object oPartyMember = GetFirstFactionMember(oPC, TRUE);
+        while (GetIsObjectValid(oPartyMember))
+        {
+            if (oPartyMember == oKiller)
+                return TRUE;
+
+            oPartyMember = GetNextFactionMember(oPC, TRUE)
+        }
+
+        object oPartyMember = GetFirstFactionMember(oPC, FALSE);
+        while (GetIsObjectValid(oPartyMember))
+        {
+            if (oPartyMember == oKiller)
+                return TRUE;
+
+            oPartyMember = GetNextFactionMember(oPC, FALSE);
+        }
+    }
+    
+    return FALSE;
+}
+
 // TODO advance the quest step, running the 
 void AdvanceQuestStep(object oPC, string sQuestTag)
 {
@@ -1454,27 +1445,30 @@ void AdvanceQuestStep(object oPC, string sQuestTag)
 
     if (nObjectiveType == QUEST_OBJECTIVE_TYPE_GATHER)
     {
-        // sTag1 will be the tag to gather
-        // nQuantity will be how many to gather
-        object oItem = GetFirstItemInInventory(oPC);
-        while (GetIsObjectValid(oItem))
-        {
-            if (GetTag(oItem) == sTag1)
-                nItemCount++;
-            
-            if (nItemCount >= nQuantity)
-                // Advance the quest step
-            
-        }
-
-
-        if (bAllowPartyCompletion)
-        {
-            // Search the entire party for these items between them
-            object oPartyMember = GetFirstFactionMember(oPC);
-
-        }
+        // Expected to be called from acquireitem event?
+        if (HasMinimumItemCount(oPC, sTag1, nQuantity1, bAllowPartyCompletion))
+            Error(""); // TODO yes, advance
     }
+    else if (nObjectiveType == QUEST_OBJECTIVE_TYPE_DELIVER)
+    {
+        // Expected to be called from unacquire event?
+
+    }
+    else if (nObjectiveType = QUEST_OBJECTIVE_TYPE_KILL)
+    {
+        // Expected from oncreaturedeath event?
+        object oKiller = GetLastKiller(OBJECT_SELF);
+        
+        if (HasKilledObjective(oPC, oKiller, bAllowPartyCompletion))
+            Error(""); // check the number, and advance or complete
+
+        
+
+        // If partycompletion, loop members and if assigned quest and on
+        // correct step, add kills.
+
+    }
+
 
 
 }
