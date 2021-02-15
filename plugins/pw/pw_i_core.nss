@@ -484,7 +484,7 @@ void h2_SetFeatsRemaining(object oPC, int nFeat, int nUses)
 }
 
 // Modified to use CSVs.
-// GOTO go thorugh feat/spell saving and check they're g2g.
+// TODO go thorugh feat/spell saving and check they're g2g.
 void h2_SetAvailableFeatsToSavedValues(object oPC)
 {
     if (!GetIsObjectValid(oPC))

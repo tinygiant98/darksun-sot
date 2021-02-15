@@ -75,14 +75,16 @@ const int H2_FORCE_CLOCK_UPDATE = FALSE;
 //entering player to be in the format: DD/MM/YYYY HH:MM instead of MM/DD/YYYY HH:MM.
 //The default value is FALSE.
 const int H2_SHOW_DAY_BEFORE_MONTH_IN_LOGIN = FALSE;
+// TODO change this to a date/time format through util_i_time
 
 // You can turn off Bioware's default events by setting this to false.  Generally, this should remain
 //  TRUE since it can break the horse system, cause player death problems and create other hidden issues
 //  if all default bioware events aren't handled by custom handlers.
 const int H2_USE_DEFAULT_BIOWARE_EVENTS = TRUE;
+// TODO remove this?
 
 // The basic rest system includes a small, configurable dialog.  Without any builder intervention, it has
 //  two options:  rest or don't rest.  If you want the PC to confirm they want to rest before the rest
-//  event occurs, set this to TRUE.  If you don't care or don't plan on adding additiona options, set this 
+//  event occurs, set this to TRUE.  If you don't care or don't plan on adding additional options, set this 
 //  to FALSE.
 const int H2_USE_REST_DIALOG = FALSE;
