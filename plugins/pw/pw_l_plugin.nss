@@ -28,8 +28,9 @@ void OnLibraryLoad()
             "loads all pw subsystems.");
         SetPluginLibraries(oPlugin, "bleed_l_plugin, corpse_l_plugin, crowd_l_plugin, deity_l_plugin, " +
             "fugue_l_plugin, fugue_l_dialog, htf_l_plugin, loot_l_plugin, rest_l_plugin, rest_l_dialog, " +
-            "torch_l_plugin, unid_l_plugin, gren_l_plugin, bus_l_plugin, res_l_plugin, res_l_placeables, " +
-            "res_l_creatures");
+            "torch_l_plugin, unid_l_plugin, gren_l_plugin, bus_l_plugin, quest_l_plugin"); 
+            //res_l_plugin, res_l_placeables, " +
+            //"res_l_creatures, quest_l_plugin");
 
         // ----- Module Events -----
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,          "pw_OnClientEnter",         10.0);
