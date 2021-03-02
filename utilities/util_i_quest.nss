@@ -1210,6 +1210,27 @@ void _SetQuestReward(int nQuestID, int nStep, int nValueType, string sKey, strin
     _SetQuestStepProperty(nQuestID, nStep, nCategoryType, nValueType, sKey, sValue);
 }
 
+void _AssignQuest(object oPC, int nQuestID)
+{
+    string sQuestTag = GetQuestTag(nQuestID);
+
+    if (GetPCHasQuest(oPC, sQuestTag))
+    {
+        DeletePCQuestProgress(oPC, nQuestID);
+        _SetPCQuestData(oPC, nQuestID, QUEST_PC_STEP, "0");
+        _SetPCQuestData(oPC, nQuestID, QUEST_PC_STEP_TIME, "");
+    }
+    else
+        _AddQuestToPC(oPC, nQuestID);
+
+    // Set the quest start time
+    _SetPCQuestData(oPC, nQuestID, QUEST_PC_QUEST_TIME, GetSystemTime());
+    
+    RunQuestScript(oPC, nQuestID, QUEST_SCRIPT_TYPE_ON_ACCEPT);
+    // Go to the first step
+    AdvanceQuest(oPC, nQuestID);
+}
+
 // Checks to see if oPC or their party members have at least nMinQuantity of sItemTag
 int _HasMinimumItemCount(object oPC, string sItemTag, int nMinQuantity = 1, int bIncludeParty = FALSE)
 {
@@ -1489,34 +1510,14 @@ void _AwardQuestStepAllotments(object oPC, int nQuestID, int nStep, int nCategor
     }
 }
 
-void _AssignQuest(object oPC, int nQuestID)
-{
-    string sQuestTag = GetQuestTag(nQuestID);
-
-    if (GetPCHasQuest(oPC, sQuestTag))
-    {
-        DeletePCQuestProgress(oPC, nQuestID);
-        _SetPCQuestData(oPC, nQuestID, QUEST_PC_STEP, "0");
-        _SetPCQuestData(oPC, nQuestID, QUEST_PC_STEP_TIME, "");
-    }
-    else
-        _AddQuestToPC(oPC, nQuestID);
-
-    // Set the quest start time
-    _SetPCQuestData(oPC, nQuestID, QUEST_PC_QUEST_TIME, GetSystemTime());
-    
-    RunQuestScript(oPC, nQuestID, QUEST_SCRIPT_TYPE_ON_ACCEPT);
-    // Go to the first step
-    AdvanceQuest(oPC, nQuestID);
-}
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
 
-int AddQuest(string sTag, string sTitle = "")
+int AddQuest(string sQuestTag, string sTitle = "")
 {
-    if (GetQuestExists(sTag) == TRUE || sTag == "")
+    if (GetQuestExists(sQuestTag) == TRUE || sQuestTag == "")
         return FALSE;
     
     return _AddQuest(sQuestTag, sTitle);
@@ -2007,6 +2008,12 @@ void CopyQuestStepObjectiveData(object oPC, int nQuestID, int nStep)
     }
 }
 
+void SendJournalQuestEntry(object oPC, int nQuestID, int nStep)
+{
+    string sTag = GetQuestTag(nQuestID);
+    AddJournalQuestEntry(sTag, nStep, oPC, FALSE, FALSE, TRUE);
+}
+
 void AdvanceQuest(object oPC, int nQuestID, int nRequestType = QUEST_ADVANCE_SUCCESS)
 {
     if (nRequestType == QUEST_ADVANCE_SUCCESS)
@@ -2052,12 +2059,6 @@ void AdvanceQuest(object oPC, int nQuestID, int nRequestType = QUEST_ADVANCE_SUC
 
         RunQuestScript(oPC, nQuestID, QUEST_SCRIPT_TYPE_ON_FAIL);
     }
-}
-
-void SendJournalQuestEntry(object oPC, int nQuestID, int nStep)
-{
-    string sTag = GetQuestTag(nQuestID);
-    AddJournalQuestEntry(sTag, nStep, oPC, FALSE, FALSE, TRUE);
 }
 
 void CheckQuestStepProgress(object oPC, int nQuestID, int nStep)

@@ -22,10 +22,11 @@
     they are provided in the primary quest system file.
 */
 
+
+
+
 string sQuery;
 sqlquery sql;
-
-int GetQuestID(string sQuestTag);
 
 // Name of the table to use in the player's sqlite database (n/a if saving quest data to db)
 const string QUEST_DATABASE_PLAYER = "quest_status";
@@ -179,6 +180,15 @@ void CleanPCQuestTables(object oPC)
     }
 }
 
+int GetLastInsertedID(string sTable)
+{
+    sQuery = "SELECT seq FROM sqlite_sequence WHERE name = @name;";
+    sql = SqlPrepareQueryObject(GetModule(), sQuery);
+    SqlBindString(sql, "@name", sTable);
+
+    return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
+}
+
 string GetQuestTag(int nQuestID)
 {
     sQuery = "SELECT sTag FROM quest_quests " +
@@ -216,8 +226,8 @@ int _AddQuest(string sQuestTag, string sJournalTitle)
     string sQuery = "INSERT INTO quest_quests (sTag, sJournalTitle) " +
                     "VALUES (@sTag, @sTitle);";
     sqlquery sql = SqlPrepareQueryObject(GetModule(), sQuery);
-    SqlBindString(sql, "@sTag", sTag);
-    SqlBindString(sql, "@sTitle", sTitle);
+    SqlBindString(sql, "@sTag", sQuestTag);
+    SqlBindString(sql, "@sTitle", sJournalTitle);
 
     SqlStep(sql);
 
@@ -324,14 +334,6 @@ int GetQuestExists(string sTag)
     return SqlStep(sql) ? SqlGetInt(sql, 0) : FALSE;
 }
 
-int GetLastInsertedID(string sTable)
-{
-    sQuery = "SELECT seq FROM sqlite_sequence WHERE name = @name;";
-    sql = SqlPrepareQueryObject(GetModule(), sQuery);
-    SqlBindString(sql, "@name", sTable);
-
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
-}
 
 int GetQuestStepID(int nQuestID, int nStep)
 {
@@ -475,7 +477,7 @@ int GetPCHasQuest(object oPC, string sQuestTag)
     return SqlStep(sql) ? SqlGetInt(sql, 0) : FALSE;
 }
 
-int GetIsQuestComplete(object oPC, int nQuestID)
+int GetIsPCQuestComplete(object oPC, int nQuestID)
 {
     string sQuestTag = GetQuestTag(nQuestID);
 
