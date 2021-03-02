@@ -21,105 +21,230 @@
 
 void quest_OnModuleLoad()
 {
-    DefineQuests();
+    CreateModuleQuestTables();
 }
 
 void quest_OnClientEnter()
 {
-    
+    object oPC = GetEnteringObject();
+    CreatePCQuestTables(oPC);
+    CleanPCQuestTables(oPC);
 }
 
 void quest_OnPlayerChat()
 {
-    object oTarget, oPC = GetPCChatSpeaker();
-    if ((oTarget = GetChatTarget(oPC)) == OBJECT_INVALID)
-        return;
+    object oPC = GetPCChatSpeaker();
 
-    int n, nProperty, nProperties, nCount, nPropertyCount;
-    string sCategoryList, sKeyList, sValueList, sResult, sAdd;
+    if (HasChatOption(oPC, "load"))
+        DefineQuests();
+
+    if (HasChatOption(oPC, "reset"))
+    {
+        CreateModuleQuestTables(TRUE);
+        CreatePCQuestTables(oPC, TRUE);
+    }
+
+    if (HasChatOption(oPC, "assign"))
+        AssignQuestToPC(oPC);
+
+    if (HasChatOption(oPC, "restart"))
+    {
+        CreateModuleQuestTables(TRUE);
+        CreatePCQuestTables(oPC, TRUE);
+        DefineQuests();
+        AssignQuestToPC(oPC);
+    }
 
     if (HasChatOption(oPC, "dump"))
     {
-        string sTag;
-
-        if (HasChatKey(oPC, "tag"))
-            sTag = GetChatKeyValue(oPC, "tag");
-        
-        if (sTag == "")
-            Notice("sTag is Empty, dumping all quests");
-
-        object oDataItem = GetFirstItemInInventory(QUESTS);
-        while (GetIsObjectValid(oDataItem))
+        if (HasChatOption(oPC, "pc"))
         {
-            if (sTag != "" && GetLocalString(oDataItem, QUEST_TAG) != sTag)
+            Notice("Dumping PC Quest data");
+
+            string sPCQuestTag, sPCStepStartTime, sPCQuestStartTime, sPCLastCompleteTime;
+            int n, nPCStep, nPCCompletions;
+
+            string sQuery = "SELECT * FROM quest_pc_data;";
+            sqlquery sql = SqlPrepareQueryObject(oPC, sQuery);
+            while (SqlStep(sql))
             {
-                oDataItem = GetNextItemInInventory(QUESTS);
-                continue;
-            }
+                n = 0;
+                sPCQuestTag = SqlGetString(sql, n);
+                nPCStep = SqlGetInt(sql, ++n);
+                nPCCompletions = SqlGetInt(sql, ++n);
+                sPCQuestStartTime = SqlGetString(sql, ++n);
+                sPCStepStartTime = SqlGetString(sql, ++n);
+                sPCLastCompleteTime = SqlGetString(sql, ++n);
 
-            Notice("Dumping Quest Data from " + GetLocalString(oDataItem, QUEST_TAG) +
-                    "\n  Title -> " + GetLocalString(oDataItem, QUEST_TITLE) +
-                    "\n  Active -> " + (GetLocalInt(oDataItem, QUEST_ACTIVE) ? "TRUE":"FALSE") +
-                    "\n  Repititions -> " + IntToString(GetLocalInt(oDataItem, QUEST_REPETITIONS)) +
-                    "\n  Step Order -> " + (GetLocalInt(oDataItem, QUEST_STEP_ORDER) == 1 ? "SEQUENTIAL":"RANDOM"));
+                Notice(HexColorString("Dumping PC data for " + sPCQuestTag, COLOR_CYAN));
+                Notice("  Step  " + ColorValue(IntToString(nPCStep)) +
+                     "\n  Completions  " + ColorValue(IntToString(nPCCompletions)) +
+                     "\n  Quest Start  " + ColorValue(sPCQuestStartTime) +
+                     "\n  Step Start  " + ColorValue(sPCStepStartTime) +
+                     "\n  Last Completion = " + ColorValue(sPCLastCompleteTime)); 
 
-            nCount = CountIntList(oDataItem, QUEST_STEP_ID);
-            for (n = 0; n <= nCount; n++)
-            {   // TODO need to add an index find or something
-                sCategoryList = QUEST_STEP + IntToString(n) + "_CATEGORY";
-                sKeyList = QUEST_STEP + IntToString(n) + "_KEYS";
-                sValueList = QUEST_STEP + IntToString(n) + "_VALUES";
-            
-                Notice("Loop Number " + IntToString(n) + ":" +
-                        "\n  sCategoryList -> " + sCategoryList +
-                        "\n  sKeyList -> " + sKeyList +
-                        "\n  sValueList -> " + sValueList);
+                string sQuery1 = "SELECT * FROM quest_pc_step " +
+                                 "WHERE quest_tag = @tag;";
+                sqlquery sql1 = SqlPrepareQueryObject(oPC, sQuery1);
+                SqlBindString(sql1, "@tag", sPCQuestTag);
 
-                if (n == 0)
-                    sResult = "Quest-Level Properties:\n";
-                else
-                    sResult = "Quest Step-Level Properties (Step " + IntToString(n - 1) + "):" +
-                                "\n  Step ID -> " + IntToString(GetListInt(oDataItem, n - 1, QUEST_STEP_ID)) +
-                                "\n  Journal Entry -> " + GetListString(oDataItem, n - 1, QUEST_STEP_JOURNAL_ENTRY) +
-                                "\n  Time Limit -> " + (GetListString(oDataItem, n - 1, QUEST_STEP_TIME_LIMIT) != "" ? GetListString(oDataItem, n, QUEST_STEP_TIME_LIMIT) : "[none]") +
-                                "\n  Allow Party Completion -> " + (GetListInt(oDataItem, n - 1, QUEST_STEP_PARTY_COMPLETION) ? "TRUE":"FALSE") +
-                                "\n";
-
-                nPropertyCount = CountIntList(oDataItem, sCategoryList);
-                for (nProperty = 0; nProperty < nPropertyCount; nProperty++)
+                while (SqlStep(sql1))
                 {
-                    sAdd += "  Category -> " + _GetStringFromCategory(GetListInt(oDataItem, nProperty, sCategoryList)) + 
-                                "\n  Keys -> " + GetListString(oDataItem, nProperty, sKeyList) +
-                                "\n  Values -> " + GetListString(oDataItem, nProperty, sValueList);
+                    n = 1;
+                    string sObjectiveType = ObjectiveTypeToString(SqlGetInt(sql1, n));
+                    string sTag = SqlGetString(sql1, ++n);
+                    string sRequired = SqlGetString(sql1, ++n);
+                    string sAcquired = SqlGetString(sql1, ++n);
+
+                    Notice(HexColorString("Dumping PC step data for " + sPCQuestTag + "/" + IntToString(nPCStep), COLOR_CYAN));
+                    Notice("    Objective Type  " + ColorValue(sObjectiveType) +
+                         "\n    Tag  " + ColorValue(sTag) +
+                         "\n    Required  " + ColorValue(sRequired) +
+                         "\n    Acquired  " + ColorValue(sAcquired));
                 }
-
-                Notice(sResult + sAdd);
-                sAdd = "";
             }
-            
-            oDataItem = GetNextItemInInventory(QUESTS);
         }
-    }
+        else 
+        {
+            int n, nID, nActive, nRepetitions, nStepOrder;
+            string sTag, sTitle, sAccept, sAdvance, sComplete, sFail;
+            string sTime, sCooldown;
 
-    if (HasChatKey(oPC, "values"))
-    {
-        
-        
-        /*int nCount = GetChatKeyValueInt(oPC, "values");
-        int nEncoded = _EncodeNumbers(nCount);
+            int nStepID, nQuestID, nStep, nPartyCompletion;
+            string sJournalEntry, sTimeLimit;
 
-        string sAdd, sMessage = "Encoding " + IntToString(nCount) + " numbers" +
-                                "\n  Encoded Integer -> " + IntToString(nEncoded);
-        int n;
-        for (n = 0; n < nCount; n++)
-            sAdd += "\n  Position " + IntToString(n + 1) + " -> " + IntToString(_GetEncodedNumber(nEncoded, nCount, n));
+            string sNewQuery, sSubQuery, sQuery = "SELECT * FROM quest_quests;";
+            sqlquery sqlNew, sqlSub, sql = SqlPrepareQueryObject(GetModule(), sQuery);
+            while (SqlStep(sql))
+            {
+                // Display all the quest data
+                n = 0;
+                nID = SqlGetInt(sql, n);
+                sTag = SqlGetString(sql, ++n);
+                nActive = SqlGetInt(sql, ++n);
+                sTitle = SqlGetString(sql, ++n);
+                nRepetitions = SqlGetInt(sql, ++n);
+                sAccept = SqlGetString(sql, ++n);
+                sAdvance = SqlGetString(sql, ++n);
+                sComplete = SqlGetString(sql, ++n);
+                sFail = SqlGetString(sql, ++n);
+                nStepOrder = SqlGetInt(sql, ++n);
+                sTime = SqlGetString(sql, ++n);
+                sCooldown = SqlGetString(sql, ++n);
+            
+                Notice(HexColorString("Dumping data for " + QuestToString(nID), COLOR_CYAN));
+                Notice("  Tag  " + ColorValue(sTag) +
+                    "\n  Active  " + ColorValue((nActive ? "TRUE":"FALSE")) +
+                    "\n  Journal  " + ColorValue(sTitle) +
+                    "\n  Repetitions  " + ColorValue(IntToString(nRepetitions)) +
+                    "\n  Accept Script  " + ColorValue(sAccept) +
+                    "\n  Advance Script  " + ColorValue(sAdvance) +
+                    "\n  Complete Script  " + ColorValue(sComplete) +
+                    "\n  Fail Script  " + ColorValue(sFail) +
+                    "\n  Step Order  " + ColorValue(StepOrderToString(nStepOrder)) +
+                    "\n  Time Limit  " + ColorValue(sTime) +
+                    "\n  Cooldown Time  " + ColorValue(sCooldown));
 
-        Notice(sMessage + sAdd);*/
-    }
+                if (CountQuestPrerequisites(nID) > 0)
+                {
+                    Notice(HexColorString("  Dumping prerequisites for " + QuestToString(nID), COLOR_CYAN));
+                    
+                    sSubQuery = "SELECT * FROM quest_prerequisites " +
+                                "WHERE quests_id = @id;";
+                    sqlSub = SqlPrepareQueryObject(GetModule(), sSubQuery);
+                    SqlBindInt(sqlSub, "@id", nID);
+                    while (SqlStep(sqlSub))
+                    {
+                        n = 0;
+                        int nPrereqID = SqlGetInt(sqlSub, 0);
+                        int nPrereqQuest = SqlGetInt(sqlSub, 1);
+                        int nValueType = SqlGetInt(sqlSub, 2);
+                        string sKey = SqlGetString(sqlSub, 3);
+                        string sValue = SqlGetString(sqlSub, 4);
 
-    if (HasChatOption(oPC, "test"))
-    {
-        _RunEncodingTest();
+
+                        Notice(HexColorString("    " + IntToString(nPrereqID), COLOR_CYAN) +
+                                TranslateValue(nValueType, sKey, sValue));
+                    }
+                }
+                else
+                    Notice(HexColorString("  No prerequisites found for " + QuestToString(nID), COLOR_RED_LIGHT));
+
+                if (CountQuestSteps(nID) > 0)
+                {
+                    // Dump Step data
+                    Notice(HexColorString("  Dumping step data for " + QuestToString(nID), COLOR_CYAN));
+                    sSubQuery = "SELECT * FROM quest_steps " +
+                            "WHERE quests_id = @id;";
+                    sqlSub = SqlPrepareQueryObject(GetModule(), sSubQuery);
+                    SqlBindInt(sqlSub, "@id", nID);
+
+                    while (SqlStep(sqlSub))
+                    {
+                        n = 0;
+                        nStepID = SqlGetInt(sqlSub, n);
+                        nQuestID = SqlGetInt(sqlSub, ++n);
+                        nStep = SqlGetInt(sqlSub, ++n);
+                        sJournalEntry = SqlGetString(sqlSub, ++n);
+                        sTimeLimit = SqlGetString(sqlSub, ++n);
+                        nPartyCompletion = SqlGetInt(sqlSub, ++n);
+
+                        string sStep = HexColorString(IntToString(nStep), COLOR_CYAN);
+                        Notice("    " + sStep + "  Journal  " + ColorValue(sJournalEntry) +
+                            "\n        Time Limit  " + ColorValue(sTimeLimit == "" ? "" : "(" + sTimeLimit + ")") +
+                            "\n        Party Completion  " + ColorValue((nPartyCompletion ? "TRUE":"FALSE")));
+                    
+                        // Another inside loop for the step objectives/properties
+                        Notice(HexColorString("        Dumping step properties for Step " + IntToString(nStep), COLOR_CYAN));
+                        sNewQuery = "SELECT quest_step_properties.* FROM quest_steps INNER JOIN quest_step_properties " +
+                                        "ON quest_steps.id = quest_step_properties.quest_steps_id " +
+                                    "WHERE quest_steps.quests_id = @id " +
+                                    "AND quest_steps.nStep = @step;";
+                        sqlNew = SqlPrepareQueryObject(GetModule(), sNewQuery);
+                        SqlBindInt(sqlNew, "@id", nID);
+                        SqlBindInt(sqlNew, "@step", nStep);
+
+                        while (SqlStep(sqlNew))
+                        {
+                            int nCategoryType = SqlGetInt(sqlNew, 1);
+                            int nValueType = SqlGetInt(sqlNew, 2);
+                            string sTag = SqlGetString(sqlNew, 3);
+                            int nRequired = SqlGetInt(sqlNew, 4);
+                            Notice(TranslateCategoryValue(nCategoryType, nValueType, sTag, nRequired));
+                        }
+                    }       
+                }
+                else
+                    Notice(HexColorString("  No step data found for " + QuestToString(nID), COLOR_RED_LIGHT));
+            }
+        }
     }
 }
 
+void quest_OnAdvance()
+{
+    string sCurrentQuest = GetCurrentQuest();
+    int nCurrentStep = GetCurrentQuestStep();
+
+    if (sCurrentQuest == "myFirstQuest")
+    {
+        if (nCurrentStep == 1)
+        {
+            object oWP = GetWaypointByTag("quest_test");
+            location lWP = GetLocation(oWP);
+            object oTarget = CreateObject(OBJECT_TYPE_CREATURE, "nw_goblina", lWP);
+
+            SetEventScript(oTarget, EVENT_SCRIPT_CREATURE_ON_DEATH, "hook_creature05");
+            SetLocalString(oTarget, CREATURE_EVENT_ON_DEATH, "test_goblindeath");
+        }
+    }
+
+}
+
+void test_goblindeath()
+{
+    object oTarget = OBJECT_SELF;
+    object oPC = GetLastKiller();
+
+    SignalQuestStepProgress(oPC, oTarget, QUEST_OBJECTIVE_KILL);
+}

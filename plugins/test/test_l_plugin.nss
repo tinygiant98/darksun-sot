@@ -58,6 +58,8 @@ void OnLibraryLoad()
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!script", "test_script_OnPlayerChat");
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!debug", "test_debug_OnPlayerChat");
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!destroy", "test_destroy_OnPlayerChat");
+        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!area", "test_area_OnPlayerChat");
+        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!align", "test_align_OnPlayerChat");
     }
 
     RegisterLibraryScript("test_OnClientEnter", 0);
@@ -75,6 +77,8 @@ void OnLibraryLoad()
     RegisterLibraryScript("test_script_OnPlayerChat", 12);
     RegisterLibraryScript("test_debug_OnPlayerChat", 13);
     RegisterLibraryScript("test_destroy_OnPlayerChat", 14);
+    RegisterLibraryScript("test_area_OnPlayerChat", 15);
+    RegisterLibraryScript("test_align_OnPlayerChat", 16);
 
     // Tag-based Scripting
     RegisterLibraryScript("util_playerdata", 30);
@@ -106,6 +110,8 @@ void OnLibraryScript(string sScript, int nEntry)
         case 12: test_script_OnPlayerChat(); break;
         case 13: test_debug_OnPlayerChat(); break;
         case 14: test_destroy_OnPlayerChat(); break;
+        case 15: test_area_OnPlayerChat(); break;
+        case 16: test_align_OnPlayerChat(); break;
 
         case 30: test_PlayerDataItem(); break;
 

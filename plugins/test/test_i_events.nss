@@ -71,6 +71,17 @@ void test_identify_OnPlayerChat()
     }
 }
 
+void test_area_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+    object oArea = GetArea(oPC);
+
+    Notice("Current area -> " + GetName(oArea) +
+           "\n  Object Type -> " + IntToString(GetObjectType(oArea)) +
+           "\n  Object Valid -> " + (GetIsObjectValid(oArea) ? "TRUE":"FALSE") +
+           "\n  GetArea == oArea ? -> " + (GetArea(oPC) == oArea ? "TRUE":"FALSE"));
+}
+
 void test_items_OnPlayerChat()
 {
     object oPC = GetPCChatSpeaker();
@@ -329,4 +340,24 @@ void test_debug_OnPlayerChat()
                     nLevel == 3 ? "WARNING" :
                     nLevel == 2 ? "ERROR" :
                     nLevel == 1 ? "CRITICAL ERROR" : "NONE"), oPC);
+}
+
+void test_align_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+
+    if (HasChatOption(oPC, "evil"))
+        AdjustAlignment(oPC, ALIGNMENT_EVIL, 100, FALSE);
+    else if (HasChatOption(oPC, "good"))
+        AdjustAlignment(oPC, ALIGNMENT_GOOD, 100, FALSE);
+    else if (HasChatOption(oPC, "lawful"))
+        AdjustAlignment(oPC, ALIGNMENT_LAWFUL, 100, FALSE);
+    else if (HasChatOption(oPC, "chaotic"))
+        AdjustAlignment(oPC, ALIGNMENT_CHAOTIC, 100, FALSE);
+    else if (HasChatOption(oPC, "neutral"))
+    {
+        AdjustAlignment(oPC, ALIGNMENT_GOOD, 100, FALSE);
+        AdjustAlignment(oPC, ALIGNMENT_LAWFUL, 100, FALSE);
+        AdjustAlignment(oPC, ALIGNMENT_NEUTRAL, 50, FALSE);
+    }
 }

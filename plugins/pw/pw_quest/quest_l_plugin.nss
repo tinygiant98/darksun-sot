@@ -31,6 +31,9 @@ void OnLibraryLoad()
     RegisterLibraryScript("quest_OnModuleLoad", 1);
     RegisterLibraryScript("quest_OnClientEnter", 2);
     RegisterLibraryScript("quest_OnPlayerChat", 3);
+    
+    RegisterLibraryScript("quest_OnAdvance", 20);
+    RegisterLibraryScript("test_goblindeath", 21);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
@@ -40,6 +43,9 @@ void OnLibraryScript(string sScript, int nEntry)
         case 1:  quest_OnModuleLoad(); break;
         case 2:  quest_OnClientEnter(); break;
         case 3:  quest_OnPlayerChat(); break;
+
+        case 20:  quest_OnAdvance(); break;
+        case 21:  test_goblindeath(); break;
         default: CriticalError("Library function " + sScript + " not found");
     }
 }

@@ -24,29 +24,48 @@
 //                             Function Definitions
 // -----------------------------------------------------------------------------
 
+void AssignQuestToPC(object oPC)
+{
+    if (GetIsQuestAssignable(oPC, "myFirstQuest"))
+    {
+        Notice(HexColorString("Quest is assignable", COLOR_GREEN_LIGHT));
+        AssignQuest(oPC, "myFirstQuest");
+    }
+    else
+        Notice(HexColorString("Quest is NOT assignable", COLOR_RED_LIGHT));
+}
+
 void DefineQuests()
 {
-    string sJournalTitle = "This is the quest title.";
-    string sTag = "qTestQuest";
-    AddQuest("qTestQuest", sJournalTitle);
+    int nQuestID, nStep;
 
-    SetQuestPrerequisiteAlignment(sTag, ALIGNMENT_GOOD);
-    SetQuestPrerequisiteClass(sTag, RACIAL_TYPE_HUMAN, FALSE);
-    SetQuestPrerequisiteLevelMin(sTag, 3);
+    nQuestID = AddQuest("myFirstQuest", "Super duper journal title");
+    //SetQuestPrerequisiteAlignment(nQuestID, ALIGNMENT_GOOD);
+    SetQuestPrerequisiteClass(nQuestID, CLASS_TYPE_WIZARD, 1);
+    SetQuestPrerequisiteGold(nQuestID, 50);
+    //SetQuestPrerequisiteItem(nQuestID, "nw_maarcl015", 1);
+    SetQuestPrerequisiteLevelMax(nQuestID, 1);
+    SetQuestPrerequisiteLevelMin(nQuestID, 1);
+    SetQuestPrerequisiteRace(nQuestID, RACIAL_TYPE_ELF, TRUE);
+    
+    SetQuestActive(nQuestID);
+    SetQuestRepetitions(nQuestID, 2);
+    //SetQuestTimeLimit(nQuestID, CreateDifferenceVector(0,0,0,1,0,0));
+    SetQuestScriptOnAdvance(nQuestID, "quest_OnAdvance");
+    SetQuestScriptOnAccept(nQuestID, "");
+    SetQuestScriptOnComplete(nQuestID, "");
+    SetQuestScriptOnFail(nQuestID, "");
+    //SetQuestCooldown(nQuestID, CreateDifferenceVector(0,0,1,0,0,0));
 
-    int nStep = AddQuestStep(sTag);
-    SetQuestStepJournalEntry(sTag, nStep, "You're working on Step 1.");
-    SetQuestStepRewardItem(sTag, nStep, "itemtag", 2);
-    SetQuestStepRewardAlignment(sTag, nStep, ALIGNMENT_GOOD, 20);
-    SetQuestStepRewardXP(sTag, nStep, 100);
-    SetQuestStepRewardGold(sTag, nStep, 100);
+    nStep = AddQuestStep(nQuestID, "");
+    SetQuestStepObjectiveKill(nQuestID, nStep, "nw_goblina", 1);
+    SetQuestStepPrewardGold(nQuestID, nStep, 150);
+    SetQuestStepPrewardXP(nQuestID, nStep, 100);
 
-    SetQuestStepObjectiveKill(sTag, nStep, "thistag", 1);
-
-    nStep = AddQuestStep(sTag, "You're working on Step 2.");
-    SetQuestStepPrewardAlignment(sTag, nStep, ALIGNMENT_EVIL, 10);
-    SetQuestStepPrewardGold(sTag, nStep, 300);
-    SetQuestStepPrewardItem(sTag, nStep, "thisitem", 2);
-    SetQuestStepPrewardXP(sTag, nStep, 100);
-
+    nStep = AddQuestResolutionSuccess(nQuestID);
+    SetQuestStepRewardMessage(nQuestID, nStep, "Thanks for your help!");
+    SetQuestStepRewardItem(nQuestID, nStep, "nw_maarcl015", 2);
+    SetQuestStepRewardAlignment(nQuestID, nStep, ALIGNMENT_GOOD, 20);
+    SetQuestStepRewardXP(nQuestID, nStep, 100);
+    SetQuestStepRewardGold(nQuestID, nStep, 100);
 }
