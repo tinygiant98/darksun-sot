@@ -1964,7 +1964,8 @@ void RunQuestScript(object oPC, int nQuestID, int nScriptType)
     }
     else if (nScriptType == QUEST_SCRIPT_TYPE_ON_COMPLETE)
         sScript = GetQuestScriptOnComplete(nQuestID);
-    // TODO add OnFail
+    else if (nScriptType == QUEST_SCRIPT_TYPE_ON_FAIL)
+        sScript = GetQuestScriptOnFail(nQuestID);
 
     if (sScript == "")
         return;

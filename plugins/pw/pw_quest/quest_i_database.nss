@@ -22,21 +22,11 @@
     they are provided in the primary quest system file.
 */
 
-
-
-
 string sQuery;
 sqlquery sql;
 
-// Name of the table to use in the player's sqlite database (n/a if saving quest data to db)
-const string QUEST_DATABASE_PLAYER = "quest_status";
-
 void CreateModuleQuestTables(int bReset = FALSE)
 {
-    // From core_i_database
-    // Checks for an nwnx based database
-    int nDatabaseType = GetDatabaseType();
-
     // Define the tables
     string sQuests = "CREATE TABLE IF NOT EXISTS quest_quests (" +
                         "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -69,7 +59,8 @@ void CreateModuleQuestTables(int bReset = FALSE)
                         "sTimeLimit TEXT default NULL, " +
                         "nPartyCompletion TEXT default '0', " +
                         "nStepType INTEGER default '0', " +
-                        "FOREIGN KEY (quests_id) REFERENCES quest_quests (id) ON DELETE CASCADE ON UPDATE CASCADE);";
+                        "FOREIGN KEY (quests_id) REFERENCES quest_quests (id) " +
+                            "ON DELETE CASCADE ON UPDATE CASCADE);";
 
     string sQuestStepProperties = "CREATE TABLE IF NOT EXISTS quest_step_properties (" +
                         "quest_steps_id INTEGER NOT NULL default '0', " +
