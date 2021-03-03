@@ -46,7 +46,7 @@ void item_tag()
     }
     else if (nEvent == X2_ITEM_EVENT_ACQUIRE)
     {
-        oItem = GetModuleItemAcquired();
+        oItem = GetModuleItemAcquired();`
         oPC = GetModuleItemAcquiredBy();
 
     }
