@@ -18,14 +18,6 @@ void item_tag()
     int nEvent = GetUserDefinedItemEventNumber();
     object oPC, oItem;
 
-    if (nEvent == X2_ITEM_EVENT_ONHITCAST)
-    {
-        oItem = GetSpellCastItem();
-        oPC = OBJECT_SELF;          // Same as Spell Origin
-        object oSpellTarget = GetSpellTargetObject();
-
-
-    }
     else if (nEvent == X2_ITEM_EVENT_ACTIVATE)
     {
         oItem = GetItemActivated();
@@ -54,13 +46,6 @@ void item_tag()
     {
         oItem = GetModuleItemLost();
         oPC = GetModuleItemLostBy();      
-
-    }
-    else if (nEvent == X2_ITEM_EVENT_SPELLCAST_AT)
-    {
-        oItem = GetSpellTargetObject();
-        oPC = OBJECT_SELF;
-        int nSpellID = GetSpellId();
 
     }
 }
