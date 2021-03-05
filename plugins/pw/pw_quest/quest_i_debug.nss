@@ -13,6 +13,22 @@ string AlignmentToString(int nAlignment)
     return "[NOT FOUND]";
 }
 
+string AwardTypeToString(int nAwardType)
+{
+    switch (nAwardType)
+    {
+        case AWARD_ALL: return "ALL";
+        case AWARD_GOLD: return "GOLD";
+        case AWARD_XP: return "XP";
+        case AWARD_ITEM: return "ITEMS";
+        case AWARD_ALIGNMENT: return "ALIGNMENT";
+        case AWARD_QUEST: return "QUEST";
+        case AWARD_MESSAGE: return "MESSAGE";
+    }
+
+    return "[NOT FOUND]";
+}
+
 string AlignmentAxisToString(int nAxis)
 {
     switch (nAxis)
@@ -354,4 +370,134 @@ string TranslateValue(int nValueType, string sKey, string sValue)
         sIndent + sValueType + sDelimiter +
         (sKey != " " ? sKey + sDelimiter : "") +
         sValue;
+}
+
+string GetKey(string sPair)
+{
+    int nIndex;
+
+    if ((nIndex = FindSubString(sPair, ":")) == -1)
+        nIndex = FindSubString(sPair, "=");
+
+    if (nIndex == -1)
+        return sPair;
+    else
+        return GetSubString(sPair, 0, nIndex);
+}
+
+string GetValue(string sPair)
+{
+    int nIndex;
+
+    if ((nIndex = FindSubString(sPair, ":")) == -1)
+        nIndex = FindSubString(sPair, "=");
+
+    if (nIndex == -1)
+        return sPair;
+    else
+        return GetSubString(sPair, ++nIndex, GetStringLength(sPair));
+}
+
+
+void HandleDebugging(string sType, string s1 = "", string s2 = "", string s3 = "", string s4 = "", 
+                                   string s5 = "", string s6 = "", string s7 = "")
+{
+    string sResult;
+    string sKey = GetKey(sType);
+    string sValue = GetValue(sType);
+
+    if (sKey == "SQL") // SQL:type || s1 = result
+    {
+        int bSuccess = IntToString(s1);
+        string sQuest = QuestToString(StringToInt(s2));
+
+        if (sValue == "table")  // s2 = table name || s3 = target
+        {
+            if (bSuccess)
+                sResult = "Created or confirmed existence of table '" + s2 + "' in sqlite database for " + s3;
+            else
+                sResult = "Error creating table '" + s2 + "' in sqlite database for " + s3;
+        }
+        else if (sValue == "retrieve-field") // s2 = questID || s3 = field name || s4 = target || s5 = result value
+        {
+            sResult = "Attempting to retrieve quest data from " + s4 +
+                "\n  Quest -> " + sQuest +
+                "\n  Field -> " + s3 +
+                "\n  Result -> ";
+            
+            if (bSuccess)
+                sResult += s5;
+            else
+                sResult += HexColorString("[NOT FOUND]", COLOR_RED_LIGHT);
+        }
+        else if (sValue == "set-field") // s2 = questID || s3 = field name || s4 = target || s5 = field value
+        {
+            sResult = "Attempting to set quest data for " + s4 +
+                "\n  Quest -> " + sQuest +
+                "\n  Field -> " + s3 +
+                "\n  Value -> " + s5 +
+                "\n  Result -> ";
+
+            if (bSuccess)
+                sResult += HexColorString("[Request Failed]", COLOR_RED_LIGHT);
+            else
+                sResult += HexColorString("[Request Succeeded]", COLOR_GREEN_LIGHT);
+        }
+        else if (sValue == "set-step") // s2 = questID || s3 = step || s4 = field name || s5 = field value
+        {
+            sResult = "Attempting to set quest step data for " + sQuest + ", step " + s3 +
+                "\n  Field -> " + s4 +
+                "\n  Value -> " + s5 +
+                "\n  Result -> ";
+
+            if (bSuccess)
+                sResult += HexColorString("[Request Failed]", COLOR_RED_LIGHT);
+            else
+                sResult += HexColorString("[Request Succeeded]", COLOR_GREEN_LIGHT);
+        }
+        else if (sValue == "retrieve-step") // s2 = questID || s3 = step || s4 = field name || s5 = result value
+        {
+            sResult = "Attempting to retrieve quest step for " + sQuest + ", step " + s3 +
+                "\n  Field -> " + s4 +
+                "\n  Result -> ";
+            
+            if (bSuccess)
+                sResult += s5;
+            else
+                sResult += HexColorString("[NOT FOUND]", COLOR_RED_LIGHT);
+        }
+        else if (sValue == "set-step-property") // s2 = questID || s3 = step || s4 = category || s5 = value type || s6 = key || s7 = value
+        {
+            sResult = "Attempting to set property for " + sQuest + ", step " + s3 +
+                "\n  Category -> " + CategoryTypeToString(StringToInt(s4)) +
+                "\n  Value Type -> " + ValueTypeToString(StringToInt(s5)) +
+                "\n  Key -> " + s6 +
+                "\n  Value -> " + s7 +
+                "\n  Result -> ";
+
+            if (bSuccess)
+                sResult += HexColorString("[Request Failed]", COLOR_RED_LIGHT);
+            else
+                sResult += HexColorString("[Request Succeeded]", COLOR_GREEN_LIGHT);
+        }
+    }
+}
+
+void HandleSqlDebugging(sqlquery sql, string sType = "", string s2 = "", string s3 = "", string s4 = "", string s5 = "", string s6 = "", string s7 = "")
+{
+    string sResult = SqlGetError(sql);
+    if (sResult == "") s1 = "0";
+    else s1 = "1";
+
+    if (sType == "ERROR" || sType == "")
+    {
+        if (sResult != "")
+            CriticalError(sError);
+    }
+    else
+    {
+        if (sResult == "") s1 = "0";
+        else s1 = "1";
+        HandleDebugging(sType, s1, s2, s3, s4, s5, s6, s7);
+    }
 }

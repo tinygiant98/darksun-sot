@@ -87,10 +87,19 @@ void CreateModuleQuestTables(int bReset = FALSE)
         }
     }
 
+    SetDebugLevel(DEBUG_LEVEL_DEBUG, GetModule());
+
     sql = SqlPrepareQueryObject(GetModule(), sQuests);              SqlStep(sql);
+    HandleSqlDebugging(sql, "SQL:table", "quest_quests", "module");
+
     sql = SqlPrepareQueryObject(GetModule(), sQuestPrerequisites);  SqlStep(sql);
+    HandleSqlDebugging(sql, "SQL:table", "quest_prerequisites", "module");
+
     sql = SqlPrepareQueryObject(GetModule(), sQuestSteps);          SqlStep(sql);
+    HandleSqlDebugging(sql, "SQL:table", "quest_steps", "module");
+
     sql = SqlPrepareQueryObject(GetModule(), sQuestStepProperties); SqlStep(sql);
+    HandleSqlDebugging(sql, "SQL:table", "quest_step_properties", "module");
 }
 
 void CreatePCQuestTables(object oPC, int bReset = FALSE)
@@ -128,7 +137,10 @@ void CreatePCQuestTables(object oPC, int bReset = FALSE)
     }
 
     sql = SqlPrepareQueryObject(oPC, sQuest);     SqlStep(sql);
+    HandleSqlDebugging(sql, "SQL:table", "quest_pc_data", GetName(oPC));
+
     sql = SqlPrepareQueryObject(oPC, sQuestStep); SqlStep(sql);
+    HandleSqlDebugging(sql, "SQL:table", "quest_pc_step", GetName(oPC));
 }
 
 void CreateQuestVariablesTable(int bReset = FALSE)
@@ -151,6 +163,8 @@ void CreateQuestVariablesTable(int bReset = FALSE)
     
     sql = SqlPrepareQueryObject(GetModule(), sQuestVariables);
     SqlStep(sql);
+
+    HandleSqlDebugging(sql, "SQL:table", "quest_variables", "module");
 }
 
 void CleanPCQuestTables(object oPC)
@@ -169,6 +183,8 @@ void CleanPCQuestTables(object oPC)
 
         SqlStep(sql);
     }
+
+    HandleSqlDebugging(sql);
 }
 
 int GetLastInsertedID(string sTable)
@@ -176,7 +192,7 @@ int GetLastInsertedID(string sTable)
     sQuery = "SELECT seq FROM sqlite_sequence WHERE name = @name;";
     sql = SqlPrepareQueryObject(GetModule(), sQuery);
     SqlBindString(sql, "@name", sTable);
-
+    
     return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
 }
 
@@ -210,6 +226,8 @@ void AddQuestPrerequisite(int nQuestID, int nValueType, string sKey, string sVal
     SqlBindString(sql, "@sValue", sValue);
 
     SqlStep(sql);
+
+    HandleSqlDebugging(sql);
 }
 
 int _AddQuest(string sQuestTag, string sJournalTitle)
@@ -221,6 +239,7 @@ int _AddQuest(string sQuestTag, string sJournalTitle)
     SqlBindString(sql, "@sTitle", sJournalTitle);
 
     SqlStep(sql);
+    HandleSqlDebugging(sql);
 
     return GetLastInsertedID("quest_quests");
 }
@@ -234,6 +253,8 @@ void _AddQuestStep(int nQuestID, string sJournalEntry, int nStep)
     SqlBindInt(sql, "@nStep", nStep);
     SqlBindString(sql, "@sJournalEntry", sJournalEntry);
     SqlStep(sql);
+
+    HandleSqlDebugging(sql);
 }
 
 sqlquery GetQuestPrerequisites(int nQuestID)
@@ -283,7 +304,13 @@ int CountQuestSteps(int nQuestID)
     SqlBindInt(sql, "@id", nQuestID);
     SqlBindInt(sql, "@type", QUEST_STEP_TYPE_PROGRESS);
 
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
+    int nSteps;
+    if (SqlStep(sql))
+        nSteps = SqlGetInt(sql, 0);
+
+    HandleSqlDebugging(sql);
+    return nSteps;
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
 }
 
 int CountQuestPrerequisites(int nQuestID)
@@ -294,7 +321,13 @@ int CountQuestPrerequisites(int nQuestID)
     sql = SqlPrepareQueryObject(GetModule(), sQuery);
     SqlBindInt(sql, "@id", nQuestID);
 
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
+    int nCount;
+    if (SqlStep(sql))
+        nCount = SqlGetInt(sql, 0);
+
+    HandleSqlDebugging(sql);
+    return nCount;
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
 }
 
 sqlquery GetQuestData(int nQuestID)
@@ -335,7 +368,13 @@ int GetQuestStepID(int nQuestID, int nStep)
     SqlBindInt(sql, "@id", nQuestID);
     SqlBindInt(sql, "@step", nStep);
 
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
+    int nID;
+    if (SqlStep(sql))
+        nID = SqlGetInt(sql, 0);
+
+    HandleSqlDebugging(sql);
+    return nID;
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
 }
 
 sqlquery GetQuestStepPropertySets(int nQuestID, int nStep, int nCategoryType)
@@ -382,6 +421,8 @@ void DeleteQuestStepPropertyPair(int nQuestID, int nStep, int nCategoryType, int
     SqlBindInt(sql, "@id", GetQuestStepID(nQuestID, nStep));
 
     SqlStep(sql);
+
+    HandleSqlDebugging(sql);
 }
 
 sqlquery GetQuestStepObjectiveData(int nQuestID, int nStep)
@@ -416,7 +457,13 @@ int GetQuestStepObjectiveType(int nQuestID, int nStep)
     SqlBindInt(sql, "@step", nStep);
     SqlBindInt(sql, "@id", nQuestID);
 
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
+    int nType;
+    if (SqlStep(sql))
+        nType = SqlGetInt(sql, 0);
+
+    HandleSqlDebugging(sql);
+    return nType;
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
 }
 
 int CountQuestStepObjectivePairs(int nQuestID, int nStep)
@@ -432,7 +479,13 @@ int CountQuestStepObjectivePairs(int nQuestID, int nStep)
     SqlBindInt(sql, "@step", nStep);
     SqlBindInt(sql, "@id", nQuestID);
     
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
+    int nCount;
+    if (SqlStep(sql))
+        nCount = SqlGetInt(sql, 0);
+
+    HandleSqlDebugging(sql);
+    return nCount;
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
 }
 
 void _AddQuestToPC(object oPC, int nQuestID)
@@ -445,6 +498,8 @@ void _AddQuestToPC(object oPC, int nQuestID)
     SqlBindString(sql, "@tag", sQuestTag);
 
     SqlStep(sql);
+
+    HandleSqlDebugging(sql);
 }
 
 void DeletePCQuest(object oPC, int nQuestID)
@@ -456,6 +511,8 @@ void DeletePCQuest(object oPC, int nQuestID)
     sql = SqlPrepareQueryObject(oPC, sQuery);
     SqlBindString(sql, "@tag", sQuestTag);
     SqlStep(sql);
+
+    HandleSqlDebugging(sql);
 }
 
 int GetPCHasQuest(object oPC, string sQuestTag)
@@ -465,7 +522,13 @@ int GetPCHasQuest(object oPC, string sQuestTag)
     sql = SqlPrepareQueryObject(oPC, sQuery);
     SqlBindString(sql, "@tag", sQuestTag);
     
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : FALSE;
+    int nHas;
+    if (SqlStep(sql))
+        nHas = SqlGetInt(sql, 0);
+
+    HandleSqlDebugging(sql);
+    return nHas;
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) : FALSE;
 }
 
 int GetIsPCQuestComplete(object oPC, int nQuestID)
@@ -477,7 +540,14 @@ int GetIsPCQuestComplete(object oPC, int nQuestID)
     sql = SqlPrepareQueryObject(oPC, sQuery);
     SqlBindString(sql, "@tag", sQuestTag);
 
-    return SqlStep(sql) ? SqlGetInt(sql, 0) == 0 : FALSE;
+    int nComplete;
+    if (SqlStep(sql))
+        nComplete = SqlGetInt(sql, 0);
+
+    HandleSqlDebugging(sql);
+    return nComplete;
+
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) == 0 : FALSE;
 }
 
 int GetPCQuestCompletions(object oPC, string sQuestTag)
@@ -487,7 +557,14 @@ int GetPCQuestCompletions(object oPC, string sQuestTag)
     sql = SqlPrepareQueryObject(oPC, sQuery);
     SqlBindString(sql, "@tag", sQuestTag);
 
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
+    int nCount;
+    if (SqlStep(sql))
+        nCount = SqlGetInt(sql, 0);
+
+    HandleSqlDebugging(sql);
+    return nCount;
+
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) : 0;
 }
 
 void ResetPCQuestData(object oPC, int nQuestID)
@@ -505,6 +582,8 @@ void ResetPCQuestData(object oPC, int nQuestID)
     SqlBindString(sql, "@step_start", "");
 
     SqlStep(sql);
+
+    HandleSqlDebugging(sql);
 }
 
 void IncrementPCQuestCompletions(object oPC, int nQuestID, string sTime = "")
@@ -521,6 +600,8 @@ void IncrementPCQuestCompletions(object oPC, int nQuestID, string sTime = "")
     sql = SqlPrepareQueryObject(oPC, sQuery);
     SqlBindString(sql, "@tag", sQuestTag);
     SqlStep(sql);
+
+    HandleSqlDebugging(sql);
 }
 
 sqlquery GetStepObjectivesByTarget(object oPC, string sTarget)
@@ -564,6 +645,8 @@ void IncrementQuestStepQuantity(object oPC, string sTargetTag, int nObjectiveTyp
     SqlBindString(sql, "@tag", sTargetTag);
 
     SqlStep(sql);
+
+    HandleSqlDebugging(sql);
 }
 
 sqlquery GetQuestStepSums(object oPC, int nQuestID)
@@ -605,6 +688,8 @@ void DeletePCQuestProgress(object oPC, int nQuestID)
     sql = SqlPrepareQueryObject(oPC, sQuery);
     SqlBindString(sql, "@tag", sQuestTag);
     SqlStep(sql);
+
+    HandleSqlDebugging(sql);
 }
 
 int GetPCQuestStep(object oPC, int nQuestID)
@@ -616,8 +701,17 @@ int GetPCQuestStep(object oPC, int nQuestID)
     sql = SqlPrepareQueryObject(oPC, sQuery);
     SqlBindString(sql, "@tag", sQuestTag);
 
+    int nStep;
+    if (SqlStep(sql))
+        nStep = SqlGetInt(sql, 0);
+    else
+        nStep = -1;
+
+    HandleSqlDebugging(sql);
+    return nStep;
+
     // This could be 0 for the first step, so return -1
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
 }
 
 int GetNextPCQuestStep(int nQuestID, int nCurrentStep)
@@ -632,7 +726,16 @@ int GetNextPCQuestStep(int nQuestID, int nCurrentStep)
     SqlBindInt(sql, "@step", nCurrentStep);
     SqlBindInt(sql, "@step_type", QUEST_STEP_TYPE_PROGRESS);
 
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
+    int nStep;
+    if (SqlStep(sql))
+        nStep = SqlGetInt(sql, 0);
+    else
+        nStep = -1;
+
+    HandleSqlDebugging(sql);
+    return nStep;
+
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
 }
 
 void AddQuestStepObjectiveData(object oPC, int nQuestID, int nObjectiveType, 
@@ -650,6 +753,8 @@ void AddQuestStepObjectiveData(object oPC, int nQuestID, int nObjectiveType,
     SqlBindInt(sql, "@qty", nQuantity);
 
     SqlStep(sql);
+
+    HandleSqlDebugging(sql);
 }
 
 int GetQuestCompletionStep(int nQuestID, int nRequestType = QUEST_ADVANCE_SUCCESS)
@@ -663,7 +768,16 @@ int GetQuestCompletionStep(int nQuestID, int nRequestType = QUEST_ADVANCE_SUCCES
                                                     QUEST_STEP_TYPE_SUCCESS :
                                                     QUEST_STEP_TYPE_FAIL);
 
-    return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
+    int nStep;
+    if (SqlStep(sql))
+        nStep = SqlGetInt(sql, 0);
+    else
+        nStep = -1;
+
+    HandleSqlDebugging(sql);
+    return nStep;
+
+    //return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
 }
 
 string GetPCQuestStepAcquired(object oPC, int nQuestID)
@@ -674,6 +788,15 @@ string GetPCQuestStepAcquired(object oPC, int nQuestID)
              "WHERE quest_tag = @tag;";
     sql = SqlPrepareQueryObject(oPC, sQuery);
     SqlBindString(sql, "@tag", sQuestTag);
+    
+    int nStep;
+    if (SqlStep(sql))
+        nStep = SqlGetInt(sql, 0);
+    else
+        nStep = -1;
 
-    return SqlStep(sql) ? SqlGetString(sql, 0) : "";
+    HandleSqlDebugging(sql);
+    return nStep;
+
+    //return SqlStep(sql) ? SqlGetString(sql, 0) : "";
 }
