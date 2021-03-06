@@ -780,7 +780,7 @@ int GetQuestCompletionStep(int nQuestID, int nRequestType = QUEST_ADVANCE_SUCCES
     //return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
 }
 
-string GetPCQuestStepAcquired(object oPC, int nQuestID)
+int GetPCQuestStepAcquired(object oPC, int nQuestID)
 {
     string sQuestTag = GetQuestTag(nQuestID);
 

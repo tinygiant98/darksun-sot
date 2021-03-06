@@ -52,9 +52,6 @@ void DefineQuests()
     SetQuestRepetitions(nQuestID, 2);
     //SetQuestTimeLimit(nQuestID, CreateDifferenceVector(0,0,0,1,0,0));
     SetQuestScriptOnAdvance(nQuestID, "quest_OnAdvance");
-    SetQuestScriptOnAccept(nQuestID, "");
-    SetQuestScriptOnComplete(nQuestID, "");
-    SetQuestScriptOnFail(nQuestID, "");
     //SetQuestCooldown(nQuestID, CreateDifferenceVector(0,0,1,0,0,0));
 
     nStep = AddQuestStep(nQuestID, "");

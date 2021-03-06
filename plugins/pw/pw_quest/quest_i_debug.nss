@@ -199,6 +199,44 @@ string ValueTypeToString(int nValueType, int nCategoryType = QUEST_CATEGORY_PRER
     return "[NOT FOUND]";
 }
 
+string GetPrefix()
+{
+    return HexColorString("(quest) ", COLOR_GOLD);
+}
+
+void QuestDebug(string sMessage)
+{
+    Debug(GetPrefix() + sMessage);
+}
+
+void QuestNotice(string sMessage)
+{
+    Notice(GetPrefix() + sMessage);
+}
+
+void QuestWarning(string sMessage)
+{
+    Warning(GetPrefix() + sMessage);
+}
+
+void QuestError(string sMessage)
+{
+    Error(GetPrefix() + sMessage);
+}
+
+void QuestCriticalError(string sMessage)
+{
+    CriticalError(GetPrefix() + sMessage);
+}
+
+string PCToString(object oPC)
+{
+    if (!GetIsObjectValid(oPC))
+        return HexColorString("[NOT FOUND]", COLOR_RED_LIGHT);
+
+    return HexColorString(GetName(oPC), COLOR_VIOLET);
+}
+
 string CategoryTypeToString(int nCategoryType)
 {
     switch (nCategoryType)
@@ -372,7 +410,7 @@ string TranslateValue(int nValueType, string sKey, string sValue)
         sValue;
 }
 
-string GetKey(string sPair)
+string _GetKey(string sPair)
 {
     int nIndex;
 
@@ -385,7 +423,7 @@ string GetKey(string sPair)
         return GetSubString(sPair, 0, nIndex);
 }
 
-string GetValue(string sPair)
+string _GetValue(string sPair)
 {
     int nIndex;
 
@@ -403,12 +441,12 @@ void HandleDebugging(string sType, string s1 = "", string s2 = "", string s3 = "
                                    string s5 = "", string s6 = "", string s7 = "")
 {
     string sResult;
-    string sKey = GetKey(sType);
-    string sValue = GetValue(sType);
+    string sKey = _GetKey(sType);
+    string sValue = _GetValue(sType);
 
     if (sKey == "SQL") // SQL:type || s1 = result
     {
-        int bSuccess = IntToString(s1);
+        int bSuccess = StringToInt(s1);
         string sQuest = QuestToString(StringToInt(s2));
 
         if (sValue == "table")  // s2 = table name || s3 = target
@@ -481,22 +519,25 @@ void HandleDebugging(string sType, string s1 = "", string s2 = "", string s3 = "
                 sResult += HexColorString("[Request Succeeded]", COLOR_GREEN_LIGHT);
         }
     }
+
+    if (sResult != "")
+        QuestDebug(sResult);
 }
 
 void HandleSqlDebugging(sqlquery sql, string sType = "", string s2 = "", string s3 = "", string s4 = "", string s5 = "", string s6 = "", string s7 = "")
 {
-    string sResult = SqlGetError(sql);
-    if (sResult == "") s1 = "0";
+    string s1, sError = SqlGetError(sql);
+    if (sError == "") s1 = "0";
     else s1 = "1";
 
     if (sType == "ERROR" || sType == "")
     {
-        if (sResult != "")
-            CriticalError(sError);
+        if (sError != "")
+            QuestCriticalError(sError);
     }
     else
     {
-        if (sResult == "") s1 = "0";
+        if (sError == "") s1 = "0";
         else s1 = "1";
         HandleDebugging(sType, s1, s2, s3, s4, s5, s6, s7);
     }

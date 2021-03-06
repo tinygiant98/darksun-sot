@@ -230,6 +230,11 @@ void quest_OnAdvance()
     {
         if (nCurrentStep == 1)
         {
+            QuestDebug("This message is from the script assigned to the quest's ON_ADVANCE " +
+                "script.  It was triggered by moving from quest assignment (step 0) to " +
+                "the first step in the quest (step 1).  It creates a bad guy in front of " +
+                "the PC which allows quest resolution upon creature death.");
+
             object oWP = GetWaypointByTag("quest_test");
             location lWP = GetLocation(oWP);
             object oTarget = CreateObject(OBJECT_TYPE_CREATURE, "nw_goblina", lWP);
