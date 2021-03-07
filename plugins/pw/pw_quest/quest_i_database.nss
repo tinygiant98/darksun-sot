@@ -22,6 +22,11 @@
     they are provided in the primary quest system file.
 */
 
+#include "util_i_csvlists"
+
+#include "quest_i_const"
+#include "quest_i_debug"
+
 string sQuery;
 sqlquery sql;
 
@@ -137,10 +142,10 @@ void CreatePCQuestTables(object oPC, int bReset = FALSE)
     }
 
     sql = SqlPrepareQueryObject(oPC, sQuest);     SqlStep(sql);
-    HandleSqlDebugging(sql, "SQL:table", "quest_pc_data", GetName(oPC));
+    HandleSqlDebugging(sql, "SQL:table", "quest_pc_data", PCToString(oPC));
 
     sql = SqlPrepareQueryObject(oPC, sQuestStep); SqlStep(sql);
-    HandleSqlDebugging(sql, "SQL:table", "quest_pc_step", GetName(oPC));
+    HandleSqlDebugging(sql, "SQL:table", "quest_pc_step", PCToString(oPC));
 }
 
 void CreateQuestVariablesTable(int bReset = FALSE)

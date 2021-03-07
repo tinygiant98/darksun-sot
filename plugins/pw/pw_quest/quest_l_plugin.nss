@@ -19,9 +19,6 @@
 
 void OnLibraryLoad()
 {
-    if (!USE_QUEST_SYSTEM)
-        return;
-
     object oPlugin = GetPlugin("pw");
 
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "quest_OnModuleLoad");
