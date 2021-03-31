@@ -71,6 +71,7 @@ void quest_OnPlayerChat()
                 ResetIndent();
                 sQuestTag = SqlGetString(sql, 0);
                 DumpPCQuestData(oPC, sQuestTag);
+                DumpPCQuestVariables(oPC, sQuestTag);
             }
 
             if (nQuestCount == 0)
@@ -101,6 +102,7 @@ void quest_OnPlayerChat()
                 ResetIndent();
                 sQuestTag = SqlGetString(sql, 0);
                 DumpQuestData(sQuestTag);
+                DumpQuestVariables(sQuestTag);
             }
 
             if (nQuestCount == 0)
@@ -109,5 +111,7 @@ void quest_OnPlayerChat()
                 Debug(ColorFail(s + "No quests loaded into module database"));
             }
         }
+
+        return;
     }
 }

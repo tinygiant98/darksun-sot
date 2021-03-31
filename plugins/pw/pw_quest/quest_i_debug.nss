@@ -753,7 +753,7 @@ void DumpPCQuestData(object oPC, string sQuestTag)
 
             while (SqlStep(sqlStepDump))
             {
-                n = 0;
+                int n = 0;
                 string sQuestTag = SqlGetString(sqlStepDump, n);
                 int nObjectiveType = SqlGetInt(sqlStepDump, ++n);
                 string sTag = SqlGetString(sqlStepDump, ++n);
@@ -775,4 +775,104 @@ void DumpPCQuestData(object oPC, string sQuestTag)
             }
         }
     }
+}
+
+void DumpQuestVariables(string sQuestTag)
+{
+    int nVariableCount;
+    int nQuestID = GetQuestID(sQuestTag);
+
+    string s = Indent(TRUE);
+    Debug(ColorTitle(s + "Dumping quest variables for " +
+        (sQuestTag == "" ? "all quests" : QuestToString(nQuestID))));
+    s = Indent();
+
+    if (GetTableExists(GetModule(), "quest_variables") == FALSE)
+        Debug(s + ColorFail("Quest variables table does not exist"));
+    else
+    {
+        if (sQuestTag == "")
+            sQuery = "SELECT * " +
+                     "FROM quest_variables;";
+        else
+            sQuery = "SELECT * " +
+                     "FROM quest_variables " +
+                     "WHERE quests_id = @id;";
+        
+        sqlquery sqlDump = SqlPrepareQueryObject(GetModule(), sQuery);
+        if (sQuestTag != "")
+            SqlBindInt(sqlDump, "@id", nQuestID);
+
+        while (SqlStep(sqlDump))
+        {
+            int n = 0;
+            nVariableCount++;
+            string sQuestTag = SqlGetString(sqlDump, n);
+            string sType = SqlGetString(sqlDump, ++n);
+            string sVarName = SqlGetString(sqlDump, ++n);
+            string sValue = SqlGetString(sqlDump, ++n);
+
+            string s = GetIndent();
+            string sPipe = HexColorString(" | ", COLOR_GRAY);
+            Debug(s + ColorSuccess((sType == "INT" ? "INTEGER" : "STRING")) + sPipe +
+                      ColorValue(sVarName) + sPipe +
+                      ColorValue(sValue));
+        }
+    }
+
+    if (nVariableCount == 0)
+        Debug(ColorFail("No variables associated with " + QuestToString(nQuestID) +
+            " found"));
+}
+
+void DumpPCQuestVariables(object oPC, string sQuestTag)
+{
+    int nVariableCount;
+    int nQuestID = GetQuestID(sQuestTag);
+
+    string s = Indent(TRUE);
+    Debug(ColorTitle(s + "Dumping PC quest variables for " +
+        (sQuestTag == "" ? "all quests" : QuestToString(nQuestID)) +
+        " on " + PCToString(oPC)));
+    s = Indent();
+
+    if (GetTableExists(oPC, "quest_pc_variables") == FALSE)
+        Debug(s + ColorFail("PC quest variables table does not exist on " +
+            PCToString(oPC)));
+    else
+    {
+        if (sQuestTag == "")
+            sQuery = "SELECT * " +
+                     "FROM quest_pc_variables;";
+        else
+            sQuery = "SELECT * " +
+                     "FROM quest_pc_variables " +
+                     "WHERE quest_tag = @sQuestTag;";
+        
+        sqlquery sqlDump = SqlPrepareQueryObject(oPC, sQuery);
+        if (sQuestTag != "")
+            SqlBindString(sqlDump, "@sQuestTag", sQuestTag);
+
+        while (SqlStep(sqlDump))
+        {
+            int n = 0;
+            nVariableCount++;
+            string sQuestTag = SqlGetString(sqlDump, n);
+            int nStep = SqlGetInt(sqlDump, ++n);
+            string sType = SqlGetString(sqlDump, ++n);
+            string sVarName = SqlGetString(sqlDump, ++n);
+            string sValue = SqlGetString(sqlDump, ++n);
+
+            string s = GetIndent();
+            string sPipe = HexColorString(" | ", COLOR_GRAY);
+            Debug(s + (nStep == 0 ? "[No Step #]" : StepToString(nStep)) + sPipe +
+                       ColorSuccess((sType == "INT" ? "INTEGER" : "STRING")) + sPipe +
+                       ColorValue(sVarName) + sPipe +
+                       ColorValue(sValue));
+        }
+    }
+
+    if (nVariableCount == 0)
+        Debug(ColorFail("No variables associated with " + QuestToString(nQuestID) +
+            " found on " + PCToString(oPC)));
 }

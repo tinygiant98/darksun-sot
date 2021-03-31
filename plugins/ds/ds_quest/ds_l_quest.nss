@@ -30,6 +30,9 @@ void ds_quest_OnModuleLoad()
     SetQuestVersionActionDelete();
     DeleteQuestJournalEntriesOnCompletion();
     //SetQuestJournalHandler(QUEST_JOURNAL_NONE);
+
+    SetQuestString("quest_discovery_random", "testString", "This is a test string.");
+    SetQuestInt("quest_discovery_random", "testInt", 3);
     
     SetQuestScriptOnAccept("script_OnAccept");
 
