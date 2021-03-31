@@ -92,8 +92,8 @@ const string TIMER_ON_AREA_EMPTY = "TIMER_ON_AREA_EMPTY";   // Timer variable na
 // ----- Player Management -----------------------------------------------------
 
 const string PC_CD_KEY         = "PC_CD_KEY";
-const string PC_PLAYER_NAME    = "PC_PLAYER_NAME";
 const string PC_IP_ADDRESS     = "PC_IP_ADDRESS";
+const string PC_PLAYER_NAME    = "PC_PLAYER_NAME";
 const string PLAYER_ROSTER     = "PLAYER_ROSTER";
 const string DM_ROSTER         = "DM_ROSTER";
 const string LOGIN_BOOT        = "LOGIN_BOOT";
@@ -104,8 +104,6 @@ const string STORE_ROSTER      = "STORE_ROSTER";
 const string IS_PC             = "IS_PC";
 const string IS_DM             = "IS_DM";
 const string IS_DEVELOPER      = "IS_DEVELOPER";
-
-const int INCLUDE_NPC_IN_AOE_ROSTER = TRUE;
 
 // ----- Miscellaneous ---------------------------------------------------------
 
@@ -157,6 +155,8 @@ const string AREA_EVENT_ON_EMPTY                      = "OnAreaEmpty";
 const string AOE_EVENT_ON_ENTER                       = "OnAoEEnter";
 const string AOE_EVENT_ON_EXIT                        = "OnAoEExit";
 const string AOE_EVENT_ON_HEARTBEAT                   = "OnAoEHeartbeat";
+
+// These are pseudo-events called by the Core Framework
 const string AOE_EVENT_ON_EMPTY                       = "OnAoEEmpty";
 
 // ----- Creature Events -------------------------------------------------------

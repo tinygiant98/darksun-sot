@@ -24,7 +24,6 @@
 const string DEFAULT_FORMAT = "dddd, MMMM d, yyyy, H:mm:ss";
 
 // Don't change anything below...
-const int ELEMENT_INVALID = -1;
 const string TIME_INVALID = "TIME_INVALID";
 const string FORMAT_ELEMENTS = "y,M,d,~,m,s,h,H,t";
 const string ELEMENT_DEBUG = "TIME_YEARS, TIME_MONTHS, TIME_DAYS, TIME_HOURS, TIME_MINUTES, TIME_SECONDS";
@@ -62,13 +61,15 @@ const int RETURN_MIN = 1;
 //  values available.
 const string ME_DAY_NAMES = "Moonday,Treeday,Heavensday,Valarday,Shipday,Starday,Sunday";
 const string ME_MONTH_NAMES = "Narvinye,Nenime,Sulime,V�resse,Lotesse,Narie,Cermie,Urime,Yavannie,Narquelie,Hisime,Ringare";
+const string US_DAY_NAMES = "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday";
+const string US_MONTH_NAMES = "January,February,March,April,May,June,July,August,September,October,November,December";
 
 // For specific functions, if day and/or month names are not passed, these are
 //  the default values that will be used to determine day and month names.  This is
 //  a simple setup ... you can also use a custom function to determine which
 //  values are appropriate to use in your use case.
-string DAY_NAMES = ME_DAY_NAMES;
-string MONTH_NAMES = ME_MONTH_NAMES;
+string DAY_NAMES = US_DAY_NAMES;
+string MONTH_NAMES = US_MONTH_NAMES;
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -80,7 +81,7 @@ string MONTH_NAMES = ME_MONTH_NAMES;
 
 // ---< GetWeekDay >---
 // Given a calendar date (nDate), returns an integer representing the day of the
-//  week.  0 - Monday through 7 - Sunday.  If nDate is not passed, the current
+//  week.  1 - Monday through 7 - Sunday.  If nDate is not passed, the current
 //  game date is used.
 int GetWeekDay(int nDate = 0);
 
@@ -131,7 +132,7 @@ string GetMaxSystemTime(string sTime1, string sTime2 = TIME_INVALID, int nElemen
 string GetMinSystemTime(string sTime1, string sTime2 = TIME_INVALID, int nElement = TIME_HOURS);
 
 // ---< GetMaxGameTime >---
-// Returns the time vector that represents that compares system time vectors sTime1 and sTime2
+// Returns the time vector that compares system time vectors sTime1 and sTime2
 //  and returns the time vector which represents the greater time.  If sTime2 is not
 //  passed, current system time used.  Optionally, you can pass an element constant to use
 //  when comparing the two time vectors.  In some cases, changing nElement may increase the
@@ -139,7 +140,7 @@ string GetMinSystemTime(string sTime1, string sTime2 = TIME_INVALID, int nElemen
 string GetMaxGameTime(string sTime1, string sTime2 = TIME_INVALID, int nElement = TIME_HOURS);
 
 // ---< GetMinGameTime >---
-// Returns the time vector that represents that compares system time vectors sTime1 and sTime2
+// Returns the time vector that compares system time vectors sTime1 and sTime2
 //  and returns the time vector which represents the lesser time.  If sTime2 is not
 //  passed, current system time used.  Optionally, you can pass an element constant to use
 //  when comparing the two time vectors.  In some cases, changing nElement may increase the
@@ -151,7 +152,7 @@ string GetMinGameTime(string sTime1, string sTime2 = TIME_INVALID, int nElement 
 //  not passed, current system time is used.
 string AddSystemTimeElement(int nElement, int nValue, string sTime = TIME_INVALID);
 
-// ---< AddSystemTimeElement >--
+// ---< AddGameTimeElement >--
 // Returns a time vector with the specified nValue added to nElement.  If sTime is
 //  not passed, current game time is used.
 string AddGameTimeElement(int nElement, int nValue, string sTime = TIME_INVALID);
@@ -240,12 +241,16 @@ float GetGameTimeDifferenceIn(int nElement, string sTime1, string sTime2 = TIME_
 // ---< FormatSystemTime >---
 // Formats a system time vector as the specified sFormat.  If sTime is not passed, current system
 //  time will be used.  If sFormat is not passed, the DEFAULT_FORMAT constant will be used.
-string FormatSystemTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INVALID);
+//  Accepts comma-delimited sets of Weekday and Month names if defaults are not to be used.
+string FormatSystemTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INVALID,
+                        string sWeekDayNames = "", string sMonthNames = "");
 
 // ---< FormatGameTime >---
 // Formats a game time vector as the specified sFormat.  If sTime is not passed, current game
 //  time will be used.  If sFormat is not passed, the DEFAULT_FORMAT constant will be used.
-string FormatGameTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INVALID);
+//  Accepts comma-delimited sets of Weekday and Month names if defaults are not to be used.
+string FormatGameTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INVALID,
+                      string sWeekDayNames = "", string sMonthNames = "");
 
 // ---< GetPrecisionSystemTime >---
 // Returns a six-element comma-delimited string containing time elements from sTime up to
@@ -256,6 +261,13 @@ string GetPrecisionSystemTime(int nPrecision = TIME_SECONDS, string sTime = TIME
 // Returns a six-element comma-delimited string containing time elements from sTime up to
 //  nPrecision elements.  If sTime is not passed, current game time is used.
 string GetPrecisionGameTime(int nPrecision = TIME_SECONDS, string sTime = TIME_INVALID);
+
+// ---< GetFormattedTimeSinceEpoch >---
+// Accepts UNIX timestamp nSeconds and returns a formatted date/time based on sFormat.  The UNIX
+// timestamp is normally sourced from NWNX_Time_GetTimeStamp.  Does not accept microseconds.
+// Accepts comma-delimited sets of Weekday and Month names if defaults are not to be used.
+string GetFormattedTimeSinceEpoch(int nSeconds, string sFormat = DEFAULT_FORMAT,
+                                  string sWeekDayNames = "", string sMonthNames = "");
 
 // Private function, prototyped for use in calendar functions.
 string _ValidateTime(string sTime, int nMode = MODE_SYSTEM, int nVector = VECTOR_TIME);
@@ -275,7 +287,8 @@ int GetWeekDay(int nDate = 0)
     else if (nDate > 28)
         nDate %= 28;
     
-    return nDate % 7;
+    int nDay = nDate % 7;
+    return (nDay ? nDay : 7);
 }
 
 string GetWeekDayName(int nDate = 0, string sDayNames = "")
@@ -285,7 +298,12 @@ string GetWeekDayName(int nDate = 0, string sDayNames = "")
     else if (nDate > 28)
         nDate %= 28;
 
-    if (sDayNames == "")
+    if (sDayNames != "")
+    {
+        if (CountList(sDayNames) != 7)
+            return TIME_INVALID;
+    }
+    else
         sDayNames = DAY_NAMES;
 
     nDate = GetWeekDay(nDate);
@@ -297,14 +315,19 @@ string GetMonthName(int nMonth = 0, string sMonthNames = "")
     if (nMonth <= 0 || nMonth > 12)
         nMonth = GetCalendarMonth();
 
-    if (sMonthNames == "")
+    if (sMonthNames != "")
+    {
+        if (CountList(sMonthNames) != 12)
+            return TIME_INVALID;
+    }
+    else
         sMonthNames = MONTH_NAMES;
 
     return GetListItem(sMonthNames, nMonth - 1);
 }
 
 void _SetCalendar(string sTime, int nSetCalendar = TRUE, int nSetTime = TRUE)
-{
+{    
     string error, debug = "_SetCalendar :: ";
 
     if ((sTime = _ValidateTime(sTime)) == TIME_INVALID)
@@ -353,7 +376,8 @@ void _SetCalendar(string sTime, int nSetCalendar = TRUE, int nSetTime = TRUE)
 // Internal Function.  Validates a 6-element CSV containing time elements to ensure all elements
 //  are within normal time limits.  Errors on the low-side will result in TIME_INVALID, errors
 //  on the high-side will add the appropriate time to the next higher-order time element.  nMode
-//  determines whether game time or system time is being validated.
+//  determines whether game time or system time is being validated.  If validating difference
+//  vectors, nVector is used to make a range correction.
 string _ValidateTime(string sTime, int nMode = MODE_SYSTEM, int nVector = VECTOR_TIME)
 {
     string elements, debug = "_ValidateTime :: ";
@@ -361,8 +385,9 @@ string _ValidateTime(string sTime, int nMode = MODE_SYSTEM, int nVector = VECTOR
     if (CountList(sTime) != SYSTEM_ELEMENTS)
     {
         Error(debug + "Passed sTime did not contain the correct number of time elements." +
-                    "\n   sTime = " + sTime +
-                    "\n   nMode = " + (nMode == MODE_SYSTEM ? "MODE_SYSTEM" : "MODE_GAME"));
+                    "\n   sTime   = " + sTime +
+                    "\n   nMode   = " + (nMode == MODE_SYSTEM ? "MODE_SYSTEM" : "MODE_GAME") +
+                    "\n   nVector = " + (nVector == VECTOR_TIME ? "VECTOR_TIME" : "VECTOR_DIFFERENCE"));
         return TIME_INVALID;
     }
 
@@ -485,12 +510,12 @@ string _CreateTimeVector(int nMode, int nVector, int nYear = -1, int nMonth = -1
     return sTime;
 }
 
+// Internal function.  Converts seconds vectors to specified time elements.  Can
+// lose precision with large numbers, so should only be used for short timespans.
 float _ConvertSecondsVectorTo(int nElement, string sTime, int nMode = MODE_GAME)
-{                                                       //   ^^^^^^^^^^^^^ added
+{                                                     
     int nYear = StringToInt(GetListItem(sTime, 0));
     int nSecond = StringToInt(GetListItem(sTime, 1));
-
-
 
     float fYear = nYear * _GetConversionFactor(TIME_YEARS, nElement);
     float fSecond = nSecond * _GetConversionFactor(TIME_SECONDS, nElement);
@@ -529,6 +554,7 @@ string _ConvertGameTimeToSecondsVector(string sTime, int nVector = VECTOR_TIME)
     return  AddListItem(sTime, IntToString(nSecond));
 }
 
+// Internal function.  Converts seconds vector to game time.
 string _ConvertSecondsVectorToGameTime(string sTime, int nVector = VECTOR_DIFFERENCE)
 {
     int nMonth, nDay, nHour, nMinute;
@@ -622,7 +648,7 @@ string _GetTimeDifference(string sTime1, string sTime2, int nMode, int nReturn)
 }
 
 // Interal function.  Formats a specified elements based on desired formatting.
-string _FormatTimeElement(string sElement, string sFormat)
+string _FormatTimeElement(string sElement, string sFormat, string sWeekDayNames, string sMonthNames)
 {
     string s = GetStringLeft(sFormat, 1);
     int nLen = GetStringLength(sFormat);
@@ -639,11 +665,11 @@ string _FormatTimeElement(string sElement, string sFormat)
 
                 break;
             case 3:
-                sElement = (s == "d" ? GetWeekDayName(nElement) : GetMonthName(nElement));
+                sElement = (s == "d" ? GetWeekDayName(nElement, sWeekDayNames) : GetMonthName(nElement, sMonthNames));
                 sElement = GetStringLeft(sElement, 3);
                 break;
             case 4:
-                sElement = (s == "d" ? GetWeekDayName(nElement) : GetMonthName(nElement));
+                sElement = (s == "d" ? GetWeekDayName(nElement, sWeekDayNames) : GetMonthName(nElement, sMonthNames));
                 break;
         }
     }
@@ -1039,8 +1065,21 @@ float GetGameTimeDifferenceIn(int nElement, string sTime1, string sTime2 = TIME_
     return _ConvertSecondsVectorTo(nElement, sSeconds, MODE_GAME);
 }
 
-string FormatGameTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INVALID)
+string FormatGameTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INVALID,
+                      string sWeekDayNames = "", string sMonthNames = "")
 {
+    if (sWeekDayNames != "")
+    {
+        if (CountList(sWeekDayNames) != 7)
+            return TIME_INVALID;
+    }
+
+    if (sMonthNames != "")
+    {
+        if (CountList(sMonthNames) != 12)
+            return TIME_INVALID;
+    }
+    
     if (sTime == TIME_INVALID || sTime == "")
         sTime = GetGameTime();
     else if ((sTime = _ValidateTime(sTime, MODE_GAME)) == TIME_INVALID)
@@ -1049,13 +1088,11 @@ string FormatGameTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INVAL
     if (GetStringLength(sFormat) == 0)
         sFormat = DEFAULT_FORMAT;
 
-    int i, nIndex;
+    int nIndex;
     string s, sElementFormat, sFormattedTime;
 
     while (GetStringLength(sFormat) > 0)
     {
-        i = 1;
-
         s = GetStringLeft(sFormat, 1);
         sElementFormat = s;
         sFormat = GetStringRight(sFormat, GetStringLength(sFormat) - 1);
@@ -1075,13 +1112,14 @@ string FormatGameTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INVAL
             nIndex = FindListItem(FORMAT_ELEMENTS, s);
 
         if (nIndex || s == "y")
-            sFormattedTime += _FormatTimeElement(GetListItem(sTime, nIndex), sElementFormat);
+            sFormattedTime += _FormatTimeElement(GetListItem(sTime, nIndex), sElementFormat, sWeekDayNames, sMonthNames);
     }
 
     return sFormattedTime;
 }
 
-string FormatSystemTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INVALID)
+string FormatSystemTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INVALID,
+                        string sWeekDayNames = "", string sMonthNames = "")
 {
     if (sTime == TIME_INVALID || sTime == "")
         sTime = GetSystemTime();
@@ -1089,7 +1127,7 @@ string FormatSystemTime(string sFormat = DEFAULT_FORMAT, string sTime = TIME_INV
         return TIME_INVALID;
  
     sTime = ConvertSystemTimeToGameTime(sTime);
-    return FormatGameTime(sFormat, sTime);
+    return FormatGameTime(sFormat, sTime, sWeekDayNames, sMonthNames);
 }
 
 string GetPrecisionSystemTime(int nPrecision = TIME_SECONDS, string sTime = TIME_INVALID)
@@ -1106,4 +1144,103 @@ string GetPrecisionGameTime(int nPrecision = TIME_SECONDS, string sTime = TIME_I
         sTime == _CreateTimeVector(MODE_GAME, VECTOR_TIME);
 
     return _GetPrecisionTime(sTime, nPrecision);
+}
+
+int IsLeapYear(int nYear)
+{
+    return ((nYear % 4 == 0 && nYear % 100 != 0) || nYear % 400 == 0);
+}
+
+string FormatUnixTimestamp(int nSeconds, string sFormat = DEFAULT_FORMAT,
+                           string sWeekDayNames = "", string sMonthNames = "")
+{
+    if (nSeconds < 0)
+        return TIME_INVALID;
+
+    int DaysPerLYPeriod = 146097;
+    int YearsPerLYPeriod = 400;
+    int SecondsPerDay = 86400;
+    int DaysPerYear = 365;
+    int DaysPerLeapYear = 366;
+    string sMonths = "0,31,59,90,120,151,181,212,243,273,304,334";
+    string sLeapMonths = "-1,30,59,90,120,151,181,212,243,273,304,334";
+    //string sMonths;
+
+    int nMonth, nTempDays, nYear = 1970;
+    float fDays = nSeconds / IntToFloat(SecondsPerDay);
+    float fDaysRemainder = frac(fDays);
+
+    nTempDays = FloatToInt(fDays + 1);
+    if (nTempDays >= DaysPerLYPeriod)
+    {
+        nYear += YearsPerLYPeriod * (nTempDays / DaysPerLYPeriod);
+        fDays -= DaysPerLYPeriod * (nTempDays / DaysPerLYPeriod);
+    }    
+
+    while (nTempDays >= DaysPerLeapYear)
+    {
+        nYear++;
+        if (IsLeapYear(nYear))
+            nTempDays -= DaysPerLeapYear;
+        else
+            nTempDays -= DaysPerYear;
+    }
+
+    sMonths = IsLeapYear(nYear) ? sLeapMonths : sMonths;
+    if (IsLeapYear(nYear) && nYear < 1970)
+        nTempDays--;
+
+    nMonth = 11;
+    while (nMonth > 0)
+    {
+        if (nTempDays > StringToInt(GetListItem(sMonths, nMonth)))
+            break;
+
+        nMonth--;
+    }
+
+    nTempDays -= StringToInt(GetListItem(sMonths, nMonth));
+
+    //int nHours = FloatToInt(IntToFloat(nSeconds/60/60)) % 24;
+    //int nMinutes = FloatToInt(IntToFloat(nSeconds/60)) % 60;
+
+    int nHours = (nSeconds/60/60) % 24;
+    int nMinutes = (nSeconds/60) % 60;
+    int nSecs = nSeconds % 60;
+
+    string sTime = AddListItem(sTime, IntToString(nYear));
+    sTime = AddListItem(sTime, IntToString(nMonth + 1));
+    sTime = AddListItem(sTime, IntToString(nTempDays));
+    sTime = AddListItem(sTime, IntToString(nHours));
+    sTime = AddListItem(sTime, IntToString(nMinutes));
+    sTime = AddListItem(sTime, IntToString(nSecs));
+
+    int nIndex;
+    string s, sElementFormat, sFormattedTime;
+
+    while (GetStringLength(sFormat) > 0)
+    {
+        s = GetStringLeft(sFormat, 1);
+        sElementFormat = s;
+        sFormat = GetStringRight(sFormat, GetStringLength(sFormat) - 1);
+
+        while (GetStringLeft(sFormat, 1) == s)
+        {
+            sElementFormat += s;
+            sFormat = GetStringRight(sFormat, GetStringLength(sFormat) - 1);
+        }
+
+        nIndex = 0;
+        if (FindListItem(FORMAT_ELEMENTS, s) == -1)
+            sFormattedTime += s;
+        else if (s == "h" || s == "H" || s == "t")
+            nIndex = TIME_HOURS;
+        else
+            nIndex = FindListItem(FORMAT_ELEMENTS, s);
+
+        if (nIndex || s == "y")
+            sFormattedTime += _FormatTimeElement(GetListItem(sTime, nIndex), sElementFormat, sWeekDayNames, sMonthNames);
+    }
+
+    return sFormattedTime;
 }

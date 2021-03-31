@@ -178,7 +178,7 @@ void resources_OnPlaceableUserDefined()
 
 void resources_OnModuleLoad()
 {
-    int nObjectType;
+    int nObjectType, nCount;
     object oObject, oArea = GetFirstArea();
 
     while (GetIsObjectValid(oArea))
@@ -193,62 +193,69 @@ void resources_OnModuleLoad()
         }
 
         oObject = GetFirstObjectInArea(oArea);
+
         while (GetIsObjectValid(oObject))
         {
             if (_GetLocalInt(oObject, HOOK_SKIP))
+            {
+                oObject = GetNextObjectInArea(oArea);
                 continue;
+            }
 
             int nObjectType = GetObjectType(oObject);
+            
             switch (nObjectType)
             {
                 case OBJECT_TYPE_AREA_OF_EFFECT:
                     if (GetStringLeft(GetEventScript(oObject, EVENT_SCRIPT_AREAOFEFFECT_ON_OBJECT_ENTER), GetStringLength(HOOK_SCRIPT_PREFIX)) != HOOK_SCRIPT_PREFIX)
                     {
                         _SetLocalInt(oObject, FRAMEWORK_OUTSIDER, TRUE);
-                        RegisterAreaOfEffectToFramework(oObject);
+                        DelayCommand(0.1, RegisterAreaOfEffectToFramework(oObject));
                     }
                     break;
                 case OBJECT_TYPE_CREATURE:
                     if (GetStringLeft(GetEventScript(oObject, EVENT_SCRIPT_CREATURE_ON_BLOCKED_BY_DOOR), GetStringLength(HOOK_SCRIPT_PREFIX)) != HOOK_SCRIPT_PREFIX)
                     {
                         _SetLocalInt(oObject, FRAMEWORK_OUTSIDER, TRUE);
-                        RegisterCreatureToFramework(oObject);
+                        DelayCommand(0.1, RegisterCreatureToFramework(oObject));
                     }
                     break;
                 case OBJECT_TYPE_DOOR:
                     if (GetStringLeft(GetEventScript(oObject, EVENT_SCRIPT_DOOR_ON_CLICKED), GetStringLength(HOOK_SCRIPT_PREFIX)) != HOOK_SCRIPT_PREFIX)
                     {
                         _SetLocalInt(oObject, FRAMEWORK_OUTSIDER, TRUE);
-                        RegisterDoorToFramework(oObject);
+                        DelayCommand(0.1, RegisterDoorToFramework(oObject));
                     }
                     break;
                 case OBJECT_TYPE_ENCOUNTER:
                     if (GetStringLeft(GetEventScript(oObject, EVENT_SCRIPT_ENCOUNTER_ON_OBJECT_ENTER), GetStringLength(HOOK_SCRIPT_PREFIX)) != HOOK_SCRIPT_PREFIX)
                     {
                         _SetLocalInt(oObject, FRAMEWORK_OUTSIDER, TRUE);
-                        RegisterEncounterToFramework(oObject);
+                        DelayCommand(0.1, RegisterEncounterToFramework(oObject));
                     }
                     break;
                 case OBJECT_TYPE_PLACEABLE:
                     if (GetStringLeft(GetEventScript(oObject, EVENT_SCRIPT_PLACEABLE_ON_LEFT_CLICK), GetStringLength(HOOK_SCRIPT_PREFIX)) != HOOK_SCRIPT_PREFIX)
                     {
                         _SetLocalInt(oObject, FRAMEWORK_OUTSIDER, TRUE);
-                        RegisterPlaceableToFramework(oObject);
+                        DelayCommand(0.1, RegisterPlaceableToFramework(oObject));
                     }
                     break;
                 case OBJECT_TYPE_STORE:
                     if (GetStringLeft(GetEventScript(oObject, EVENT_SCRIPT_STORE_ON_OPEN), GetStringLength(HOOK_SCRIPT_PREFIX)) != HOOK_SCRIPT_PREFIX)
                     {
                         _SetLocalInt(oObject, FRAMEWORK_OUTSIDER, TRUE);
-                        RegisterStoreToFramework(oObject);
+                        DelayCommand(0.1, RegisterStoreToFramework(oObject));
                     }
                     break;
                 case OBJECT_TYPE_TRIGGER:
                     if (GetStringLeft(GetEventScript(oObject, EVENT_SCRIPT_TRIGGER_ON_OBJECT_ENTER), GetStringLength(HOOK_SCRIPT_PREFIX)) != HOOK_SCRIPT_PREFIX)
                     {
                         _SetLocalInt(oObject, FRAMEWORK_OUTSIDER, TRUE);
-                        RegisterTriggerToFramework(oObject);
+                        DelayCommand(0.1, RegisterTriggerToFramework(oObject));
                     }
+                    break;
+                default:
                     break;
             }
 

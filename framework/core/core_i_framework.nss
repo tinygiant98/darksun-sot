@@ -205,10 +205,10 @@ void SetEventState(int nState, object oEvent = OBJECT_INVALID);
 // clearsa the state of the currently executing event.
 void ClearEventState(object oEvent = OBJECT_INVALID);
 
-// ---< RegisterNWNXEventScripts >---
+// ---< RegisterNWNXEvent >---
 // ---< core_i_framework >---
-// Registers the nwnx hook script to NWNX event sEvent.  Returns FALSE if the NWNX_Events
-// plugin is not available, otherwise returns TRUE.
+// Registers the nwnx hook script to NWNX event sEvent.  Returns FALSE if the NWNX_Events plugin is not
+// available, otherwise returns TRUE.
 int RegisterNWNXEventScripts(string sEvent);
 
 // ---< RegisterEventScripts >---
@@ -425,8 +425,17 @@ void InitializeCoreFramework()
     SetLocalInt(oModule, CORE_INITIALIZED, TRUE);
 
     // Start debugging
-    SetDebugLevel(DEFAULT_DEBUG_LEVEL, oModule);
+    SetDebugLevel(INITIALIZATION_DEBUG_LEVEL, oModule);
     SetDebugLogging(DEBUG_LOGGING);
+
+    Notice("Checking for Module Preload script ...");
+    if (ON_MODULE_PRELOAD != "")
+    {
+        Notice("Running Module Preload script " + ON_MODULE_PRELOAD);
+        ExecuteScript(ON_MODULE_PRELOAD, GetModule());
+    }
+    else
+        Notice("Module Preload script not specified");
 
     // Set specific event debug levels
     if (HEARTBEAT_DEBUG_LEVEL)
@@ -453,6 +462,7 @@ void InitializeCoreFramework()
     LoadLibraries(INSTALLED_LIBRARIES);
     LoadPlugins(INSTALLED_PLUGINS);
 
+    SetDebugLevel(DEFAULT_DEBUG_LEVEL, oModule);
     Debug("Successfully initialized Core Framework");
 }
 
@@ -738,29 +748,14 @@ float StringToPriority(string sPriority, float fDefaultPriority)
         return fPriority;
 }
 
-int GetIsNWNXRunning()
-{
-    effect e = TagEffect(EffectDarkness(), "NWNXEE!ABIv2!TEST_PLUGIN!TEST_FUNCTION!PUSH");
-    return GetEffectTag(e) != "NWNXEE!ABIv2!TEST_PLUGIN!TEST_FUNCTION!PUSH";
-}
-
 int RegisterNWNXEventScripts(string sEvent)
 {
-    if (!GetIsNWNXRunning())
-    {
-        Warning("NWNX event hook registration failed; NWNX core is not running");
-        return FALSE;
-    }
-
     if (NWNX_Util_PluginExists("NWNX_Events"))
     {
         NWNX_Events_SubscribeEvent(sEvent, "hook_nwnx");
         return TRUE;
-    }
-    else
-        Warning("Script Hook registration failed for event " + sEvent +
-              "; NWNX Util plug-in is not active");
-
+    }    
+    
     return FALSE;
 }
 
@@ -780,7 +775,13 @@ void RegisterEventScripts(object oTarget, string sEvent, string sScripts, float 
     // subscription errors, so don't use CountEventScripts here.
     if (GetStringLeft(sEvent, 4) == "NWNX")
     {
-        if (RegisterNWNXEventScripts(sEvent))
+        if (!RegisterNWNXEventScripts(sEvent))
+        {
+            Warning("Script Hook registration failed for event " + sEvent +
+                    "; NWNX Events plug-in is not active");
+            return;
+        }
+        else
             Debug("Registered NWNX event hook for " + sEvent);
     }
 
@@ -1024,11 +1025,7 @@ object InitializeEvent(string sEvent, object oSelf, object oInit)
     // Check if we've added new event sources since the last time we executed
     // this event on oSelf.
     if (GetEventSourcesChanged(oSelf, oSources, sEvent))
-    {
         CacheEventSources(oSelf, oSources, sEvent);
-        DeleteLocalInt(oSelf, sEvent);
-        Debug("Event sources for " + sEvent + " on " + GetName(oSelf) + " have changed; re-initializing event");
-    }
 
     // Do initial setup if it hasn't been done or if the script list has
     // been changed.
@@ -1194,16 +1191,14 @@ int RunEvent(string sEvent, object oInit = OBJECT_INVALID, object oSelf = OBJECT
         if (nState & EVENT_STATE_ABORT)
             break;
     }
-    
+
     // Run tag-based scripts for any object, items are already handled
-    if (oSelf != GetModule())
+    if (oSelf != GetModule() && GetObjectType(oSelf) != OBJECT_TYPE_ITEM)
     {
-        int nObjectType = GetObjectType(oSelf);
-        if (ENABLE_TAGBASED_SCRIPTS && !(nState & EVENT_STATE_DENIED) &&
-            nObjectType < OBJECT_TYPE_INVALID)
+        if (ENABLE_TAGBASED_SCRIPTS && !(nState & EVENT_STATE_ABORT) && GetIsObjectValid(oSelf))
             RunLibraryScript(GetTag(oSelf));
     }
-
+    
     // Clean up
     if (nEventLevel)
         OverrideDebugLevel(FALSE);

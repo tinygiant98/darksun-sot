@@ -685,9 +685,11 @@ string RemoveCharacters(string sSource, string sChar = " ")
             sResult += c;
     }
 
+    /*
     Debug("RemoveCharacters:" +
           "\n  String received -> " + sSource +
           "\n  String returned -> " + sResult);
+    */
 
     return sResult;
 }
@@ -769,9 +771,11 @@ string Tokenize(string sLine, string sDelimiter = DELIMITER, string sGroups = GR
             sResult = AddListItem(sResult, sToken);
     }
 
+    /*
     Debug("Tokenize:" +
           "\n  Chat received -> " + sOriginal +
           "\n  Tokens returned -> " + (GetStringLength(sResult) ? sResult : TOKEN_INVALID));
+    */
 
     return (GetStringLength(sResult) ? sResult : TOKEN_INVALID);
 }
@@ -911,6 +915,7 @@ int ParseCommandLine(object oPC = OBJECT_INVALID, string sLine = "", string sDes
         sShortOpts = "";
     }
 
+    /*
     if (IsDebugging(DEBUG_LEVEL_DEBUG))
         Debug("ParseCommandLine:" +
               "\n  Chat received -> " + sLine +
@@ -921,6 +926,7 @@ int ParseCommandLine(object oPC = OBJECT_INVALID, string sLine = "", string sDes
               "\n    Options           -> " + (GetStringLength(cl.options) ? cl.options : "<none>") +
               "\n    Pairs             -> " + (GetStringLength(cl.pairs) ? cl.pairs : "<none>") +
               "\n    Arguments         -> " + (GetStringLength(cl.args) ? cl.args : "<none>"));
+    */
 
     if (LOG_ALL_CHAT_COMMANDS)
         WriteTimestampedLogEntry("\n" +

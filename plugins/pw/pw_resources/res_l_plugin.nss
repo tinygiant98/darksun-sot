@@ -93,7 +93,7 @@ void OnLibraryScript(string sScript, int nEntry)
     switch (nEntry)
     {
         // ----- Module Events -----
-        case 0:  resources_OnModuleLoad(); break;
+        case 0:  DelayCommand(2.0, resources_OnModuleLoad()); break;
 
         // ----- Creature Events -----
         case 1:  resources_OnCreatureBlocked(); break;
