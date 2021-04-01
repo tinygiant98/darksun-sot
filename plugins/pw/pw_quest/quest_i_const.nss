@@ -104,17 +104,11 @@ const int AWARD_VARIABLE = 0x07;
 const int AWARD_REPUTATION = 0x08;
 const int AWARD_FLOATING_TEXT = 0x09;
 
-// Quest Script Types
-const int QUEST_SCRIPT_TYPE_ON_ACCEPT = 1;
-const int QUEST_SCRIPT_TYPE_ON_ADVANCE = 2;
-const int QUEST_SCRIPT_TYPE_ON_COMPLETE = 3;
-const int QUEST_SCRIPT_TYPE_ON_FAIL = 4;
-
 // Quest Events
-const int QUEST_EVENT_ON_ACCEPT = 1;
-const int QUEST_EVENT_ON_ADVANCE = 2;
-const int QUEST_EVENT_ON_COMPLETE = 3;
-const int QUEST_EVENT_ON_FAIL = 4;
+const string QUEST_EVENT_ON_ACCEPT = "QUEST_EVENT_ON_ACCEPT";
+const string QUEST_EVENT_ON_ADVANCE = "QUEST_EVENT_ON_ADVANCE";
+const string QUEST_EVENT_ON_COMPLETE = "QUEST_EVENT_ON_COMPLETE";
+const string QUEST_EVENT_ON_FAIL = "QUEST_EVENT_ON_FAIL";
 
 // Journal Locations
 const int QUEST_JOURNAL_NONE = 0;

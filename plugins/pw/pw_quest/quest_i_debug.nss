@@ -215,15 +215,12 @@ string ColorValue(string sValue, int nZeroIsEmpty = FALSE, int bStripe = FALSE)
         return HexColorString(sValue, bStripe ? COLOR_BLUE : COLOR_BLUE_LIGHT);
 }
 
-string ScriptTypeToString(int nScriptType)
+string QuestEventToString(string sQuestEvent)
 {
-    switch (nScriptType)
-    {
-        case QUEST_SCRIPT_TYPE_ON_ACCEPT: return "ON_ACCEPT";
-        case QUEST_SCRIPT_TYPE_ON_ADVANCE: return "ON_ADVANCE";
-        case QUEST_SCRIPT_TYPE_ON_COMPLETE: return "ON_COMPLETE";
-        case QUEST_SCRIPT_TYPE_ON_FAIL: return "ON_FAIL";
-    }
+    if (sQuestEvent == QUEST_EVENT_ON_ACCEPT) return "ON_ACCEPT";
+    else if (sQuestEvent == QUEST_EVENT_ON_ADVANCE) return "ON_ADVANCE";
+    else if (sQuestEvent == QUEST_EVENT_ON_COMPLETE) return "ON_COMPLETE";
+    else if (sQuestEvent == QUEST_EVENT_ON_FAIL) return "ON_FAIL";
     
     return "[NOT FOUND]";
 }

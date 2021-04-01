@@ -81,6 +81,8 @@ int GetNextPCQuestStep(object oPC, string sQuestTag);
 #include "quest_i_debug"
 #include "quest_i_text"
 
+#include "core_i_framework"
+
 // -----------------------------------------------------------------------------
 //                          Quest System Function Prototypes
 // -----------------------------------------------------------------------------
@@ -178,7 +180,7 @@ void SetQuestScriptOnAll(string sScript);
 // Runs the assigned quest script for quest nQuestID and nScriptType with oPC
 // as OBJECT_SELF.  Primarily an internal function, it is exposed to allow more
 // options to the builder.
-void RunQuestScript(object oPC, string sQuestTag, int nScriptType);
+void RunQuestScript(object oPC, string sQuestTag, string sQuestEvent);
 
 // ---< GetQuestTimeLimit >---
 // Returns the time limit associated with quest sQuestTag as a six-element ``time
@@ -771,7 +773,7 @@ int GetCurrentQuestStep();
 
 // ---< GetCurrentQuest >---
 // Global accessor to retrieve the current quest event constant for all quest events.
-int GetCurrentQuestEvent();
+string GetCurrentQuestEvent();
 
 // ---< GetQuestInt >---
 // Returns an integer value set into the volatile module database by SetQuestInt().
@@ -1228,7 +1230,7 @@ void _AssignQuest(object oPC, int nQuestID)
     _SetPCQuestData(oPC, nQuestID, QUEST_PC_QUEST_TIME, IntToString(GetUnixTimeStamp()));
     _SetPCQuestData(oPC, nQuestID, QUEST_PC_VERSION, _GetQuestData(nQuestID, QUEST_VERSION));
     IncrementPCQuestField(oPC, nQuestID, QUEST_PC_ATTEMPTS);
-    RunQuestScript(oPC, sQuestTag, QUEST_SCRIPT_TYPE_ON_ACCEPT);
+    RunQuestScript(oPC, sQuestTag, QUEST_EVENT_ON_ACCEPT);
     AdvanceQuest(oPC, nQuestID);
 
     QuestDebug(PCToString(oPC) + " has been assigned quest " + QuestToString(nQuestID));
@@ -2570,40 +2572,45 @@ void AssignQuest(object oPC, string sQuestTag)
     _AssignQuest(oPC, nQuestID);
 }
 
-void RunQuestScript(object oPC, string sQuestTag, int nScriptType)
+void RunQuestScript(object oPC, string sQuestTag, string sQuestEvent)
 {
     string sScript;
     int bSetStep = FALSE;
     int nQuestID = GetQuestID(sQuestTag);
 
-    if (nScriptType == QUEST_SCRIPT_TYPE_ON_ACCEPT)
+    if (sQuestEvent == QUEST_EVENT_ON_ACCEPT)
         sScript = GetQuestScriptOnAccept(sQuestTag);
-    else if (nScriptType == QUEST_SCRIPT_TYPE_ON_ADVANCE)
+    else if (sQuestEvent == QUEST_EVENT_ON_ADVANCE)
     {
         sScript = GetQuestScriptOnAdvance(sQuestTag);
         bSetStep = TRUE;
     }
-    else if (nScriptType == QUEST_SCRIPT_TYPE_ON_COMPLETE)
+    else if (sQuestEvent == QUEST_EVENT_ON_COMPLETE)
         sScript = GetQuestScriptOnComplete(sQuestTag);
-    else if (nScriptType == QUEST_SCRIPT_TYPE_ON_FAIL)
+    else if (sQuestEvent == QUEST_EVENT_ON_FAIL)
         sScript = GetQuestScriptOnFail(sQuestTag);
 
-    if (sScript == "")
-        return;
-    
     object oModule = GetModule();
     int nStep;
 
+    if (!(RunEvent(sQuestEvent, oPC) & EVENT_STATE_DENIED))
+    {
+        if (sScript != "")
+            RunLibraryScript(sScript);
+
+        RunLibraryScript(sQuestTag);
+    }
+
     // Set values that the script has available to it
     SetLocalString(oModule, QUEST_CURRENT_QUEST, sQuestTag);
-    SetLocalInt(oModule, QUEST_CURRENT_EVENT, nScriptType);
+    SetLocalString(oModule, QUEST_CURRENT_EVENT, sQuestEvent);
     if (bSetStep)
     {
         nStep = GetPCQuestStep(oPC, sQuestTag);
         SetLocalInt(oModule, QUEST_CURRENT_STEP, nStep);
     }
 
-    QuestDebug("Running " + ScriptTypeToString(nScriptType) + " event script " +
+    QuestDebug("Running " + QuestEventToString(sQuestEvent) + " event script " +
         "for " + QuestToString(nQuestID) + (bSetStep ? " " + StepToString(nStep) : "") + 
         " with " + PCToString(oPC) + " as OBJECT_SELF");
     
@@ -2795,7 +2802,7 @@ void AdvanceQuest(object oPC, int nQuestID, int nRequestType = QUEST_ADVANCE_SUC
             _AwardQuestStepAllotments(oPC, nQuestID, nCurrentStep, QUEST_CATEGORY_REWARD);
             _AwardQuestStepAllotments(oPC, nQuestID, nNextStep, QUEST_CATEGORY_REWARD);
             IncrementPCQuestCompletions(oPC, nQuestID, GetUnixTimeStamp());
-            RunQuestScript(oPC, sQuestTag, QUEST_SCRIPT_TYPE_ON_COMPLETE);
+            RunQuestScript(oPC, sQuestTag, QUEST_EVENT_ON_COMPLETE);
 
             if (GetQuestStepObjectiveRandom(sQuestTag, nCurrentStep) != -1)
             {
@@ -2818,7 +2825,7 @@ void AdvanceQuest(object oPC, int nQuestID, int nRequestType = QUEST_ADVANCE_SUC
             _AwardQuestStepAllotments(oPC, nQuestID, nNextStep, QUEST_CATEGORY_PREWARD);
             _SetPCQuestData(oPC, nQuestID, QUEST_PC_STEP, IntToString(nNextStep));
             _SetPCQuestData(oPC, nQuestID, QUEST_PC_STEP_TIME, IntToString(GetUnixTimeStamp()));
-            RunQuestScript(oPC, sQuestTag, QUEST_SCRIPT_TYPE_ON_ADVANCE);
+            RunQuestScript(oPC, sQuestTag, QUEST_EVENT_ON_ADVANCE);
 
             if (GetQuestAllowPrecollectedItems(sQuestTag) == TRUE)
             {
@@ -2870,7 +2877,7 @@ void AdvanceQuest(object oPC, int nQuestID, int nRequestType = QUEST_ADVANCE_SUC
                 "all quests that have failure modes should have a failure completion step assigned with " +
                 "AddQuestResolutionFail()");
 
-        RunQuestScript(oPC, sQuestTag, QUEST_SCRIPT_TYPE_ON_FAIL);
+        RunQuestScript(oPC, sQuestTag, QUEST_EVENT_ON_FAIL);
 
         if (GetQuestDeleteOnComplete(sQuestTag))
             DeletePCQuest(oPC, nQuestID);
@@ -3158,9 +3165,9 @@ int GetCurrentQuestStep()
     return GetLocalInt(GetModule(), QUEST_CURRENT_STEP);
 }
 
-int GetCurrentQuestEvent()
+string GetCurrentQuestEvent()
 {
-    return GetLocalInt(GetModule(), QUEST_CURRENT_EVENT);
+    return GetLocalString(GetModule(), QUEST_CURRENT_EVENT);
 }
 
 void AwardQuestStepPrewards(object oPC, int nQuestID, int nStep, int nAwardType = AWARD_ALL)

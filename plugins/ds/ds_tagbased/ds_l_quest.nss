@@ -42,23 +42,23 @@ void quest_tag()
 
 void quest_demo_discover()
 {
-    int nEvent = GetCurrentQuestEvent();
+    string sEvent = GetCurrentQuestEvent();
     object oPC = OBJECT_SELF;
     
-    if (nEvent == QUEST_EVENT_ON_ACCEPT)
+    if (sEvent == QUEST_EVENT_ON_ACCEPT)
     {
 
     }
-    else if (nEvent == QUEST_EVENT_ON_ADVANCE)
+    else if (sEvent == QUEST_EVENT_ON_ADVANCE)
     {
         int nStep = GetCurrentQuestStep();
 
     }
-    else if (nEvent == QUEST_EVENT_ON_COMPLETE)
+    else if (sEvent == QUEST_EVENT_ON_COMPLETE)
     {
 
     }
-    else if (nEvent == QUEST_EVENT_ON_FAIL)
+    else if (sEvent == QUEST_EVENT_ON_FAIL)
     {
 
     }
