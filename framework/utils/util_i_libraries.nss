@@ -221,7 +221,7 @@ void LoadLibraries(string sLibraries, int bForce = FALSE)
 
 int RunLibraryScript(string sScript, object oSelf = OBJECT_SELF)
 {
-    if (sScript == "") return -1;
+    if (sScript == "") return EVENT_STATE_OK;
 
     string sLibrary;
     int nEntry;

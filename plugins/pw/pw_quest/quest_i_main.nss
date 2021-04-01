@@ -2593,12 +2593,12 @@ void RunQuestScript(object oPC, string sQuestTag, string sQuestEvent)
     object oModule = GetModule();
     int nStep;
 
+    // Run Prioritized scripts:
+    //    Global Event Scripts -> Assigned Event Script -> Tag-Based Scripting
     if (!(RunEvent(sQuestEvent, oPC) & EVENT_STATE_DENIED))
     {
-        if (sScript != "")
-            RunLibraryScript(sScript);
-
-        RunLibraryScript(sQuestTag);
+        if (RunLibraryScript(sScript) == EVENT_STATE_OK)
+            RunLibraryScript(sQuestTag);
     }
 
     // Set values that the script has available to it

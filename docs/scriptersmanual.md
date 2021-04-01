@@ -240,7 +240,27 @@ Here are some notes from our implementation of the library system:
 
 ## Quest Management System
 
+Quest management system operations are detailed in [quest.md](#quest.md).  This section will only cover how the quest management system interacts with the core framework.
 
+The quest system exposes four new functions:
+* QUEST_EVENT_ON_ACCEPT - runs on quest assignment
+* QUEST_EVENT_ON_ADVANCE - runs every time the PC advances a step, including the first step
+* QUEST_EVENT_ON_COMPLETE - runs when a PC successfully completes a quest
+* QUEST_EVENT_ON_FAIL - runs when a PC meets a defined failure condition
+
+You can assign global events against these functions just like your would any other game event.
+```c
+RegisterEventScripts(oPlugin, QUEST_EVENT_ON_ACCEPT", "myScriptName", 5.0);
+```
+Just like any other event, global registration should be limited to scripts that will affect all potential quests that can be run.  Generally, this will be very limited as the quest system itself controls quests via prerequisites and quest-specific scripts can be run.  Since quest scripting tends to be very compartmentalized, globally running scripts against quest events is not a best practice.
+
+You can also assign a specific script to run against a specific event.  This can be defined as a variable, but most likely, scripts will be defined this way during the quest definition process:
+```c
+SetQuestScriptOnAccept("myScriptName");
+```
+Any quests assigned by this method will be run after the global event scripts, and the global event scripts can cancel quest-assigned scripts by setting the event state to EVENT_STATE_DENIED.  Quest-assigned scripts can cancel subsequent tag-based scripting by setting the libray return value to EVENT_STATE_ABORT or EVENT_STATE_DENIED.
+
+The final method, and probably the most likely method to be used, is tag-based scripting.  After the global events and quest-assigned scripts are run, the system will call a library function with the same name as the questTag.  Much like any other tag-based scripting method (such as for items), you can identify the current quest event and current step and run code based on that data.  See an example of this in [ds_l_quest.nss](#../plugins/ds/ds_tagbased/ds_l_quest.nss).
 
 # Timers
 
