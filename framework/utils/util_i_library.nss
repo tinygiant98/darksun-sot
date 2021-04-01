@@ -112,6 +112,7 @@ void RegisterLibraryScript(string sScript, int nEntry = 0)
             " Old Entry: " + IntToString(nOldEntry) +
             " New Entry: " + IntToString(nEntry));
 
+    Debug("Registered Library script " + sScript + " to " + sLibrary);
     AddLibraryScript(sLibrary, sScript, nEntry);
 }
 

@@ -462,6 +462,12 @@ void AddDialogToken(string sToken, string sEvalScript = "", string sValues = "")
 // dialog init stage and need not be used by the builder.
 void AddDialogTokens();
 
+// ---< AddCachedDialogToken >---
+// ---< dlg_i_dialogs >---
+// Adds sToken and caches sValue to it.  This is a convenience function add
+// pre-defined tokens.
+void AddCachedDialogToken(string sToken, string sValue);
+
 // ---< GetCachedDialogToken >---
 // ---< dlg_i_dialogs >---
 // Returns the cached value for sToken, if any.
@@ -1119,6 +1125,12 @@ void AddDialogTokens()
     AddDialogToken("/Start",          sPrefix + "Token", "</c>");
     AddDialogToken("token",           sPrefix + "Token", "<");
     AddDialogToken("/token",          sPrefix + "Token", ">");
+}
+
+void AddCachedDialogToken(string sToken, string sValue)
+{
+    AddDialogToken(sToken);
+    CacheDialogToken(sToken, sValue);
 }
 
 string GetCachedDialogToken(string sToken)
