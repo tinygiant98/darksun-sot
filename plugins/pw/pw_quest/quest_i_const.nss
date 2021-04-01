@@ -74,6 +74,7 @@ const int QUEST_VALUE_QUEST_STEP = 12;
 const int QUEST_VALUE_SKILL = 13;
 const int QUEST_VALUE_ABILITY = 14;
 const int QUEST_VALUE_VARIABLE = 15;
+const int QUEST_VALUE_FLOATING_TEXT = 16;
 
 // Quest Step Types
 const int QUEST_STEP_TYPE_PROGRESS = 0;
@@ -101,6 +102,7 @@ const int AWARD_QUEST = 0x05;
 const int AWARD_MESSAGE = 0x06;
 const int AWARD_VARIABLE = 0x07;
 const int AWARD_REPUTATION = 0x08;
+const int AWARD_FLOATING_TEXT = 0x09;
 
 // Quest Script Types
 const int QUEST_SCRIPT_TYPE_ON_ACCEPT = 1;

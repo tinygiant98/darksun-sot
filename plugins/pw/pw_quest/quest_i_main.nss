@@ -657,6 +657,12 @@ void SetQuestStepPrewardVariableInt(string sVarName, string sOperator, int nValu
 // system README should be consulted before using.
 void SetQuestStepPrewardVariableString(string sVarName, string sOperator, string sValue, int bParty = FALSE);
 
+// ---< SetQuestStepPrewardMessage >---
+// Provides a preward allotment for the assigned PC when the active step of the quest
+// currently being defined is ended.  This preward will display a pre-defined message to
+// the assigned PC as floating text.  Not meant to be used outside the quest definition process.
+void SetQuestStepPrewardMessage(string sMessage, int bParty = FALSE);
+
 // ---< SetQuestStepRewardAlignment >---
 // Provides a reward allotment for the assigned PC when the active step of the quest
 // currently being defined is ended.  This reward will provide an alignment change to
@@ -720,6 +726,12 @@ void SetQuestStepRewardVariableInt(string sVarName, string sOperator, int nValue
 // local variable on the PC object.  This function is considered advance usage and the
 // system README should be consulted before using.
 void SetQuestStepRewardVariableString(string sVarName, string sOperator, string sValue, int bParty = FALSE);
+
+// ---< SetQuestStepRewardFloatingText >---
+// Provides a reward allotment for the assigned PC when the active step of the quest
+// currently being defined is ended.  This reward will display a pre-defined message to
+// the assigned PC as floating text.  Not meant to be used outside the quest definition process.
+void SetQuestStepRewardMessage(string sMessage, int bParty = FALSE);
 
 // ---< GetIsQuestAssignable >---
 // Returns whether oPC meets all prerequisites for quest sQuestTag.  Quest prerequisites can only
@@ -1608,6 +1620,11 @@ void _AwardQuestStepAllotments(object oPC, int nQuestID, int nStep, int nCategor
                     AdjustReputation(oPC, oFactionMember, nChange);
                 }
                 continue;
+            }
+            case QUEST_VALUE_FLOATING_TEXT:
+            {
+                if ((nAwardType & AWARD_FLOATING_TEXT || nAwardType == AWARD_ALL))
+                    FloatingTextStringOnCreature(sValue, oPC, FALSE);
             }
             case QUEST_VALUE_VARIABLE:
             {
@@ -3692,6 +3709,12 @@ void SetQuestStepPrewardVariableString(string sVarName, string sOperator, string
     _SetQuestPreward(QUEST_VALUE_VARIABLE, sKey, sValue, bParty);
 }
 
+void SetQuestStepPrewardFloatingText(string sMessage, int bParty = FALSE)
+{
+    string sValue = sMessage;
+    _SetQuestPreward(QUEST_VALUE_MESSAGE, "", sValue, bParty);
+}
+
 void SetQuestStepRewardAlignment(int nAlignmentAxis, int nValue, int bParty = FALSE)
 {
     string sKey = IntToString(nAlignmentAxis);
@@ -3750,6 +3773,12 @@ void SetQuestStepRewardVariableString(string sVarName, string sOperator, string 
     string sKey = "STRING:" + sVarName;
     string sValue = sOperator + ":" + sValue;
     _SetQuestReward(QUEST_VALUE_VARIABLE, sKey, sValue, bParty);
+}
+
+void SetQuestStepRewardFloatingText(string sMessage, int bParty = FALSE)
+{
+    string sValue = sMessage;
+    _SetQuestReward(QUEST_VALUE_MESSAGE, "", sValue, bParty);
 }
 
 int AddQuestResolutionSuccess(int nStep = -1)
