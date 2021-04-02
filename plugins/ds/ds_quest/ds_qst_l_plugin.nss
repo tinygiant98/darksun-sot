@@ -30,7 +30,7 @@ void ds_quest_OnQuestAssign()
 {
     object oPC = OBJECT_SELF;
 
-    if (_GetIsDM(oPC))
+    if (_GetIsPC(oPC) == FALSE)
         SetEventState(EVENT_STATE_DENIED);
 }
 
