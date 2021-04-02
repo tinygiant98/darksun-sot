@@ -22,6 +22,7 @@ const string QUEST_ACTIVE = "nActive";
 const string QUEST_REPETITIONS = "nRepetitions";
 const string QUEST_TITLE = "sJournalTitle";
 const string QUEST_TIME_LIMIT = "sTimeLimit";
+const string QUEST_SCRIPT_ON_ASSIGN = "sScriptOnAssign";
 const string QUEST_SCRIPT_ON_ACCEPT = "sScriptOnAccept";
 const string QUEST_SCRIPT_ON_ADVANCE = "sScriptOnAdvance";
 const string QUEST_SCRIPT_ON_COMPLETE = "sScriptOnComplete";
@@ -105,6 +106,7 @@ const int AWARD_REPUTATION = 0x08;
 const int AWARD_FLOATING_TEXT = 0x09;
 
 // Quest Events
+const string QUEST_EVENT_ON_ASSIGN = "QUEST_EVENT_ON_ASSIGN";
 const string QUEST_EVENT_ON_ACCEPT = "QUEST_EVENT_ON_ACCEPT";
 const string QUEST_EVENT_ON_ADVANCE = "QUEST_EVENT_ON_ADVANCE";
 const string QUEST_EVENT_ON_COMPLETE = "QUEST_EVENT_ON_COMPLETE";

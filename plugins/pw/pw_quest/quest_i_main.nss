@@ -135,6 +135,11 @@ int GetQuestRepetitions(string sQuestTag);
 // Not meant for use outside the quest definition process.
 void SetQuestRepetitions(int nRepetitions = 1);
 
+// ---< GetQuestScriptOnAssign >---
+// Returns the script associated with sQuestTag's OnAssign event.  The event runs before a script is
+// assigned to a PC and can be cancelled.
+string GetQuestScriptOnAssign(string sQuestTag);
+
 // ---< GetQuestScriptOnAccept >---
 // Returns the script associated with sQuestTag's OnAccept event.
 string GetQuestScriptOnAccept(string sQuestTag);
@@ -179,8 +184,9 @@ void SetQuestScriptOnAll(string sScript);
 // ---< RunQuestScript >---
 // Runs the assigned quest script for quest nQuestID and nScriptType with oPC
 // as OBJECT_SELF.  Primarily an internal function, it is exposed to allow more
-// options to the builder.
-void RunQuestScript(object oPC, string sQuestTag, string sQuestEvent);
+// options to the builder.  Returns TRUE is the event was NOT cancelled by
+// either a global event or a quest-assign script, FALSE otherwise.
+int RunQuestScript(object oPC, string sQuestTag, string sQuestEvent);
 
 // ---< GetQuestTimeLimit >---
 // Returns the time limit associated with quest sQuestTag as a six-element ``time
@@ -2569,16 +2575,25 @@ int GetIsQuestAssignable(object oPC, string sQuestTag)
 void AssignQuest(object oPC, string sQuestTag)
 {
     int nQuestID = GetQuestID(sQuestTag);
-    _AssignQuest(oPC, nQuestID);
+
+    if (RunQuestScript(oPC, sQuestTag, QUEST_EVENT_ON_ASSIGN) == TRUE)
+        _AssignQuest(oPC, nQuestID);
+    else
+        QuestDebug("Could not assign " + QuestToString(nQuestID) + " " +
+            "to " + PCToString(oPC) + "; assignment cancelled during " +
+            "ON_ASSIGN event script run");
 }
 
-void RunQuestScript(object oPC, string sQuestTag, string sQuestEvent)
+int RunQuestScript(object oPC, string sQuestTag, string sQuestEvent)
 {
     string sScript;
     int bSetStep = FALSE;
+    int nResult = TRUE;
     int nQuestID = GetQuestID(sQuestTag);
 
-    if (sQuestEvent == QUEST_EVENT_ON_ACCEPT)
+    if (sQuestEvent == QUEST_EVENT_ON_ASSIGN)
+        sScript = GetQuestScriptOnAssign(sQuestTag);
+    else if (sQuestEvent == QUEST_EVENT_ON_ACCEPT)
         sScript = GetQuestScriptOnAccept(sQuestTag);
     else if (sQuestEvent == QUEST_EVENT_ON_ADVANCE)
     {
@@ -2593,14 +2608,6 @@ void RunQuestScript(object oPC, string sQuestTag, string sQuestEvent)
     object oModule = GetModule();
     int nStep;
 
-    // Run Prioritized scripts:
-    //    Global Event Scripts -> Assigned Event Script -> Tag-Based Scripting
-    if (!(RunEvent(sQuestEvent, oPC) & EVENT_STATE_DENIED))
-    {
-        if (RunLibraryScript(sScript) == EVENT_STATE_OK)
-            RunLibraryScript(sQuestTag);
-    }
-
     // Set values that the script has available to it
     SetLocalString(oModule, QUEST_CURRENT_QUEST, sQuestTag);
     SetLocalString(oModule, QUEST_CURRENT_EVENT, sQuestEvent);
@@ -2614,11 +2621,25 @@ void RunQuestScript(object oPC, string sQuestTag, string sQuestEvent)
         "for " + QuestToString(nQuestID) + (bSetStep ? " " + StepToString(nStep) : "") + 
         " with " + PCToString(oPC) + " as OBJECT_SELF");
     
-    ExecuteScript(sScript, oPC);
+    // Run Prioritized scripts:
+    //    Global Event Scripts -> Assigned Event Script -> Tag-Based Scripting
+    if (!(RunEvent(sQuestEvent, oPC) & EVENT_STATE_DENIED))
+    {
+        if (RunLibraryScript(sScript, oPC) <= 0)
+            // Tag-based scripting can be cancelled by setting a return value
+            // of EVENT_STATE_DENIED || EVENT_STATE_ABORT in SetLibraryReturn()
+            RunLibraryScript(sQuestTag, oPC);
+        else
+            nResult = FALSE;
+    }
+    else
+        nResult = FALSE;
 
     DeleteLocalString(oModule, QUEST_CURRENT_QUEST);
     DeleteLocalInt(oModule, QUEST_CURRENT_STEP);
     DeleteLocalInt(oModule, QUEST_CURRENT_EVENT);
+
+    return nResult;
 }
 
 void UnassignQuest(object oPC, string sQuestTag)
@@ -3250,6 +3271,17 @@ string GetQuestCooldown(string sQuestTag)
 void SetQuestCooldown(string sTimeVector)
 {
     _SetQuestData(QUEST_COOLDOWN, sTimeVector);
+}
+
+string GetQuestScriptOnAssign(string sQuestTag)
+{
+    int nQuestID = GetQuestID(sQuestTag);
+    return _GetQuestData(nQuestID, QUEST_SCRIPT_ON_ASSIGN);
+}
+
+void SetQuestScriptOnAssign(string sScript)
+{
+    _SetQuestData(QUEST_SCRIPT_ON_ASSIGN, sScript);
 }
 
 string GetQuestScriptOnAccept(string sQuestTag)

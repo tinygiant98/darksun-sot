@@ -12,6 +12,8 @@
 #include "util_i_library"
 #include "core_i_framework"
 
+#include "quest_i_main"
+
 /* Example
 void creature_tag()
 {
@@ -101,20 +103,51 @@ void creature_tag()
 }
 */
 
+void nw_goblina()
+{
+    string sEvent = GetName(GetCurrentEvent());
+    object oCreature = OBJECT_SELF;
+
+    if (sEvent == CREATURE_EVENT_ON_DEATH)
+    {
+        object oKiller = GetLastKiller();
+        SignalQuestStepProgress(oKiller, GetTag(oCreature), QUEST_OBJECTIVE_KILL);
+    }
+}
+
+void nw_oldman()
+{
+    string sEvent = GetName(GetCurrentEvent());
+    object oCreature = OBJECT_SELF;
+
+    if (sEvent == CREATURE_EVENT_ON_DEATH)
+    {
+        object oKiller = GetLastKiller();
+        object oProtector = GetLocalObject(oCreature, "QUEST_PROTECTOR");
+
+        if (GetIsObjectValid(oProtector))
+            SignalQuestStepProgress(oProtector, GetTag(oCreature), QUEST_OBJECTIVE_KILL);
+        else
+            SignalQuestStepProgress(oKiller, GetTag(oCreature), QUEST_OBJECTIVE_KILL);
+    }
+}
+
 // -----------------------------------------------------------------------------
 //                               Library Dispatch
 // -----------------------------------------------------------------------------
 
 void OnLibraryLoad()
 {
-    // RegisterLibraryScript("creature_tag", 1);
+    RegisterLibraryScript("NW_GOBLINA", 1);
+    RegisterLibraryScript("nw_oldman", 2);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
     switch (nEntry)
     {
-        // case 1:  creature_tag();           break;
+        case 1:  nw_goblina(); break;
+        case 2:  nw_oldman(); break;
         
         default: CriticalError("Library function " + sScript + " not found");
     }

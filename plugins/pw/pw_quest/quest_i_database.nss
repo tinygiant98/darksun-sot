@@ -34,6 +34,7 @@ void CreateModuleQuestTables(int bReset = FALSE)
                         "nActive TEXT NOT NULL default '1', " +
                         "sJournalTitle TEXT default NULL, " +
                         "nRepetitions TEXT default '1', " +
+                        "sScriptOnAssign TEXT default NULL, " +
                         "sScriptOnAccept TEXT default NULL, " +
                         "sScriptOnAdvance TEXT default NULL, " +
                         "sScriptOnComplete TEXT default NULL, " + 

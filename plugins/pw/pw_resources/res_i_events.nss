@@ -39,18 +39,13 @@ void resources_OnCreatureConversation()
 
     object oCreature = OBJECT_SELF;
 
-    Notice("Target Name -> " + GetName(oCreature));
-    Notice("Target Tag -> " + GetTag(oCreature));
-
     if (_GetLocalInt(oCreature, FRAMEWORK_REGISTERED))
     {
-        Notice(GetName(oCreature) + " is framework registered");
         int nPattern = GetListenPatternNumber();
         if (nPattern == -1)
         {
             // Creature was clicked instead of some other perception
             object oPC = GetLastSpeaker();
-            Notice("oPC -> " + GetName(oPC));
             if (!GetIsInCombat(oCreature))
                 AssignCommand(oCreature, ActionStartConversation(oPC, "dlg_convnozoom", FALSE, FALSE));
         }

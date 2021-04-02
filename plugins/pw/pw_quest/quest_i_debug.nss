@@ -618,6 +618,7 @@ void DumpQuestData(string sQuestTag)
         int nActive = SqlGetInt(sqlDump, ++n);
         string sTitle = SqlGetString(sqlDump, ++n);
         int nRepetitions = SqlGetInt(sqlDump, ++n);
+        string sScriptOnAssign = SqlGetString(sqlDump, ++n);
         string sScriptOnAccept = SqlGetString(sqlDump, ++n);
         string sScriptOnAdvance = SqlGetString(sqlDump, ++n);
         string sScriptOnComplete = SqlGetString(sqlDump, ++n);
@@ -638,6 +639,7 @@ void DumpQuestData(string sQuestTag)
         Debug( s + "Active " + ColorValue(nActive ? "TRUE" : "FALSE") +
         "\n" + s + "Title  " + ColorValue(sTitle) +
         "\n" + s + "Repetitions  " + ColorValue(IntToString(nRepetitions)) +
+        "\n" + s + "OnAssign Script  " + ColorValue(sScriptOnAssign) +
         "\n" + s + "OnAccept Script  " + ColorValue(sScriptOnAccept) +
         "\n" + s + "OnAdvance Script  " + ColorValue(sScriptOnAdvance) +
         "\n" + s + "OnComplete Script  " + ColorValue(sScriptOnComplete) +
@@ -704,16 +706,16 @@ void DumpPCQuestData(object oPC, string sQuestTag)
     if (SqlStep(sqlDump))
     {
         int n = 0;
-        string sQuestTag = SqlGetString(sql, n);
-        int nStep = SqlGetInt(sql, ++n);
-        int nAttempts = SqlGetInt(sql, ++n);
-        int nCompletions = SqlGetInt(sql, ++n);
-        int nFailures = SqlGetInt(sql, ++n);
-        int nQuestStart = SqlGetInt(sql, ++n);
-        int nStepStart = SqlGetInt(sql, ++n);
-        int nQuestComplete = SqlGetInt(sql, ++n);
-        int nLastCompleteType = SqlGetInt(sql, ++n);
-        int nVersion = SqlGetInt(sql, ++n);
+        string sQuestTag = SqlGetString(sqlDump, n);
+        int nStep = SqlGetInt(sqlDump, ++n);
+        int nAttempts = SqlGetInt(sqlDump, ++n);
+        int nCompletions = SqlGetInt(sqlDump, ++n);
+        int nFailures = SqlGetInt(sqlDump, ++n);
+        int nQuestStart = SqlGetInt(sqlDump, ++n);
+        int nStepStart = SqlGetInt(sqlDump, ++n);
+        int nQuestComplete = SqlGetInt(sqlDump, ++n);
+        int nLastCompleteType = SqlGetInt(sqlDump, ++n);
+        int nVersion = SqlGetInt(sqlDump, ++n);
                 
         string s = Indent(TRUE);
         int nQuestID = GetQuestID(sQuestTag);
@@ -739,7 +741,7 @@ void DumpPCQuestData(object oPC, string sQuestTag)
 
         // Dump step data
         if (nStep == 0)
-            Debug(ColorFail("Inactive quest; no step data to report for " + QuestToString(nQuestID)));
+            Debug(ColorFail(s + "Inactive quest; no step data to report for " + QuestToString(nQuestID)));
         else
         {
             sQuery = "SELECT * " +
@@ -785,7 +787,10 @@ void DumpQuestVariables(string sQuestTag)
     s = Indent();
 
     if (GetTableExists(GetModule(), "quest_variables") == FALSE)
+    {
         Debug(s + ColorFail("Quest variables table does not exist"));
+        return;
+    }
     else
     {
         if (sQuestTag == "")
@@ -818,7 +823,7 @@ void DumpQuestVariables(string sQuestTag)
     }
 
     if (nVariableCount == 0)
-        Debug(ColorFail("No variables associated with " + QuestToString(nQuestID) +
+        Debug(s + ColorFail("No variables associated with " + QuestToString(nQuestID) +
             " found"));
 }
 
@@ -834,8 +839,11 @@ void DumpPCQuestVariables(object oPC, string sQuestTag)
     s = Indent();
 
     if (GetTableExists(oPC, "quest_pc_variables") == FALSE)
+    {
         Debug(s + ColorFail("PC quest variables table does not exist on " +
             PCToString(oPC)));
+        return;
+    }
     else
     {
         if (sQuestTag == "")
@@ -870,6 +878,6 @@ void DumpPCQuestVariables(object oPC, string sQuestTag)
     }
 
     if (nVariableCount == 0)
-        Debug(ColorFail("No variables associated with " + QuestToString(nQuestID) +
+        Debug(s + ColorFail("No variables associated with " + QuestToString(nQuestID) +
             " found on " + PCToString(oPC)));
 }
