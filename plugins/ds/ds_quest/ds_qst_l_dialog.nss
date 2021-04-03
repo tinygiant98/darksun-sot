@@ -25,7 +25,7 @@ string CacheColoredToken(string sToken)
 }
 
 // -----------------------------------------------------------------------------
-//                           Discovery Quest Dialog
+//                           Jonny Quest Dialog
 // -----------------------------------------------------------------------------
 
 const string JONNY_DIALOG = "JonnyDialog";
@@ -65,8 +65,6 @@ void JonnyDialog()
     {
         case DLG_EVENT_INIT:
         {
-            string sPage;
-
             AddCachedDialogToken("discovery", HexColorString("Discovery", COLOR_GREEN_LIGHT));
             AddCachedDialogToken("kill/protect", HexColorString("Kill/Protect", COLOR_GREEN_LIGHT));
             AddCachedDialogToken("gather", HexColorString("Gather", COLOR_GREEN_LIGHT));
@@ -79,7 +77,8 @@ void JonnyDialog()
             SetDialogPage(JONNY_PAGE_MAIN);
             AddDialogPage(JONNY_PAGE_MAIN, "Welcome!  I'm glad you could join me in discovering Dark Sun's " +
                 "quest system.  This system contains five base quest types which, when combined, can create " +
-                "some pretty awesome stuff.  Select a quest type below to learn more.");
+                "some pretty awesome stuff.  Look for messages in your chat window as you progress, complete " +
+                "and fail quests to get additional information.  Select a quest type below to learn more.");
             AddDialogNode(JONNY_PAGE_MAIN, JONNY_PAGE_DISCOVER, "<discovery> Quests");
             AddDialogNode(JONNY_PAGE_MAIN, JONNY_PAGE_KILL, "<kill/protect> Quests");
             AddDialogNode(JONNY_PAGE_MAIN, JONNY_PAGE_GATHER, "<gather> Quests");
@@ -105,31 +104,34 @@ void JonnyDialog()
             SetDialogLabel(DLG_NODE_END, "Yeah, no.  Bye.", JONNY_PAGE_KILL);
 
             AddDialogPage(JONNY_PAGE_GATHER, "<gather> quests require that the PC obtain a specified number of " +
-                "items.  For example, I loves me some flowers.  Really pretty ones.  If you go get me five super-" +
-                "duper pretty flowers, I'll be your bestest friend forever!");
-            AddDialogNode(JONNY_PAGE_GATHER, "", "Well, I do need a friend.  Yes, I'll get them!", "gather_accept");
+                "items.  For example, it looks like that Hadji Singh dropped crashed his wagon and left stuff all " +
+                "over the ground.  Think you could pick all that up for him?  If you do, he'll be your bestest " +
+                "friend forever!");
+            AddDialogNode(JONNY_PAGE_GATHER, "", "Well, I do need a friend and I did come here to do menial labor ... " +
+                "so, yes! I'll get them!", "gather_accept");
             SetDialogLabel(DLG_NODE_BACK, "Ew!", JONNY_PAGE_GATHER);
-            SetDialogLabel(DLG_NODE_END, "Umm, is there someone ... else ... that I could take to?", JONNY_PAGE_GATHER);
+            SetDialogLabel(DLG_NODE_END, "Umm, is there someone ... else ... that I could talk to?", JONNY_PAGE_GATHER);
 
             AddDialogPage(JONNY_PAGE_DELIVER, "<deliver> quests require that the PC deliver a specified number of " +
                 "items to a specified object.  That object can be a creature, placeable, trigger or any other game " +
-                "object.  For example, my pet Bandit is hungry.  Can you take him this food?  Just put it down in front " +
-                "of him and he'll be super-happy.");
-            AddDialogNode(JONNY_PAGE_DELIVER, "", "Sure, as long as he doesn't eat me.", "deliver_accept");
-            SetDialogLabel(DLG_NODE_BACK, "You're nuts.  I've seen your \"pet\".", JONNY_PAGE_DELIVER);
+                "object.  For example, silly Hadji crashed the cart (again!).  Can you pick up all the strewn items " +
+                "and put them back in the cart?");
+            AddDialogNode(JONNY_PAGE_DELIVER, "", "Sure, I mean what else would an experienced and hardened adventurer " +
+                "like myself want to be doing today?", "deliver_accept");
+            SetDialogLabel(DLG_NODE_BACK, "You're nuts.  I'm tired of picking up your crap.", JONNY_PAGE_DELIVER);
             SetDialogLabel(DLG_NODE_END, "Are there any sane people here I can talk to?", JONNY_PAGE_DELIVER);
 
             AddDialogPage(JONNY_PAGE_SPEAK, "<speak> quests require that the PC speak to a specified game object. " +
-                "Speak targets are usually NPCs, but can be any game object you want.  In this case, go see the " +
-                "Dungeon Master behind you.  He'd like to talk to you.");
+                "Speak targets are usually NPCs, but can be any game object you want.  In this case, go see Race " +
+                "Bannon over there.  He's go some really interesting things to say.");
             AddDialogNode(JONNY_PAGE_SPEAK, "", "Oh, sure, he seems like a nice fellow.", "speak_accept");
-            SetDialogLabel(DLG_NODE_BACK, "I don't do dwarves.", JONNY_PAGE_SPEAK);
+            SetDialogLabel(DLG_NODE_BACK, "Naw, he seems like kind of an ass.", JONNY_PAGE_SPEAK);
             SetDialogLabel(DLG_NODE_END, "Psh. Pfft. Thbh. Whatevs. I'm out.", JONNY_PAGE_SPEAK);
 
             AddDialogPage(JONNY_PAGE_FOUND_BANDIT, "You've found Bandit!  I'm so happy to hear that.  Thanks you so " +
                 "much.  I don't have much, but please take this as a token of my gratitude.");
             DisableDialogNode(DLG_NODE_BACK, JONNY_PAGE_FOUND_BANDIT);
-            SetDialogLabel(DLG_NODE_END, "Any time, kiddo.", JONNY_PAGE_FOUND_BANDIT);
+            SetDialogLabel(DLG_NODE_END, "*pats Jonny's head in a totally non-pedophilic way*  Any time, kiddo.  Any time.", JONNY_PAGE_FOUND_BANDIT);
         } break;
 
         case DLG_EVENT_PAGE:
@@ -150,20 +152,20 @@ void JonnyDialog()
             }
             else if (sPage == JONNY_PAGE_KILL)
             {
-                if (bHasKill) FilterDialogNodes(0);
-                if (bHasProtect) FilterDialogNodes(1);
+                if (bHasKill && !bKillComplete) FilterDialogNodes(0);
+                if (bHasProtect && !bProtectComplete) FilterDialogNodes(1);
             }                
             else if (sPage == JONNY_PAGE_GATHER)
             {
-                if (bHasGather) FilterDialogNodes(0);
+                if (bHasGather && !bGatherComplete) FilterDialogNodes(0);
             }
             else if (sPage == JONNY_PAGE_DELIVER)
             {
-                if (bHasDeliver) FilterDialogNodes(0);
+                if (bHasDeliver && @bDeliverComplete) FilterDialogNodes(0);
             }
             else if (sPage == JONNY_PAGE_SPEAK)
             {
-                if (bHasSpeak) FilterDialogNodes(0);
+                if (bHasSpeak && !bSpeakComplete) FilterDialogNodes(0);
             }
         } break;
 
@@ -185,7 +187,10 @@ void JonnyDialog()
             else if (sNodeData == "discover_accept")
                 AssignQuest(oPC, sDiscover);
             else if (sNodeData == "kill_accept")
+            {
+                Notice("assigning");
                 AssignQuest(oPC, sKill);
+            }
             else if (sNodeData == "protect_accept")
                 AssignQuest(oPC, sProtect);
             else if (sNodeData == "gather_accept")
@@ -199,6 +204,54 @@ void JonnyDialog()
 }
 
 // -----------------------------------------------------------------------------
+//                           Race Bannon Dialog
+// -----------------------------------------------------------------------------
+
+const string BANNON_DIALOG = "BannonDialog";
+const string BANNON_PAGE_MAIN = "BannonMain";
+const string BANNON_PAGE_NO_QUEST = "BannonNoQuest";
+
+void BannonDialog()
+{
+    object oPC = GetPCSpeaker();
+    string sSpeak = "quest_demo_speak";
+    int bHasSpeak = GetPCHasQuest(oPC, sSpeak);
+    int bSpeakComplete = bHasSpeak ? GetIsPCQuestComplete(oPC, sSpeak) : FALSE;
+
+    switch (GetDialogEvent())
+    {
+        case DLG_EVENT_INIT:
+        {
+            AddCachedDialogToken("speak", HexColorString("Speak", COLOR_GREEN_LIGHT));
+
+            SetDialogPage(BANNON_PAGE_MAIN);
+            AddDialogPage(BANNON_PAGE_MAIN, "Hey there!  I don't have anything interesting " +
+                "to say.  I see you have the <speak> quest that Jonny gave you.  Well, " +
+                "talking to me fulfills the requirements of the only step in the quest.  " +
+                "Congratulations, I know it was a difficult journey, so here's a reward for " +
+                "your perseverace.");
+            EnableDialogEnd("I did work really, really hard to find you.  Thanks!", BANNON_PAGE_MAIN);
+
+            AddDialogPage(BANNON_PAGE_NO_QUEST, "Hey there, little guy!  My name's Race. " +
+                "Generally I won't speak to people like you unless Jonny sends you over here. " +
+                "You should probably go see him first.");
+            EnableDialogEnd("Ok, thanks.");
+        } break;
+
+        case DLG_EVENT_PAGE:
+        {
+            string sPage = GetDialogPage();
+            Notice("Current page -> " + sPage);
+
+            if (!bHasSpeak || (bHasSpeak && bSpeakComplete))
+                SetDialogPage(BANNON_PAGE_NO_QUEST);
+            else
+                SignalQuestStepProgress(oPC, "quest_bannon", QUEST_OBJECTIVE_SPEAK);
+        } break;
+    }
+}
+
+// -----------------------------------------------------------------------------
 //                           Library Dispatch
 // -----------------------------------------------------------------------------
 
@@ -206,9 +259,13 @@ void OnLibraryLoad()
 {
     RegisterLibraryScript(JONNY_DIALOG);
     RegisterDialogScript (JONNY_DIALOG);
+
+    RegisterLibraryScript(BANNON_DIALOG);
+    RegisterDialogScript (BANNON_DIALOG);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
     if (sScript == JONNY_DIALOG) JonnyDialog();
+    else if (sScript == BANNON_DIALOG) BannonDialog();
 }

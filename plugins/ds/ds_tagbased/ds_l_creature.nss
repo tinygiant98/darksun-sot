@@ -139,7 +139,7 @@ void nw_oldman()
 void OnLibraryLoad()
 {
     RegisterLibraryScript("NW_GOBLINA", 1);
-    RegisterLibraryScript("nw_oldman", 2);
+    RegisterLibraryScript("NW_OLDMAN", 2);
 }
 
 void OnLibraryScript(string sScript, int nEntry)

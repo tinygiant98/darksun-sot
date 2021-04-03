@@ -329,8 +329,9 @@ string GetDialogPageParent();
 
 // ---< SetDialogPage >---
 // ---< dlg_i_dialogs >---
-// Sets the current dialog page to sPage.
-void SetDialogPage(string sPage);
+// Sets the current dialog page to sPage.  If sPage has continue pages, you can pass
+// nPage to select one of those pages.
+void SetDialogPage(string sPage, int nPage = 1);
 
 // ---< GetDialogNode >---
 // ---< dlg_i_dialogs >---
@@ -924,7 +925,7 @@ string GetDialogPageParent()
     return "";    
 }
 
-void SetDialogPage(string sPage)
+void SetDialogPage(string sPage, int nPage = 1)
 {
     string sHistory = GetLocalString(DIALOG, DLG_HISTORY);
     string sCurrent = GetLocalString(DIALOG, DLG_CURRENT_PAGE);
@@ -933,6 +934,9 @@ void SetDialogPage(string sPage)
         SetLocalString(DIALOG, DLG_HISTORY, sCurrent);
     else if (GetListItem(sHistory, 0) != sCurrent)
         SetLocalString(DIALOG, DLG_HISTORY, MergeLists(sCurrent, sHistory));
+
+    if (nPage > 1)
+        sPage += "#" + IntToString(nPage);
 
     SetLocalString(DIALOG, DLG_CURRENT_PAGE, sPage);
     SetLocalInt(DIALOG, DLG_CURRENT_PAGE, TRUE);
@@ -1413,7 +1417,7 @@ int LoadDialogPage()
     string sMessage;
     string sPage = GetDialogPage();
     if (!HasDialogPage(sPage))
-        Debug(sMessage = "No dialog page found. Aborting...", DEBUG_LEVEL_WARNING);
+        Debug(sMessage = "No dialog page found. Aborting...");
     else if (GetDialogState() == DLG_STATE_ENDED)
         Debug(sMessage = "Dialog ended by the event script. Aborting...");
 
@@ -1434,8 +1438,8 @@ void MapDialogNode(int nNode, int nTarget, string sText, string sPage = "")
     int nMax = DLG_MAX_RESPONSES + 5;
     if (nNode < 0 || nNode > nMax)
     {
-        Debug("Attempted to set dialog response node " + sNode +
-              " but max is " + IntToString(nMax), DEBUG_LEVEL_ERROR);
+        Error("Attempted to set dialog response node " + sNode +
+              " but max is " + IntToString(nMax));
         return;
     }
 

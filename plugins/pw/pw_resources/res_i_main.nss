@@ -122,12 +122,12 @@ void RegisterCreatureToFramework(object oCreature, int bIncludeHeartbeat = FALSE
         string sFrameworkEventScript = GetListItem(CREATURE_FRAMEWORK_SCRIPTS, n);
         string sNWNEventScript = GetEventScript(oCreature, nNWNEvent);
 
-        if (sNWNEventScript != "")
+        if (sNWNEventScript != "" && GetStringLeft(sNWNEventScript, 4) != "hook")
             _SetLocalString(oCreature, sFrameworkEvent, sNWNEventScript);
 
         if (sFrameworkEventScript == "~")
             sFrameworkEventScript = bIncludeHeartbeat ? "hook_creature07" : "";
-        
+
         SetEventScript(oCreature, nNWNEvent, sFrameworkEventScript);
     }
 

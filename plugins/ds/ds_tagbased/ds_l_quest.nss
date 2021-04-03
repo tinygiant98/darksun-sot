@@ -12,7 +12,10 @@
 #include "util_i_library"
 #include "util_i_data"
 #include "core_i_framework"
+
+#include "ds_qst_i_main"
 #include "quest_i_main"
+
 
 /* Example
 void quest_tag()
@@ -48,8 +51,6 @@ void quest_demo_kill()
 {
     string sEvent = GetCurrentQuestEvent();
     object oPC = OBJECT_SELF;
-    
-    Notice("sEvent -> " + sEvent);
 
     if (sEvent == QUEST_EVENT_ON_ADVANCE)
     {
@@ -61,15 +62,22 @@ void quest_demo_kill()
             int n;
             object oWP = GetWaypointByTag("quest_kill_1");
             location lWP = GetLocation(oWP);
-            for (n = 0; n < 5; n++)
-            {
-                object oTarget = CreateObject(OBJECT_TYPE_CREATURE, "nw_goblina", lWP);
-                SetEventScript(oTarget, EVENT_SCRIPT_CREATURE_ON_DEATH, "hook_creature05");
-            }
+            for (n = 0; n < 8; n++)
+                CreateObject(OBJECT_TYPE_CREATURE, "nw_goblina", lWP);
         }
     }
     else if (sEvent == QUEST_EVENT_ON_COMPLETE)
+    {   
+        int n = 1;
+        object oGoblin = GetNearestObjectByTag("NW_GOBLINA", oPC, n);
+        while (GetIsObjectValid(oGoblin))
+        {
+            DestroyObject(oGoblin);
+            oGoblin = GetNearestObjectByTag("NW_GOBLINA", oPC, ++n);
+        }
+
         SetImmortal(oPC, FALSE);
+    }
 }
 
 void quest_demo_protect()
@@ -82,7 +90,6 @@ void quest_demo_protect()
         int nStep = GetCurrentQuestStep();
         if (nStep == 1)
         {
-            Notice("Setting "+ GetName(oPC)+" to Immortal");
             SetImmortal(oPC, TRUE);
             
             int n;
@@ -108,16 +115,45 @@ void quest_demo_protect()
     else if (sEvent == QUEST_EVENT_ON_FAIL)
     {   
         int n = 1;
-        object oGoblin = GetNearestObjectByTag("nw_goblina", oPC, n);
+        object oGoblin = GetNearestObjectByTag("NW_GOBLINA", oPC, n);
         while (GetIsObjectValid(oGoblin))
         {
             DestroyObject(oGoblin);
-            oGoblin = GetNearestObjectByTag("nw_goblina", oPC, ++n);
+            oGoblin = GetNearestObjectByTag("NW_GOBLINA", oPC, ++n);
         }
 
         SetImmortal(oPC, FALSE);
     }
 }
+
+void quest_demo_gather()
+{
+    string sEvent = GetCurrentQuestEvent();
+    object oPC = OBJECT_SELF;
+
+    if (sEvent == QUEST_EVENT_ON_ADVANCE)
+    {
+        int nStep = GetCurrentQuestStep();
+        if (nStep == 1)
+            ResetGatherQuestArea(oPC);
+    }
+    else if (sEvent == QUEST_EVENT_ON_COMPLETE)
+        ResetGatherQuestArea(oPC);
+}
+
+void quest_demo_deliver()
+{
+    string sEvent = GetCurrentQuestEvent();
+    object oPC = OBJECT_SELF;
+
+    if (sEvent == QUEST_EVENT_ON_ADVANCE)
+    {
+        int nStep = GetCurrentQuestStep();
+        if (nStep == 1)
+            ResetGatherQuestArea(oPC);
+    }
+}
+
 // -----------------------------------------------------------------------------
 //                               Library Dispatch
 // -----------------------------------------------------------------------------
@@ -126,6 +162,8 @@ void OnLibraryLoad()
 {
     RegisterLibraryScript("quest_demo_kill", 2);
     RegisterLibraryScript("quest_demo_protect", 3);
+    RegisterLibraryScript("quest_demo_gather", 4);
+    RegisterLibraryScript("quest_demo_deliver", 5);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
@@ -134,6 +172,8 @@ void OnLibraryScript(string sScript, int nEntry)
     {
         case 2: quest_demo_kill(); break;
         case 3: quest_demo_protect(); break;
+        case 4: quest_demo_gather(); break;
+        case 5: quest_demo_deliver(); break;
         
         default: CriticalError("Library function " + sScript + " not found");
     }

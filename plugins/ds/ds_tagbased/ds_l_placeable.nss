@@ -13,6 +13,8 @@
 #include "util_i_data"
 #include "core_i_framework"
 
+#include "quest_i_main"
+
 /* Example
 void placeable_tag()
 {
@@ -92,20 +94,40 @@ void placeable_tag()
 }
 */
 
+void quest_deliver_wagon()
+{
+    string sEvent = GetName(GetCurrentEvent());
+    object oPC, oPlaceable = OBJECT_SELF;
+
+    if (sEvent == PLACEABLE_EVENT_ON_CLOSE)
+    {
+        oPC = GetLastClosedBy();
+
+        object oItem = GetFirstItemInInventory(oPlaceable);
+        while (GetIsObjectValid(oItem))
+        {
+            SignalQuestStepProgress(oPC, GetTag(oPlaceable), QUEST_OBJECTIVE_DELIVER, GetTag(oItem));
+            DestroyObject(oItem);
+
+            oItem = GetNextItemInInventory(oPlaceable);
+        }
+    }
+}
+
 // -----------------------------------------------------------------------------
 //                               Library Dispatch
 // -----------------------------------------------------------------------------
 
 void OnLibraryLoad()
 {
-    // RegisterLibraryScript("placeable_tag", 1);
+    RegisterLibraryScript("quest_deliver_wagon", 1);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
     switch (nEntry)
     {
-        // case 1:  placeable_tag();           break;
+        case 1: quest_deliver_wagon(); break;
         
         default: CriticalError("Library function " + sScript + " not found");
     }

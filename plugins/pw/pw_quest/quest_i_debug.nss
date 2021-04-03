@@ -217,7 +217,8 @@ string ColorValue(string sValue, int nZeroIsEmpty = FALSE, int bStripe = FALSE)
 
 string QuestEventToString(string sQuestEvent)
 {
-    if (sQuestEvent == QUEST_EVENT_ON_ACCEPT) return "ON_ACCEPT";
+    if (sQuestEvent == QUEST_EVENT_ON_ASSIGN) return "ON_ASSIGN";
+    else if (sQuestEvent == QUEST_EVENT_ON_ACCEPT) return "ON_ACCEPT";
     else if (sQuestEvent == QUEST_EVENT_ON_ADVANCE) return "ON_ADVANCE";
     else if (sQuestEvent == QUEST_EVENT_ON_COMPLETE) return "ON_COMPLETE";
     else if (sQuestEvent == QUEST_EVENT_ON_FAIL) return "ON_FAIL";
