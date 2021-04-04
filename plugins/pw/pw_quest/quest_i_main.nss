@@ -2576,8 +2576,6 @@ void AssignQuest(object oPC, string sQuestTag)
 {
     int nQuestID = GetQuestID(sQuestTag);
 
-    Notice("assignquest");
-
     if (RunQuestScript(oPC, sQuestTag, QUEST_EVENT_ON_ASSIGN) == TRUE)
         _AssignQuest(oPC, nQuestID);
     else

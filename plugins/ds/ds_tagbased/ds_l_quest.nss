@@ -138,7 +138,7 @@ void quest_demo_gather()
             ResetGatherQuestArea(oPC);
     }
     else if (sEvent == QUEST_EVENT_ON_COMPLETE)
-        ResetGatherQuestArea(oPC);
+        ResetGatherQuestArea(oPC, TRUE);
 }
 
 void quest_demo_deliver()
@@ -152,6 +152,8 @@ void quest_demo_deliver()
         if (nStep == 1)
             ResetGatherQuestArea(oPC);
     }
+    else if (sEvent == QUEST_EVENT_ON_COMPLETE)
+        ResetGatherQuestArea(oPC, TRUE);
 }
 
 // -----------------------------------------------------------------------------
