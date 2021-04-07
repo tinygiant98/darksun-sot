@@ -73,10 +73,10 @@ void RegisterAreaOfEffectToFramework(object oAoE)
 
 void RegisterCreatureToFramework(object oCreature, int bIncludeHeartbeat = FALSE)
 {
-    if (_GetLocalInt(oCreature, FRAMEWORK_OUTSIDER))
+    if (GetLocalInt(oCreature, FRAMEWORK_OUTSIDER))
     {
-        _DeleteLocalInt(oCreature, FRAMEWORK_OUTSIDER);
-        _SetLocalInt(oCreature, FRAMEWORK_REGISTERED, TRUE);
+        DeleteLocalInt(oCreature, FRAMEWORK_OUTSIDER);
+        SetLocalInt(oCreature, FRAMEWORK_REGISTERED, TRUE);
     }
 
     string CREATURE_FRAMEWORK_SCRIPTS = "hook_creature01,hook_creature02,hook_creature03,hook_creature04," +
@@ -123,7 +123,7 @@ void RegisterCreatureToFramework(object oCreature, int bIncludeHeartbeat = FALSE
         string sNWNEventScript = GetEventScript(oCreature, nNWNEvent);
 
         if (sNWNEventScript != "" && GetStringLeft(sNWNEventScript, 4) != "hook")
-            _SetLocalString(oCreature, sFrameworkEvent, sNWNEventScript);
+            SetLocalString(oCreature, sFrameworkEvent, sNWNEventScript);
 
         if (sFrameworkEventScript == "~")
             sFrameworkEventScript = bIncludeHeartbeat ? "hook_creature07" : "";
@@ -206,10 +206,10 @@ void RegisterEncounterToFramework(object oEncounter, int bIncludeHeartbeat = FAL
 
 void RegisterPlaceableToFramework(object oPlaceable, int bIncludeHeartbeat = FALSE)
 {
-    if (_GetLocalInt(oPlaceable, FRAMEWORK_OUTSIDER))
+    if (GetLocalInt(oPlaceable, FRAMEWORK_OUTSIDER))
     {
-        _DeleteLocalInt(oPlaceable, FRAMEWORK_OUTSIDER);
-        _SetLocalInt(oPlaceable, FRAMEWORK_REGISTERED, TRUE);
+        DeleteLocalInt(oPlaceable, FRAMEWORK_OUTSIDER);
+        SetLocalInt(oPlaceable, FRAMEWORK_REGISTERED, TRUE);
     }
 
     string PLACEABLE_FRAMEWORK_SCRIPTS = "hook_placeable01,hook_placeable02,hook_placeable03,hook_placeable04," +
@@ -256,7 +256,7 @@ void RegisterPlaceableToFramework(object oPlaceable, int bIncludeHeartbeat = FAL
         string sNWNEventScript = GetEventScript(oPlaceable, nNWNEvent);
 
         if (sNWNEventScript != "")
-            _SetLocalString(oPlaceable, sFrameworkEvent, sNWNEventScript);
+            SetLocalString(oPlaceable, sFrameworkEvent, sNWNEventScript);
 
         if (sFrameworkEventScript == "~")
             sFrameworkEventScript = bIncludeHeartbeat ? "hook_placeable06" : "";

@@ -97,51 +97,51 @@ void NormalizeCrowdVariables(object oItem)
     Debug(dbg);
 
     float epsilon = 0.0001f;
-    if (_GetLocalString(oItem, CROWD_CONVERSATION) == "")
+    if (GetLocalString(oItem, CROWD_CONVERSATION) == "")
     {
-        _SetLocalString(oItem, CROWD_CONVERSATION, CROWD_DEFAULT_CONVERSATION);
+        SetLocalString(oItem, CROWD_CONVERSATION, CROWD_DEFAULT_CONVERSATION);
         Notice(dbg + "Crowd conversation not assigned to initializer item, " +
             "default conversation '" + CROWD_DEFAULT_CONVERSATION + "' assigned to " + GetName(oItem));
     }
 
-    if (_GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MIN) <= epsilon &&
-        _GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MAX) <= epsilon ||
-        _GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MAX) < _GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MIN))
+    if (GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MIN) <= epsilon &&
+        GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MAX) <= epsilon ||
+        GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MAX) < GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MIN))
     {
-        _SetLocalFloat(oItem, CROWD_SPAWN_DELAY_MIN, CROWD_DEFAULT_MIN_SPAWN_DELAY);
-        _SetLocalFloat(oItem, CROWD_SPAWN_DELAY_MAX, CROWD_DEFAULT_MAX_SPAWN_DELAY);
+        SetLocalFloat(oItem, CROWD_SPAWN_DELAY_MIN, CROWD_DEFAULT_MIN_SPAWN_DELAY);
+        SetLocalFloat(oItem, CROWD_SPAWN_DELAY_MAX, CROWD_DEFAULT_MAX_SPAWN_DELAY);
         Notice(dbg + "Default values for spawn delays set on " + GetName(oItem));
     }
 
-    if (_GetLocalFloat(oItem, CROWD_WALKTIME_LIMIT) < 1.0f)
+    if (GetLocalFloat(oItem, CROWD_WALKTIME_LIMIT) < 1.0f)
     {
-        _SetLocalFloat(oItem, CROWD_WALKTIME_LIMIT, CROWD_DEFAULT_WALK_TIME);
+        SetLocalFloat(oItem, CROWD_WALKTIME_LIMIT, CROWD_DEFAULT_WALK_TIME);
         Notice(dbg + "Crowd default walk time set on " + GetName(oItem));
     }
 
-    if (!_GetLocalInt(oItem, CROWD_POPULATION_DAY) &&
-        !_GetLocalInt(oItem, CROWD_POPULATION_NIGHT) &&
-        !_GetLocalInt(oItem, CROWD_POPULATION_WEATHER))
+    if (!GetLocalInt(oItem, CROWD_POPULATION_DAY) &&
+        !GetLocalInt(oItem, CROWD_POPULATION_NIGHT) &&
+        !GetLocalInt(oItem, CROWD_POPULATION_WEATHER))
     {
-        _SetLocalInt(oItem, CROWD_POPULATION_DAY, 1);
+        SetLocalInt(oItem, CROWD_POPULATION_DAY, 1);
         Notice(dbg + "Crowd count set to '1' on " + GetName(oItem));
     }
 
-    if (_GetLocalString(oItem, CROWD_MEMBER_TAG) == "")
+    if (GetLocalString(oItem, CROWD_MEMBER_TAG) == "")
     {
-        _SetLocalString(oItem, CROWD_MEMBER_TAG, CROWD_DEFAULT_TAG);
+        SetLocalString(oItem, CROWD_MEMBER_TAG, CROWD_DEFAULT_TAG);
         Notice(dbg + "Default crowd member tag set on " + GetName(oItem));
     }
 
-    if (_GetLocalString(oItem, CROWD_MEMBER_NAME) == "")
+    if (GetLocalString(oItem, CROWD_MEMBER_NAME) == "")
     {
-        _SetLocalString(oItem, CROWD_MEMBER_NAME, CROWD_DEFAULT_NAME);
+        SetLocalString(oItem, CROWD_MEMBER_NAME, CROWD_DEFAULT_NAME);
         Notice(dbg + "Default value for crowd member name set on " + GetName(oItem));
     }
 
-    if (_GetLocalFloat(oItem, CROWD_UPDATE_INTERVAL) < 6.0001f)
+    if (GetLocalFloat(oItem, CROWD_UPDATE_INTERVAL) < 6.0001f)
     {
-        _SetLocalFloat(oItem, CROWD_UPDATE_INTERVAL, CROWD_DEFAULT_INTERVAL);
+        SetLocalFloat(oItem, CROWD_UPDATE_INTERVAL, CROWD_DEFAULT_INTERVAL);
         Notice(dbg + "Crowd update interval must be greater than heartbeat interval; " + 
             "default value set on " + GetName(oItem));
     }
@@ -152,7 +152,7 @@ void InitializeCrowds(object oArea = OBJECT_SELF)
     dbg = sDebugPlugin + "InitializeCrowds:: ";
     Debug(dbg);
 
-    string sCrowds = _GetLocalString(oArea, CROWD_CSV);
+    string sCrowds = GetLocalString(oArea, CROWD_CSV);
     int i, nIndex, nCount = CountList(sCrowds);
     if (!nCount)
     {
@@ -163,14 +163,14 @@ void InitializeCrowds(object oArea = OBJECT_SELF)
     for (i = 0; i < nCount; i++)
     {
         string sCrowd = GetListItem(sCrowds, i);
-        if ((nIndex = FindListItem(_GetLocalString(CROWDS, CROWD_ITEM_LOADED_CSV), sCrowd)) > -1)
+        if ((nIndex = FindListItem(GetLocalString(CROWDS, CROWD_ITEM_LOADED_CSV), sCrowd)) > -1)
         {
             CopyListObject(CROWDS, AREA_CROWDS, CROWD_ITEM_OBJECT_LIST, AREA_CROWD_ITEM_OBJECT_LIST, nIndex, TRUE);
             Debug(dbg + "Crowd item " + CROWD_ITEM_PREFIX + sCrowd + " loaded on " + GetName(oArea));
         }
     }
 
-    _SetLocalInt(oArea, AREA_CROWD_ITEM_INITIALIZED, TRUE);
+    SetLocalInt(oArea, AREA_CROWD_ITEM_INITIALIZED, TRUE);
     SpawnCrowds(oArea);
 }
 
@@ -179,7 +179,7 @@ void SpawnCrowds(object oArea = OBJECT_SELF)
     dbg = sDebugPlugin + "SpawnCrowds:: ";
     Debug(dbg);
 
-    if (!_GetLocalInt(oArea, AREA_CROWD_ITEM_INITIALIZED))
+    if (!GetLocalInt(oArea, AREA_CROWD_ITEM_INITIALIZED))
     {
         InitializeCrowds(oArea);
         Warning(dbg + "Crowd system for " + GetName(oArea) + " initialized from backup check.");
@@ -204,7 +204,7 @@ void SpawnCrowds(object oArea = OBJECT_SELF)
 
         if (GetIsObjectValid(oItem))
         {
-            string sWaypointTag = _GetLocalString(oItem, CROWD_WAYPOINT_TAG);
+            string sWaypointTag = GetLocalString(oItem, CROWD_WAYPOINT_TAG);
             if (sWaypointTag == "")
             {
                 Error(dbg + "Waypoint tag required for crowd to spawn; check '" + CROWD_WAYPOINT_TAG +
@@ -220,13 +220,13 @@ void SpawnCrowds(object oArea = OBJECT_SELF)
                     break;
                 }
                 else
-                    _SetLocalInt(oItem, CROWD_WP_COUNT, nWaypointCount);
+                    SetLocalInt(oItem, CROWD_WP_COUNT, nWaypointCount);
             }
             
-            fInterval = _GetLocalFloat(oItem, CROWD_UPDATE_INTERVAL);
+            fInterval = GetLocalFloat(oItem, CROWD_UPDATE_INTERVAL);
             nTimerID = CreateTimer(oItem, CROWD_EVENT_ON_TIMER_EXPIRED, fInterval);
-            _SetLocalInt(oItem, CROWD_CHECK_TIMER, nTimerID);
-            _SetLocalObject(oItem, CROWD_OWNER, oArea);
+            SetLocalInt(oItem, CROWD_CHECK_TIMER, nTimerID);
+            SetLocalObject(oItem, CROWD_OWNER, oArea);
             StartTimer(nTimerID, TRUE);
         }
         else
@@ -240,7 +240,7 @@ void ClearCrowds(object oArea = OBJECT_SELF)
     dbg = sDebugPlugin + "ClearCrowds:: ";
     Debug(dbg);
 
-    string sRoster, sCrowd, sCrowds = _GetLocalString(OBJECT_SELF, CROWD_CSV);
+    string sRoster, sCrowd, sCrowds = GetLocalString(OBJECT_SELF, CROWD_CSV);
     object oItem, oMember;
 
     int i, nIndex, nCount = CountObjectList(AREA_CROWDS, AREA_CROWD_ITEM_OBJECT_LIST);
@@ -260,11 +260,11 @@ void ClearCrowds(object oArea = OBJECT_SELF)
         Debug(dbg + IntToString(j) + " objects removed from CROWD_ROSTER on " + GetName(oItem));
         DeleteObjectList(oItem, CROWD_ROSTER);
         
-        nTimerID = _GetLocalInt(oItem, CROWD_CHECK_TIMER);
+        nTimerID = GetLocalInt(oItem, CROWD_CHECK_TIMER);
         if (nTimerID)
         {
             KillTimer(nTimerID);
-            _DeleteLocalInt(oItem, CROWD_CHECK_TIMER);
+            DeleteLocalInt(oItem, CROWD_CHECK_TIMER);
             Debug(dbg + "Killed timer " + IntToString(nTimerID) + " on " + GetName(oItem));
         }
         else
@@ -278,8 +278,8 @@ float GetSpawnDelay(object oItem)
     dbg = sDebugPlugin + "GetSpawnDelay:: ";
     Debug(dbg);
 
-    float fMin = _GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MIN);
-    float fMax = _GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MAX);
+    float fMin = GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MIN);
+    float fMax = GetLocalFloat(oItem, CROWD_SPAWN_DELAY_MAX);
 
     float precision = 10.0f;
     int iMin = FloatToInt(fMin * precision);
@@ -294,15 +294,15 @@ int GetCrowdLimit(object oItem)
     dbg = sDebugPlugin + "GetCrowdLimit:: ";
     Debug(dbg);
 
-    object oArea = _GetLocalObject(oItem, CROWD_OWNER);
+    object oArea = GetLocalObject(oItem, CROWD_OWNER);
     
-    int max = _GetLocalInt(oItem, CROWD_POPULATION_DAY);
+    int max = GetLocalInt(oItem, CROWD_POPULATION_DAY);
     if (GetIsNight())
-        max = _GetLocalInt(oItem, CROWD_POPULATION_NIGHT);
+        max = GetLocalInt(oItem, CROWD_POPULATION_NIGHT);
 
     int weather = GetWeather(oArea);
     if (weather == WEATHER_RAIN || weather == WEATHER_SNOW)
-        max = min(max, _GetLocalInt(oItem, CROWD_POPULATION_WEATHER));
+        max = min(max, GetLocalInt(oItem, CROWD_POPULATION_WEATHER));
 
     return max;
 }
@@ -336,7 +336,7 @@ void DerosterCrowdMember(object oMember)
     dbg = sDebugPlugin + "DerosterCrowdMember:: ";
     Debug(dbg);
 
-    object oOwner = _GetLocalObject(oMember, CROWD_OWNER);
+    object oOwner = GetLocalObject(oMember, CROWD_OWNER);
     RemoveListObject(oOwner, oMember, CROWD_ROSTER);
 }
 
@@ -345,8 +345,8 @@ void WalkCrowdMember(object oMember, object oOrigin, object oItem)
     dbg = sDebugPlugin + "WalkCrowdMember:: ";
     Debug(dbg);
 
-    int nWaypointCount = _GetLocalInt(oItem, CROWD_WP_COUNT);
-    string sWaypointTag = _GetLocalString(oItem, CROWD_WAYPOINT_TAG);
+    int nWaypointCount = GetLocalInt(oItem, CROWD_WP_COUNT);
+    string sWaypointTag = GetLocalString(oItem, CROWD_WAYPOINT_TAG);
 
     object oDestination = GetNearestObjectByTag(sWaypointTag, oOrigin, Random(nWaypointCount - 1) + 1);
     if (oDestination == OBJECT_INVALID || oDestination == oOrigin)
@@ -356,8 +356,8 @@ void WalkCrowdMember(object oMember, object oOrigin, object oItem)
         return;
     }
 
-    _SetLocalObject(oMember, CROWD_DESTINATION, oDestination);
-    AssignCommand(oMember, ActionForceMoveToObject(oDestination, FALSE, 1.0f, _GetLocalFloat(oItem, CROWD_WALKTIME_LIMIT)));
+    SetLocalObject(oMember, CROWD_DESTINATION, oDestination);
+    AssignCommand(oMember, ActionForceMoveToObject(oDestination, FALSE, 1.0f, GetLocalFloat(oItem, CROWD_WALKTIME_LIMIT)));
     AssignCommand(oMember, ActionDoCommand(DerosterCrowdMember(oMember)));
     AssignCommand(oMember, ActionDoCommand(DestroyObject(oMember)));
 }
@@ -367,10 +367,10 @@ void SpawnCrowdMember(object oItem)
     dbg = sDebugPlugin + "SpawnCrowdMember:: ";
     Debug(dbg);
 
-    object oArea = _GetLocalObject(oItem, CROWD_OWNER);
+    object oArea = GetLocalObject(oItem, CROWD_OWNER);
     string sItem = GetName(oItem);
 
-    int nCount, nCrowdWaypointCount = _GetLocalInt(oItem, CROWD_WP_COUNT);
+    int nCount, nCrowdWaypointCount = GetLocalInt(oItem, CROWD_WP_COUNT);
     
     object oPC = GetListObject(oArea, 0, AREA_ROSTER);
     if (!GetIsObjectValid(oPC))
@@ -379,7 +379,7 @@ void SpawnCrowdMember(object oItem)
         return;
     }
 
-    object oOrigin = GetNearestObjectByTag(_GetLocalString(oItem, CROWD_WAYPOINT_TAG), oPC, Random(nCrowdWaypointCount) + 1);
+    object oOrigin = GetNearestObjectByTag(GetLocalString(oItem, CROWD_WAYPOINT_TAG), oPC, Random(nCrowdWaypointCount) + 1);
     if (!GetIsObjectValid(oOrigin))
     {
         Error(dbg + "Valid origin waypoint for " + sItem + 
@@ -387,7 +387,7 @@ void SpawnCrowdMember(object oItem)
         return;
     }
 
-    string sCrowd = _GetLocalString(oItem, CROWD_MEMBER_RESREF);
+    string sCrowd = GetLocalString(oItem, CROWD_MEMBER_RESREF);
     if (!(nCount = CountList(sCrowd)))
     {
         Error(dbg + "Crowd templates not found for " + sItem + " in " + GetName(oArea));
@@ -395,15 +395,15 @@ void SpawnCrowdMember(object oItem)
     }    
 
     string sExceptions, sMember = GetListItem(sCrowd, Random(CountList(sCrowd)));
-    object oMember = CreateObject(OBJECT_TYPE_CREATURE, sMember, GetLocation(oOrigin), FALSE, _GetLocalString(oItem, CROWD_MEMBER_TAG));
+    object oMember = CreateObject(OBJECT_TYPE_CREATURE, sMember, GetLocation(oOrigin), FALSE, GetLocalString(oItem, CROWD_MEMBER_TAG));
     AddListObject(oItem, oMember, CROWD_ROSTER);
-    _SetLocalObject(oMember, CROWD_OWNER, oItem);
+    SetLocalObject(oMember, CROWD_OWNER, oItem);
 
-    SetName(oMember, _GetLocalString(oItem, CROWD_MEMBER_NAME));
+    SetName(oMember, GetLocalString(oItem, CROWD_MEMBER_NAME));
 
-    if (_GetLocalInt(oItem, CROWD_CLOTHING_RANDOM))
+    if (GetLocalInt(oItem, CROWD_CLOTHING_RANDOM))
     {
-        string sWardrobe = _GetLocalString(oItem, CROWD_CLOTHING_RESREF);
+        string sWardrobe = GetLocalString(oItem, CROWD_CLOTHING_RESREF);
         string sOutfit = GetListItem(sWardrobe, Random(CountList(sWardrobe)));
         object oOutfit = CreateItemOnObject(sOutfit, oMember);
         if (GetIsObjectValid(oOutfit))
@@ -418,15 +418,15 @@ void SpawnCrowdMember(object oItem)
         }
     }
 
-    _SetLocalInt(oItem, CROWD_QUEUE, _GetLocalInt(oItem, CROWD_QUEUE) - 1);
-    _SetLocalString(oMember, CROWD_CONVERSATION, _GetLocalString(oItem, CROWD_CONVERSATION));
-    _SetLocalString(oMember, CREATURE_EVENT_ON_DEATH, CROWD_CREATURE_DEATH_SCRIPT);
+    SetLocalInt(oItem, CROWD_QUEUE, GetLocalInt(oItem, CROWD_QUEUE) - 1);
+    SetLocalString(oMember, CROWD_CONVERSATION, GetLocalString(oItem, CROWD_CONVERSATION));
+    SetLocalString(oMember, CREATURE_EVENT_ON_DEATH, CROWD_CREATURE_DEATH_SCRIPT);
 
     //sExceptions = CREATURE_EVENT_ON_DEATH + "," + CREATURE_EVENT_ON_CONVERSATION;
     //Debug(dbg + "sExceptions = " + sExceptions);
     //SetDispatchExceptions(oMember, sExceptions, TRUE);
 
-    if (!_GetLocalInt(oItem, CROWD_STATIONARY))
+    if (!GetLocalInt(oItem, CROWD_STATIONARY))
         WalkCrowdMember(oMember, oOrigin, oItem);
 }
 
@@ -435,10 +435,10 @@ void DelayAndSpawnCrowdMember(object oItem)
     dbg = sDebugPlugin + "DelayAndSpawnCrowdMember:: ";
     Debug(dbg); 
 
-    object oArea = _GetLocalObject(oItem, CROWD_OWNER);
+    object oArea = GetLocalObject(oItem, CROWD_OWNER);
     float fDelay = GetSpawnDelay(oItem);
     DelayCommand(fDelay, SpawnCrowdMember(oItem));
-    _SetLocalInt(oItem, CROWD_QUEUE, _GetLocalInt(oItem, CROWD_QUEUE) + 1);
+    SetLocalInt(oItem, CROWD_QUEUE, GetLocalInt(oItem, CROWD_QUEUE) + 1);
 }
 
 void UpdateCrowds(object oItem)
@@ -446,11 +446,11 @@ void UpdateCrowds(object oItem)
     dbg = sDebugPlugin + "UpdateCrowds:: ";
     Debug(dbg);
 
-    object oArea = _GetLocalObject(oItem, CROWD_OWNER);
+    object oArea = GetLocalObject(oItem, CROWD_OWNER);
     int nPopulation = GetCrowdLimit(oItem);
     int nMembers = CountObjectList(oItem, CROWD_ROSTER);
 
-    while (nMembers < nPopulation - _GetLocalInt(oItem, CROWD_QUEUE))
+    while (nMembers < nPopulation - GetLocalInt(oItem, CROWD_QUEUE))
     {
         DelayAndSpawnCrowdMember(oItem);
         nMembers = CountObjectList(oItem, CROWD_ROSTER);
@@ -462,11 +462,11 @@ void ResumeCrowdMemberActivity(object oMember = OBJECT_SELF)
     dbg = sDebugPlugin + "ResumeCrowdMemberActivity:: ";
     Debug(dbg);
 
-    object oDestination = _GetLocalObject(oMember, CROWD_DESTINATION);
+    object oDestination = GetLocalObject(oMember, CROWD_DESTINATION);
     if (!GetIsObjectValid(oDestination))
     {
         Error(dbg + "Unable to find valid destination waypoint for " + 
-            _GetLocalString(oMember, CROWD_ITEM) + " in " + GetName(GetArea(oMember)));
+            GetLocalString(oMember, CROWD_ITEM) + " in " + GetName(GetArea(oMember)));
         return;
     }
     else

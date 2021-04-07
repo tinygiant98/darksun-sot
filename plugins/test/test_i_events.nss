@@ -36,6 +36,8 @@ void test_OnClientEnter()
     object oItem = GetItemPossessedBy(oPC, "util_playerdata");
     if (!GetIsObjectValid(oItem))
         CreateItemOnObject("util_playerdata", oPC);
+
+    SetEventScript(oPC, EVENT_SCRIPT_CREATURE_ON_HEARTBEAT, "hook_player07");
 }
 
 void test_script_OnPlayerChat()

@@ -46,27 +46,27 @@ void tr_OnAreaEnter()
     if (!_GetIsPC(oPC))
         return;
 
-    if (!CountList(_GetLocalString(OBJECT_SELF, TRAVEL_ENCOUNTER_AREAS)))
+    if (!CountList(GetLocalString(OBJECT_SELF, TRAVEL_ENCOUNTER_AREAS)))
         return;
 
-    int nTimerID, nReturning = _GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
+    int nTimerID, nReturning = GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
 
     if (!nReturning)    //Entering area from another area, not from an encounter
     {
-        _SetLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS, TRAVEL_ENCOUNTER_LIMIT + (-1 + Random(3)) * Random(TRAVEL_ENCOUNTER_LIMIT_JITTER));
-        _DeleteLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
+        SetLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS, TRAVEL_ENCOUNTER_LIMIT + (-1 + Random(3)) * Random(TRAVEL_ENCOUNTER_LIMIT_JITTER));
+        DeleteLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
 
-        Debug("Maximum encounters for this PC is " + IntToString(_GetLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS)));
+        Debug("Maximum encounters for this PC is " + IntToString(GetLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS)));
 
         nTimerID = CreateTimer(oPC, TRAVEL_ENCOUNTER_ON_TIMER_EXPIRE, TRAVEL_ENCOUNTER_TIMER_INTERVAL, 0, TRAVEL_ENCOUNTER_TIMER_JITTER);
-        _SetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID, nTimerID);
+        SetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID, nTimerID);
         StartTimer(nTimerID, FALSE);
     }
     else
     {
-        nTimerID = _GetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
+        nTimerID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
         StartTimer(nTimerID, FALSE);
-        DelayCommand(5.0f, _DeleteLocalInt(oPC, TRAVEL_ENCOUNTER_ID));
+        DelayCommand(5.0f, DeleteLocalInt(oPC, TRAVEL_ENCOUNTER_ID));
     }
 
     SetObjectVisualTransform(oPC, OBJECT_VISUAL_TRANSFORM_SCALE, 0.5f);
@@ -79,11 +79,11 @@ void tr_OnAreaExit()
     if (!_GetIsPC(oPC))
         return;
 
-    if (!CountList(_GetLocalString(OBJECT_SELF, TRAVEL_ENCOUNTER_AREAS)))
+    if (!CountList(GetLocalString(OBJECT_SELF, TRAVEL_ENCOUNTER_AREAS)))
         return;
 
-    int nEncounterID = _GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
-    int nTimerID = _GetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
+    int nEncounterID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
+    int nTimerID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
     
     SetObjectVisualTransform(oPC, OBJECT_VISUAL_TRANSFORM_SCALE, 1.0f);
 
@@ -91,11 +91,11 @@ void tr_OnAreaExit()
     {
         KillTimer(nTimerID);
 
-        _DeleteLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
-        _DeleteLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
-        _DeleteLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS);
-        _DeleteLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
-        _DeleteLocalLocation(oPC, TRAVEL_CREATURE_LOCATION);
+        DeleteLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
+        DeleteLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
+        DeleteLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS);
+        DeleteLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
+        DeleteLocalLocation(oPC, TRAVEL_CREATURE_LOCATION);
 
         /*TODO Chase implementation
         if (_GetLocalInt(oPC,TRAVEL_ENCOUNTER_CHASE ))
@@ -110,14 +110,14 @@ void tr_OnAreaExit()
 
 void tr_encounter_OnPlayerDeath()
 {
-    _SetLocalInt(OBJECT_SELF, TRAVEL_ENCOUNTER_PLAYER_DEATH, TRUE);
+    SetLocalInt(OBJECT_SELF, TRAVEL_ENCOUNTER_PLAYER_DEATH, TRUE);
 }
 
 void tr_encounter_OnTimerExpire()
 {
     object oPC = OBJECT_SELF;
-    int nTimerID, nGoing, nEncounters = _GetLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
-    int nEncounterID, nMaxEncounters = _GetLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS);
+    int nTimerID, nGoing, nEncounters = GetLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
+    int nEncounterID, nMaxEncounters = GetLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS);
 
     if (!_GetIsPC(oPC))
         return;
@@ -129,7 +129,7 @@ void tr_encounter_OnTimerExpire()
     
     if (nEncounters >= nMaxEncounters && TRAVEL_ENCOUNTER_LIMIT)
     {
-        nTimerID = _GetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
+        nTimerID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
         KillTimer(nTimerID);
         Debug("Max encounters reached, no more for this guys.");
         return;
@@ -153,8 +153,8 @@ void tr_encounter_OnAreaExit()
 {
     //This needs to be run after the module removes the player from the area_roster
     object oPC = GetExitingObject();
-    location lPC = _GetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION);
-    int nEncounterID = _GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);;
+    location lPC = GetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION);
+    int nEncounterID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);;
 
     struct TRAVEL_ENCOUNTER te = tr_GetEncounterData(nEncounterID);
 
@@ -185,12 +185,12 @@ void tr_encounter_OnAOEEnter()
 {
     object oTarget, oEncounterAOE = OBJECT_SELF;
     object oPC = GetEnteringObject();
-    int nEncounterID = _GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
+    int nEncounterID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
         
     if (nEncounterID)
         return;
 
-    nEncounterID = _GetLocalInt(oEncounterAOE, TRAVEL_ENCOUNTER_ID);
+    nEncounterID = GetLocalInt(oEncounterAOE, TRAVEL_ENCOUNTER_ID);
     struct TRAVEL_ENCOUNTER te = tr_GetEncounterData(nEncounterID);
  
     int nWaypointCount = CountList(te.sSecondaryWaypoints);
@@ -206,8 +206,8 @@ void tr_encounter_OnAOEEnter()
 
             if (GetIsObjectValid(oTarget))
             {
-                _SetLocalInt(oPC, TRAVEL_ENCOUNTER_ID, nEncounterID);
-                _SetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION, GetLocation(oPC));
+                SetLocalInt(oPC, TRAVEL_ENCOUNTER_ID, nEncounterID);
+                SetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION, GetLocation(oPC));
                 AssignCommand(oPC, ClearAllActions());
                 AssignCommand(oPC, JumpToObject(oTarget));
 

@@ -47,7 +47,7 @@ string GetVariable(object oPC, object oTarget, string sOverride = "")
     {
         sVarName = (!nInternal ? GetChatArgument(oPC, n) : sOverride);
 
-        i = _GetLocalInt(oTarget, sVarName);
+        i = GetLocalInt(oTarget, sVarName);
         if (i)
         {
             if (HasChatOption(oPC, "bool,b,boolean"))
@@ -59,7 +59,7 @@ string GetVariable(object oPC, object oTarget, string sOverride = "")
             sValues = AddListItem(sValues, sResult);
         }
 
-        s = _GetLocalString(oTarget, sVarName);
+        s = GetLocalString(oTarget, sVarName);
         if (s != "")
         {
             sResult = s;
@@ -67,7 +67,7 @@ string GetVariable(object oPC, object oTarget, string sOverride = "")
             sValues = AddListItem(sValues, sResult);
         }
 
-        f = _GetLocalFloat(oTarget, sVarName);
+        f = GetLocalFloat(oTarget, sVarName);
         if (f != 0.0)
         {
             sResult = FloatToString(f, 0);
@@ -75,7 +75,7 @@ string GetVariable(object oPC, object oTarget, string sOverride = "")
             sValues = AddListItem(sValues, sResult);
         }
 
-        o = _GetLocalObject(oTarget, sVarName);
+        o = GetLocalObject(oTarget, sVarName);
         if (GetIsObjectValid(o))
         {
             sResult = "{tag} " + GetTag(o) + " {Name} " + GetName(o);
@@ -83,7 +83,7 @@ string GetVariable(object oPC, object oTarget, string sOverride = "")
             sValues = AddListItem(sValues, sResult);
         }
 
-        l = _GetLocalLocation(oTarget, sVarName);
+        l = GetLocalLocation(oTarget, sVarName);
         if (GetAreaFromLocation(l) != OBJECT_INVALID)
         {
             sType = "Location";
@@ -97,8 +97,8 @@ string GetVariable(object oPC, object oTarget, string sOverride = "")
             sKeys = AddListItem(sKeys, "Location");
             sValues = AddListItem(sKeys, sResult);
         }
-
-        v = _GetLocalVector(oTarget, sVarName);
+/*
+        v = GetLocalVector(oTarget, sVarName);
         if (v != Vector())
         {
             sResult = "[" + FloatToString(v.x, 0, 2) + "  " +
@@ -107,6 +107,7 @@ string GetVariable(object oPC, object oTarget, string sOverride = "")
             sKeys = AddListItem(sKeys, "Vector");
             sValues = AddListItem(sValues, sResult);
         }
+*/
 
         if (nCount = CountList(sKeys))
         {
@@ -153,10 +154,10 @@ void DeleteVariable(object oPC, object oTarget)
             if (sType == "Integer")
             {               
                 if (nTypes == 1)
-                    _DeleteLocalInt(oTarget, sVarName);
+                    DeleteLocalInt(oTarget, sVarName);
                 else if (nTypes > 1 && (bAll || HasChatOption(oPC, "i,int,integer")))
                 {
-                    _DeleteLocalInt(oTarget, sVarName);
+                    DeleteLocalInt(oTarget, sVarName);
                     nSpecify = TRUE;
                     continue;
                 }
@@ -166,10 +167,10 @@ void DeleteVariable(object oPC, object oTarget)
             else if (sType == "String")
             {               
                 if (nTypes == 1)
-                    _DeleteLocalString(oTarget, sVarName);
+                    DeleteLocalString(oTarget, sVarName);
                 else if (nTypes > 1 && (bAll || HasChatOption(oPC, "s,str,string")))
                 {
-                    _DeleteLocalString(oTarget, sVarName);
+                    DeleteLocalString(oTarget, sVarName);
                     nSpecify = TRUE;
                     continue;
                 }
@@ -179,10 +180,10 @@ void DeleteVariable(object oPC, object oTarget)
             else if (sType == "Float")
             {               
                 if (nTypes == 1)
-                    _DeleteLocalFloat(oTarget, sVarName);
+                    DeleteLocalFloat(oTarget, sVarName);
                 else if (nTypes > 1 && (bAll || HasChatOption(oPC, "f,float")))
                 {
-                    _DeleteLocalFloat(oTarget, sVarName);
+                    DeleteLocalFloat(oTarget, sVarName);
                     nSpecify = TRUE;
                     continue;
                 }
@@ -192,10 +193,10 @@ void DeleteVariable(object oPC, object oTarget)
             else if (sType == "Object")
             {               
                 if (nTypes == 1)
-                    _DeleteLocalObject(oTarget, sVarName);
+                    DeleteLocalObject(oTarget, sVarName);
                 else if (nTypes > 1 && (bAll || HasChatOption(oPC, "o,obj,object")))
                 {
-                    _DeleteLocalObject(oTarget, sVarName);
+                    DeleteLocalObject(oTarget, sVarName);
                     nSpecify = TRUE;
                     continue;
                 }
@@ -205,29 +206,31 @@ void DeleteVariable(object oPC, object oTarget)
             else if (sType == "Location")
             {               
                 if (nTypes == 1)
-                    _DeleteLocalLocation(oTarget, sVarName);
+                    DeleteLocalLocation(oTarget, sVarName);
                 else if (nTypes > 1 && (bAll || HasChatOption(oPC, "l,loc,location")))
                 {
-                    _DeleteLocalLocation(oTarget, sVarName);
+                    DeleteLocalLocation(oTarget, sVarName);
                     nSpecify = TRUE;
                     continue;
                 }
                 else
                     sConfirm = AddListItem(sConfirm, sType);
             }
+/*
             else if (sType == "Vector")
             {               
                 if (nTypes == 1)
-                    _DeleteLocalVector(oTarget, sVarName);
+                    DeleteLocalVector(oTarget, sVarName);
                 else if (nTypes > 1 && (bAll || HasChatOption(oPC, "v,vec,vector")))
                 {
-                    _DeleteLocalVector(oTarget, sVarName);
+                    DeleteLocalVector(oTarget, sVarName);
                     nSpecify = TRUE;
                     continue;
                 }
                 else
                     sConfirm = AddListItem(sConfirm, sType);
             }
+*/
         }
 
         if (nTypes > 1 && CountList(sConfirm) && !nSpecify)
@@ -266,14 +269,14 @@ void SetVariable(object oPC, object oTarget)
         if (TestStringAgainstPattern("*n", sValue))
         {
             sType = "Integer";
-            _SetLocalInt(oTarget, sVarName, StringToInt(sValue));
+            SetLocalInt(oTarget, sVarName, StringToInt(sValue));
         }
     }
     else if (HasChatKey(oPC, "s,str,string"))
     {
         sValue = GetChatKeyValue(oPC, "s,str,string");
         sType = "String";
-        _SetLocalString(oTarget, sVarName, sValue);
+        SetLocalString(oTarget, sVarName, sValue);
     }
     else if (HasChatKey(oPC, "f,float"))
     {
@@ -281,7 +284,7 @@ void SetVariable(object oPC, object oTarget)
         if (TestStringAgainstPattern("*n.*n|*n", sValue))
         {
             sType = "Float";
-            _SetLocalFloat(oTarget, sVarName, StringToFloat(sValue));
+            SetLocalFloat(oTarget, sVarName, StringToFloat(sValue));
         }
     }
     else if (HasChatKey(oPC, "o,obj,object"))
@@ -291,7 +294,7 @@ void SetVariable(object oPC, object oTarget)
         {
             sType = "Object";
             sResult = "{tag} " + sValue;
-            _SetLocalObject(oTarget, sVarName, GetObjectByTag(sValue));
+            SetLocalObject(oTarget, sVarName, GetObjectByTag(sValue));
         }
     }
     else if (HasChatKey(oPC, "l,loc,location"))
@@ -321,12 +324,13 @@ void SetVariable(object oPC, object oTarget)
                         "," + GetListItem(sValues, 2) +
                         "," + GetListItem(sValues, 3) + "] " +
                       "{facing} " + GetListItem(sValues, 4);
-            _SetLocalLocation(oTarget, sVarName, Location(oArea, Vector(fX, fY, fZ), fFacing));
+            SetLocalLocation(oTarget, sVarName, Location(oArea, Vector(fX, fY, fZ), fFacing));
         }
         else
             SendChatResult("Could not find a valid object for passed object tag" +
                            "\n  Tag received -> " + GetListItem(sValues, 0), oPC, FLAG_ERROR);
     }
+/*    
     else if (HasChatKey(oPC, "v,vec,vector"))
     {
         sValue = GetChatKeyValue(oPC, "v,vec,vector");
@@ -349,8 +353,9 @@ void SetVariable(object oPC, object oTarget)
         sResult = "[" + GetListItem(sValues, 0) +
                     "," + GetListItem(sValues, 1) +
                     "," + GetListItem(sValues, 2) + "]";
-        _SetLocalVector(oTarget, sVarName, Vector(fX, fY, fZ));
+        SetLocalVector(oTarget, sVarName, Vector(fX, fY, fZ));
     }
+*/
     else
         SendChatResult("Variable type could not be determined from options" +
                        "\n  Key-Value Pairs received -> " + GetChatPairs(oPC), oPC, FLAG_ERROR);

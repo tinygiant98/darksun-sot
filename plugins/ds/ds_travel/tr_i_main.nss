@@ -73,11 +73,11 @@ void tr_EncounterExit();
 
 void _setEncounterVariables(object oPC, int nEncounterID)
 {
-    int nEncounters = _GetLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
+    int nEncounters = GetLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
     
-    _SetLocalInt(oPC, TRAVEL_ENCOUNTER_ID, nEncounterID);
-    _SetLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS, ++nEncounters);
-    _SetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION, GetLocation(oPC));
+    SetLocalInt(oPC, TRAVEL_ENCOUNTER_ID, nEncounterID);
+    SetLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS, ++nEncounters);
+    SetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION, GetLocation(oPC));
 }
 
 struct TRAVEL_ENCOUNTER tr_GetEncounterData(int nEncounterID)
@@ -86,11 +86,11 @@ struct TRAVEL_ENCOUNTER tr_GetEncounterData(int nEncounterID)
 
     te.nEncounterID = nEncounterID;
     te.sEncounterID = IntToString(nEncounterID);
-    te.oEncounterArea = _GetLocalObject(ENCOUNTERS, ENCOUNTER_AREA + te.sEncounterID);
-    te.oTriggeredBy = _GetLocalObject(ENCOUNTERS, ENCOUNTER_TRIGGERED_BY + te.sEncounterID);
-    te.sPrimaryWaypoint = _GetLocalString(ENCOUNTERS, ENCOUNTER_PRIMARY_WAYPOINT + te.sEncounterID);
-    te.sSecondaryWaypoints = _GetLocalString(ENCOUNTERS, ENCOUNTER_SECONDARY_WAYPOINTS + te.sEncounterID);
-    te.sSpawnPoints = _GetLocalString(ENCOUNTERS, ENCOUNTER_SPAWNPOINTS + te.sEncounterID);
+    te.oEncounterArea = GetLocalObject(ENCOUNTERS, ENCOUNTER_AREA + te.sEncounterID);
+    te.oTriggeredBy = GetLocalObject(ENCOUNTERS, ENCOUNTER_TRIGGERED_BY + te.sEncounterID);
+    te.sPrimaryWaypoint = GetLocalString(ENCOUNTERS, ENCOUNTER_PRIMARY_WAYPOINT + te.sEncounterID);
+    te.sSecondaryWaypoints = GetLocalString(ENCOUNTERS, ENCOUNTER_SECONDARY_WAYPOINTS + te.sEncounterID);
+    te.sSpawnPoints = GetLocalString(ENCOUNTERS, ENCOUNTER_SPAWNPOINTS + te.sEncounterID);
 
     return te;
 }
@@ -99,7 +99,7 @@ int tf_CreateEncounter(object oPC)
 {
     object oEncounterArea, oTravelArea = GetArea(oPC);
     string sSecondaryWaypoints, sWaypointTag, sWaypoints, sTriggers, sSpawnPoints, sEncounterArea;
-    string sWaypointType, sEncounterAreas = _GetLocalString(oTravelArea, TRAVEL_ENCOUNTER_AREAS);
+    string sWaypointType, sEncounterAreas = GetLocalString(oTravelArea, TRAVEL_ENCOUNTER_AREAS);
     int nArea, nEncounterID, nCount = CountList(sEncounterAreas);
     int i = 2;
 
@@ -109,7 +109,7 @@ int tf_CreateEncounter(object oPC)
         return 0;
     }
     
-    nEncounterID = _GetLocalInt(ENCOUNTERS, TRAVEL_ENCOUNTER_NEXT_ID);
+    nEncounterID = GetLocalInt(ENCOUNTERS, TRAVEL_ENCOUNTER_NEXT_ID);
     
     if (!nEncounterID)
         nEncounterID = 1;
@@ -133,7 +133,7 @@ int tf_CreateEncounter(object oPC)
         if (GetObjectType(oAreaObject) == OBJECT_TYPE_WAYPOINT)
         {
             Debug("  Encounter area object:  " + GetTag(oAreaObject));
-            sWaypointType = GetStringLowerCase(_GetLocalString(oAreaObject, TRAVEL_WAYPOINT_TYPE));
+            sWaypointType = GetStringLowerCase(GetLocalString(oAreaObject, TRAVEL_WAYPOINT_TYPE));
             if (sWaypointType == TRAVEL_WAYPOINT_TYPE_PRIMARY)
                 SetTag(oAreaObject, TRAVEL_WAYPOINT_TAG + sEncounterID + IntToString(1));
             else if (sWaypointType == TRAVEL_WAYPOINT_TYPE_SECONDARY)
@@ -154,16 +154,16 @@ int tf_CreateEncounter(object oPC)
     }
 
     //Save encounter variables
-    _SetLocalString(ENCOUNTERS, ENCOUNTER_PRIMARY_WAYPOINT    + sEncounterID, TRAVEL_WAYPOINT_TAG + sEncounterID + IntToString(1));
-    _SetLocalString(ENCOUNTERS, ENCOUNTER_SECONDARY_WAYPOINTS + sEncounterID, sSecondaryWaypoints);
-    _SetLocalString(ENCOUNTERS, ENCOUNTER_SPAWNPOINTS         + sEncounterID, sSpawnPoints);
-    _SetLocalObject(ENCOUNTERS, ENCOUNTER_TRIGGERED_BY        + sEncounterID, oPC);
-    _SetLocalObject(ENCOUNTERS, ENCOUNTER_AREA                + sEncounterID, oEncounterArea);
-    _SetLocalInt   (ENCOUNTERS, TRAVEL_ENCOUNTER_NEXT_ID                    , nEncounterID + 1);
+    SetLocalString(ENCOUNTERS, ENCOUNTER_PRIMARY_WAYPOINT    + sEncounterID, TRAVEL_WAYPOINT_TAG + sEncounterID + IntToString(1));
+    SetLocalString(ENCOUNTERS, ENCOUNTER_SECONDARY_WAYPOINTS + sEncounterID, sSecondaryWaypoints);
+    SetLocalString(ENCOUNTERS, ENCOUNTER_SPAWNPOINTS         + sEncounterID, sSpawnPoints);
+    SetLocalObject(ENCOUNTERS, ENCOUNTER_TRIGGERED_BY        + sEncounterID, oPC);
+    SetLocalObject(ENCOUNTERS, ENCOUNTER_AREA                + sEncounterID, oEncounterArea);
+    SetLocalInt   (ENCOUNTERS, TRAVEL_ENCOUNTER_NEXT_ID                    , nEncounterID + 1);
 
     //Set area events.
-    _SetLocalString(oEncounterArea, AREA_EVENT_ON_EXIT, "tr_encounter_OnAreaExit:only");
-    _SetLocalString(oEncounterArea, MODULE_EVENT_ON_PLAYER_DEATH, "tr_encounter_OnPlayerDeath");
+    SetLocalString(oEncounterArea, AREA_EVENT_ON_EXIT, "tr_encounter_OnAreaExit:only");
+    SetLocalString(oEncounterArea, MODULE_EVENT_ON_PLAYER_DEATH, "tr_encounter_OnPlayerDeath");
 
     struct TRAVEL_ENCOUNTER te = tr_GetEncounterData(nEncounterID);
 
@@ -233,12 +233,12 @@ void tr_StartEncounter(int nEncounterID)
         oEncounterAOE = GetNearestObjectToLocation(OBJECT_TYPE_AREA_OF_EFFECT, lEncounterAOE);
         SetTag(oEncounterAOE, TRAVEL_ENCOUNTER_AOE_TAG + te.sEncounterID);
         
-        _SetLocalInt(oEncounterAOE, TRAVEL_ENCOUNTER_ID, nEncounterID);
-        _SetLocalObject(ENCOUNTERS, TRAVEL_ENCOUNTER_AOE + te.sEncounterID, oEncounterAOE);
+        SetLocalInt(oEncounterAOE, TRAVEL_ENCOUNTER_ID, nEncounterID);
+        SetLocalObject(ENCOUNTERS, TRAVEL_ENCOUNTER_AOE + te.sEncounterID, oEncounterAOE);
         
         //TODO increase the AOE radius and add a visual effect so we know there's an encounter there
         //Don't let the AOE be dispelled or destroyed
-        _SetLocalInt(oEncounterAOE, "X1_L_IMMUNE_TO_DISPEL", 10);
+        SetLocalInt(oEncounterAOE, "X1_L_IMMUNE_TO_DISPEL", 10);
         AssignCommand(oEncounterAOE, SetIsDestroyable(FALSE));
 
         Debug("Encounter AOE for encounter " + te.sEncounterID + " created.");
@@ -248,7 +248,7 @@ void tr_StartEncounter(int nEncounterID)
 void tr_KillEncounter(int nEncounterID = 0)
 {
     string sEncounterID = IntToString(nEncounterID);
-    object oEncounterArea = nEncounterID ? _GetLocalObject(ENCOUNTERS, ENCOUNTER_AREA + sEncounterID) : OBJECT_SELF;
+    object oEncounterArea = nEncounterID ? GetLocalObject(ENCOUNTERS, ENCOUNTER_AREA + sEncounterID) : OBJECT_SELF;
 
     //TODO check why area_roster shows a PC when DestroyArea does not.
     /*if (!CountObjectList(oEncounterArea, AREA_ROSTER))
@@ -258,7 +258,7 @@ void tr_KillEncounter(int nEncounterID = 0)
             return;
         }*/
 
-    if (_GetLocalInt(oEncounterArea, TRAVEL_ENCOUNTER_PLAYER_DEATH))
+    if (GetLocalInt(oEncounterArea, TRAVEL_ENCOUNTER_PLAYER_DEATH))
     {
         //Search for dead bodies and bring them back.
         object oNewCorpse, oObject = GetFirstObjectInArea(oEncounterArea);
@@ -271,17 +271,17 @@ void tr_KillEncounter(int nEncounterID = 0)
             {
                 //TODO figure out a more efficient way to do this.
                 object oCorpseToken = GetItemPossessedBy(oObject, H2_PC_CORPSE_ITEM);
-                string uniquePCID = _GetLocalString(oCorpseToken, H2_DEAD_PLAYER_ID);
+                string uniquePCID = GetLocalString(oCorpseToken, H2_DEAD_PLAYER_ID);
                 object oPC = h2_FindPCWithGivenUniqueID(uniquePCID);
                 if (GetIsObjectValid(oPC))
                 {
-                    location lDestination = _GetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION);
-                    _SetLocalLocation(oCorpseToken, H2_LAST_DROP_LOCATION, lDestination);
+                    location lDestination = GetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION);
+                    SetLocalLocation(oCorpseToken, H2_LAST_DROP_LOCATION, lDestination);
                     oNewCorpse = CopyObject(oObject, lDestination);
-                    object oLootBag = _GetLocalObject(oPC, H2_LOOT_BAG);
+                    object oLootBag = GetLocalObject(oPC, H2_LOOT_BAG);
                     object oNewLootBag = h2_CreateLootBag(oNewCorpse);
                     h2_MovePossessorInventory(oLootBag, TRUE, oNewLootBag);
-                    _SetLocalObject(oPC, H2_LOOT_BAG, oNewLootBag);
+                    SetLocalObject(oPC, H2_LOOT_BAG, oNewLootBag);
 
                     /*  TODO ALTERNATE METHOD, IF IT WORKS
                     AssignCommand(oObject, ClearAllActions());
@@ -302,8 +302,8 @@ void tr_KillEncounter(int nEncounterID = 0)
     //Get rid of the AOE portal
     if (TRAVEL_ENCOUNTER_ALLOW_LATE_ENTRY)
     {
-        object oEncounterAOE = _GetLocalObject(ENCOUNTERS, TRAVEL_ENCOUNTER_AOE + sEncounterID);
-        _DeleteLocalObject(ENCOUNTERS, TRAVEL_ENCOUNTER_AOE + sEncounterID);
+        object oEncounterAOE = GetLocalObject(ENCOUNTERS, TRAVEL_ENCOUNTER_AOE + sEncounterID);
+        DeleteLocalObject(ENCOUNTERS, TRAVEL_ENCOUNTER_AOE + sEncounterID);
         AssignCommand(oEncounterAOE, SetIsDestroyable(TRUE));
         DestroyObject(oEncounterAOE);
     }
@@ -323,9 +323,9 @@ void tr_KillEncounter(int nEncounterID = 0)
     else
         Debug("Encounter area for encounter " + sEncounterID + " destroyed.");
 
-    _DeleteLocalObject(ENCOUNTERS, ENCOUNTER_AREA                + sEncounterID);
-    _DeleteLocalObject(ENCOUNTERS, ENCOUNTER_TRIGGERED_BY        + sEncounterID);
-    _DeleteLocalString(ENCOUNTERS, ENCOUNTER_PRIMARY_WAYPOINT    + sEncounterID);
-    _DeleteLocalString(ENCOUNTERS, ENCOUNTER_SECONDARY_WAYPOINTS + sEncounterID);
-    _DeleteLocalString(ENCOUNTERS, ENCOUNTER_SPAWNPOINTS         + sEncounterID);
+    DeleteLocalObject(ENCOUNTERS, ENCOUNTER_AREA                + sEncounterID);
+    DeleteLocalObject(ENCOUNTERS, ENCOUNTER_TRIGGERED_BY        + sEncounterID);
+    DeleteLocalString(ENCOUNTERS, ENCOUNTER_PRIMARY_WAYPOINT    + sEncounterID);
+    DeleteLocalString(ENCOUNTERS, ENCOUNTER_SECONDARY_WAYPOINTS + sEncounterID);
+    DeleteLocalString(ENCOUNTERS, ENCOUNTER_SPAWNPOINTS         + sEncounterID);
 }

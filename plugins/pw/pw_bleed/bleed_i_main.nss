@@ -47,10 +47,10 @@ void h2_UseHealWidgetOnTarget(object oTarget);
 void h2_BeginPlayerBleeding(object oPC)
 {
     int nCurrentHitPoints = GetCurrentHitPoints(oPC);
-    _SetLocalInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
+    SetPlayerInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
     
     int timerID = CreateTimer(oPC, BLEED_EVENT_ON_TIMER_EXPIRE, H2_BLEED_DELAY);
-    _SetLocalInt(oPC, H2_BLEED_TIMER_ID, timerID);
+    SetLocalInt(oPC, H2_BLEED_TIMER_ID, timerID);
     StartTimer(timerID, FALSE);
 }
 
@@ -64,38 +64,38 @@ void h2_MakePlayerFullyRecovered(object oPC)
     }
 
     SendMessageToPC(oPC,  H2_TEXT_RECOVERED_FROM_DYING);
-    _DeleteLocalString(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
-    _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
+    DeleteLocalString(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
+    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
     //TODO: make monsters go hostile to PC again?
 }
 
 void h2_StabilizePlayer(object oPC, int bNaturalHeal = FALSE)
 {
-    int nPlayerState = _GetLocalInt(oPC, H2_PLAYER_STATE);
+    int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
     int nCurrentHitPoints = GetCurrentHitPoints(oPC);
-    _SetLocalInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
+    SetPlayerInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
     if (nPlayerState == H2_PLAYER_STATE_DYING)
     {
         SendMessageToPC(oPC,  H2_TEXT_PLAYER_STABLIZED);
         if (bNaturalHeal)
-            _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_STABLE);
+            SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_STABLE);
         else
-            _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
+            SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
         
-        _SetLocalString(oPC, H2_TIME_OF_LAST_BLEED_CHECK, GetSystemTime());
+        SetPlayerString(oPC, H2_TIME_OF_LAST_BLEED_CHECK, GetSystemTime());
     }
     else if (bNaturalHeal)
         h2_MakePlayerFullyRecovered(oPC);
     else
-        _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
+        SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
 }
 
 void h2_DoBleedDamageToPC(object oPC)
 {
-    _SetLocalString(oPC, H2_TIME_OF_LAST_BLEED_CHECK, GetSystemTime());
+    SetPlayerString(oPC, H2_TIME_OF_LAST_BLEED_CHECK, GetSystemTime());
     int nCurrentHitPoints = GetCurrentHitPoints(oPC);
-    _SetLocalInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
-    int nPlayerState = _GetLocalInt(oPC, H2_PLAYER_STATE);
+    SetPlayerInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
+    int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
     
     if (nPlayerState == H2_PLAYER_STATE_RECOVERING)
         return;
@@ -117,12 +117,12 @@ void h2_DoBleedDamageToPC(object oPC)
 
 void h2_CheckForSelfStabilize(object oPC)
 {
-    int nPlayerState = _GetLocalInt(oPC, H2_PLAYER_STATE);
+    int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
     int stabilizechance = H2_SELF_STABILIZE_CHANCE;
     if (nPlayerState == H2_PLAYER_STATE_STABLE || nPlayerState == H2_PLAYER_STATE_RECOVERING)
         stabilizechance = H2_SELF_RECOVERY_CHANCE;
 
-    string lastCheck = _GetLocalString(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
+    string lastCheck = GetPlayerString(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
     float secondsSinceLastCheck = GetSystemTimeDifferenceIn(TIME_SECONDS, lastCheck);
 
     if (nPlayerState == H2_PLAYER_STATE_DYING || secondsSinceLastCheck >= H2_STABLE_DELAY)
@@ -146,7 +146,7 @@ void h2_UseHealWidgetOnTarget(object oTarget)
             SendMessageToPC(oUser, H2_TEXT_CANNOT_USE_ON_SELF);
             return;
         }
-        int nPlayerState = _GetLocalInt(oTarget, H2_PLAYER_STATE);
+        int nPlayerState = GetPlayerInt(oTarget, H2_PLAYER_STATE);
         switch (nPlayerState)
         {
             case H2_PLAYER_STATE_DEAD:
@@ -157,7 +157,7 @@ void h2_UseHealWidgetOnTarget(object oTarget)
                 rollResult = h2_SkillCheck(SKILL_HEAL, oUser);
                 if (rollResult >= H2_FIRST_AID_DC)
                 {
-                    _SetLocalInt(oTarget, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
+                    SetPlayerInt(oTarget, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
                     SendMessageToPC(oTarget,  H2_TEXT_PLAYER_STABLIZED);
                     SendMessageToPC(oUser, H2_TEXT_FIRST_AID_SUCCESS);
                 }
@@ -175,7 +175,7 @@ void h2_UseHealWidgetOnTarget(object oTarget)
                 }
                 rollResult = h2_SkillCheck(SKILL_HEAL, oUser, 0);
                 if (rollResult >= H2_LONG_TERM_CARE_DC)
-                    _SetLocalInt(oTarget, H2_LONG_TERM_CARE, 1);
+                    SetLocalInt(oTarget, H2_LONG_TERM_CARE, 1);
                     
                 SendMessageToPC(oUser, H2_TEXT_ATTEMPT_LONG_TERM_CARE);
                 SendMessageToPC(oTarget, H2_TEXT_RECEIVE_LONG_TERM_CARE);

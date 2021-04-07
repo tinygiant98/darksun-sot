@@ -237,3 +237,6 @@ const string TRIGGER_EVENT_ON_USER_DEFINED            = "OnTriggerUserDefined";
 // These are pseudo-events called by the Core Framework.
 const string PLUGIN_EVENT_ON_ACTIVATE                 = "OnPluginActivate";
 const string PLUGIN_EVENT_ON_DEACTIVATE               = "OnPluginDeactivate";
+
+// test
+const string PLAYER_EVENT_ON_HEARTBEAT = "OnPlayerHeartbeat";

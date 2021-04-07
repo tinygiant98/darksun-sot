@@ -17,7 +17,7 @@
 //                                   Variables
 // -----------------------------------------------------------------------------
 // Turn on / off the Angel system
-const int USE_ANGEL_SYSTEM = TRUE;
+const int USE_ANGEL_SYSTEM = FALSE;
 
 // Tag of the area to be used as the Angel's Home.
 const string ANGEL_PLANE = "angelhome";

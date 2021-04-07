@@ -39,6 +39,6 @@ void business_OnModuleLoad()
 
 void business_OnHour()
 {
-    if (!_GetLocalInt(BUSINESS, BUSINESS_STATE_SET))
+    if (!GetLocalInt(BUSINESS, BUSINESS_STATE_SET))
         SetBusinessState();
 }

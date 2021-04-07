@@ -48,8 +48,8 @@ void ds_htf_OnAreaEnter()
 
     if (_GetIsDM(oCreature)) return;
 
-    int nAreaType = _GetLocalInt(GetArea(oCreature), DS_HTF_VARIABLE_AREATYPE);
-    string sAreaPaid = _GetLocalString(oCreature, DS_HTF_LAST_TRAVEL_COST_PAID);
+    int nAreaType = GetLocalInt(GetArea(oCreature), DS_HTF_VARIABLE_AREATYPE);
+    string sAreaPaid = GetLocalString(oCreature, DS_HTF_LAST_TRAVEL_COST_PAID);
 
     if(_GetIsPC(oCreature) && !nAreaType)
     {
@@ -69,7 +69,7 @@ void ds_htf_OnAreaEnter()
         {
             int nTimerID = CreateTimer(oCreature, DS_HTF_AREA_ON_TIMER_EXPIRE, DS_HTF_AREATRAVELCOST_DELAY, 1, 0);
             //int nTimerID = h2_CreateTimer(oCreature, DS_HTF_KILLTIMER_SCRIPT, DS_HTF_AREATRAVELCOST_DELAY, FALSE, 1);
-            _SetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER, nTimerID);
+            SetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER, nTimerID);
             StartTimer(nTimerID, FALSE);
             //h2_StartTimer(nTimerID);
         }
@@ -86,10 +86,10 @@ void ds_htf_OnAreaExit()
     if (_GetIsDM(oCreature))
         return;
 
-    int nAreaType = _GetLocalInt(GetArea(oCreature), DS_HTF_VARIABLE_AREATYPE);
+    int nAreaType = GetLocalInt(GetArea(oCreature), DS_HTF_VARIABLE_AREATYPE);
     
-    if (_GetLocalInt(oCreature, DS_HTF_VARIABLE_AREATIMER) > 0) ds_DestroyAreaTravelTimer(oCreature);
-    if (_GetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER) > 0) KillTimer(_GetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER));
+    if (GetLocalInt(oCreature, DS_HTF_VARIABLE_AREATIMER) > 0) ds_DestroyAreaTravelTimer(oCreature);
+    if (GetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER) > 0) KillTimer(GetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER));
     //if (_GetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER) > 0) h2_KillTimer(_GetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER));
 }
 
@@ -105,28 +105,28 @@ void ds_htf_area_OnTimerExpire()
 
     //Set a flag to let our custom decrement modificaton function know if we're looking
     //  for an area travel cost or allowing the function to work normally.
-    _SetLocalInt(oCreature, DS_HTF_VARIABLE_COSTTRIGGER, TRUE);
+    SetLocalInt(oCreature, DS_HTF_VARIABLE_COSTTRIGGER, TRUE);
 
     float fatigueDrop = ds_ModifyFatigueDecrementUnit(oCreature, 0.0);
     float thirstDrop = ds_ModifyThirstDecrementUnit(oCreature, 0.0);
     float hungerDrop = ds_ModifyHungerDecrementUnit(oCreature, 0.0);
 
-    _DeleteLocalInt(oCreature, DS_HTF_VARIABLE_COSTTRIGGER);
+    DeleteLocalInt(oCreature, DS_HTF_VARIABLE_COSTTRIGGER);
 
     h2_PerformFatigueCheck(oCreature, fatigueDrop);
     h2_PerformHungerThirstCheck(oCreature, thirstDrop, hungerDrop);
 
-    _SetLocalString(oCreature, DS_HTF_LAST_TRAVEL_COST_PAID, GetTag(GetArea(oCreature)));
+    SetLocalString(oCreature, DS_HTF_LAST_TRAVEL_COST_PAID, GetTag(GetArea(oCreature)));
     ds_DestroyAreaTravelTimer(oCreature);
 }
 
 void ds_htf_KillTravelCostTimer()
 {
     object oCreature = OBJECT_SELF;
-    _DeleteLocalString(oCreature, DS_HTF_LAST_TRAVEL_COST_PAID);
-    KillTimer(_GetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER));
+    DeleteLocalString(oCreature, DS_HTF_LAST_TRAVEL_COST_PAID);
+    KillTimer(GetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER));
     //h2_KillTimer(_GetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER));
-    _DeleteLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER);
+    DeleteLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER);
 }
 
 void ds_htf_TravelCostTimerExpirationHT()
@@ -143,9 +143,9 @@ void ds_htf_TravelCostTimerExpirationHT()
 
     if(!_GetIsPC(oCreature) && _GetIsPC(GetMaster(oCreature)))
     {
-        float fThirst = _GetLocalFloat(oCreature, H2_HT_CURR_THIRST) * 100.0;
-        float fHunger = _GetLocalFloat(oCreature, H2_HT_CURR_HUNGER) * 100.0;
-        float fFatigue = _GetLocalFloat(oCreature, H2_CURR_FATIGUE) * 100.0;
+        float fThirst = GetLocalFloat(oCreature, H2_HT_CURR_THIRST) * 100.0;
+        float fHunger = GetLocalFloat(oCreature, H2_HT_CURR_HUNGER) * 100.0;
+        float fFatigue = GetLocalFloat(oCreature, H2_CURR_FATIGUE) * 100.0;
 
         ds_DisplayAssociateHTFValues(oCreature, fThirst, fHunger, fFatigue);
     }
@@ -162,9 +162,9 @@ void ds_htf_TravelCostTimerExpirationF()
 
     if(!_GetIsPC(oCreature) && !_GetIsDM(oCreature) && _GetIsPC(GetMaster(oCreature)))
     {
-        float fThirst = _GetLocalFloat(oCreature, H2_HT_CURR_THIRST) * 100.0;
-        float fHunger = _GetLocalFloat(oCreature, H2_HT_CURR_HUNGER) * 100.0;
-        float fFatigue = _GetLocalFloat(oCreature, H2_CURR_FATIGUE) * 100.0;
+        float fThirst = GetLocalFloat(oCreature, H2_HT_CURR_THIRST) * 100.0;
+        float fHunger = GetLocalFloat(oCreature, H2_HT_CURR_HUNGER) * 100.0;
+        float fFatigue = GetLocalFloat(oCreature, H2_CURR_FATIGUE) * 100.0;
 
         ds_DisplayAssociateHTFValues(oCreature, fThirst, fHunger, fFatigue);
     }

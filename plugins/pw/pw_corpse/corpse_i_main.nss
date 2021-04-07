@@ -68,7 +68,7 @@ void h2_PerformOffLineRessurectionLogin(object oPC, location ressLoc);
 
 void h2_PickUpPlayerCorpse(object oCorpseToken)
 {
-    string uniquePCID = _GetLocalString(oCorpseToken, H2_DEAD_PLAYER_ID);
+    string uniquePCID = GetLocalString(oCorpseToken, H2_DEAD_PLAYER_ID);
     object oDC = GetObjectByTag(H2_CORPSE + uniquePCID);
     object oWayPt = GetObjectByTag(H2_WP_DEATH_CORPSE);
 
@@ -81,7 +81,7 @@ void h2_PickUpPlayerCorpse(object oCorpseToken)
 
 void h2_DropPlayerCorpse(object oCorpseToken)
 {
-    string uniquePCID = _GetLocalString(oCorpseToken, H2_DEAD_PLAYER_ID);
+    string uniquePCID = GetLocalString(oCorpseToken, H2_DEAD_PLAYER_ID);
     object oDeathCorpse, oDC = GetObjectByTag(H2_CORPSE + uniquePCID);
 
     if (GetIsObjectValid(oDC))
@@ -95,13 +95,13 @@ void h2_DropPlayerCorpse(object oCorpseToken)
 
     SetName(oDeathCorpse, GetName(oCorpseToken));
     object oNewToken = CopyItem(oCorpseToken, oDeathCorpse, TRUE);
-    _SetLocalLocation(oNewToken, H2_LAST_DROP_LOCATION, GetLocation(oDeathCorpse));
+    SetLocalLocation(oNewToken, H2_LAST_DROP_LOCATION, GetLocation(oDeathCorpse));
     DestroyObject(oCorpseToken);
 }
 
 void h2_CreatePlayerCorpse(object oPC)
 {
-    string uniquePCID = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
+    string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     
     object oDC = GetObjectByTag(H2_CORPSE_DC + uniquePCID);
     if (GetIsObjectValid(oDC))
@@ -111,7 +111,7 @@ void h2_CreatePlayerCorpse(object oPC)
     if (GetIsObjectValid(oDeadPlayer))
         return;
 
-    location loc = _GetLocalLocation(oPC, H2_LOCATION_LAST_DIED);
+    location loc = GetPlayerLocation(oPC, H2_LOCATION_LAST_DIED);
     oDeadPlayer = CopyObject(oPC, loc, OBJECT_INVALID, H2_CORPSE + uniquePCID);
     SetName(oDeadPlayer, H2_TEXT_CORPSE_OF + GetName(oPC));
     ChangeToStandardFaction(oDeadPlayer, STANDARD_FACTION_COMMONER);
@@ -125,8 +125,8 @@ void h2_CreatePlayerCorpse(object oPC)
     object oCorpseToken = CreateItemOnObject(H2_PC_CORPSE_ITEM, oDeathCorpse, 1, H2_CORPSE_TOKEN + uniquePCID);
     SetName(oCorpseToken, H2_TEXT_CORPSE_OF + GetName(oPC));
     SetName(oDeathCorpse, GetName(oCorpseToken));
-    _SetLocalLocation(oCorpseToken, H2_LAST_DROP_LOCATION, GetLocation(oDeathCorpse));
-    _SetLocalString(oCorpseToken, H2_DEAD_PLAYER_ID, uniquePCID);
+    SetLocalLocation(oCorpseToken, H2_LAST_DROP_LOCATION, GetLocation(oDeathCorpse));
+    SetLocalString(oCorpseToken, H2_DEAD_PLAYER_ID, uniquePCID);
 }
 
 void h2_CorpseTokenActivatedOnNPC()
@@ -136,8 +136,8 @@ void h2_CorpseTokenActivatedOnNPC()
     object oTarget = GetItemActivatedTarget();
     if (GetObjectType(oTarget) == OBJECT_TYPE_CREATURE)
     {
-        _SetLocalObject(oTarget, H2_PCCORPSE_ITEM_ACTIVATOR, oPC);
-        _SetLocalObject(oTarget, H2_PCCORPSE_ITEM_ACTIVATED, oItem);
+        SetLocalObject(oTarget, H2_PCCORPSE_ITEM_ACTIVATOR, oPC);
+        SetLocalObject(oTarget, H2_PCCORPSE_ITEM_ACTIVATED, oItem);
         SignalEvent(oTarget, EventUserDefined(H2_PCCORPSE_ITEM_ACTIVATED_EVENT_NUMBER));
     }
 }
@@ -179,7 +179,7 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
 
     object oCaster = OBJECT_SELF;
     location castLoc = GetLocation(oCaster);
-    string uniquePCID = _GetLocalString(oToken, H2_DEAD_PLAYER_ID);
+    string uniquePCID = GetLocalString(oToken, H2_DEAD_PLAYER_ID);
     object oPC = h2_FindPCWithGivenUniqueID(uniquePCID);
     
     if (!_GetIsDM(oCaster))
@@ -235,7 +235,7 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
     if (GetIsObjectValid(oPC) && _GetIsPC(oPC))
     {
         SendMessageToPC(oPC, H2_TEXT_YOU_HAVE_BEEN_RESSURECTED);
-        _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
+        SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
         RunEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC);
         AssignCommand(oPC, JumpToLocation(castLoc));
         sMessage += GetName(oPC) + "_" + GetPCPlayerName(oPC);
@@ -253,11 +253,12 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
     Debug(sMessage);
 }
 
+// TODO change unqiueid to uuid?
 void h2_PerformOffLineRessurectionLogin(object oPC, location ressLoc)
 {
-    string uniquePCID = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
+    string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     DeleteDatabaseVariable(uniquePCID + H2_RESS_LOCATION);
-    _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
+    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
     SendMessageToPC(oPC, H2_TEXT_YOU_HAVE_BEEN_RESSURECTED);
     DelayCommand(H2_CLIENT_ENTER_JUMP_DELAY, AssignCommand(oPC, JumpToLocation(ressLoc)));
     if (H2_APPLY_XP_LOSS_FOR_RESS && !GetDatabaseInt(uniquePCID + H2_RESS_BY_DM))

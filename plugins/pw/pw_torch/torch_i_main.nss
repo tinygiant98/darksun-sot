@@ -78,7 +78,7 @@ void h2_EquippedLightSource(int isLantern)
 
     if (isLantern)
     {
-        if (_GetLocalInt(oLight, H2_NEEDS_OIL))
+        if (GetLocalInt(oLight, H2_NEEDS_OIL))
         {
             SendMessageToPC(oPC, H2_TEXT_LANTERN_OUT);
             return;
@@ -86,49 +86,47 @@ void h2_EquippedLightSource(int isLantern)
         burncount = H2_LANTERN_BURN_COUNT;
     }
     
-    _SetLocalString(oLight, H2_LIGHT_EQUIPPED, GetSystemTime());
-    int elapsedBurn = _GetLocalInt(oLight, H2_ELAPSED_BURN);
+    SetLocalString(oLight, H2_LIGHT_EQUIPPED, GetSystemTime());
+    int elapsedBurn = GetLocalInt(oLight, H2_ELAPSED_BURN);
     int burnLeft = burncount - elapsedBurn;
     float percentRemaining = (IntToFloat(burnLeft) / IntToFloat(burncount)) * 100.0;
     SendMessageToPC(oPC, H2_TEXT_REMAINING_BURN + FloatToString(percentRemaining, 5, 1));
     
     int timerID = CreateTimer(oLight, TORCH_EVENT_ON_TIMER_EXPIRE, IntToFloat(burnLeft), 1, 0);
     StartTimer(timerID, FALSE);
-    _SetLocalInt(oLight, H2_LIGHT_TIMERID, timerID);
-    _SetLocalObject(oLight, H2_EQUIPPINGPC, oPC);
-    _SetLocalInt(oPC, "TORCH_EQUIPPED", TRUE);
-    Notice("Torch Equipped --> " + (_GetLocalInt(oPC, "TORCH_EQUIPPED") ? "TRUE":"FALSE"));
+    SetLocalInt(oLight, H2_LIGHT_TIMERID, timerID);
+    SetLocalObject(oLight, H2_EQUIPPINGPC, oPC);
+    SetPlayerInt(oPC, "TORCH_EQUIPPED", TRUE);
 }
 
 void h2_UnEquipLightSource(int isLantern)
 {
     object oPC = GetPCItemLastUnequippedBy();
     object oLight  = GetPCItemLastUnequipped();
-    if (isLantern && _GetLocalInt(oLight, H2_NEEDS_OIL))
+    if (isLantern && GetLocalInt(oLight, H2_NEEDS_OIL))
         return;
 
-    string timeEquipped = _GetLocalString(oLight, H2_LIGHT_EQUIPPED);
-    int elapsedBurn = _GetLocalInt(oLight, H2_ELAPSED_BURN);
+    string timeEquipped = GetLocalString(oLight, H2_LIGHT_EQUIPPED);
+    int elapsedBurn = GetLocalInt(oLight, H2_ELAPSED_BURN);
     elapsedBurn += FloatToInt(GetSystemTimeDifferenceIn(TIME_SECONDS, timeEquipped));
-    _SetLocalInt(oLight, H2_ELAPSED_BURN, elapsedBurn);
+    SetLocalInt(oLight, H2_ELAPSED_BURN, elapsedBurn);
     
-    int timerID = _GetLocalInt(oLight, H2_LIGHT_TIMERID);
+    int timerID = GetLocalInt(oLight, H2_LIGHT_TIMERID);
     KillTimer(timerID);
-    _DeleteLocalInt(oPC, "TORCH_EQUIPPED");
-    Notice("Torch Equipped --> " + (_GetLocalInt(oPC, "TORCH_EQUIPPED") ? "TRUE":"FALSE"));
+    DeletePlayerInt(oPC, "TORCH_EQUIPPED");
 }
 
 void h2_BurnOutLightSource(object oLight, int isLantern)
 {
-    int timerID = _GetLocalInt(oLight, H2_LIGHT_TIMERID);
+    int timerID = GetLocalInt(oLight, H2_LIGHT_TIMERID);
     KillTimer(timerID);
 
-    object oPC = _GetLocalObject(oLight, H2_EQUIPPINGPC);
+    object oPC = GetLocalObject(oLight, H2_EQUIPPINGPC);
     if (isLantern)
     {
         SendMessageToPC(oPC, H2_TEXT_LANTERN_OUT);
         h2_RemoveLight(oLight);
-        _SetLocalInt(oLight, H2_NEEDS_OIL, TRUE);
+        SetLocalInt(oLight, H2_NEEDS_OIL, TRUE);
         AssignCommand(oPC, ActionUnequipItem(oLight));
     }
     else
@@ -147,7 +145,7 @@ void h2_FillLantern(object oOilFlask, object oLantern)
         SendMessageToPC(oPC, H2_TEXT_TARGET_ITEM_MUST_BE_IN_INVENTORY);
         return;
     }
-    if (!_GetLocalInt(oLantern, H2_NEEDS_OIL))
+    if (!GetLocalInt(oLantern, H2_NEEDS_OIL))
     {
         SendMessageToPC(oPC, H2_TEXT_DOES_NOT_NEED_OIL);
         return;
@@ -155,7 +153,7 @@ void h2_FillLantern(object oOilFlask, object oLantern)
     if (GetItemInSlot(INVENTORY_SLOT_LEFTHAND, oPC) == oLantern)
         AssignCommand(oPC, ActionUnequipItem(oLantern));
     h2_AddLight(oLantern);
-    _DeleteLocalInt(oLantern, H2_ELAPSED_BURN);
-    _DeleteLocalInt(oLantern, H2_NEEDS_OIL);
+    DeleteLocalInt(oLantern, H2_ELAPSED_BURN);
+    DeleteLocalInt(oLantern, H2_NEEDS_OIL);
     DestroyObject(oOilFlask);
 }

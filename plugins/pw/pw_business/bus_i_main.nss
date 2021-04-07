@@ -159,8 +159,8 @@ void RegisterBusiness(string sBusiness, string sProfile, string sAreas = "", str
     //  - OnBusinessClose, any PCs remaining in the area will be removed to the exit (first door assigned in sDoors).  If there is not an area
     //          assigned, the associated NPCs will be despawned (or, optionally, walked to a specific location - to go home).
 
-    string sBusinesses = _GetLocalString(BUSINESS, BUS_LIST_BUSINESS);
-    string sProfiles = _GetLocalString(BUSINESS, BUS_LIST_PROFILE);
+    string sBusinesses = GetLocalString(BUSINESS, BUS_LIST_BUSINESS);
+    string sProfiles = GetLocalString(BUSINESS, BUS_LIST_PROFILE);
 
     //Check for resource validity first
     string sResource, sResources = MergeLists(sAreas, sDoors);
@@ -202,12 +202,12 @@ void RegisterBusiness(string sBusiness, string sProfile, string sAreas = "", str
 //      sScript is GetModule().
 void RegisterBusinessHoliday(string sHolidayName, int nMonth, int nDay, string sScript = "", int nAction = BUSINESS_ACTION_DEFAULT)
 {
-    string sHolidays = _GetLocalString(BUSINESS, BUS_LIST_HOLIDAY);
+    string sHolidays = GetLocalString(BUSINESS, BUS_LIST_HOLIDAY);
 
     if (!HasListItem(sHolidays, sHolidayName))
     {    
         sHolidays = AddListItem(sHolidays, sHolidayName);
-        _SetLocalString(BUSINESS, BUS_LIST_HOLIDAY, sHolidays);
+        SetLocalString(BUSINESS, BUS_LIST_HOLIDAY, sHolidays);
 
         AddListInt   (BUSINESS, nMonth,  LIST_REF_HO + "_Month");
         AddListInt   (BUSINESS, nDay,    LIST_REF_HO + "_Day");
@@ -229,14 +229,14 @@ void RegisterBusinessHoliday(string sHolidayName, int nMonth, int nDay, string s
 void RegisterBusinessProfile(string sProfile, int nDay, int nOpen = BUSINESS_HOUR_OPEN, int nClose = BUSINESS_HOUR_CLOSE)
 {
     string LIST_REF_BP = "BP:";
-    string sProfiles = _GetLocalString(BUSINESS, BUS_LIST_PROFILE);
+    string sProfiles = GetLocalString(BUSINESS, BUS_LIST_PROFILE);
 
     if (!HasListItem(sProfiles, sProfile))
     {
         DeclareIntList(BUSINESS, 7, LIST_REF_BP + sProfile + "_Open");
         DeclareIntList(BUSINESS, 7, LIST_REF_BP + sProfile + "_Close");
         sProfiles = AddListItem(sProfiles, sProfile, TRUE);
-        _SetLocalString(BUSINESS, BUS_LIST_PROFILE, sProfiles);
+        SetLocalString(BUSINESS, BUS_LIST_PROFILE, sProfiles);
     }
     
     SetListInt(BUSINESS, nDay - 1, nOpen,  LIST_REF_BP + sProfile + "_Open");
@@ -505,8 +505,8 @@ void RegisterBusinesses()
 void CloseBusinesses()
 {
     SetBusinessState(BUSINESS_ACTION_CLOSE);
-    _SetLocalInt(BUSINESS, BUSINESS_STATE_SET, TRUE);
-    DelayCommand(BUSINESS_STATE_FLAG_LIFETIME, _DeleteLocalInt(BUSINESS, BUSINESS_STATE_SET));
+    SetLocalInt(BUSINESS, BUSINESS_STATE_SET, TRUE);
+    DelayCommand(BUSINESS_STATE_FLAG_LIFETIME, DeleteLocalInt(BUSINESS, BUSINESS_STATE_SET));
 }
 
 // ---< OpenBusinesses >---
@@ -516,8 +516,8 @@ void CloseBusinesses()
 void OpenBusinesses()
 {
     SetBusinessState(BUSINESS_ACTION_OPEN);
-    _SetLocalInt(BUSINESS, BUSINESS_STATE_SET, TRUE);
-    DelayCommand(BUSINESS_STATE_FLAG_LIFETIME, _DeleteLocalInt(BUSINESS, BUSINESS_STATE_SET));
+    SetLocalInt(BUSINESS, BUSINESS_STATE_SET, TRUE);
+    DelayCommand(BUSINESS_STATE_FLAG_LIFETIME, DeleteLocalInt(BUSINESS, BUSINESS_STATE_SET));
 }
 
 // ---< ReviveBusinesses >---
@@ -526,7 +526,7 @@ void OpenBusinesses()
 void ReviveBusinesses()
 {
     SetBusinessState(BUSINESS_ACTION_DEFAULT, TRUE);
-    _DeleteLocalInt(BUSINESS, BUSINESS_STATE_SET);
+    DeleteLocalInt(BUSINESS, BUSINESS_STATE_SET);
 }
 
 // ---< DetermineBusinessNPCStatus >---
@@ -571,7 +571,7 @@ int GetIsBusinessHoliday(int nRunScript = FALSE)
     int nDate = GetCalendarDay();
     int nHour = GetTimeHour();
 
-    string sHolidayScript, sHolidays = _GetLocalString(BUSINESS, BUS_LIST_HOLIDAY);
+    string sHolidayScript, sHolidays = GetLocalString(BUSINESS, BUS_LIST_HOLIDAY);
     int nHolidayMonth, nHolidayDay, i, nCount = CountList(sHolidays);
 
     if (nCount)
@@ -590,7 +590,7 @@ int GetIsBusinessHoliday(int nRunScript = FALSE)
             if (nHolidayMonth == nMonth && nHolidayDay == nDate)
             {
                 if ((nHour == 0 || nHour == 23) && nRunScript)
-                    RunLibraryScript(sHolidayScript, GetModule());
+                    RunLibraryScript(sHolidayScript, MODULE);
 
                 return TRUE;
             }
@@ -607,7 +607,7 @@ string GetBusinessHolidayName()
     int nMonth = GetCalendarMonth();
     int nDate = GetCalendarDay();
 
-    string sHolidays = _GetLocalString(BUSINESS, BUS_LIST_HOLIDAY);
+    string sHolidays = GetLocalString(BUSINESS, BUS_LIST_HOLIDAY);
     int nHolidayMonth, nHolidayDay, i, nCount = CountList(sHolidays);
 
     if (nCount)
@@ -630,7 +630,7 @@ string GetBusinessHolidayName()
 int GetBusinessHolidayAction(string sHoliday)
 {
     int nIndex;
-    string sHolidays = _GetLocalString(BUSINESS, BUS_LIST_HOLIDAY);
+    string sHolidays = GetLocalString(BUSINESS, BUS_LIST_HOLIDAY);
 
     if (nIndex = FindListItem(sHolidays, sHoliday) != -1)
         return GetListInt(BUSINESS, nIndex, LIST_REF_HO + "_Action");
@@ -665,7 +665,7 @@ void SetBusinessState(int nAction = BUSINESS_ACTION_DEFAULT, int nRevive = FALSE
     int nDay = GetWeekDay(nDate);
     int nHour = GetTimeHour();
 
-    string sProfile, sProfiles = _GetLocalString(BUSINESS, BUS_LIST_PROFILE);
+    string sProfile, sProfiles = GetLocalString(BUSINESS, BUS_LIST_PROFILE);
     string sOpen, sClose, sCloseSoon, sArea, sAreas, sDoor, sDoors, sNPC, sNPCs, sScript, sHoliday;
     int j, jCount, i, nCount = CountList(sProfiles);
     int nOpen, nClose, nCloseSoon, nHoliday, nHolidayAction;
@@ -851,7 +851,7 @@ void SetBusinessState(int nAction = BUSINESS_ACTION_DEFAULT, int nRevive = FALSE
 
             // Set oTarget to be used for OBJECT_SELF later.
             if (!GetIsObjectValid(oNPC))
-                oTarget = GetModule();
+                oTarget = MODULE;
         }
 
         // If there are doors, close and lock them, or unlock them.
@@ -865,7 +865,7 @@ void SetBusinessState(int nAction = BUSINESS_ACTION_DEFAULT, int nRevive = FALSE
 
             // Set oTarget to be used for OBJECT_SELF later.
             if (!GetIsObjectValid(oTarget))
-                oTarget = GetModule();
+                oTarget = MODULE;
         }
         
         // Handle areas assigned to a business.  If closing, kick all non-DM PCs
@@ -934,9 +934,9 @@ void SetBusinessState(int nAction = BUSINESS_ACTION_DEFAULT, int nRevive = FALSE
             //  or GetModule().  If an area, it will be the area an NPC is located,
             //  the area the first listed door is located, or the business area, in
             //  reverse preferential order.
-            _SetLocalInt(MODULE, BUSINESS_ACTION, nAction);
+            SetLocalInt(MODULE, BUSINESS_ACTION, nAction);
             RunLibraryScript(sScript, oTarget);
-            _DeleteLocalInt(MODULE, BUSINESS_ACTION);
+            DeleteLocalInt(MODULE, BUSINESS_ACTION);
         }
     }
 }

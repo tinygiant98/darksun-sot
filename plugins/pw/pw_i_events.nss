@@ -96,8 +96,6 @@ void pw_OnClientEnter()
         SetEventState(EVENT_STATE_DENIED);
         return;
     }
-    
-    h2_CreatePlayerDataItem(oPC);
 
     int bIsDM = _GetIsDM(oPC);
     int iNameLength = GetStringLength(GetName(oPC));
@@ -125,14 +123,14 @@ void pw_OnClientEnter()
         return;
     }
 
-    if (!bIsDM && _GetLocalInt(MODULE, H2_MODULE_LOCKED))
+    if (!bIsDM && GetLocalInt(MODULE, H2_MODULE_LOCKED))
     {
         SetLocalInt(oPC, LOGIN_BOOT, TRUE);
         h2_BootPlayer(oPC, H2_TEXT_MODULE_LOCKED, 10.0);
         return;
     }
 
-    int iPlayerState = _GetLocalInt(oPC, H2_PLAYER_STATE);
+    int iPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
     if (!bIsDM && iPlayerState == H2_PLAYER_STATE_RETIRED)
     {
         SetLocalInt(oPC, LOGIN_BOOT, TRUE);
@@ -140,7 +138,7 @@ void pw_OnClientEnter()
         return;
     }
 
-    if (!bIsDM && H2_REGISTERED_CHARACTERS_ALLOWED > 0 && !_GetLocalInt(oPC, H2_REGISTERED))
+    if (!bIsDM && H2_REGISTERED_CHARACTERS_ALLOWED > 0 && !GetPlayerInt(oPC, H2_REGISTERED))
     {
         int registeredCharCount = GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
         if (registeredCharCount >= H2_REGISTERED_CHARACTERS_ALLOWED)
@@ -151,8 +149,8 @@ void pw_OnClientEnter()
         }
     }
     
-    _SetLocalString(oPC, H2_PC_PLAYER_NAME, GetPCPlayerName(oPC));
-    _SetLocalString(oPC, H2_PC_CD_KEY, GetPCPublicCDKey(oPC));
+    SetPlayerString(oPC, H2_PC_PLAYER_NAME, GetPCPlayerName(oPC));
+    SetPlayerString(oPC, H2_PC_CD_KEY, GetPCPublicCDKey(oPC));
 
     if (!bIsDM)
     {
@@ -169,7 +167,7 @@ void pw_OnClientLeave()
 {
     object oPC = GetExitingObject();
 
-    if (_GetLocalInt(oPC, LOGIN_BOOT))
+    if (GetLocalInt(oPC, LOGIN_BOOT))
         return;
 
     if (!_GetIsDM(oPC))
@@ -179,15 +177,15 @@ void pw_OnClientLeave()
 void pw_OnPlayerDying()
 {
     object oPC = GetLastPlayerDying();
-    if (_GetLocalInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
-        _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_DYING);
+    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
+        SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_DYING);
 }
 
 void pw_OnPlayerDeath()
 {
     object oPC = GetLastPlayerDied();
-    _SetLocalLocation(oPC, H2_LOCATION_LAST_DIED, GetLocation(oPC));
-    _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_DEAD);
+    SetPlayerLocation(oPC, H2_LOCATION_LAST_DIED, GetLocation(oPC));
+    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_DEAD);
     h2_RemoveEffects(oPC);
     string deathLog = GetName(oPC) + "_" + GetPCPlayerName(oPC) + H2_TEXT_LOG_PLAYER_HAS_DIED;
     deathLog += GetName(GetLastHostileActor(oPC));
@@ -201,7 +199,7 @@ void pw_OnPlayerDeath()
 void pw_OnPlayerReSpawn()
 {
     object oPC = GetLastRespawnButtonPresser();
-    _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
+    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
     RunEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC);
 }
 
@@ -235,26 +233,26 @@ void pw_OnPlayerRestStarted()
 
     object oPC = GetLastPCRested();
 
-    if (h2_GetAllowRest(oPC) && !_GetLocalInt(oPC, H2_SKIP_REST_DIALOG) && H2_USE_REST_DIALOG)
+    if (h2_GetAllowRest(oPC) && !GetLocalInt(oPC, H2_SKIP_REST_DIALOG) && H2_USE_REST_DIALOG)
         h2_OpenRestDialog(oPC);
     else if (!h2_GetAllowRest(oPC))
     {
-        _SetLocalInt(oPC, H2_SKIP_CANCEL_REST, TRUE);
+        SetLocalInt(oPC, H2_SKIP_CANCEL_REST, TRUE);
         AssignCommand(oPC, ClearAllActions());
         SendMessageToPC(oPC, H2_TEXT_REST_NOT_ALLOWED_HERE);
     }
 
-    _DeleteLocalInt(oPC, H2_SKIP_REST_DIALOG);
+    DeleteLocalInt(oPC, H2_SKIP_REST_DIALOG);
 }
 
 void pw_OnPlayerRestCancelled()
 {
     object oPC = GetLastPCRested();
 
-    if (_GetLocalInt(oPC, H2_SKIP_CANCEL_REST))
+    if (GetLocalInt(oPC, H2_SKIP_CANCEL_REST))
         SetEventState(EVENT_STATE_ABORT);
 
-    _DeleteLocalInt(oPC, H2_SKIP_CANCEL_REST);
+    DeleteLocalInt(oPC, H2_SKIP_CANCEL_REST);
 }
 
 void pw_OnPlayerRestFinished()
@@ -263,24 +261,6 @@ void pw_OnPlayerRestFinished()
 
     if (H2_EXPORT_CHARACTERS_INTERVAL > 0.0)
         ExportSingleCharacter(oPC);
-}
-
-// ----- Tag-based Scripting -----
-
-void pw_playerdataitem()
-{
-    int nEvent = GetUserDefinedItemEventNumber();
-
-    // * This code runs when the Unique Power property of the item is used
-    // * Note that this event fires PCs only
-    if (nEvent ==  X2_ITEM_EVENT_ACTIVATE)
-    {
-        object oPC = GetItemActivator();
-        _SetLocalObject(oPC, H2_PLAYER_DATA_ITEM_TARGET_OBJECT, GetItemActivatedTarget());
-        _SetLocalLocation(oPC, H2_PLAYER_DATA_ITEM_TARGET_LOCATION, GetItemActivatedTargetLocation());
-        //TODO conversation for playerdataitem?
-        //AssignCommand(oPC, ActionStartConversation(oPC, H2_PLAYER_DATA_ITEM_CONV, TRUE, FALSE));
-    }
 }
 
 // ----- Timer Events -----
@@ -292,12 +272,12 @@ void pw_ExportPCs_OnTimerExpire()
 
 void pw_SavePCLocation_OnTimerExpire()
 {
-    object oPlayer, oModule = GetModule();
-    int i, nCount = CountObjectList(GetModule(), PLAYER_ROSTER);
+    object oPlayer;
+    int n, nCount = CountObjectList(MODULE, PLAYER_ROSTER);
 
-    for (i = 0; i < nCount; i++)
+    for (n = 0; n < nCount; n++)
     {
-        oPlayer = GetListObject(oModule, i, PLAYER_ROSTER);
+        oPlayer = GetListObject(MODULE, n, PLAYER_ROSTER);
         if (GetIsObjectValid(oPlayer) && _GetIsPC(oPlayer))
             h2_SavePCLocation(oPlayer);
     }

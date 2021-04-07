@@ -40,7 +40,7 @@ void h2_DeityRez(object oPC)
 
     ApplyEffectToObject(DURATION_TYPE_INSTANT, eRes, oPC);
     ApplyEffectToObject(DURATION_TYPE_INSTANT, eHeal, oPC);
-    _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
+    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
     RunEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC);
     SendMessageToPC(oPC, H2_TEXT_DEITY_REZZED);
     
@@ -61,7 +61,7 @@ void h2_DeityRez(object oPC)
         return;
     }
 
-    location loc = _GetLocalLocation(oPC, H2_LOCATION_LAST_DIED);
+    location loc = GetPlayerLocation(oPC, H2_LOCATION_LAST_DIED);
     AssignCommand(oPC, JumpToLocation(loc));
 }
 

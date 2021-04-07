@@ -97,6 +97,8 @@ void LoadLibraries(string sLibraries, int bForce = FALSE);
 //   OBJECT_SELF when the library script is called.
 int RunLibraryScript(string sScript, object oSelf = OBJECT_SELF);
 
+void DelayLibraryScript(string sScript, object oSelf = OBJECT_SELF);
+
 // ---< RunLibraryScripts >---
 // ---< util_i_libraries >---
 // Runs all scripts in the CSV list sScripts, dispatching into libraries if the
@@ -253,6 +255,11 @@ int RunLibraryScript(string sScript, object oSelf = OBJECT_SELF)
     }
 
     return GetLocalInt(oSelf, LIB_RETURN);
+}
+
+void DelayLibraryScript(string sScript, object oSelf = OBJECT_SELF)
+{
+    RunLibraryScript(sScript, oSelf);
 }
 
 void RunLibraryScripts(string sScripts, object oSelf = OBJECT_SELF)

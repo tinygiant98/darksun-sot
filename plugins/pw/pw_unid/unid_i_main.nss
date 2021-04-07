@@ -42,7 +42,7 @@ void h2_UnID(object oItem)
 void h2_UnIDOnDrop(object oItem)
 {
     if (GetItemPossessor(oItem) == OBJECT_INVALID &&
-        !_GetLocalInt(oItem, H2_NO_UNID) &&
+        !GetLocalInt(oItem, H2_NO_UNID) &&
         GetGoldPieceValue(oItem) > H2_UNID_MINIMUM_VALUE)
     {
         DelayCommand(IntToFloat(H2_UNID_DELAY), h2_UnID(oItem));

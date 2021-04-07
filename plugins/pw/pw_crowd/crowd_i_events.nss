@@ -53,7 +53,7 @@ void crowd_OnModuleLoad()
     dbg = sDebugPlugin + "crowd_OnModuleLoad:: ";
     Debug(dbg);
 
-    if (!_GetLocalInt(CROWDS, CROWD_ITEM_INITIALIZED))
+    if (!GetLocalInt(CROWDS, CROWD_ITEM_INITIALIZED))
         InitializeSystem(CROWDS, CROWD_ITEM_INVENTORY, CROWD_ITEM_LOADED_CSV,
                          CROWD_ITEM_PREFIX, CROWD_ITEM_OBJECT_LIST,
                          CROWD_ITEM_INITIALIZED, FALSE);
@@ -73,10 +73,10 @@ void crowd_OnAreaEnter()
         return;
     }
 
-    if (!_GetLocalInt(CROWDS, CROWD_ITEM_INITIALIZED))
+    if (!GetLocalInt(CROWDS, CROWD_ITEM_INITIALIZED))
         crowd_OnModuleLoad();
     
-    string sCrowds = _GetLocalString(oArea, CROWD_CSV);
+    string sCrowds = GetLocalString(oArea, CROWD_CSV);
 
     if (sCrowds == "")
     {
@@ -84,7 +84,7 @@ void crowd_OnAreaEnter()
         return;
     }
 
-    if (!_GetLocalInt(oArea, AREA_CROWD_ITEM_INITIALIZED))
+    if (!GetLocalInt(oArea, AREA_CROWD_ITEM_INITIALIZED))
         InitializeCrowds(oArea);
     else
         SpawnCrowds(oArea);
@@ -95,7 +95,7 @@ void crowd_OnAreaExit()
     dbg = sDebugPlugin + "crowd_OnAreaExit:: ";
     Debug(dbg);
 
-    if (!_GetLocalInt(CROWDS, CROWD_ITEM_INITIALIZED))
+    if (!GetLocalInt(CROWDS, CROWD_ITEM_INITIALIZED))
         return;
 
     object oPC = GetExitingObject();
@@ -124,5 +124,5 @@ void crowd_OnCreatureDeath()
 
     object oCreature = OBJECT_SELF;
     object oArea = GetArea(oCreature);
-    RemoveListObject(oArea, oCreature, CROWD_ROSTER + _GetLocalString(oCreature, CROWD_ITEM));
+    RemoveListObject(oArea, oCreature, CROWD_ROSTER + GetLocalString(oCreature, CROWD_ITEM));
 }

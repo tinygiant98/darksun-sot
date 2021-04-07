@@ -14,17 +14,70 @@
 #include "core_i_framework"
 #include "test_i_events"
 
-#include "x3_inc_horse"
-void horse_dismount()
+#include "nwnx_events"
+#include "nwnx_creature"
+#include "nwnx_player"
+
+void nwnx_WalkTest()
 {
-    HorseDismount();
+    int bRun = StringToInt(NWNX_Events_GetEventData("RUN_TO_POINT"));
+
+    if (bRun)
+        DelayCommand(0.2, DelayLibraryScript("test_pc_CheckMovementRate", OBJECT_SELF));
 }
 
-void horse_instant_dismount()
+void test_run_OnPlayerChat()
 {
-    HorseInstantDismount(OBJECT_SELF);
+    object oPC = GetPCChatSpeaker();
+
+    if (GetLocalInt(oPC, "ALWAYS_WALK") == TRUE)
+        DeleteLocalInt(oPC, "ALWAYS_WALK");
+    else
+        SetLocalInt(oPC, "ALWAYS_WALK", TRUE);
+
+    if (GetLocalInt(oPC, "ALWAYS_WALK") == TRUE)
+        Notice("We're walking, people!");
+    else
+        Notice("Get your groove on, we're running up in this bitch!");
+
+    NWNX_Player_SetAlwaysWalk(oPC, GetLocalInt(oPC, "ALWAYS_WALK"));
 }
 
+void nwnx_KeyboardTest()
+{
+    string sKey = NWNX_Events_GetEventData("KEY");
+    if (sKey == "W")
+        DelayCommand(0.2, DelayLibraryScript("test_pc_CheckMovementRate", OBJECT_SELF));
+}
+
+void test_pc_OnPlayerHeartbeat()
+{
+    DelayCommand(0.2, DelayLibraryScript("test_pc_CheckMovementRate", OBJECT_SELF));
+}
+
+void test_pc_CheckMovementRate()
+{
+    object oPC = OBJECT_SELF;
+    int nType = NWNX_Creature_GetMovementType(oPC);
+
+    if (nType == NWNX_CREATURE_MOVEMENT_TYPE_RUN)
+    {
+        if (GetLocalInt(oPC, "RUNNING") == FALSE)
+        {
+            SetLocalInt(oPC, "RUNNING", TRUE);
+            Notice(HexColorString("You're running; HTF rate increased", COLOR_RED_LIGHT));
+        }
+    }
+    else
+    {
+        if (GetLocalInt(oPC, "RUNNING") == TRUE)
+        {
+            DeleteLocalInt(oPC, "RUNNING");
+            Notice(HexColorString("You're not running; HTF rate normal", COLOR_GREEN_LIGHT));
+        }
+    }
+
+}
 
 // -----------------------------------------------------------------------------
 //                               Library Dispatch
@@ -58,6 +111,12 @@ void OnLibraryLoad()
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!script", "test_script_OnPlayerChat");
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!debug", "test_debug_OnPlayerChat");
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!destroy", "test_destroy_OnPlayerChat");
+        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!run", "test_run_OnPlayerChat");
+
+        RegisterEventScripts(oPlugin, "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "nwnx_WalkTest");
+        RegisterEventScripts(oPlugin, "NWNX_ON_INPUT_KEYBOARD_BEFORE", "nwnx_KeyboardTest");
+
+        RegisterEventScripts(oPlugin, PLAYER_EVENT_ON_HEARTBEAT, "test_pc_OnPlayerHeartbeat", 10.0);
     }
 
     RegisterLibraryScript("test_OnClientEnter", 0);
@@ -75,13 +134,17 @@ void OnLibraryLoad()
     RegisterLibraryScript("test_script_OnPlayerChat", 12);
     RegisterLibraryScript("test_debug_OnPlayerChat", 13);
     RegisterLibraryScript("test_destroy_OnPlayerChat", 14);
+    RegisterLibraryScript("test_run_OnPlayerChat", 15);
+
+    RegisterLibraryScript("nwnx_WalkTest", 100);
+    RegisterLibraryScript("nwnx_KeyboardTest", 101);
+
+    RegisterLibraryScript("test_pc_OnPlayerHeartbeat", 102);
+    RegisterLibraryScript("test_pc_CheckMovementRate", 103);
 
     // Tag-based Scripting
     RegisterLibraryScript("util_playerdata", 30);
 
-    // Testing stuff
-    RegisterLibraryScript("horse_dismount", 31);
-    RegisterLibraryScript("horse_instant_dismount", 32);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
@@ -106,11 +169,15 @@ void OnLibraryScript(string sScript, int nEntry)
         case 12: test_script_OnPlayerChat(); break;
         case 13: test_debug_OnPlayerChat(); break;
         case 14: test_destroy_OnPlayerChat(); break;
+        case 15: test_run_OnPlayerChat(); break;
+
+        case 100: nwnx_WalkTest(); break;
+        case 101: nwnx_KeyboardTest(); break;
+        case 102: test_pc_OnPlayerHeartbeat(); break;
+        case 103: test_pc_CheckMovementRate(); break;
 
         case 30: test_PlayerDataItem(); break;
 
-        case 31: horse_dismount(); break;
-        case 32: horse_instant_dismount(); break;
         default: CriticalError("Library function " + sScript + " not found");
     }
 }

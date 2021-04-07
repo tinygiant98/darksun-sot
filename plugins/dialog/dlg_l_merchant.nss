@@ -89,7 +89,7 @@ void merchantDialog_Page()
     object oMerchant = OBJECT_SELF;
     string sNodeText, sStore, sPage = GetDialogPage();
 
-    sStore = _GetLocalString(oMerchant, DLG_MERCHANT_STORE);
+    sStore = GetLocalString(oMerchant, DLG_MERCHANT_STORE);
 
     // This is here as an example only and not best practice for setting up conditional conversations
     if (GetTag(oMerchant) == "ds_condshop" && GetGender(oPC) != GENDER_MALE)

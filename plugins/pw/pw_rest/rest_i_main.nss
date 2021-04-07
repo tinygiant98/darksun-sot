@@ -35,27 +35,27 @@ int h2_RemainingTimeForRecoveryInRest(object oPC);
 
 void h2_InitializeRecoveryRestTime(object oPC)
 {
-    string uniquePCID = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
-    string lastRest = _GetLocalString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME);
+    string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
+    string lastRest = GetModuleString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME);
 
     if (lastRest == "")
     {
         string sTime = GetSystemTime();
         sTime = SubtractSystemTimeElement(TIME_SECONDS, H2_MINIMUM_SPELL_RECOVERY_REST_TIME, sTime);
-        _SetLocalString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME, sTime);
+        SetModuleString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME, sTime);
     }
 }
 
 void h2_SaveLastRecoveryRestTime(object oPC)
 {
-    string uniquePCID = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
-    _SetLocalString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME, GetSystemTime());
+    string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
+    SetModuleString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME, GetSystemTime());
 }
 
 int h2_RemainingTimeForRecoveryInRest(object oPC)
 {
-    string uniquePCID = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
-    string lastRest = _GetLocalString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME);
+    string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
+    string lastRest = GetModuleString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME);
     int elapsedTime = FloatToInt(GetSystemTimeDifferenceIn(TIME_SECONDS, lastRest));
     
     if (lastRest != "" && elapsedTime < H2_MINIMUM_SPELL_RECOVERY_REST_TIME)
@@ -89,9 +89,9 @@ void h2_UseFirewood(object oPC, object oFirewood)
     {
         if (GetTag(oTarget) == H2_CAMPFIRE)
         {
-            string endTime = _GetLocalString(oTarget, H2_CAMPFIRE_END_TIME);
+            string endTime = GetLocalString(oTarget, H2_CAMPFIRE_END_TIME);
             endTime = AddGameTimeElement(TIME_HOURS, H2_CAMPFIRE_BURN_TIME, endTime);
-            _SetLocalString(oTarget, H2_CAMPFIRE_END_TIME, endTime);
+            SetLocalString(oTarget, H2_CAMPFIRE_END_TIME, endTime);
             AssignCommand(oPC, ActionPlayAnimation(ANIMATION_LOOPING_GET_LOW, 1.0, 3.0));
             DestroyObject(oFirewood);
         }
@@ -102,7 +102,7 @@ void h2_UseFirewood(object oPC, object oFirewood)
     {
         location loc = GetItemActivatedTargetLocation();
         object oCampfire = CreateObject(OBJECT_TYPE_PLACEABLE, H2_CAMPFIRE, loc);
-        _SetLocalString(oCampfire, H2_CAMPFIRE_END_TIME, AddGameTimeElement(TIME_HOURS, H2_CAMPFIRE_BURN_TIME, GetGameTime()));
+        SetLocalString(oCampfire, H2_CAMPFIRE_END_TIME, AddGameTimeElement(TIME_HOURS, H2_CAMPFIRE_BURN_TIME, GetGameTime()));
         DelayCommand(HoursToSeconds(H2_CAMPFIRE_BURN_TIME) + 5.0, h2_CheckIfCampfireIsOut(oCampfire));
         AssignCommand(oPC, ActionPlayAnimation(ANIMATION_LOOPING_GET_LOW, 1.0, 3.0));
         DestroyObject(oFirewood);

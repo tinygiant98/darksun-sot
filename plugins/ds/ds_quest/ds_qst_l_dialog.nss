@@ -19,11 +19,6 @@ void _ResetPCQuestData(object oPC, string sQuestTag)
     ResetPCQuestData(oPC, nQuestID);
 }
 
-string CacheColoredToken(string sToken)
-{
-    return HexColorString(sToken, COLOR_GREEN_LIGHT);
-}
-
 // -----------------------------------------------------------------------------
 //                           Jonny Quest Dialog
 // -----------------------------------------------------------------------------
@@ -161,7 +156,7 @@ void JonnyDialog()
             }
             else if (sPage == JONNY_PAGE_DELIVER)
             {
-                if (bHasDeliver && @bDeliverComplete) FilterDialogNodes(0);
+                if (bHasDeliver && !bDeliverComplete) FilterDialogNodes(0);
             }
             else if (sPage == JONNY_PAGE_SPEAK)
             {

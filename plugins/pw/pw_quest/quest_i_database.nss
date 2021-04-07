@@ -219,6 +219,7 @@ int CountRowChanges(object oTarget)
     return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
 }
 
+/*
 string GetTimeStamp()
 {
     //sQuery = "SELECT strftime('%s', 'now')";
@@ -237,6 +238,7 @@ int GetUnixTimeStamp()
 
     return SqlGetInt(sql, 0);
 }
+*/
 
 string GetGreaterTimeStamp(string sTime1, string sTime2)
 {

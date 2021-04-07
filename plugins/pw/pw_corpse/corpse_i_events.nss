@@ -52,7 +52,7 @@ void corpse_pccorpseitem();
 void corpse_OnClientEnter()
 {
     object oPC = GetEnteringObject();
-    string sUniquePCID = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
+    string sUniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     location lRessLoc = GetDatabaseLocation(sUniquePCID + H2_RESS_LOCATION);
     if (h2_GetIsLocationValid(lRessLoc))
         h2_PerformOffLineRessurectionLogin(oPC, lRessLoc);
@@ -74,10 +74,11 @@ void corpse_OnClientLeave()
     {
         if (GetTag(oItem) == H2_PC_CORPSE_ITEM)
         {
-            location lLastDrop = _GetLocalLocation(oItem, H2_LAST_DROP_LOCATION);
+            location lLastDrop = GetLocalLocation(oItem, H2_LAST_DROP_LOCATION);
             object oNewToken = CopyObject(oItem, lLastDrop);
             h2_DropPlayerCorpse(oNewToken);
         }
+
         oItem = GetNextItemInInventory(oPC);
     }
 }
@@ -87,20 +88,20 @@ void corpse_OnPlayerDeath()
     object oPC = GetLastPlayerDied();
     object oArea = GetArea(oPC);
 
-    if (_GetLocalInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
+    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
         return;
 
-    if (_GetLocalInt(oArea, H2_DO_NOT_CREATE_CORPSE_IN_AREA))
+    if (GetLocalInt(oArea, H2_DO_NOT_CREATE_CORPSE_IN_AREA))
         return;
         
-    if (!_GetLocalInt(oPC, H2_LOGIN_DEATH))
+    if (!GetPlayerInt(oPC, H2_LOGIN_DEATH))
         h2_CreatePlayerCorpse(oPC);
 }
 
 void corpse_OnPlayerLives()
 {
     object oPC = OBJECT_SELF;
-    string uniquePCID = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
+    string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     
     object oDC = GetObjectByTag(H2_CORPSE_DC + uniquePCID);
     if (GetIsObjectValid(oDC))

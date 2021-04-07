@@ -96,9 +96,6 @@ void OnLibraryLoad()
     RegisterLibraryScript("pw_OnPlayerRestCancelled",  21);
     RegisterLibraryScript("pw_OnPlayerRestFinished",   22);
 
-    // ----- Tag-based Scripting -----
-    RegisterLibraryScript(H2_PLAYER_DATA_ITEM,         13);
-
     // ----- Timer Events -----
     RegisterLibraryScript("pw_SavePCLocation_OnTimerExpire", 14);
     RegisterLibraryScript("pw_ExportPCs_OnTimerExpire",      15);
@@ -121,9 +118,6 @@ void OnLibraryScript(string sScript, int nEntry)
         case 20:  pw_OnPlayerRestStarted();    break;
         case 21:  pw_OnPlayerRestCancelled();  break;
         case 22:  pw_OnPlayerRestFinished();   break;
-
-        // ----- Tag-based Scripting -----
-        case 13:  pw_playerdataitem();         break;
 
         // ----- Timer Events -----
         case 14: pw_SavePCLocation_OnTimerExpire(); break;

@@ -65,9 +65,9 @@ void bleed_OnClientEnter()
 void bleed_OnPlayerRestStarted()
 {
     object oPC = GetLastPCRested();
-    if (_GetLocalInt(oPC, H2_LONG_TERM_CARE) && h2_GetPostRestHealAmount(oPC) > 0)
+    if (GetPlayerInt(oPC, H2_LONG_TERM_CARE) && h2_GetPostRestHealAmount(oPC) > 0)
     {
-        _DeleteLocalInt(oPC, H2_LONG_TERM_CARE);
+        DeletePlayerInt(oPC, H2_LONG_TERM_CARE);
         int postRestHealAmt = h2_GetPostRestHealAmount(oPC) * 2;
         h2_SetPostRestHealAmount(oPC, postRestHealAmt);
     }
@@ -76,11 +76,11 @@ void bleed_OnPlayerRestStarted()
 void bleed_OnPlayerDeath()
 {
     object oPC = GetLastPlayerDied();
-    int timerID = _GetLocalInt(oPC, H2_BLEED_TIMER_ID);
+    int timerID = GetPlayerInt(oPC, H2_BLEED_TIMER_ID);
 
     if (timerID)
     {
-        _DeleteLocalInt(oPC, H2_BLEED_TIMER_ID);
+        DeletePlayerInt(oPC, H2_BLEED_TIMER_ID);
         KillTimer(timerID);
     }
 }
@@ -88,7 +88,7 @@ void bleed_OnPlayerDeath()
 void bleed_OnPlayerDying()
 {
     object oPC = GetLastPlayerDying();
-    if (_GetLocalInt(oPC, H2_PLAYER_STATE) == H2_PLAYER_STATE_DYING)
+    if (GetPlayerInt(oPC, H2_PLAYER_STATE) == H2_PLAYER_STATE_DYING)
         h2_BeginPlayerBleeding(oPC);
 }
 
@@ -115,13 +115,13 @@ void bleed_healwidget()
 void bleed_OnTimerExpire()
 {
     object oPC = OBJECT_SELF;
-    int nPlayerState = _GetLocalInt(oPC, H2_PLAYER_STATE);
+    int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
     if (nPlayerState != H2_PLAYER_STATE_DYING && nPlayerState != H2_PLAYER_STATE_STABLE &&
         nPlayerState != H2_PLAYER_STATE_RECOVERING)
     {
-        int nTimerID = _GetLocalInt(oPC, H2_BLEED_TIMER_ID);
-        _DeleteLocalInt(oPC, H2_BLEED_TIMER_ID);
-        _DeleteLocalInt(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
+        int nTimerID = GetLocalInt(oPC, H2_BLEED_TIMER_ID);
+        DeletePlayerInt(oPC, H2_BLEED_TIMER_ID);
+        DeletePlayerInt(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
         KillTimer(nTimerID);
     }
     else
@@ -133,7 +133,7 @@ void bleed_OnTimerExpire()
             return;
         }
 
-        int nLastHitPoints = _GetLocalInt(oPC, H2_LAST_HIT_POINTS);
+        int nLastHitPoints = GetPlayerInt(oPC, H2_LAST_HIT_POINTS);
         if (nCurrHitPoints > nLastHitPoints)
         {
             h2_StabilizePlayer(oPC);
@@ -144,7 +144,7 @@ void bleed_OnTimerExpire()
             h2_CheckForSelfStabilize(oPC);
         else
         {
-            _SetLocalInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_DEAD);
+            SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_DEAD);
             ApplyEffectToObject(DURATION_TYPE_INSTANT, EffectDeath(), oPC);
         }
     }

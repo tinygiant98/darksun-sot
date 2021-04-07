@@ -70,8 +70,6 @@ void torch_OnClientLeave()
         if (sItem == H2_TORCH || sItem == H2_LANTERN)
         {
             AssignCommand(oPC, ActionUnequipItem(oItem));
-            Notice("Torch/Lantern Unequipped");
-            Notice("  Variable --> " + (_GetLocalInt(oPC, "TORCH_EQUIPPED") ? "TRUE":"FALSE"));
             return;
         }
     }
@@ -80,7 +78,7 @@ void torch_OnClientLeave()
 void torch_OnClientEnter()
 {
     object oPC = GetEnteringObject();
-    int i;
+    int n;
 
     if (_GetIsPC(oPC))
     {
@@ -90,14 +88,14 @@ void torch_OnClientEnter()
             if (HasListItem(H2_OLD_TORCH_TAGS, GetTag(oItem)))
             {
                 DestroyObject(oItem);
-                i++;
+                n++;
             }
 
             oItem = GetNextItemInInventory(oPC);
         }
     }
 
-    DelayCommand(1.0, _CreateItemOnObject(H2_TORCH, oPC, i));
+    DelayCommand(1.0, _CreateItemOnObject(H2_TORCH, oPC, n));
 }
 
 // ----- Tag-based Scripting -----

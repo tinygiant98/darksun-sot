@@ -1146,6 +1146,25 @@ string GetPrecisionGameTime(int nPrecision = TIME_SECONDS, string sTime = TIME_I
     return _GetPrecisionTime(sTime, nPrecision);
 }
 
+string GetTimeStamp()
+{
+    //sQuery = "SELECT strftime('%s', 'now')";
+    string sQuery = "SELECT CURRENT_TIMESTAMP;";
+    sqlquery sql = SqlPrepareQueryObject(GetModule(), sQuery);
+    SqlStep(sql);
+    
+    return SqlGetString(sql, 0);
+}
+
+int GetUnixTimeStamp()
+{
+    string sQuery = "SELECT strftime('%s', 'now')";
+    sqlquery sql = SqlPrepareQueryObject(GetModule(), sQuery);
+    SqlStep(sql);
+
+    return SqlGetInt(sql, 0);
+}
+
 int IsLeapYear(int nYear)
 {
     return ((nYear % 4 == 0 && nYear % 100 != 0) || nYear % 400 == 0);

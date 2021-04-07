@@ -13,10 +13,10 @@ int InitializeSystem(object oDatapoint, string INIT_LIST, string LOADED_LIST, st
     object oItem;
     string sItem, sItems;
 
-    if (_GetLocalInt(oDatapoint, INIT_FLAG) && !bForce)
+    if (GetLocalInt(oDatapoint, INIT_FLAG) && !bForce)
         return CountObjectList(oDatapoint, OBJECT_LIST);
 
-    _DeleteLocalString(oDatapoint, LOADED_LIST);
+    DeleteLocalString(oDatapoint, LOADED_LIST);
     if (!nCount)
         return FALSE;
 
@@ -42,8 +42,8 @@ int InitializeSystem(object oDatapoint, string INIT_LIST, string LOADED_LIST, st
 
     nItemCount = CountObjectList(oDatapoint, OBJECT_LIST);
 
-    _SetLocalString(oDatapoint, LOADED_LIST, sItems);
-    _SetLocalInt(oDatapoint, INIT_FLAG, TRUE);
+    SetLocalString(oDatapoint, LOADED_LIST, sItems);
+    SetLocalInt(oDatapoint, INIT_FLAG, TRUE);
 
     return nItemCount;
 }

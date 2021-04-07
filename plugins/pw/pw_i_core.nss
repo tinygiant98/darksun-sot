@@ -249,17 +249,17 @@ void h2_LimitPostRestHeal(object oPC, int postRestHealAmt);
 //  the server epoch.  The following five functions are not original to HCR2.
 void h2_SaveServerEpoch()
 {
-    _SetLocalString(MODULE, H2_EPOCH, GetSystemTime());
+    SetModuleString(MODULE, H2_EPOCH, GetSystemTime());
 }
 
 string h2_GetServerEpoch()
 {
-    return _GetLocalString(MODULE, H2_EPOCH);
+    return GetModuleString(MODULE, H2_EPOCH);
 }
 
 string h2_GetTimeSinceServerStart()
 {
-    string sTime = _GetLocalString(MODULE, H2_SERVER_START_TIME);
+    string sTime = GetModuleString(MODULE, H2_SERVER_START_TIME);
     return GetSystemTimeDifference(sTime);
 }
 
@@ -295,10 +295,10 @@ void h2_MovePossessorInventory(object oPossessor, int bMoveGold = FALSE, object 
     if (!GetIsObjectValid(oPossessor))
         return;
 
-    if (_GetLocalInt(oPossessor, H2_MOVING_ITEMS))
+    if (GetLocalInt(oPossessor, H2_MOVING_ITEMS))
         return;
 
-    _SetLocalInt(oPossessor, H2_MOVING_ITEMS, 1);
+    SetLocalInt(oPossessor, H2_MOVING_ITEMS, 1);
     if (bMoveGold)
     {
         int nGold = GetGold(oPossessor);
@@ -323,7 +323,7 @@ void h2_MovePossessorInventory(object oPossessor, int bMoveGold = FALSE, object 
         oItem = GetNextItemInInventory(oPossessor);
     }
 
-    _DeleteLocalInt(oPossessor, H2_MOVING_ITEMS);
+    DeleteLocalInt(oPossessor, H2_MOVING_ITEMS);
 }
 
 void h2_MoveEquippedItems(object oPossessor, object oReceivingObject = OBJECT_INVALID)
@@ -431,7 +431,7 @@ void h2_SetPlayerHitPointsToSavedValue(object oPC)
     if (!GetIsObjectValid(oPC))
         return;
     int currHP = GetCurrentHitPoints(oPC);
-    int savedHP = _GetLocalInt(oPC, H2_PLAYER_HP);
+    int savedHP = GetPlayerInt(oPC, H2_PLAYER_HP);
     int damage = currHP - savedHP;
     if (damage < currHP && damage > 0)
     {
@@ -490,8 +490,8 @@ void h2_SetAvailableFeatsToSavedValues(object oPC)
     if (!GetIsObjectValid(oPC))
         return;
 
-    string sFeats = _GetLocalString(oPC, H2_FEAT_TRACK_FEATS);
-    string sUses  = _GetLocalString(oPC, H2_FEAT_TRACK_USES);
+    string sFeats = GetPlayerString(oPC, H2_FEAT_TRACK_FEATS);
+    string sUses  = GetPlayerString(oPC, H2_FEAT_TRACK_USES);
 
     int i, nCount, nFeat, nUse;
 
@@ -534,8 +534,8 @@ void h2_SetAvailableSpellsToSavedValues(object oPC)
     if (!GetIsObjectValid(oPC))
         return;
 
-    string sSpells = _GetLocalString(oPC, H2_SPELL_TRACK_SPELLS);
-    string sUses = _GetLocalString(oPC, H2_SPELL_TRACK_USES);
+    string sSpells = GetPlayerString(oPC, H2_SPELL_TRACK_SPELLS);
+    string sUses = GetPlayerString(oPC, H2_SPELL_TRACK_USES);
 
     if (!CountList(sSpells))
         return;
@@ -604,14 +604,14 @@ void h2_SavePCHitPoints(object oPC)
         return;
 
     int hp = GetCurrentHitPoints(oPC);
-    _SetLocalInt(oPC, H2_PLAYER_HP, hp);
+    SetPlayerInt(oPC, H2_PLAYER_HP, hp);
 }
 
 // Modified to use CSVs.
 void h2_AppendToFeatTrack(object oPC, int nFeat, int nMaxUses)
 {
-    string sFeats = _GetLocalString(oPC, H2_FEAT_TRACK_FEATS);
-    string sUses = _GetLocalString(oPC, H2_FEAT_TRACK_USES);
+    string sFeats = GetPlayerString(oPC, H2_FEAT_TRACK_FEATS);
+    string sUses = GetPlayerString(oPC, H2_FEAT_TRACK_USES);
     string sFeat = IntToString(nFeat);
 
     int nIndex = FindListItem(sFeats, sFeat);
@@ -627,8 +627,8 @@ void h2_AppendToFeatTrack(object oPC, int nFeat, int nMaxUses)
     {
         sFeats = AddListItem(sFeats, sFeat);
         sUses = AddListItem(sUses, IntToString(nUse));
-        _SetLocalString(oPC, H2_FEAT_TRACK_FEATS, sFeats);
-        _SetLocalString(oPC, H2_FEAT_TRACK_USES, sUses);
+        SetPlayerString(oPC, H2_FEAT_TRACK_FEATS, sFeats);
+        SetPlayerString(oPC, H2_FEAT_TRACK_USES, sUses);
     }
 }
 
@@ -947,8 +947,8 @@ void h2_SavePCAvailableSpells(object oPC)
         }
     }
 
-    _SetLocalString(oPC, H2_SPELL_TRACK_SPELLS, sSpells);
-    _SetLocalString(oPC, H2_SPELL_TRACK_USES, sUses);
+    SetPlayerString(oPC, H2_SPELL_TRACK_SPELLS, sSpells);
+    SetPlayerString(oPC, H2_SPELL_TRACK_USES, sUses);
 }
 
 /*
@@ -984,7 +984,7 @@ object h2_FindPCWithGivenUniqueID(string uniquePCID)
     for (i = 0; i < nCount; i++)
     {
         object oPC = GetListObject(MODULE, i, PLAYER_ROSTER);
-        if (uniquePCID == _GetLocalString(oPC, H2_UNIQUE_PC_ID))
+        if (uniquePCID == GetPlayerString(oPC, H2_UNIQUE_PC_ID))
             return oPC;
     }
 
@@ -1049,7 +1049,7 @@ void h2_SavePCLocation(object oPC)
     if (!GetIsObjectValid(oPC))
         return;
 
-    _SetLocalLocation(oPC, H2_PC_SAVED_LOC, GetLocation(oPC));
+    SetPlayerLocation(oPC, H2_PC_SAVED_LOC, GetLocation(oPC));
 }
 
 void h2_RestoreSavedCalendar()
@@ -1062,7 +1062,7 @@ void h2_RestoreSavedCalendar()
 
 void h2_SaveServerStartTime()
 {
-    _SetLocalString(MODULE, H2_SERVER_START_TIME, GetSystemTime());
+    SetModuleString(MODULE, H2_SERVER_START_TIME, GetSystemTime());
 }
 
 //TODO the whole menu/convo thing.  Get rid of and replace with dynamic dialog.
@@ -1071,12 +1071,12 @@ void h2_AddPlayerDataMenuItem(string sMenuText, string sConvResRef)
      if (sMenuText == "")
         return;
 
-    int index = _GetLocalInt(MODULE, H2_PLAYER_DATA_MENU_INDEX) + 1;
+    int index = GetModuleInt(MODULE, H2_PLAYER_DATA_MENU_INDEX) + 1;
     if (index <=20)
     {
-        _SetLocalInt(MODULE, H2_PLAYER_DATA_MENU_INDEX, index);
-        _SetLocalString(MODULE, H2_PLAYER_DATA_MENU_ITEM_TEXT + IntToString(index), sMenuText);
-        _SetLocalString(MODULE, H2_CONVERSATION_RESREF + IntToString(index), sConvResRef);
+        SetModuleInt(MODULE, H2_PLAYER_DATA_MENU_INDEX, index);
+        SetModuleString(MODULE, H2_PLAYER_DATA_MENU_ITEM_TEXT + IntToString(index), sMenuText);
+        SetModuleString(MODULE, H2_CONVERSATION_RESREF + IntToString(index), sConvResRef);
     }
     else
         Debug("Player Data Menu Item: " + sMenuText + " exceeded maximum allowed.");
@@ -1087,7 +1087,7 @@ void h2_StartCharExportTimer()
     if (H2_EXPORT_CHARACTERS_INTERVAL > 0.0)
     {
         int nTimerID = CreateTimer(MODULE, H2_EXPORT_CHAR_ON_TIMER_EXPIRE, H2_EXPORT_CHARACTERS_INTERVAL);
-        _SetLocalInt(MODULE, H2_EXPORT_CHAR_TIMER_ID, nTimerID);
+        SetModuleInt(MODULE, H2_EXPORT_CHAR_TIMER_ID, nTimerID);
         StartTimer(nTimerID, TRUE);
     }
 }
@@ -1097,17 +1097,12 @@ void h2_StartSavePCLocationTimer()
     if (H2_SAVE_PC_LOCATION_TIMER_INTERVAL > 0.0)
     {
         int nTimerID = CreateTimer(MODULE, H2_SAVE_LOCATION_ON_TIMER_EXPIRE, H2_SAVE_PC_LOCATION_TIMER_INTERVAL);
-        _SetLocalInt(MODULE, H2_SAVE_LOCATION_TIMER_ID, nTimerID);
+        SetModuleInt(MODULE, H2_SAVE_LOCATION_TIMER_ID, nTimerID);
         StartTimer(nTimerID, TRUE);
     }
 }
 
-//client enter functions
-void h2_CreatePlayerDataItem(object oPC)
-{
-    CreatePlayerDatapoint(oPC);
-}
-
+// TODO swap to sm database
 string h2_GetNewUniquePCID()
 {
     int nextID = GetDatabaseInt(H2_NEXT_UNIQUE_PC_ID);
@@ -1122,11 +1117,11 @@ void h2_SendPCToSavedLocation(object oPC)
     if (!GetIsObjectValid(oPC))
         return;
 
-    string uniquePCID = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
-    int hasLoggedInThisReset = _GetLocalInt(MODULE, uniquePCID + H2_INITIAL_LOGIN);
+    string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
+    int hasLoggedInThisReset = GetModuleInt(MODULE, uniquePCID + H2_INITIAL_LOGIN);
     if (!hasLoggedInThisReset && H2_SAVE_PC_LOCATION)
     {
-        location savedLocation = _GetLocalLocation(oPC, H2_PC_SAVED_LOC);
+        location savedLocation = GetPlayerLocation(oPC, H2_PC_SAVED_LOC);
         if (h2_GetIsLocationValid(savedLocation))
         {
             SendMessageToPC(oPC, H2_TEXT_SEND_TO_SAVED_LOC);
@@ -1137,12 +1132,12 @@ void h2_SendPCToSavedLocation(object oPC)
 
 void h2_SetPlayerID(object oPC)
 {
-    string uniquepcid = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
+    string uniquepcid = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     string fullpcname = GetName(oPC) + "_" + GetPCPlayerName(oPC);
     if (uniquepcid == "")
     {
         uniquepcid = h2_GetNewUniquePCID();
-        _SetLocalString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
+        SetPlayerString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
         SetDatabaseString(uniquepcid, fullpcname);
     }
     else
@@ -1154,7 +1149,7 @@ void h2_SetPlayerID(object oPC)
             Debug(sMessage);
             SendMessageToAllDMs(sMessage);
             uniquepcid = h2_GetNewUniquePCID();
-            _SetLocalString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
+            SetPlayerString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
             SetDatabaseString(uniquepcid, fullpcname);
         }
     }
@@ -1163,8 +1158,8 @@ void h2_SetPlayerID(object oPC)
 void h2_RegisterPC(object oPC)
 {
     int registeredCharCount = GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
-    _SetLocalInt(oPC, H2_REGISTERED, TRUE);
-    _SetLocalInt(oPC, H2_INITIAL_LOGIN, TRUE); //TODO why'd I put this here again?
+    SetPlayerInt(oPC, H2_REGISTERED, TRUE);
+    SetPlayerInt(oPC, H2_INITIAL_LOGIN, TRUE); //TODO why'd I put this here again?
     SetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX, registeredCharCount + 1);
     SendMessageToPC(oPC, H2_TEXT_CHAR_REGISTERED);
     SendMessageToPC(oPC, H2_TEXT_MAX_REGISTERED_CHARS + IntToString(H2_REGISTERED_CHARACTERS_ALLOWED));
@@ -1178,9 +1173,9 @@ void h2_InitializePC(object oPC)
     SetPlotFlag(oPC, FALSE);
     SetImmortal(oPC, FALSE);
 
-    if (_GetLocalInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_ALIVE)
+    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_ALIVE)
     {
-        _SetLocalInt(oPC, H2_LOGIN_DEATH, TRUE);
+        SetPlayerInt(oPC, H2_LOGIN_DEATH, TRUE);
         h2_MovePossessorInventory(oPC, TRUE);
         h2_MoveEquippedItems(oPC);
         DelayCommand(H2_CLIENT_ENTER_JUMP_DELAY, ApplyEffectToObject(DURATION_TYPE_INSTANT, EffectDeath(), oPC));
@@ -1190,19 +1185,19 @@ void h2_InitializePC(object oPC)
     if (H2_STRIP_ON_FIRST_LOGIN)
         h2_StripOnFirstLogin(oPC);
 
-    string uniquePCID = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
-    int savedHP = _GetLocalInt(MODULE, uniquePCID + H2_PLAYER_HP);
+    string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
+    int savedHP = GetModuleInt(MODULE, uniquePCID + H2_PLAYER_HP);
     if (savedHP < GetMaxHitPoints(oPC) && savedHP > 0)
     {
-        _DeleteLocalInt(MODULE, uniquePCID + H2_PLAYER_HP);
-        _SetLocalInt(oPC, H2_PLAYER_HP, savedHP);
+        DeleteModuleInt(MODULE, uniquePCID + H2_PLAYER_HP);
+        SetPlayerInt(oPC, H2_PLAYER_HP, savedHP);
         h2_SetPlayerHitPointsToSavedValue(oPC);
     }
 
-    string spelltrack = _GetLocalString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS);
-    string spelluses = _GetLocalString(MODULE, uniquePCID + H2_SPELL_TRACK_USES);
-    string feattrack = _GetLocalString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS);
-    string featuses = _GetLocalString(MODULE, uniquePCID + H2_FEAT_TRACK_USES);
+    string spelltrack = GetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS);
+    string spelluses = GetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_USES);
+    string feattrack = GetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS);
+    string featuses = GetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_USES);
 
     if (GetRacialType(oPC) > 6)
     {   //If racial type is above 6, then the PC is polymorphed.
@@ -1217,37 +1212,37 @@ void h2_InitializePC(object oPC)
 
     if (spelltrack != "")
     {
-        _DeleteLocalString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS);
-        _DeleteLocalString(MODULE, uniquePCID + H2_SPELL_TRACK_USES);
-        _SetLocalString(oPC, H2_SPELL_TRACK_SPELLS, spelltrack);
-        _SetLocalString(oPC, H2_SPELL_TRACK_USES, spelluses);
+        DeleteModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS);
+        DeleteModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_USES);
+        SetPlayerString(oPC, H2_SPELL_TRACK_SPELLS, spelltrack);
+        SetPlayerString(oPC, H2_SPELL_TRACK_USES, spelluses);
         DelayCommand(1.0, h2_SetAvailableSpellsToSavedValues(oPC));
     }
 
     if (feattrack != "")
     {
-        _DeleteLocalString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS);
-        _DeleteLocalString(MODULE, uniquePCID + H2_FEAT_TRACK_USES);
-        _SetLocalString(oPC, H2_FEAT_TRACK_FEATS, feattrack);
-        _SetLocalString(oPC, H2_FEAT_TRACK_USES, featuses);
+        DeleteModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS);
+        DeleteModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_USES);
+        SetPlayerString(oPC, H2_FEAT_TRACK_FEATS, feattrack);
+        SetPlayerString(oPC, H2_FEAT_TRACK_USES, featuses);
         DelayCommand(1.0, h2_SetAvailableFeatsToSavedValues(oPC));
     }
 
     h2_SendPCToSavedLocation(oPC);
-    _SetLocalInt(MODULE, uniquePCID + H2_INITIAL_LOGIN, TRUE);
+    SetModuleInt(MODULE, uniquePCID + H2_INITIAL_LOGIN, TRUE);
 
-    int isRegistered = _GetLocalInt(oPC, H2_REGISTERED);
+    int isRegistered = GetPlayerInt(oPC, H2_REGISTERED);
     if (!isRegistered && H2_REGISTERED_CHARACTERS_ALLOWED > 0)
         h2_RegisterPC(oPC);
 }
 
 void h2_StripOnFirstLogin(object oPC)
 {
-    if (!_GetLocalInt(oPC, H2_STRIPPED))
+    if (!GetPlayerInt(oPC, H2_STRIPPED))
     {
         h2_MovePossessorInventory(oPC, TRUE);
         h2_MoveEquippedItems(oPC);
-        _SetLocalInt(oPC, H2_STRIPPED, TRUE);
+        SetPlayerInt(oPC, H2_STRIPPED, TRUE);
     }
 }
 
@@ -1259,25 +1254,25 @@ int h2_MaximumPlayersReached()
 void h2_SavePersistentPCData(object oPC)
 {
     int hp = GetCurrentHitPoints(oPC);
-    string uniquePCID = _GetLocalString(oPC, H2_UNIQUE_PC_ID);
-    _SetLocalInt(MODULE, uniquePCID + H2_PLAYER_HP, hp);
+    string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
+    SetModuleInt(MODULE, uniquePCID + H2_PLAYER_HP, hp);
     h2_SavePCAvailableSpells(oPC);
     h2_SavePCAvailableFeats(oPC);
 
-    string spelltrack = _GetLocalString(oPC, H2_SPELL_TRACK_SPELLS);
-    string spelluses = _GetLocalString(oPC, H2_SPELL_TRACK_USES);
-    _SetLocalString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS, spelltrack);
-    _SetLocalString(MODULE, uniquePCID + H2_SPELL_TRACK_USES, spelluses);
+    string spelltrack = GetPlayerString(oPC, H2_SPELL_TRACK_SPELLS);
+    string spelluses = GetPlayerString(oPC, H2_SPELL_TRACK_USES);
+    SetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS, spelltrack);
+    SetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_USES, spelluses);
 
-    string feattrack = _GetLocalString(oPC, H2_FEAT_TRACK_FEATS);
-    string featuses = _GetLocalString(oPC, H2_FEAT_TRACK_USES);
-    _SetLocalString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS, feattrack);
-    _SetLocalString(MODULE, uniquePCID + H2_FEAT_TRACK_USES, featuses);
+    string feattrack = GetPlayerString(oPC, H2_FEAT_TRACK_FEATS);
+    string featuses = GetPlayerString(oPC, H2_FEAT_TRACK_USES);
+    SetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS, feattrack);
+    SetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_USES, featuses);
 }
 
 int h2_GetAllowRest(object oPC)
 {
-    return _GetLocalInt(oPC, H2_ALLOW_REST);
+    return GetPlayerInt(oPC, H2_ALLOW_REST);
 }
 
 void h2_SetAllowRest(object oPC, int bAllowRest)
@@ -1287,44 +1282,44 @@ void h2_SetAllowRest(object oPC, int bAllowRest)
 
 int h2_GetAllowSpellRecovery(object oPC)
 {
-    return _GetLocalInt(oPC, H2_ALLOW_SPELL_RECOVERY);
+    return GetPlayerInt(oPC, H2_ALLOW_SPELL_RECOVERY);
 }
 
 int h2_GetAllowFeatRecovery(object oPC)
 {
-    return _GetLocalInt(oPC, H2_ALLOW_FEAT_RECOVERY);
+    return GetPlayerInt(oPC, H2_ALLOW_FEAT_RECOVERY);
 }
 
 void h2_SetAllowSpellRecovery(object oPC, int bAllowRecovery)
 {
-    _SetLocalInt(oPC, H2_ALLOW_SPELL_RECOVERY, bAllowRecovery);
+    SetPlayerInt(oPC, H2_ALLOW_SPELL_RECOVERY, bAllowRecovery);
 }
 
 void h2_SetAllowFeatRecovery(object oPC, int bAllowRecovery)
 {
-    _SetLocalInt(oPC, H2_ALLOW_FEAT_RECOVERY, bAllowRecovery);
+    SetPlayerInt(oPC, H2_ALLOW_FEAT_RECOVERY, bAllowRecovery);
 }
 
 int h2_GetPostRestHealAmount(object oPC)
 {
-    return _GetLocalInt(oPC, H2_POST_REST_HEAL_AMT);
+    return GetPlayerInt(oPC, H2_POST_REST_HEAL_AMT);
 }
 
 void h2_SetPostRestHealAmount(object oPC, int amount)
 {
-    _SetLocalInt(oPC, H2_POST_REST_HEAL_AMT, amount);
+    SetPlayerInt(oPC, H2_POST_REST_HEAL_AMT, amount);
 }
 
 void h2_OpenRestDialog(object oPC)
 {
-    _SetLocalInt(oPC, H2_SKIP_CANCEL_REST, TRUE);
+    SetPlayerInt(oPC, H2_SKIP_CANCEL_REST, TRUE);
     AssignCommand(oPC, ClearAllActions());
     StartDialog(oPC, oPC, "RestDialog", TRUE, TRUE, TRUE);
 }
 
 void h2_MakePCRest(object oPC)
 {
-    _SetLocalInt(oPC, H2_SKIP_REST_DIALOG, TRUE);
+    SetPlayerInt(oPC, H2_SKIP_REST_DIALOG, TRUE);
     h2_SavePCHitPoints(oPC);
     h2_SavePCAvailableSpells(oPC);
     h2_SavePCAvailableFeats(oPC);
@@ -1333,7 +1328,7 @@ void h2_MakePCRest(object oPC)
 
 void h2_LimitPostRestHeal(object oPC, int postRestHealAmt)
 {
-    int savedHP = _GetLocalInt(oPC, H2_PLAYER_HP);
+    int savedHP = GetPlayerInt(oPC, H2_PLAYER_HP);
     int currHP = GetCurrentHitPoints(oPC);
     if (savedHP + postRestHealAmt < currHP)
     {
@@ -1345,11 +1340,11 @@ void h2_LimitPostRestHeal(object oPC, int postRestHealAmt)
 
 int AssignRole(object oPC)
 {
-    _DeleteLocalInt(oPC, IS_PC);
-    _DeleteLocalInt(oPC, IS_DM);
-    _DeleteLocalInt(oPC, IS_DEVELOPER);
+    DeletePlayerInt(oPC, IS_PC);
+    DeletePlayerInt(oPC, IS_DM);
+    DeletePlayerInt(oPC, IS_DEVELOPER);
 
-    if (GetIsDM(oPC) && !_GetIsRegisteredDM(oPC))
+    if (GetIsDM(oPC) && !GetIsRegisteredDM(oPC))
     {
         SetLocalInt(oPC, LOGIN_BOOT, TRUE);
         BootPC(oPC, "You are not a registered DM.  If you believe this is an " +
@@ -1361,13 +1356,15 @@ int AssignRole(object oPC)
                 "\n  CD Key     -> " + GetLocalString(oPC, PC_CD_KEY) +
                 "\n  IP Address -> " + GetLocalString(oPC, PC_IP_ADDRESS);
 
+        //TODO add webhook event here
+
         Warning(sMessage);
         SendMessageToAllDMs(sMessage);
         return FALSE;
     }
 
-    if (_GetIsDeveloper(oPC))
-        _SetLocalInt(oPC, IS_DEVELOPER, TRUE);
+    if (GetIsDeveloper(oPC))
+        SetPlayerInt(oPC, IS_DEVELOPER, TRUE);
 
     return TRUE;
 }

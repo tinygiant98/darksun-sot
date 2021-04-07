@@ -39,33 +39,33 @@ void fatigue_OnClientEnter()
 void hungerthirst_OnPlayerDeath()
 {
     object oPC = GetLastPlayerDied();
-    _DeleteLocalFloat(oPC, H2_HT_CURR_THIRST);
-    _DeleteLocalFloat(oPC, H2_HT_CURR_HUNGER);
-    _DeleteLocalFloat(oPC, H2_HT_CURR_ALCOHOL);
-    int timerID = _GetLocalInt(oPC, H2_HT_DRUNK_TIMERID);
+    DeletePlayerFloat(oPC, H2_HT_CURR_THIRST);
+    DeletePlayerFloat(oPC, H2_HT_CURR_HUNGER);
+    DeletePlayerFloat(oPC, H2_HT_CURR_ALCOHOL);
+    int timerID = GetLocalInt(oPC, H2_HT_DRUNK_TIMERID);
     KillTimer(timerID);
-    _DeleteLocalInt(oPC, H2_HT_DRUNK_TIMERID);
-    _DeleteLocalInt(oPC, H2_HT_IS_DEHYDRATED);
-    _DeleteLocalInt(oPC, H2_HT_IS_STARVING);
-    _DeleteLocalInt(oPC, H2_HT_HUNGER_NONLETHAL_DAMAGE);
-    _DeleteLocalInt(oPC, H2_HT_THIRST_NONLETHAL_DAMAGE);
+    DeletePlayerInt(oPC, H2_HT_DRUNK_TIMERID);
+    DeletePlayerInt(oPC, H2_HT_IS_DEHYDRATED);
+    DeletePlayerInt(oPC, H2_HT_IS_STARVING);
+    DeletePlayerInt(oPC, H2_HT_HUNGER_NONLETHAL_DAMAGE);
+    DeletePlayerInt(oPC, H2_HT_THIRST_NONLETHAL_DAMAGE);
 }
 
 void hungerthirst_OnPlayerRestFinished()
 {
     object oPC = GetLastPCRested();
-    _DeleteLocalFloat(oPC, H2_HT_CURR_ALCOHOL);
-    int timerID = _GetLocalInt(oPC, H2_HT_DRUNK_TIMERID);
+    DeletePlayerFloat(oPC, H2_HT_CURR_ALCOHOL);
+    int timerID = GetLocalInt(oPC, H2_HT_DRUNK_TIMERID);
     KillTimer(timerID);
-    _DeleteLocalInt(oPC, H2_HT_DRUNK_TIMERID);
+    DeletePlayerInt(oPC, H2_HT_DRUNK_TIMERID);
 }
 
 void fatigue_OnPlayerRestFinished()
 {
     object oPC = GetLastPCRested();
     SetLocalFloat(oPC, H2_CURR_FATIGUE, 1.0);
-    _DeleteLocalInt(oPC, H2_IS_FATIGUED);
-    _DeleteLocalInt(oPC, H2_FATIGUE_SAVE_COUNT);
+    DeletePlayerInt(oPC, H2_IS_FATIGUED);
+    DeletePlayerInt(oPC, H2_FATIGUE_SAVE_COUNT);
 }
 
 //This script should be placed in the on used event
