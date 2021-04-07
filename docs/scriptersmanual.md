@@ -78,34 +78,36 @@ As a volunteer project, we fully expect that any person that works on this proje
 
 ## Data Management System
 
-Determining the status of a character is one of the most common functions in nwscript.  To that end, we're provided alias functions for them to reduce code maintenance and help to quickly determine identities/functions.  Just about every script in the module should have an include reference to `util_i_data`.  This script itself includes [`util_i_debug`](../framework/src/utils/util_i_debug.nss), so including `util_i_data` should provide you with a great portion of the functionality to set variables, determine identities, provide debug information and send messages around the module.
+Variable handling methods have been included that control where the variables will be saved.  With organic sqlite functionality, variables can be saved persistently or by session (volatile).  `util_i_variables` (which is included in `util_i_data`), contains two methods for storing persistent data:
+* For players -> [Get|Set|Delete]Player* functions will save to the player's sqlite db in their .bic file
+* For the module -> [Get|Set|Delete]Database* functions will save to an external campaign sqlite database
 
-*Note: all wrapper functions intended to replace original Bioware functions should have the same name as the original Bioware function with an underscore in front of them, such as `_GetIsDM()`.  You can also use the underscore to denote a module-wide custom function, such as `_GetIsPartyMember()`.  Module-wide custom functions must be generally applicable to all areas of the module, not a specific subset or system.  Pull requests to change files in the `framework`, `utilities`, `plugins/dialog` or `plugins/pw` will not be accepted without extensive testing.  All wrapper functions that are still in testing or are candidates for module-wide use should start with a double-underscore to make them easily identifiable.*
+To store volatile session-only data, there are two more options:
+* For any game object -> [Get|Set|Delete]Local*, which are the standard game functions for variable handling
+* For module-specific -> [Get|Set|Delete]Module* funtions will store volatile data to the module's sqlite db
 
 Here are the basic functions `util_i_data` provides:
 * `_GetIsPC()` - a replacement for nwscript's `GetIsPC()`.  Our version determines whether the character is player-controlled (PC) and not a DM.  So if you're trying to determine if a player is a PC and not a DM, use this function.
 * `_GetIsDM()` - a replacement for nwscript's `GetIsDM()`.  Our version determines whether the passes character object is a DM or a DM possessing an NPC.
 * `_GetIsPartyMember()` - will return whether the first passed object is a party member of the second passed object.
+* `GetIsRegisteredDM()` - will return whether the passed object is registered to the DM logs.  This check is done during login, so if a logging in DM is not registed, they will be booted.  Any PC that returns TRUE to `_GetIsDM()` after logging in *should* be a registered DM.
+* `GetIsDeveloper()` - will return whether the passed object is on the development team.  `IS_DEVELOPER` is set during the client entry process and `GetIsDeveloper` checks this variables.  If the variable is not found, it will re-check the database/2da to ensure the pc wasn't missed during the client enter event.
 
 It also provide variables handling methods, and show below.
 
 #### Variable Handling
 
-Dark Sun is not using the standard Bioware variable handling functions, at least publicly.  In `util_i_data`, there are functions to handle all variables in a manner similar to Bioware's original functions, but allow us to change how variables are set in the future without modifying large amounts of code to change function names.  Any code that uses Bioware's variable handling procedures will either be changed or rejected.  Here's how the custom functions work:
+Best practices for the various variable handling functions:
 
-* For PCs, pass the PC object as the first parameter and the functions will get/set/delete the variables off of the PC's item DATAPOINT per the normal methodology for HCR2 variable handling.
-* For the module, pass the `MODULE` object (literally -> `_GetLocalInt(MODULE, ...);`).  The MODULE object is a module-wide pointer to the MODULE datapoint we're using to store module variables.  We are not storing module variables directly on the module object normally obtained by `GetModule()`.
-* For all other objects, just pass the arguments normally and the functions will handle the variables just as if they were using the standard Bioware functions.
+* For PCs, use [Get|Set|Delete]Player* functions to hold persistent data.  Never save data meant to be volatile (such as timer ids, etc) to the player database, always save those using standard bioware variable handling methods.
+* For the module, use [Get|Set|Delete]Module* and pass the `MODULE` (literally -> `GetModuleInt(MODULE, ...);`).  You can also pass INVALID_OBJECT and the variable handling system will use the module object.  The MODULE object is a module-wide wrapper for `GetModule()` and will be avaialable for any script that includes `util_i_data`.  We are not storing module variables directly on the module object normally obtained by `GetModule()`.  All data stored via [Get|Set|Delete]Module* functions is session-only and will not survive a server restart, so if you need 
+* For all other objects, just pass the arguments normally to [Get|Set|Delete]Local* functions.  This data is also volatile.  Never save data meant to be assigned to a specific object to a persistent database, unless that object is the module object or a specific pc.  Object identifier *will change* on every server restart, so object ids saved in one session may not refer to the same object in the next session.  If you absolutely must save persistent data for general game objects, assign them in the toolset, or save via a unique tag instead of object id.
 
 Available functions within `util_i_data`:
 * `_GetIsDM`, `_GetIsDM`: Each PC has a variable set OnClientEnter to demarcate their status.  This prevents having to go through the rigamarole of figuring out if a creature is DM-possessed, a regular PC, etc.  These functions work on all creatures and will return correctly, even if they are possessed.
 * `_GetIsPartyMemeber`: Will return whether the first object is a member of the second object's party.
-* `_[Get|Set|Delete]Local[Int|Float|String|Object|Location|Vector]`: Overrides for Bioware functions of the same name, except for `_*LocalVector`, which there is no Bioware version of.  Any variable set on a PC will instead be set on an undroppable item the PC is assigned during OnClientEnter.  If a variable is not found, this code will also search the PC object for the variable and, if found, move it to the item variable list for future reference.  Module-level variables will be saved on the `MODULE` datapoint.  To save a variable on the module, you can send `MODULE`, `GetModule()` or `OBJECT_INVALID` as the object and the code will assign it to the `MODULE` datapoint.
-* Private functions (any function that is not prototyped) should not be called from outside this script as it may result in undefined behavior.
 
-*Note: The functions within this script are constantly changing, but the basic functionality of variable handling will never change -> `_SetLocalInt(<Object>, <Variable>, <Value>)` should always work.*
-
-To learn more and understand exactly how the functions work, open [`util_i_data`](../utilities/util_i_data.nss) and take a look!  You can ignore the first few functions in the script, they are experimental.
+To learn more and understand exactly how the functions work, open [`util_i_data`](../utilities/util_i_data.nss) and [`util_i_variables](../utilities/util_i_variables.nss) and take a look!
 
 ## Framework System
 
