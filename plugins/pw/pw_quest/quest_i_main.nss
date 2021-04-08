@@ -1759,6 +1759,8 @@ int AddQuest(string sQuestTag, string sTitle = "")
     }
 
     SetLocalInt(GetModule(), QUEST_BUILD_QUEST, nQuestID);
+    DeleteLocalInt(GetModule(), QUEST_BUILD_STEP);
+    DeleteLocalInt(GetModule(), QUEST_BUILD_OBJECTIVE);
     return nQuestID;
 }
 
@@ -2587,7 +2589,6 @@ void AssignQuest(object oPC, string sQuestTag)
 int RunQuestScript(object oPC, string sQuestTag, string sQuestEvent)
 {
     string sScript;
-    int bSetStep = FALSE;
     int nResult = TRUE;
     int nQuestID = GetQuestID(sQuestTag);
 
@@ -2596,10 +2597,7 @@ int RunQuestScript(object oPC, string sQuestTag, string sQuestEvent)
     else if (sQuestEvent == QUEST_EVENT_ON_ACCEPT)
         sScript = GetQuestScriptOnAccept(sQuestTag);
     else if (sQuestEvent == QUEST_EVENT_ON_ADVANCE)
-    {
         sScript = GetQuestScriptOnAdvance(sQuestTag);
-        bSetStep = TRUE;
-    }
     else if (sQuestEvent == QUEST_EVENT_ON_COMPLETE)
         sScript = GetQuestScriptOnComplete(sQuestTag);
     else if (sQuestEvent == QUEST_EVENT_ON_FAIL)
@@ -2611,19 +2609,23 @@ int RunQuestScript(object oPC, string sQuestTag, string sQuestEvent)
     // Set values that the script has available to it
     SetLocalString(oModule, QUEST_CURRENT_QUEST, sQuestTag);
     SetLocalString(oModule, QUEST_CURRENT_EVENT, sQuestEvent);
-    if (bSetStep)
+    if (sQuestEvent == QUEST_EVENT_ON_ADVANCE)
     {
         nStep = GetPCQuestStep(oPC, sQuestTag);
         SetLocalInt(oModule, QUEST_CURRENT_STEP, nStep);
     }
+    else
+        DeleteLocalInt(oModule, QUEST_CURRENT_STEP);
 
     QuestDebug("Running " + QuestEventToString(sQuestEvent) + " event script " +
-        "for " + QuestToString(nQuestID) + (bSetStep ? " " + StepToString(nStep) : "") + 
+        "for " + QuestToString(nQuestID) + (sQuestEvent == QUEST_EVENT_ON_ADVANCE ? " " + StepToString(nStep) : "") + 
         " with " + PCToString(oPC) + " as OBJECT_SELF");
     
+    Notice("Running event " + sQuestEvent + " with " + GetName(oPC) + " as oInit/oSelf");
+
     // Run Prioritized scripts:
     //    Global Event Scripts -> Assigned Event Script -> Tag-Based Scripting
-    if (!(RunEvent(sQuestEvent, oPC) & EVENT_STATE_DENIED))
+    if (!(RunEvent(sQuestEvent, oPC, oPC) & EVENT_STATE_DENIED))
     {
         if (RunLibraryScript(sScript, oPC) <= 0)
             // Tag-based scripting can be cancelled by setting a return value
@@ -2808,7 +2810,6 @@ void AdvanceQuest(object oPC, int nQuestID, int nRequestType = QUEST_ADVANCE_SUC
         {
             // Next step is the last step, go to the completion step
             nNextStep = GetQuestCompletionStep(nQuestID);
-            
             
             if (nNextStep == -1)
             {
@@ -3546,6 +3547,24 @@ void SetQuestStepObjectiveDescriptor(string sDescriptor)
     string sQuestTag = GetQuestTag(nQuestID);
 
     SetQuestString(sQuestTag, QUEST_DESCRIPTOR + IntToString(nObjectiveID), sDescriptor);
+}
+
+string GetQuestWebhookMessage(string sQuestTag, int nStep = 0)
+{
+    return GetQuestString(sQuestTag, QUEST_WEBHOOK + IntToString(nStep));
+}
+
+void SetQuestWebhookMessage(string sMessage)
+{
+    if (sMessage == "")
+        return;
+
+    int nQuestID = GetLocalInt(GetModule(), QUEST_BUILD_QUEST);
+    int nStep = GetLocalInt(GetModule(), QUEST_BUILD_STEP);
+    string sQuestTag = GetQuestTag(nQuestID);
+    string sVarName = QUEST_WEBHOOK + IntToString(nStep);
+
+    SetQuestString(sQuestTag, sVarName, sMessage);
 }
 
 void SetQuestPrerequisiteAlignment(int nAlignmentAxis, int bNeutral = FALSE)

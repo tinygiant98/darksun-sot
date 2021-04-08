@@ -158,3 +158,5 @@ const string NOT_EQUAL_TO = "!=";
 
 // Debugging
 const string QUEST_INDENT = "QUEST_INDENT";
+
+const string QUEST_WEBHOOK = "QUEST_WEBHOOK_";

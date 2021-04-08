@@ -71,6 +71,8 @@ void pw_SavePCLocation_OnTimerExpire();
 
 void pw_OnModuleLoad()
 {
+    CreateVariablesTable(MODULE);
+
     h2_SaveServerEpoch();
     h2_RestoreSavedCalendar();
     h2_SaveServerStartTime();
@@ -90,6 +92,8 @@ void pw_OnClientEnter()
 {
     object oPC = GetEnteringObject();
     
+    CreateVariablesTable(oPC);
+
     if (!AssignRole(oPC))
     {
         SetLocalInt(oPC, LOGIN_BOOT, TRUE);

@@ -30,6 +30,15 @@ void OnLibraryLoad()
     RegisterLibraryScript("quest_OnModuleLoad", 1);
     RegisterLibraryScript("quest_OnClientEnter", 2);
     RegisterLibraryScript("quest_OnPlayerChat", 3);
+
+    RegisterLibraryScript("QUEST_GetCurrentQuest", 15);
+    RegisterLibraryScript("QUEST_GetCurrentQuestStep", 16);
+    RegisterLibraryScript("QUEST_GetCurrentQuestEvent", 17);
+    RegisterLibraryScript("QUEST_GetCurrentWebhookMessage", 18);
+    
+    RegisterLibraryScript("QUEST_GetQuestString", 20);
+
+    
 }
 
 void OnLibraryScript(string sScript, int nEntry)
@@ -40,6 +49,13 @@ void OnLibraryScript(string sScript, int nEntry)
         case 1:  quest_OnModuleLoad(); break;
         case 2:  quest_OnClientEnter(); break;
         case 3:  quest_OnPlayerChat(); break;
+
+        case 15: QUEST_GetCurrentQuest(); break;
+        case 16: QUEST_GetCurrentQuestStep(); break;
+        case 17: QUEST_GetCurrentQuestEvent(); break;
+        case 18: QUEST_GetCurrentWebhookMessage(); break;
+
+        case 20: QUEST_GetQuestString(); break;
 
         default: CriticalError("Library function " + sScript + " not found");
     }

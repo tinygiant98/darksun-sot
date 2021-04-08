@@ -11,6 +11,7 @@
 
 #include "quest_i_main"
 #include "util_i_chat"
+#include "util_i_argstack"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -37,6 +38,54 @@ void quest_OnClientEnter()
     UpdatePCQuestTables(oPC);
     CleanPCQuestTables(oPC);
     UpdateJournalQuestEntries(oPC);
+}
+
+void QUEST_GetQuestString()
+{
+    string sQuestTag = GetArgumentString();
+    int nStep = GetArgumentInt();
+
+    string sMessage = GetQuestWebhookMessage(sQuestTag, nStep);
+    PushReturnValueString(sMessage);
+}
+
+void QUEST_GetCurrentQuest()
+{
+    string sQuestTag = GetCurrentQuest();
+    PushReturnValueString(sQuestTag);
+}
+
+void QUEST_GetCurrentQuestStep()
+{
+    int nStep = GetCurrentQuestStep();
+    PushReturnValueInt(nStep);
+}
+
+void QUEST_GetCurrentQuestEvent()
+{
+    string sEvent = GetCurrentQuestEvent();
+    PushReturnValueString(sEvent);
+}
+
+void QUEST_GetCurrentWebhookMessage()
+{
+    string sQuestTag = GetCurrentQuest();
+    string sEvent = GetCurrentQuestEvent();
+    int nStep, nQuestID = GetQuestID(sQuestTag);
+
+    if (sEvent == QUEST_EVENT_ON_ASSIGN)
+        nStep = 0;
+    else if (sEvent == QUEST_EVENT_ON_ACCEPT)
+        nStep = 0;
+    else if (sEvent == QUEST_EVENT_ON_ADVANCE)
+        nStep = GetCurrentQuestStep();
+    else if (sEvent == QUEST_EVENT_ON_COMPLETE)
+        nStep = GetQuestCompletionStep(nQuestID, QUEST_ADVANCE_SUCCESS);
+    else if (sEvent == QUEST_EVENT_ON_FAIL)
+        nStep = GetQuestCompletionStep(nQuestID, QUEST_ADVANCE_FAIL);
+
+    string sMessage = GetQuestWebhookMessage(sQuestTag, nStep);
+    PushReturnValueString(sMessage);
 }
 
 void quest_OnPlayerChat()
@@ -110,6 +159,23 @@ void quest_OnPlayerChat()
                 string s = Indent(TRUE);
                 Debug(ColorFail(s + "No quests loaded into module database"));
             }
+        }
+
+        return;
+    }
+
+    if (HasChatOption(oPC, "reset"))
+    {
+        if (HasChatOption(oPC, "pc"))
+        {
+            CreatePCQuestTables(oPC, TRUE);
+            SendChatResult("Quest tables for " + PCToString(oPC) + " have been reset", oPC);
+        }
+        else
+        {
+            CreateModuleQuestTables(TRUE);
+            RunLibraryScript("ds_quest_OnModuleLoad");
+            SendChatResult("Module quest tables have been reset", oPC);
         }
 
         return;

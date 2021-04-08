@@ -93,15 +93,26 @@ void define_quest_demo_gather()
     SetQuestRepetitions(0);
     SetQuestVersion(1);
     SetQuestVersionActionDelete();
+    SetQuestWebhookMessage("<FullName>, one of the greatest <race> <classes> to have ever graced the " +
+        "hallowed ground of, ummm, <area>, has undertaken the very dangerous quest to gather the strewn " +
+        "armor pieces from the open prairies, so carelessly left there by that little know-it-all Hadji.");
 
     AddQuestStep();
+    SetQuestStepPrewardMessage(HexColorString("This quest demonstrates a non-sequential progression.  You're required " +
+        "to collect all nine items in the armor field, but the order you collect them in does not " +
+        "matter.", COLOR_CYAN));
     SetQuestStepObjectiveGather("quest_gather_helmet", 3);
     SetQuestStepObjectiveGather("quest_gather_shield", 3);
     SetQuestStepObjectiveGather("quest_gather_armor", 3);
+    
 
     AddQuestResolutionSuccess();
+    SetQuestWebhookMessage("OMG, did you see that, <FullName> totally picked up all that trash that Hadji Singh left. " +
+        "Dude, <he/she>'ll do anything for a little gold.  Quick, tell <him/her> to put in the wagon next, see if <he/she> does it.");
     SetQuestStepRewardAlignment(ALIGNMENT_GOOD, 2);
     SetQuestStepRewardMessage("Thanks for the help!");
+    SetQuestStepRewardMessage(HexColorString("Since this is just a demonstration, all the items you just collected " +
+        "were removed from your inventory.  In production, the fate of the items will be up to the storyteller.", COLOR_CYAN));
 }
 
 void define_quest_demo_deliver()
