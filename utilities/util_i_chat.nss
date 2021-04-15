@@ -280,6 +280,7 @@ Adding Prefix Flags:
         SendChatResult("Here's some info!", oPC, FLAG_INFO)
 */
 
+#include "util_i_argstack"
 #include "util_i_data"
 #include "util_i_datapoint"
 #include "util_i_varlists"
@@ -333,6 +334,7 @@ const string COMMAND = "CHAT_COMMAND";
 const string ARGUMENTS = "CHAT_ARGUMENTS";
 const string OPTIONS = "CHAT_OPTIONS";
 const string PAIRS = "CHAT_PAIRS";
+const string RESULT = "CHAT_RESULT";
 
 // Bitwise integers for chat struct components
 const int CHAT_ARGUMENTS = 0x01;
@@ -360,6 +362,7 @@ struct COMMAND_LINE
     string options;
     string pairs;
     string args;
+    string result;
 };
 
 // -----------------------------------------------------------------------------
@@ -580,6 +583,7 @@ void _SaveParsedChatLine(object oPC, struct COMMAND_LINE cl)
     SetLocalString(oChat, OPTIONS, cl.options);
     SetLocalString(oChat, PAIRS, cl.pairs);
     SetLocalString(oChat, ARGUMENTS, cl.args);
+    SetLocalString(oChat, RESULT, cl.result);
 }
 
 // private
@@ -594,6 +598,7 @@ struct COMMAND_LINE _GetParsedChatLine(object oPC)
     cl.options = GetLocalString(oChat, OPTIONS);
     cl.pairs = GetLocalString(oChat, PAIRS);
     cl.args = GetLocalString(oChat, ARGUMENTS);
+    cl.result = GetLocalString(oChat, RESULT);
 
     return cl;
 }
@@ -1146,6 +1151,10 @@ void SendChatResult(string sMessage, object oPC, int nFlag = FALSE, int nRecipie
         sPrefix = HexColorString("[Info] ", COLOR_CYAN);
     
     SendMessageToPC(oPC, (nFlag ? sPrefix : "") + sMessage);
+
+    struct COMMAND_LINE cl = _GetParsedChatLine(oPC);
+    cl.result = UnColorString(sMessage);
+    _SaveParsedChatLine(oPC, cl);
 
     if (nFlag)
         return;

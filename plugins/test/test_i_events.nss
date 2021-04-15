@@ -228,7 +228,6 @@ void test_time_OnPlayerChat()
 
     if (sTime != "")
     {
-        Notice("test_time_OnPlayerChat: sTime -> " + sTime);
         sTime = ConvertGameTimeToSystemTime(sTime);
         _SetCalendar(sTime, TRUE, TRUE);   
         SendChatResult("Game time has been set to " + FormatGameTime(), oPC);
@@ -300,6 +299,19 @@ void test_stake_OnPlayerChat()
         _SetLocalLocation(oPC, sVarName, lPC);
     }*/
     SetPCChatMessage();
+}
+
+void test_test_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+
+    if (HasChatOption(oPC, "webhook"))
+    {
+        CriticalError("This is a test of the debug webhook system for Critical Errors.");
+        Error("This is a test of the debug webhook system for Errors.");
+        Warning("This is a test of the debug webhook system for Warnings.");
+        Notice("This is a test of the debug webhook system for Notices.");
+    }
 }
 
 void test_debug_OnPlayerChat()

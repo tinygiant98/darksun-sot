@@ -33,6 +33,8 @@ void main()
         int nState = RunEvent(CHAT_PREFIX + sDesignator);
         if (!(nState & EVENT_STATE_DENIED))
             RunEvent(CHAT_PREFIX + sDesignator + sCommand);
+
+        RunEvent(MODULE_EVENT_ON_PLAYER_CHAT_COMMAND, oPC, oPC);
     }
 
     int nState = RunEvent(MODULE_EVENT_ON_PLAYER_CHAT);

@@ -8,6 +8,7 @@
 // -----------------------------------------------------------------------------
 
 #include "util_i_color"
+#include "util_i_argstack"
 
 // -----------------------------------------------------------------------------
 //                                   Constants
@@ -36,6 +37,11 @@ const int DEBUG_LOG_ALL  = 0xf;
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
+
+// ---< DebugLevelToString >---
+// ---< util_i_debug >---
+// Returns human-readable version of the passed debug level
+string DebugLevelToString(int nLevel = -1);
 
 // ---< OverrideDebugLevel >---
 // ---< util_i_debug >---
@@ -139,6 +145,24 @@ void CriticalError(string sMessage, object oTarget = OBJECT_SELF);
 //                             Function Definitions
 // -----------------------------------------------------------------------------
 
+string DebugLevelToString(int nLevel = -1)
+{
+    if (nLevel == -1)
+        nLevel = GetDebugLevel();
+
+    switch (nLevel)
+    {
+        case DEBUG_LEVEL_NONE: return "NONE";
+        case DEBUG_LEVEL_CRITICAL: return "CRITICAL ERROR";
+        case DEBUG_LEVEL_ERROR: return "ERROR";
+        case DEBUG_LEVEL_WARNING: return "WARNING";
+        case DEBUG_LEVEL_NOTICE: return "NOTICE";
+        case DEBUG_LEVEL_DEBUG: return "DEBUG";
+    }
+
+    return "NONE";
+}
+
 void OverrideDebugLevel(int nLevel)
 {
     nLevel = clamp(nLevel, DEBUG_LEVEL_NONE, DEBUG_LEVEL_DEBUG);
@@ -236,6 +260,14 @@ void Debug(string sMessage, int nLevel = DEBUG_LEVEL_DEBUG, object oTarget = OBJ
 
         if (nLogging & DEBUG_LOG_PC)
             SendMessageToPC(GetFirstPC(), sMessage);
+
+        if (nLevel != DEBUG_LEVEL_NONE && nLevel != DEBUG_LEVEL_DEBUG)
+        {
+            PushArgumentInt(nLevel);
+            PushArgumentString(sMessage);
+            //ExecuteScript("module_debug", oTarget);
+            ClearArgumentStacks();
+        }
     }
 }
 

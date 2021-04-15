@@ -112,6 +112,7 @@ void OnLibraryLoad()
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!debug", "test_debug_OnPlayerChat");
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!destroy", "test_destroy_OnPlayerChat");
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!run", "test_run_OnPlayerChat");
+        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!test", "test_test_OnPlayerChat");
 
         RegisterEventScripts(oPlugin, "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "nwnx_WalkTest");
         RegisterEventScripts(oPlugin, "NWNX_ON_INPUT_KEYBOARD_BEFORE", "nwnx_KeyboardTest");
@@ -135,6 +136,7 @@ void OnLibraryLoad()
     RegisterLibraryScript("test_debug_OnPlayerChat", 13);
     RegisterLibraryScript("test_destroy_OnPlayerChat", 14);
     RegisterLibraryScript("test_run_OnPlayerChat", 15);
+    RegisterLibraryScript("test_test_OnPlayerChat", 16);
 
     RegisterLibraryScript("nwnx_WalkTest", 100);
     RegisterLibraryScript("nwnx_KeyboardTest", 101);
@@ -170,6 +172,7 @@ void OnLibraryScript(string sScript, int nEntry)
         case 13: test_debug_OnPlayerChat(); break;
         case 14: test_destroy_OnPlayerChat(); break;
         case 15: test_run_OnPlayerChat(); break;
+        case 16: test_test_OnPlayerChat(); break;
 
         case 100: nwnx_WalkTest(); break;
         case 101: nwnx_KeyboardTest(); break;

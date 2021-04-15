@@ -12,7 +12,7 @@
 // -----------------------------------------------------------------------------
 
 // Debug utility functions
-#include "util_i_debug"
+//#include "util_i_debug"
 
 // CSV List utility functions
 #include "util_i_csvlists"
@@ -97,6 +97,9 @@ void LoadLibraries(string sLibraries, int bForce = FALSE);
 //   OBJECT_SELF when the library script is called.
 int RunLibraryScript(string sScript, object oSelf = OBJECT_SELF);
 
+// ---< DelayLibraryScript >---
+// ---< util_i_libraries >---
+// Convenience function to allow RunLibraryScript to be delayed.
 void DelayLibraryScript(string sScript, object oSelf = OBJECT_SELF);
 
 // ---< RunLibraryScripts >---
@@ -108,6 +111,9 @@ void DelayLibraryScript(string sScript, object oSelf = OBJECT_SELF);
 // - oSelf: the object that actually executes the script. This object will be
 //   treated as OBJECT_SELF when the library script is called.
 void RunLibraryScripts(string sScripts, object oSelf = OBJECT_SELF);
+
+// Debug utility functions
+#include "util_i_debug"
 
 // -----------------------------------------------------------------------------
 //                             Function Definitions

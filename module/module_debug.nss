@@ -3,9 +3,9 @@
 // to a much higher value, allowing the framework to fully load.  This must be
 // set before any other framework instructions are run.
 
-#include "nwnx_admin"
+#include "util_i_libraries"
 
 void main()
 {
-    NWNX_Administration_SetPlayerPassword(GetRandomUUID());
+    RunLibraryScript("webhook_OnModuleDebug", OBJECT_SELF);
 }

@@ -1,10 +1,30 @@
+#include "nwnx_admin"
+
+void ds_DelayStableEvent()
+{
+    RunEvent(MODULE_EVENT_ON_MODULE_STABLE);
+}
 
 void ds_OnClientEnter()
 {
 
-//    object oPC = GetEnteringObject();
+}
 
+void ds_OnModuleStable()
+{
+    NWNX_Administration_SetPlayerPassword("a");
+}
 
+void ds_OnHeartbeat()
+{
+    if (GetLocalInt(GetModule(), "MODULE_STABLE") == FALSE)
+    {
+        SetLocalInt(GetModule(), "MODULE_STABLE", TRUE);
+        DelayCommand(5.0, ds_DelayStableEvent());
+    }
+}
 
+void ds_OnPlayerChat()
+{
 
 }

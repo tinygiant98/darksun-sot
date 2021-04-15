@@ -135,6 +135,9 @@ const string MODULE_EVENT_ON_PLAYER_REST_FINISHED     = "OnPlayerRestFinished";
 const string MODULE_EVENT_ON_PLAYER_UNEQUIP_ITEM      = "OnPlayerUnEquipItem";
 const string MODULE_EVENT_ON_UNACQUIRE_ITEM           = "OnUnAcquireItem";
 const string MODULE_EVENT_ON_USER_DEFINED             = "OnUserDefined";
+const string MODULE_EVENT_ON_MODULE_SHUTDOWN          = "OnModuleShutdown";
+const string MODULE_EVENT_ON_MODULE_STABLE            = "OnModuleStable";
+const string MODULE_EVENT_ON_PLAYER_CHAT_COMMAND      = "OnPlayerChatCommand";
 
 // These are pseudo-events called by the Core Framework
 const string MODULE_EVENT_ON_SPELLHOOK                = "OnSpellhook";

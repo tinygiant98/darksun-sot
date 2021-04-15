@@ -1340,9 +1340,9 @@ void h2_LimitPostRestHeal(object oPC, int postRestHealAmt)
 
 int AssignRole(object oPC)
 {
-    DeletePlayerInt(oPC, IS_PC);
-    DeletePlayerInt(oPC, IS_DM);
-    DeletePlayerInt(oPC, IS_DEVELOPER);
+    DeleteLocalInt(oPC, IS_PC);
+    DeleteLocalInt(oPC, IS_DM);
+    DeleteLocalInt(oPC, IS_DEVELOPER);
 
     if (GetIsDM(oPC) && !GetIsRegisteredDM(oPC))
     {
@@ -1364,7 +1364,7 @@ int AssignRole(object oPC)
     }
 
     if (GetIsDeveloper(oPC))
-        SetPlayerInt(oPC, IS_DEVELOPER, TRUE);
+        SetLocalInt(oPC, IS_DEVELOPER, TRUE);
 
     return TRUE;
 }

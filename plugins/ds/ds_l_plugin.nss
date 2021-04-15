@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 //    File: ds_l_plugin.nss
-//  System: UnID Item on Drop Persistent World Subsystem (library)
+//  System: Dark Sun Core System (library)
 //     URL: 
 // Authors: Edward A. Burke (tinygiant) <af.hog.pilot@gmail.com>
 // -----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ void OnLibraryLoad()
         object oPlugin = GetPlugin("ds", TRUE);
         SetName(oPlugin, "[Plugin] DS :: Core");
         SetDescription(oPlugin,
-            "This plugin controls the UnID Item on Drop Persistent World Subsystem.");
+            "This plugin represents the Dark Sun Core functions.");
         SetPluginLibraries(oPlugin, "tr_l_plugin, ds_htf_l_plugin, ds_l_aoe, ds_l_area, ds_l_creature, " +
             "ds_l_door, ds_l_encounter, ds_l_item, ds_l_merchant, ds_l_placeable, ds_l_quest, ds_l_trap, " +
             "ds_l_trigger, ds_fug_l_plugin, ds_fug_l_dialog, ds_rest_l_plugin, ds_qst_l_plugin, " +
@@ -44,9 +44,15 @@ void OnLibraryLoad()
 
         //Add module level events
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "ds_OnClientEnter", 4.0);
+        RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_STABLE, "ds_OnModuleStable", 4.0);
+        RegisterEventScripts(oPlugin, MODULE_EVENT_ON_HEARTBEAT, "ds_OnHeartbeat", EVENT_PRIORITY_FIRST);
+        RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_CHAT, "ds_OnPlayerChat", 4.0);
     }
 
     RegisterLibraryScript("ds_OnClientEnter", 1);
+    RegisterLibraryScript("ds_OnModuleStable", 2);
+    RegisterLibraryScript("ds_OnHeartbeat", 3);
+    RegisterLibraryScript("ds_OnPlayerChat", 4);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
@@ -54,6 +60,9 @@ void OnLibraryScript(string sScript, int nEntry)
     switch (nEntry)
     {
         case 1:  ds_OnClientEnter(); break;
+        case 2:  ds_OnModuleStable(); break;
+        case 3:  ds_OnHeartbeat(); break;
+        case 4:  ds_OnPlayerChat(); break;
         default: CriticalError("Library function " + sScript + " not found");
     }
 }
