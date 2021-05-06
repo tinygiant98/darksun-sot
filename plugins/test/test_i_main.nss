@@ -14,8 +14,11 @@
 #include "test_i_text"
 
 #include "util_i_data"
+#include "util_i_debug"
 #include "util_i_libraries"
 #include "core_i_framework"
+
+#include "nwnx_creature"
 
 const int TYPE_INTEGER = 1;
 const int TYPE_FLOAT = 2;
@@ -362,4 +365,169 @@ void SetVariable(object oPC, object oTarget)
 
     if (sType != "")      
         SendChatResult(sType + " variable " + sVarName + " with value " + (sResult == "" ? sValue : sResult) + " set on " + (GetIsPC(oPC) ? GetName(oTarget) : GetTag(oTarget)), oPC);
+}
+
+void test_polymorph()
+{
+  object oPC = OBJECT_SELF;
+  string sCurrentEvent = NWNX_Events_GetCurrentEvent();
+  if (sCurrentEvent == "NWNX_ON_POLYMORPH_BEFORE") {
+    //Saving of spell-casting memorised/remaining slots for restoration on unpolymorph.
+    int ClassPos, InitDone;
+    for(ClassPos = 1; ClassPos <= 3; ClassPos++) {
+      int Class = GetClassByPosition(ClassPos, oPC);
+      if(Get2DAString("classes", "SpellCaster", Class) != "1")
+        continue;//not a spellcasting class, skip it
+
+      if (!InitDone) { //prep - only once
+        SqlStep(SqlPrepareQueryObject(oPC, "CREATE TABLE IF NOT EXISTS PolySpellRestore (ClassID INTEGER, Can INTEGER, One INTEGER, Two INTEGER, Three INTEGER, Four INTEGER, Five INTEGER, Six INTEGER, Seven INTEGER, Eight INTEGER, Nine INTEGER)"));
+        SqlStep(SqlPrepareQueryObject(oPC, "BEGIN TRANSACTION"));
+        InitDone = TRUE;
+      }
+
+      if(!StringToInt(Get2DAString("classes", "MemorizesSpells", Class))) { //Sorc-like casters
+        sqlquery SorcLikeSQL = SqlPrepareQueryObject(oPC, "INSERT INTO PolySpellRestore(ClassID, Can, One, Two, Three, Four, Five, Six, Seven, Eight, Nine) VALUES (@Class, @Ca, @On, @Tw, @Th, @Fo, @Fi, @Si, @Se, @Ei, @Ni)");
+        SqlBindInt(SorcLikeSQL, "@Class", Class);
+        SqlBindInt(SorcLikeSQL, "@Ca", NWNX_Creature_GetRemainingSpellSlots(oPC, Class, 0));
+        SqlBindInt(SorcLikeSQL, "@On", NWNX_Creature_GetRemainingSpellSlots(oPC, Class, 1));
+        SqlBindInt(SorcLikeSQL, "@Tw", NWNX_Creature_GetRemainingSpellSlots(oPC, Class, 2));
+        SqlBindInt(SorcLikeSQL, "@Th", NWNX_Creature_GetRemainingSpellSlots(oPC, Class, 3));
+        SqlBindInt(SorcLikeSQL, "@Fo", NWNX_Creature_GetRemainingSpellSlots(oPC, Class, 4));
+        SqlBindInt(SorcLikeSQL, "@Fi", NWNX_Creature_GetRemainingSpellSlots(oPC, Class, 5));
+        SqlBindInt(SorcLikeSQL, "@Si", NWNX_Creature_GetRemainingSpellSlots(oPC, Class, 6));
+        SqlBindInt(SorcLikeSQL, "@Se", NWNX_Creature_GetRemainingSpellSlots(oPC, Class, 7));
+        SqlBindInt(SorcLikeSQL, "@Ei", NWNX_Creature_GetRemainingSpellSlots(oPC, Class, 8));
+        SqlBindInt(SorcLikeSQL, "@Ni", NWNX_Creature_GetRemainingSpellSlots(oPC, Class, 9));
+        SqlStep(SorcLikeSQL);
+      }
+      else { //all Wizard-like-cases here - Because Wizards are too smart for their own good we're going to bit-mask it. Note undefined behaviour if anyone ever memorises more than 32 spells of one spell level (HA!)
+        sqlquery WizLikeSQL = SqlPrepareQueryObject(oPC, "INSERT INTO PolySpellRestore(ClassID, Can, One, Two, Three, Four, Five, Six, Seven, Eight, Nine) VALUES (@Class, @Ca, @On, @Tw, @Th, @Fo, @Fi, @Si, @Se, @Ei, @Ni)");
+        SqlBindInt(WizLikeSQL, "@Class", Class);
+        int spellLevel;
+        for(spellLevel = 0; spellLevel <= 9; spellLevel++) {
+          int memIndexCount = NWNX_Creature_GetMemorisedSpellCountByLevel(oPC, Class, spellLevel);
+          if(memIndexCount == 0) continue; //skip this line if there's no memorised spells.
+          string VarName;
+          switch(spellLevel) { //get the right var for the sql binding.
+            case 0: VarName = "@Ca"; break;
+            case 1: VarName = "@On"; break;
+            case 2: VarName = "@Tw"; break;
+            case 3: VarName = "@Th"; break;
+            case 4: VarName = "@Fo"; break;
+            case 5: VarName = "@Fi"; break;
+            case 6: VarName = "@Si"; break;
+            case 7: VarName = "@Se"; break;
+            case 8: VarName = "@Ei"; break;
+            case 9: VarName = "@Ni"; break;
+          }
+
+          int Index, BitmaskReady;
+          for(Index = 0; Index < memIndexCount; Index++) {
+            struct NWNX_Creature_MemorisedSpell spellStruct = NWNX_Creature_GetMemorisedSpell(oPC, Class, spellLevel, Index);
+            if(spellStruct.ready == 1) BitmaskReady |= (1 << Index); //Add the '1' bit-shifted by the Index to the bitmask.
+          }
+          //now we've got the bitmask so let's bind it!
+          SqlBindInt(WizLikeSQL, VarName, BitmaskReady);
+        }
+        SqlStep(WizLikeSQL); //Having now done all spell-levels: Do!
+      }
+    }
+    if(InitDone) {
+      SqlStep(SqlPrepareQueryObject(oPC, "COMMIT TRANSACTION")); //if we found any spellcasting, and therefore began the transaction: Commit it.
+      SetLocalInt(oPC, "POLYMORPH_SPELL_TABLE", TRUE);
+    }
+  }
+  else if (sCurrentEvent == "NWNX_ON_UNPOLYMORPH_AFTER") {
+    // Restoration of spells memorised/remaining as saved in Polymorph_Before.
+    if(!GetLocalInt(oPC, "POLYMORPH_SPELL_TABLE")) return;
+    int ClassPos;
+    for(ClassPos = 1; ClassPos <= 3; ClassPos++)
+    {
+      int Class = GetClassByPosition(ClassPos, oPC);
+      if(Get2DAString("classes", "SpellCaster", Class) != "1")
+        continue;//not a spellcasting class, skip it
+
+      //Get the spell-array for this class...
+      sqlquery ReadySpellSQL = SqlPrepareQueryObject(oPC, "SELECT Can, One, Two, Three, Four, Five, Six, Seven, Eight, Nine FROM PolySpellRestore WHERE ClassID = @Class");
+      SqlBindInt(ReadySpellSQL, "@Class", Class);
+      SqlStep(ReadySpellSQL);
+
+      if(!StringToInt(Get2DAString("classes", "MemorizesSpells", Class))) //Sorc-like casters
+      {
+        NWNX_Creature_SetRemainingSpellSlots(oPC, Class, 0, SqlGetInt(ReadySpellSQL, 0));
+        NWNX_Creature_SetRemainingSpellSlots(oPC, Class, 1, SqlGetInt(ReadySpellSQL, 1));
+        NWNX_Creature_SetRemainingSpellSlots(oPC, Class, 2, SqlGetInt(ReadySpellSQL, 2));
+        NWNX_Creature_SetRemainingSpellSlots(oPC, Class, 3, SqlGetInt(ReadySpellSQL, 3));
+        NWNX_Creature_SetRemainingSpellSlots(oPC, Class, 4, SqlGetInt(ReadySpellSQL, 4));
+        NWNX_Creature_SetRemainingSpellSlots(oPC, Class, 5, SqlGetInt(ReadySpellSQL, 5));
+        NWNX_Creature_SetRemainingSpellSlots(oPC, Class, 6, SqlGetInt(ReadySpellSQL, 6));
+        NWNX_Creature_SetRemainingSpellSlots(oPC, Class, 7, SqlGetInt(ReadySpellSQL, 7));
+        NWNX_Creature_SetRemainingSpellSlots(oPC, Class, 8, SqlGetInt(ReadySpellSQL, 8));
+        NWNX_Creature_SetRemainingSpellSlots(oPC, Class, 9, SqlGetInt(ReadySpellSQL, 9));
+      }
+      else //all Wizard-like-cases here - Unfolding the bitmask (Cause Wizards are still too smart)
+      {
+        int spellLevel;
+        for(spellLevel = 0; spellLevel <= 9; spellLevel++)
+        {
+          int memIndexCount = NWNX_Creature_GetMemorisedSpellCountByLevel(oPC, Class, spellLevel);
+          if(memIndexCount == 0) continue; //skip this line if there's no memorised spells.
+          int BitmaskReady = SqlGetInt(ReadySpellSQL, spellLevel);
+          int Index;
+          for(Index = 0; Index < memIndexCount; Index++)
+          {
+            struct NWNX_Creature_MemorisedSpell spellStruct = NWNX_Creature_GetMemorisedSpell(oPC, Class, spellLevel, Index); //Get the current one...
+            if(spellStruct.id == -1) 
+            {
+                continue;
+            }
+            if(BitmaskReady & (1 << Index)) {
+              spellStruct.ready = 1; // If bitmask test is passed, it's good! if not, chuck it.
+            }
+            else {
+              spellStruct.ready = 0;
+            }
+            DelayCommand(0.7, NWNX_Creature_SetMemorisedSpell(oPC, Class, spellLevel, Index, spellStruct)); // and now set it with the corrected ready state.
+
+          }
+        }
+      }
+
+    }
+    SqlStep(SqlPrepareQueryObject(oPC, "DROP TABLE IF EXISTS PolySpellRestore")); //wipe that table OUT
+    DeleteLocalInt(oPC, "POLYMORPH_SPELL_TABLE");
+
+
+  }
+
+}
+
+void test_spells()
+{
+    
+
+    object oPC = GetPCChatSpeaker();
+    Notice(HexColorString("Reviewing Known Spells for " + HexColorString(GetName(oPC), COLOR_CYAN), COLOR_RED_LIGHT));
+    int ClassPos;
+    
+    for(ClassPos = 1; ClassPos <= 3; ClassPos++) 
+    {
+        int Class = GetClassByPosition(ClassPos, oPC);
+        if (Get2DAString("classes", "SpellCaster", Class) != "1")
+            continue;//not a spellcasting class, skip it
+
+        int spellLevel;
+        for (spellLevel = 0; spellLevel <= 9; spellLevel++)
+        {
+            int Index, memIndexCount = NWNX_Creature_GetMemorisedSpellCountByLevel(oPC, Class, spellLevel);
+            Notice(HexColorString("Spell level " + IntToString(spellLevel) + " has " + IntToString(memIndexCount) + " spells", COLOR_ORANGE_LIGHT));
+            for(Index = 0; Index < memIndexCount; Index++)
+            {
+                struct NWNX_Creature_MemorisedSpell spellStruct = NWNX_Creature_GetMemorisedSpell(oPC, Class, spellLevel, Index);
+                Notice("  Spell at Index " + HexColorString(IntToString(Index), COLOR_CYAN));
+                Notice("    ID -> " + IntToString(spellStruct.id));
+                Notice("    Ready? -> " + (spellStruct.ready ? "TRUE":"FALSE"));
+            }            
+        }
+    }
 }

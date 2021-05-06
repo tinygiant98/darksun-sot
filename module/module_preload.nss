@@ -4,8 +4,10 @@
 // set before any other framework instructions are run.
 
 #include "nwnx_admin"
+#include "nwnx_util"
 
 void main()
 {
     NWNX_Administration_SetPlayerPassword(GetRandomUUID());
+    NWNX_Util_SetInstructionLimit(5000000);
 }

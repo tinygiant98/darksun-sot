@@ -117,5 +117,16 @@ void webhook_OnModuleDebug()
 
 void webhook_OnHour()
 {
-    CultureWebhook();
+    // Period is (nPeriod + 1) * 2 minutes (10 = 22 minutes, 14 = 30 minutes)
+    // or -- nPeriod = (Desired Interval) / 2 - 1
+    int nPeriod = 10;
+
+    int nHourCount = GetLocalInt(GetModule(), "WEBHOOK_HOUR_COUNT");
+    if (nHourCount >= nPeriod)
+    {
+        CultureWebhook();
+        DeleteLocalInt(GetModule(), "WEBHOOK_HOUR_COUNT");
+    }
+    else
+        SetLocalInt(GetModule(), "WEBHOOK_HOUR_COUNT", ++nHourCount);
 }

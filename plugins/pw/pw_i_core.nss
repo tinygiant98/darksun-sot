@@ -1272,7 +1272,7 @@ void h2_SavePersistentPCData(object oPC)
 
 int h2_GetAllowRest(object oPC)
 {
-    return GetPlayerInt(oPC, H2_ALLOW_REST);
+    return GetLocalInt(oPC, H2_ALLOW_REST);
 }
 
 void h2_SetAllowRest(object oPC, int bAllowRest)

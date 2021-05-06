@@ -241,6 +241,8 @@ void pw_OnPlayerRestStarted()
         h2_OpenRestDialog(oPC);
     else if (!h2_GetAllowRest(oPC))
     {
+        Notice("Cancelling rest!");
+
         SetLocalInt(oPC, H2_SKIP_CANCEL_REST, TRUE);
         AssignCommand(oPC, ClearAllActions());
         SendMessageToPC(oPC, H2_TEXT_REST_NOT_ALLOWED_HERE);

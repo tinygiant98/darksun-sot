@@ -51,7 +51,7 @@ void ds_htf_OnAreaEnter()
     int nAreaType = GetLocalInt(GetArea(oCreature), DS_HTF_VARIABLE_AREATYPE);
     string sAreaPaid = GetLocalString(oCreature, DS_HTF_LAST_TRAVEL_COST_PAID);
 
-    if(_GetIsPC(oCreature) && !nAreaType)
+    if (_GetIsPC(oCreature) && !nAreaType)
     {
         string sPCMessage = ds_GetAreaTravelMessage(nAreaType);
         if (sPCMessage != "") 
@@ -64,15 +64,16 @@ void ds_htf_OnAreaEnter()
         return;
     }
 
-    if (ds_GetAreaTravelCost(nAreaType) > 0) ds_CreateAreaTravelTimer(oCreature);
-        else if(sAreaPaid != "")
-        {
-            int nTimerID = CreateTimer(oCreature, DS_HTF_AREA_ON_TIMER_EXPIRE, DS_HTF_AREATRAVELCOST_DELAY, 1, 0);
-            //int nTimerID = h2_CreateTimer(oCreature, DS_HTF_KILLTIMER_SCRIPT, DS_HTF_AREATRAVELCOST_DELAY, FALSE, 1);
-            SetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER, nTimerID);
-            StartTimer(nTimerID, FALSE);
-            //h2_StartTimer(nTimerID);
-        }
+    if (ds_GetAreaTravelCost(nAreaType) > 0) 
+        ds_CreateAreaTravelTimer(oCreature);
+    else if (sAreaPaid != "")
+    {
+        int nTimerID = CreateTimer(oCreature, DS_HTF_AREA_ON_TIMER_EXPIRE, DS_HTF_AREATRAVELCOST_DELAY, 1, 0);
+        //int nTimerID = h2_CreateTimer(oCreature, DS_HTF_KILLTIMER_SCRIPT, DS_HTF_AREATRAVELCOST_DELAY, FALSE, 1);
+        SetLocalInt(oCreature, DS_HTF_VARIABLE_KILLTIMER, nTimerID);
+        StartTimer(nTimerID, FALSE);
+        //h2_StartTimer(nTimerID);
+    }
 }
 
 //PCs entering non-populated areas may incur a travel cost.  This cost is charged through use

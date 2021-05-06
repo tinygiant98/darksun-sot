@@ -446,6 +446,22 @@
                       "type": "byte",
                       "value": 21
                     },
+                    "LIST": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "__struct_id": 0,
+                          "NAME": {
+                            "type": "cexostring",
+                            "value": "Amulet of Power"
+                          },
+                          "RESREF": {
+                            "type": "resref",
+                            "value": "amuletofpower"
+                          }
+                        }
+                      ]
+                    },
                     "STRREF": {
                       "type": "dword",
                       "value": 6750

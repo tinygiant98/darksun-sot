@@ -58,10 +58,10 @@ void OnLibraryLoad()
 void OnLibraryScript(string sScript, int nEntry)
 {
     if (!H2_USE_HUNGERTHIRST_SYSTEM && !H2_USE_FATIGUE_SYSTEM)
-        {
-            CriticalError("Library function called on inactive system (DS_HTF)");
-            return;
-        }
+    {
+        CriticalError("Library function called on inactive system (DS_HTF)");
+        return;
+    }
 
     switch (nEntry)
     {
