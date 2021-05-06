@@ -205,14 +205,6 @@ string sSpecial = "NWNX_SET_MEMORIZED_SPELL_SLOT_BEFORE,NWNX_SET_MEMORIZED_SPELL
                   "NWNX_ON_CALENDAR_HOUR,NWNX_ON_CALENDAR_DAY,NWNX_ON_CALENDAR_MONTH,NWNX_ON_CALENDAR_YEAR," +
                   "NWNX_ON_CALENDAR_DAWN,NWNX_ON_CALENDAR_DUSK";
 
-void nwnx_CreateEventsDatabase()
-{
-    string sQuery = "CREATE TABLE IF NOT EXISTS nwnx_event (" +
-                        "id INTEGER AUTOINCREMENT, " +
-                        "event_name TEXT NOT NULL"
-}
-
-
 void OnLibraryLoad()
 {
     if (!TEST_USE_TEST_SYSTEM)
