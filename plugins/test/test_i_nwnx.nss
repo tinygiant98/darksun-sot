@@ -88,10 +88,12 @@ void test_nwnx_DisplayEventData(string sEvent, string sDatas, string sTypes)
 
 void test_nwnx_GetEventData(string sEvent)
 {
+    /*
     if (FindSubString(sEvent, "ADD_ASSOCIATE") || FindSubString(sEvent, "REMOVE_ASSOCIATE")
     {
         sDatas = "ASSOCIATE_OBJECT_ID";
         sTypes = "object";
     }
     else if (FindSubString(sEvent, ))
+    */
 }

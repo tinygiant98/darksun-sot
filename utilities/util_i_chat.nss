@@ -1187,7 +1187,7 @@ void SendChatResult(string sMessage, object oPC, int nFlag = FALSE, int nRecipie
                                  (LOG_ALL_CHAT_RESULTS ? "Automatic " : "User Directed ") + "Log Entry: Chat Command Results" +
                                  "\n  PC -> " + GetName(oPC) + " in " + GetName(GetArea(oPC)) +
                                  "\n  Command -> " + GetChatLine(oPC) +
-                                 "\n  Result -> " + sMessage);
+                                 "\n  Result -> " + UnColorString(sMessage));
 }
 
 object GetChatTarget(object oPC, int nRevert = TARGET_NO_REVERT, object oDefault = OBJECT_INVALID)

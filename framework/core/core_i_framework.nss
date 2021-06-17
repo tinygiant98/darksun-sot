@@ -424,10 +424,7 @@ void InitializeCoreFramework()
 
     SetLocalInt(oModule, CORE_INITIALIZED, TRUE);
 
-    // Start debugging
-    SetDebugLevel(INITIALIZATION_DEBUG_LEVEL, oModule);
-    SetDebugLogging(DEBUG_LOGGING);
-
+    // Run script for ON_MODULE_PRELOAD, if configured
     Notice("Checking for Module Preload script ...");
     if (ON_MODULE_PRELOAD != "")
     {
@@ -435,7 +432,17 @@ void InitializeCoreFramework()
         ExecuteScript(ON_MODULE_PRELOAD, GetModule());
     }
     else
-        Notice("Module Preload script not specified");
+        Debug("Module Preload script not specified");
+
+    // Set debug preferences on module variables to prevent circular references
+    // created by including core_c_config in various setup/utility files.
+    SetLocalString(oModule, DEBUG_VAR_SCRIPT, DEBUG_SCRIPT);
+    SetLocalInt(oModule, DEBUG_VAR_SCRIPT_LEVEL, MINIMUM_SCRIPT_DEBUG_LEVEL);
+    SetLocalInt(oModule, DEBUG_VAR_STRIPE_COLOR, DEBUG_STRIPE_COLOR);
+    
+    // Start debugging
+    SetDebugLevel(INITIALIZATION_DEBUG_LEVEL, oModule);
+    SetDebugLogging(DEBUG_LOGGING);
 
     // Set specific event debug levels
     if (HEARTBEAT_DEBUG_LEVEL)
@@ -453,7 +460,7 @@ void InitializeCoreFramework()
     if (PERCEPTION_DEBUG_LEVEL)
         SetEventDebugLevel(CREATURE_EVENT_ON_PERCEPTION, PERCEPTION_DEBUG_LEVEL);
 
-    Debug("Initializing Core Framework...");
+    Debug("* Initializing Core Framework...");
 
     // Ensure the core database tables are set up
     InitializeDatabase();
@@ -463,7 +470,7 @@ void InitializeCoreFramework()
     LoadPlugins(INSTALLED_PLUGINS);
 
     SetDebugLevel(DEFAULT_DEBUG_LEVEL, oModule);
-    Debug("Successfully initialized Core Framework");
+    Debug("* Successfully initialized Core Framework");
 }
 
 // ----- Plugin Management -----------------------------------------------------

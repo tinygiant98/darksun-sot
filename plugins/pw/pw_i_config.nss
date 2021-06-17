@@ -79,7 +79,7 @@ const int H2_SHOW_DAY_BEFORE_MONTH_IN_LOGIN = FALSE;
 // You can turn off Bioware's default events by setting this to false.  Generally, this should remain
 //  TRUE since it can break the horse system, cause player death problems and create other hidden issues
 //  if all default bioware events aren't handled by custom handlers.
-const int H2_USE_DEFAULT_BIOWARE_EVENTS = TRUE;
+const int H2_USE_DEFAULT_BIOWARE_EVENTS = FALSE;
 
 // The basic rest system includes a small, configurable dialog.  Without any builder intervention, it has
 //  two options:  rest or don't rest.  If you want the PC to confirm they want to rest before the rest

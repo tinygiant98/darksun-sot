@@ -16,3 +16,5 @@ const string HOOK_SCRIPT_PREFIX = "hook_";
 const string HOOK_SKIP = "*SkipRegistration";
 
 const string HOOK_PRIORITY = ":last";
+
+const int USE_RESOURCE_PLUGIN = TRUE;

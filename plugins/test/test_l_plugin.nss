@@ -17,6 +17,138 @@
 #include "nwnx_events"
 #include "nwnx_creature"
 #include "nwnx_player"
+#include "nwnx_util"
+
+string test_ColorPC(string s)
+{
+    return HexColorString(s, COLOR_CYAN);
+}
+
+string test_ColorHeading(string s)
+{   
+    return HexColorString(s, COLOR_ORANGE_LIGHT);
+}
+
+string test_ColorSubHeading(string s)
+{
+    return HexColorString(s, COLOR_BLUE_LIGHT);
+}
+
+string test_ColorData(string s)
+{
+    return HexColorString(s, COLOR_BLUE_LIGHT);
+}
+
+void test_events()
+{
+    int nCurrentEvent = GetCurrentlyRunningEvent();
+    Notice("Currently Running Event: " + IntToString(nCurrentEvent));
+
+    NWNX_Util_SetCurrentlyRunningEvent(4002);
+
+    nCurrentEvent = GetCurrentlyRunningEvent();
+    Notice("Currently Running Event: " + IntToString(nCurrentEvent));
+}
+
+void test_material()
+{
+    object oPC = OBJECT_SELF;
+    int nSurfaceMaterial = StringToInt(NWNX_Events_GetEventData("MATERIAL_TYPE"));
+    SetLocalInt(oPC, "SURFACE_MATERIAL", nSurfaceMaterial);
+    
+    float fFactor = nSurfaceMaterial == 20 ? 0.75 : 1.0;
+    SetLocalFloat(oPC, "SURFACE_MATERIAL_FACTOR", fFactor);
+
+    float fAreaRate = GetLocalFloat(GetArea(oPC), "MOVEMENT_RATE_FACTOR");
+    if (fAreaRate > 0.0)
+        fFactor *= fAreaRate;
+    
+    NWNX_Creature_SetMovementRateFactor(oPC, fFactor);
+
+    Notice("Surface Material has changed: " +
+        "\n  > Index: " + IntToString(nSurfaceMaterial) +
+        "\n  > Name: " + Get2DAString("surfacemat", "Label", nSurfaceMaterial));
+}
+
+void test_travel()
+{
+    object oPC = GetPCChatSpeaker();
+    string sArg = GetChatArgument(oPC);
+
+    if (sArg == "rate")
+    {
+        if (HasChatOption(oPC, "g,get"))
+        {
+            // Get the base data from nwn/2da
+            int nRate = GetMovementRate(oPC);
+
+            string sRate = Get2DAString("creaturespeed", "Label", nRate);
+            string sWalk = Get2DAString("creaturespeed", "WALKRATE", nRate);
+            string sRun = Get2DAString("creaturespeed", "RUNRATE", nRate);
+
+            float fWalk = StringToFloat(sWalk);
+            float fRun = StringToFloat(sRun);
+
+            string sBaseRate = sRate + " (" + sWalk + "/" + sRun + " m/s)";
+
+            // Get area movement rate factor
+            float fAreaFactor = GetLocalFloat(GetArea(oPC), "MOVEMENT_RATE_FACTOR");
+            //float fRateFactor = NWNX_Creature_GetMovementRateFactor(oPC);
+            string sAreaFactor = FloatToString(fAreaFactor, 1, 2);
+
+            // Work up the surface material factorage
+            int nMaterial = GetLocalInt(oPC, "SURFACE_MATERIAL");
+            string sMaterial = Get2DAString("surfacemat", "Label", nMaterial);
+            float fMaterialFactor = GetLocalFloat(oPC, "SURFACE_MATERIAL_FACTOR");
+            string sMaterialFactor = FloatToString(fMaterialFactor, 1, 2);
+
+            // Generate effective rates
+            float fEffWalk = fWalk * fAreaFactor * fMaterialFactor;
+            float fEffRun = fRun * fAreaFactor * fMaterialFactor;
+
+            string sEffWalk = FloatToString(fEffWalk, 1, 2);
+            string sEffRun = FloatToString(fEffRun, 1, 2);
+
+            // Create the message
+            string sMessage = 
+                "Movement rate summary for " + test_ColorPC(GetName(oPC)) +
+                test_ColorHeading("\n  * Base Movement Rates: ") + 
+                    test_ColorData(sRate) +
+                test_ColorSubHeading("\n    > Base Walk Rate: ") + 
+                    test_ColorData(sWalk + " m/s") +
+                test_ColorSubHeading("\n    > Base Run Rate:  ") + 
+                    test_ColorData(sRun + " m/s") +
+                test_ColorHeading("\n  * Area Movement Rate Factor: ") + 
+                    test_ColorData(sAreaFactor) +
+                test_ColorHeading("\n  * Material Type: ") +
+                    test_ColorData(sMaterial) +
+                test_ColorSubHeading("\n    > Material Movement Rate Factor: ") +
+                    test_ColorData(sMaterialFactor) +
+                test_ColorHeading("\n  * Total Effective Movement Rates:") +
+                test_ColorSubHeading("\n    > Effective Walk Rate: ") +
+                    test_ColorData(sEffWalk + " m/s") +
+                test_ColorSubHeading("\n    > Effective Run Rate:  ") + 
+                    test_ColorData(sEffRun + " m/s");
+
+            SendChatResult(sMessage, oPC);
+        }
+        else if (HasChatKey(oPC, "s,set"))
+        {
+            float fDesiredRate = GetChatKeyValueFloat(oPC, "s,set");
+            NWNX_Creature_SetMovementRateFactor(oPC, fDesiredRate);
+
+            float fCurrentRate = NWNX_Creature_GetMovementRateFactor(oPC);
+
+            if (fCurrentRate == fDesiredRate)
+                SendChatResult("Successfully set movement rate factor for " + GetName(oPC) + " " +
+                    "to " + FloatToString(fCurrentRate, 1, 1), oPC);
+            else
+                SendChatResult("Unable to set movement rate factor for " + GetName(oPC) + " " +
+                    " to " + FloatToString(fDesiredRate, 1, 1) + "; " +
+                    "current rate factor is " + FloatToString(fCurrentRate, 1, 1), oPC);
+        }
+    }
+}
 
 void nwnx_WalkTest()
 {
@@ -164,6 +296,81 @@ void test_poststring_OnPlayerChat()
     PostString(oTarget, GetListItem(sRemainder, nRemainder - 1), 1, x, SCREEN_ANCHOR_TOP_RIGHT, 10.0, 0xFFFFFFFF, 0xFFFFFFFF, nObjectNumber++, "ds_bars");
 }
 
+void test_tokens()
+{
+    Notice("* Custom Token Values:");
+    int n;
+    for (n = 0; n <= 6; n++)
+    {
+        string sToken = NWNX_Util_GetCustomToken(n);
+        Notice("   > <CUSTOM" + IntToString(n) + ">: " + sToken);
+    }
+}
+
+#include "nwnx_events"
+#include "nwnx_player"
+
+void test_skill()
+{
+    string sEvent = NWNX_Events_GetCurrentEvent();
+
+    if (sEvent == "NWNX_ON_USE_SKILL_AFTER");
+    {
+        test_tokens();
+        return;
+    }
+
+    object oUsed = StringToObject(NWNX_Events_GetEventData("USED_ITEM_OBJECT_ID"));
+    object oTarget = StringToObject(NWNX_Events_GetEventData("TARGET_OBJECT_ID"));
+    int nSkillID = StringToInt(NWNX_Events_GetEventData("SKILL_ID"));
+    int nSubSkillID = StringToInt(NWNX_Events_GetEventData("SUB_SKILL_ID"));
+    string sResult = (NWNX_Events_GetEventData("ACTION_RESULT") == "1" ? "TRUE" : "FALSE");
+
+    Notice(HexColorString("* Event: " + sEvent, COLOR_ORANGE) +
+        "\n   > oUsed: " + (GetIsPC(oUsed) ? GetName(oUsed) : GetTag(oUsed)) +
+        "\n   > oTarget: " + GetTag(oTarget) +
+        "\n   > nSkillID: " + IntToString(nSkillID) +
+        "\n   > sResult: " + sResult);
+
+    NWNX_Player_SetCustomToken(OBJECT_SELF, 5, "YOLO!");
+    SetCustomToken(1, "YOLO6");
+
+    test_tokens();
+}
+
+void test_camera()
+{
+    object oPC = GetPCChatSpeaker();
+    float fHeight = 0.0;
+
+    string sArgument = GetChatArgument(oPC);
+    if (sArgument != "")
+        fHeight = StringToFloat(sArgument);
+
+    SetCameraHeight(oPC, fHeight);
+
+    SendChatResult(test_ColorHeading("Camera Height") + " for " +
+        test_ColorPC(GetName(oPC)) + " set to " +
+        test_ColorData(FloatToString(fHeight, 1, 2)) + "m", oPC); 
+}
+
+void test_scale()
+{
+    object oPC = GetPCChatSpeaker();
+    float fScale = 1.0;
+
+    string sArgument = GetChatArgument(oPC);
+    if (sArgument != "")
+        fScale = StringToFloat(sArgument);
+
+    SetObjectVisualTransform(oPC, OBJECT_VISUAL_TRANSFORM_SCALE, fScale);
+    
+    fScale += 100.0;
+    SendChatResult(test_ColorHeading("Scale Visual Transform") +
+        " of " + test_ColorPC(GetName(oPC)) + " set to " +
+        test_ColorData(FloatToString(fScale, 3, 1)) + "%", oPC);
+}
+
 // -----------------------------------------------------------------------------
 //                               Library Dispatch
 // -----------------------------------------------------------------------------
@@ -191,7 +398,8 @@ string sEvents = "ADD_ASSOCIATE,REMOVE_ASSOCIATE,STEALTH_ENTER,STEALTH_EXIT,DETE
                  "TIMING_BAR_CANCEL,CHECK_STICKY_PLAYER_NAME_RESERVED,SERVER_CHARACTER_SAVE," +
                  "CLIENT_EXPORT_CHARACTER,LEVEL_UP,LEVEL_UP_AUTOMATIC,LEVEL_DOWN,INVENTORY_ADD_ITEM," +
                  "INVENTORY_REMOVE_ITEM,INVENTORY_ADD_GOLD,INVENTORY_REMOVE_GOLD,PVP_ATTITUDE_CHANGE," +
-                 "INPUT_WALK_TO_WAYPOINT,MATERIALCHANGE,INPUT_ATTACK_OBJECT,INPUT_FORCE_MOVE_TO_OBJECT," +
+                 //"INPUT_WALK_TO_WAYPOINT,MATERIALCHANGE,INPUT_ATTACK_OBJECT,INPUT_FORCE_MOVE_TO_OBJECT," +
+                 "MATERIALCHANGE,INPUT_ATTACK_OBJECT," +
                  "INPUT_CAST_SPELL,INPUT_KEYBOARD_BEFORE,INPUT_TOGGLE_PAUSE,OBJECT_LOCK,OBJECT_UNLOCK," +
                  "UUID_COLLISION,ELC_VALIDATE_CHARACTER,QUICKBAR_SET_BUTTON,BROADCAST_CAST_SPELL," +
                  "DEBUG_RUN_SCRIPT,DEBUG_RUN_SCRIPT_CHUNK,STORE_REQUEST_BUY,STORE_REQUEST_SELL," +
@@ -207,11 +415,17 @@ string sSpecial = "NWNX_SET_MEMORIZED_SPELL_SLOT_BEFORE,NWNX_SET_MEMORIZED_SPELL
 
 void OnLibraryLoad()
 {
+    Notice("OnLibaryLoad for test_l_plugin");
+
     if (!TEST_USE_TEST_SYSTEM)
         return;
 
+    Notice("test_l_plugin CP 1");
+
     if (!GetIfPluginExists("test"))
     {
+        Notice("test_l_plugin CP 2");
+
         object oPlugin = GetPlugin("test", TRUE);
         SetName(oPlugin, "[Plugin] System :: Module Testing System");
         SetDescription(oPlugin,
@@ -237,19 +451,28 @@ void OnLibraryLoad()
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!test", "test_test_OnPlayerChat");
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!ps", "test_poststring_OnPlayerChat");
         RegisterEventScripts(oPlugin, CHAT_PREFIX + "!spells", "test_spells");
+        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!events", "test_events");
+        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!travel", "test_travel");
+        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!tokens", "test_tokens");
+        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!camera", "test_camera");
+        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!scale", "test_scale");
 
-        RegisterEventScripts(oPlugin, "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "nwnx_WalkTest");
-        RegisterEventScripts(oPlugin, "NWNX_ON_INPUT_KEYBOARD_BEFORE", "nwnx_KeyboardTest");
+        //RegisterEventScripts(oPlugin, "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "nwnx_WalkTest");
+        //RegisterEventScripts(oPlugin, "NWNX_ON_INPUT_KEYBOARD_BEFORE", "nwnx_KeyboardTest");
 
-        RegisterEventScripts(oPlugin, "NWNX_ON_POLYMORPH_BEFORE", "test_polymorph");
-        RegisterEventScripts(oPlugin, "NWNX_ON_UNPOLYMORPH_AFTER", "test_polymorph");
+        //RegisterEventScripts(oPlugin, "NWNX_ON_POLYMORPH_BEFORE", "test_polymorph");
+        //RegisterEventScripts(oPlugin, "NWNX_ON_UNPOLYMORPH_AFTER", "test_polymorph");
 
         RegisterEventScripts(oPlugin, PLAYER_EVENT_ON_HEARTBEAT, "test_pc_OnPlayerHeartbeat", 10.0);
+
+        RegisterEventScripts(oPlugin, "NWNX_ON_MATERIALCHANGE_AFTER", "test_material");
+        RegisterEventScripts(oPlugin, "NWNX_ON_USE_SKILL_BEFORE", "test_skill");
+        RegisterEventScripts(oPlugin, "NWNX_ON_USE_SKILL_AFTER", "test_skill");
 
         //RegisterEventScripts(oPlugin, "NWNX_ON_VALIDATE_USE_ITEM_BEFORE", "test_validate");
         //RegisterEventScripts(oPlugin, "NWNX_ON_VALIDATE_USE_ITEM_AFTER", "test_validate");
 
-        int TEST_NWNX_EVENTS = TRUE;
+        int TEST_NWNX_EVENTS = FALSE;
 
         if (TEST_NWNX_EVENTS)
         {
@@ -276,6 +499,8 @@ void OnLibraryLoad()
             // End NWNX Testing
         }
     }
+
+    Notice("test_l_plugin CP 3");   
 
     RegisterLibraryScript("test_OnClientEnter", 0);
     RegisterLibraryScript("test_convo_OnPlayerChat", 1);
@@ -304,6 +529,13 @@ void OnLibraryLoad()
 
     RegisterLibraryScript("test_polymorph", 200);
     RegisterLibraryScript("test_spells", 201);
+    RegisterLibraryScript("test_events", 202);
+    RegisterLibraryScript("test_travel", 203);
+    RegisterLibraryScript("test_material", 204);
+    RegisterLibraryScript("test_tokens", 205);
+    RegisterLibraryScript("test_skill", 206);
+    RegisterLibraryScript("test_camera", 207);
+    RegisterLibraryScript("test_scale", 208);
 
     // Tag-based Scripting
     RegisterLibraryScript("util_playerdata", 30);
@@ -344,6 +576,13 @@ void OnLibraryScript(string sScript, int nEntry)
 
         case 200: test_polymorph(); break;
         case 201: test_spells(); break;
+        case 202: test_events(); break;
+        case 203: test_travel(); break;
+        case 204: test_material(); break;
+        case 205: test_tokens(); break;
+        case 206: test_skill(); break;
+        case 207: test_camera(); break;
+        case 208: test_scale(); break;
 
         default: CriticalError("Library function " + sScript + " not found");
     }

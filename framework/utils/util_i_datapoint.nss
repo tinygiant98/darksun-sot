@@ -13,8 +13,6 @@
 // -----------------------------------------------------------------------------
 
 const string DATA_PREFIX = "Datapoint: ";
-const string DATA_POINT  = "util_datapoint";
-const string DATA_ITEM   = "util_dataitem";
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -23,7 +21,7 @@ const string DATA_ITEM   = "util_dataitem";
 // ---< CreateDatapoint >---
 // ---< util_i_datapoint >---
 // Creates a datapoint that oOwner can use to store sSystem-related variables.
-// If oOwner is invalid, it will be the module. The waypoint is created at
+// If oOwner is invalid, it will be the module. The placeable is created at
 // oOwner's location (or the module starting location if oOwner is an area or
 // the module).
 object CreateDatapoint(string sSystem, object oOwner = OBJECT_INVALID);
@@ -57,7 +55,7 @@ object GetDataItem(object oDatapoint, string sSubSystem);
 
 // ---< SetDataItem >---
 // ---< util_i_datapoint >---
-// Sets oItem as the object that oDatapoint uses to stor sSubSystem-related
+// Sets oItem as the object that oDatapoint uses to store sSubSystem-related
 // variables.
 void SetDataItem(object oDatapoint, string sSubSystem, object oItem);
 
@@ -74,10 +72,15 @@ object CreateDatapoint(string sSystem, object oOwner = OBJECT_INVALID)
     if (!GetObjectType(oOwner))
         lLoc = GetStartingLocation();
 
-    object oData = CreateObject(OBJECT_TYPE_PLACEABLE, DATA_POINT, lLoc);
+    object oData = CreateObject(OBJECT_TYPE_PLACEABLE, "x1_hen_inv", lLoc, FALSE, DATA_PREFIX + sSystem);
     SetName(oData, DATA_PREFIX + sSystem);
     SetUseableFlag(oData, FALSE);
     SetDatapoint(sSystem, oData, oOwner);
+
+    // TODO For pw_resources plugin to skip this placeable - need to find a better way to implement this
+    // so util_i_datapoint remains independent.  Maybe a datapoint creation script?
+    SetLocalInt(oData, "*SkipRegistration", TRUE);
+
     return oData;
 }
 
@@ -104,7 +107,7 @@ void SetDatapoint(string sSystem, object oTarget, object oOwner = OBJECT_INVALID
 
 object CreateDataItem(object oDatapoint, string sSubSystem)
 {
-    object oItem = CreateItemOnObject(DATA_ITEM, oDatapoint);
+    object oItem = CreateItemOnObject("nw_it_msmlmisc22", oDatapoint);
     SetLocalObject(oDatapoint, sSubSystem, oItem);
     SetName(oItem, sSubSystem);
     return oItem;

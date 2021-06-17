@@ -163,11 +163,26 @@ void test_go_OnPlayerChat()
             object oTarget = GetObjectByTag(sTarget);
             if (GetIsObjectValid(oTarget))
             {
-                Debug("Go: TargetFound -> " + GetTag(oTarget));
                 if (!GetObjectType(oTarget))
-                    oTarget = GetFirstObjectInArea(oTarget);
+                {
+                    // This is probably an area
+                    object oFirst = GetFirstObjectInArea(oTarget);
+                    if (GetIsObjectValid(oFirst) == TRUE)
+                        AssignCommand(oPC, ActionJumpToObject(oFirst));
+                    else
+                    {
+                        int nX = GetAreaSize(AREA_WIDTH, oTarget);
+                        int nY = GetAreaSize(AREA_HEIGHT, oTarget);
 
-                AssignCommand(oPC, ActionJumpToObject(oTarget));
+                        float fX = nX / 2.0;
+                        float fY = nX / 2.0;
+
+                        location l = Location(oTarget, Vector(fX, fY, 0.0f), 0.0);
+                        AssignCommand(oPC, ActionJumpToLocation(l));
+                    }
+                }
+                else
+                    AssignCommand(oPC, ActionJumpToObject(oTarget));
             }
             else
                 SendChatResult("Go: " + sTarget + " is not a valid target", oPC, FLAG_ERROR);
@@ -282,7 +297,9 @@ void test_level_OnPlayerChat()
     int nLevelXP = 500 * nLevel * (nLevel - 1);
     int nPC = GetXP(oPC);
 
-    GiveXPToCreature(oPC, nLevelXP - nPC);
+    SetXP(oPC, nLevelXP);
+    SendChatResult(GetName(oPC) + " set to level " + IntToString(nLevel), oPC);
+    //GiveXPToCreature(oPC, nLevelXP - nPC);
 }
 
 void test_stake_OnPlayerChat()

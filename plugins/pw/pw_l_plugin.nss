@@ -51,7 +51,7 @@ void OnLibraryLoad()
 
 
         // These are the default bioware events.  This section is a replacement for SquattingMonk's
-        //  bw_defaultevents item which intializes the same events.
+        //  bw_defaultevents item which initializes the same events.
         if (H2_USE_DEFAULT_BIOWARE_EVENTS)
         {   //TODO add events for horse stuff to override EVENT_PRIORITY_DEFAULT_OPTIONS.
             RegisterEventScripts(oPlugin, MODULE_EVENT_ON_ACQUIRE_ITEM,         "x2_mod_def_aqu",   2.0);
@@ -79,6 +79,9 @@ void OnLibraryLoad()
             RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_SPAWN,              "nw_c2_default9",   EVENT_PRIORITY_DEFAULT);
             RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_SPELL_CAST_AT,      "nw_c2_defaultb",   EVENT_PRIORITY_DEFAULT);
             RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_USER_DEFINED,       "nw_c2_defaultd",   EVENT_PRIORITY_DEFAULT);
+        
+            RegisterEventScripts(oPlugin, DOOR_EVENT_ON_AREA_TRANSITION_CLICK, "nw_g0_transition",  EVENT_PRIORITY_DEFAULT);
+            RegisterEventScripts(oPlugin, TRIGGER_EVENT_ON_CLICK,              "nw_g0_transition",  EVENT_PRIORITY_DEFAULT);
         }
     }
 

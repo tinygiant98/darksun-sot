@@ -27,6 +27,13 @@
           "type": "resref",
           "value": "startarea"
         }
+      },
+      {
+        "__struct_id": 6,
+        "Area_Name": {
+          "type": "resref",
+          "value": "travel002"
+        }
       }
     ]
   },
@@ -70,11 +77,11 @@
   },
   "Mod_Entry_X": {
     "type": "float",
-    "value": 15.3233
+    "value": 15.0
   },
   "Mod_Entry_Y": {
     "type": "float",
-    "value": 16.0786
+    "value": 16.0
   },
   "Mod_Entry_Z": {
     "type": "float",
@@ -90,7 +97,15 @@
   },
   "Mod_HakList": {
     "type": "list",
-    "value": []
+    "value": [
+      {
+        "__struct_id": 8,
+        "Mod_Hak": {
+          "type": "cexostring",
+          "value": "maptester"
+        }
+      }
+    ]
   },
   "Mod_IsSaveGame": {
     "type": "byte",
@@ -98,7 +113,7 @@
   },
   "Mod_MinGameVer": {
     "type": "cexostring",
-    "value": "1.82"
+    "value": "1.83"
   },
   "Mod_MinPerHour": {
     "type": "byte",

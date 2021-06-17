@@ -13,6 +13,8 @@
 #include "util_i_data"
 #include "core_i_framework"
 
+#include "nwnx_creature"
+
 /* Sample ===
 void area_tag()
 {
@@ -45,6 +47,43 @@ void area_tag()
 }
 */
 
+void travel001()
+{
+    string sEvent = GetName(GetCurrentEvent());
+    object oPC, oArea = OBJECT_SELF;
+
+    if (sEvent == AREA_EVENT_ON_ENTER)
+    {
+        oPC = GetEnteringObject();
+        SetObjectVisualTransform(oPC, OBJECT_VISUAL_TRANSFORM_SCALE, 0.25f);
+
+        float fFactor = 0.25;
+        SetLocalFloat(oArea, "MOVEMENT_RATE_FACTOR", fFactor);
+
+        NWNX_Creature_SetMovementRateFactor(oPC, NWNX_Creature_GetMovementRateFactor(oPC) * fFactor);
+    }
+    else if (sEvent == AREA_EVENT_ON_EXIT)
+    {
+        oPC = GetExitingObject();
+        SetObjectVisualTransform(oPC, OBJECT_VISUAL_TRANSFORM_SCALE, 1.0f);
+
+        NWNX_Creature_SetMovementRateFactor(oPC, 1.0);
+    }
+    else if (sEvent == AREA_EVENT_ON_HEARTBEAT)
+    {
+
+    }
+    else if (sEvent == AREA_EVENT_ON_USER_DEFINED)
+    {
+        int nEvent = GetUserDefinedEventNumber();
+
+    }
+    else if (sEvent == AREA_EVENT_ON_EMPTY)
+    {
+
+    }
+}
+
 // -----------------------------------------------------------------------------
 //                               Library Dispatch
 // -----------------------------------------------------------------------------
@@ -52,6 +91,7 @@ void area_tag()
 void OnLibraryLoad()
 {
     // RegisterLibraryScript("area_tag", 1);
+    RegisterLibraryScript("travel001", 1);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
@@ -59,6 +99,7 @@ void OnLibraryScript(string sScript, int nEntry)
     switch (nEntry)
     {
         // case 1:  area_tag();           break;
+        case 1: travel001(); break;
         
         default: CriticalError("Library function " + sScript + " not found");
     }

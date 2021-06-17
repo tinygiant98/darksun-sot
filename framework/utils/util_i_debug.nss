@@ -20,6 +20,11 @@ const string DEBUG_LEVEL    = "DEBUG_LEVEL";
 const string DEBUG_LOG      = "DEBUG_LOG";
 const string DEBUG_OVERRIDE = "DEBUG_OVERRIDE";
 
+const string DEBUG_VAR_SCRIPT       = "DEBUG_VAR_SCRIPT";
+const string DEBUG_VAR_SCRIPT_LEVEL = "DEBUG_VAR_SCRIPT_LEVEL";
+const string DEBUG_VAR_STRIPE_COLOR = "DEBUG_VAR_STRIPE_COLOR";
+const string DEBUG_TOGGLE           = "DEBUG_TOGGLE";
+
 const int DEBUG_LEVEL_NONE     = 0; // No debug level set
 const int DEBUG_LEVEL_CRITICAL = 1;
 const int DEBUG_LEVEL_ERROR    = 2;
@@ -191,9 +196,11 @@ void SetDebugLevel(int nLevel, object oTarget = OBJECT_SELF)
 
 string GetDebugColor(int nLevel)
 {
-    string sColor = GetLocalString(GetModule(), DEBUG_COLOR + IntToString(nLevel));
+    object oModule = GetModule();
+    string sColor = GetLocalString(oModule, DEBUG_COLOR + IntToString(nLevel));
+    int nStripeColor = GetLocalInt(oModule, DEBUG_VAR_STRIPE_COLOR);
 
-    if (sColor == "")
+    if (sColor == "" || (nLevel == DEBUG_LEVEL_DEBUG && nStripeColor > 0))
     {
         int nColor;
         switch (nLevel)
@@ -202,7 +209,24 @@ string GetDebugColor(int nLevel)
             case DEBUG_LEVEL_ERROR:    nColor = COLOR_ORANGE_DARK;  break;
             case DEBUG_LEVEL_WARNING:  nColor = COLOR_ORANGE_LIGHT; break;
             case DEBUG_LEVEL_NOTICE:   nColor = COLOR_YELLOW;       break;
-            default:                   nColor = COLOR_GRAY_LIGHT;   break;
+            default:
+            {
+                nColor = COLOR_GRAY_LIGHT;
+
+                if (nStripeColor > 0)
+                {
+                    if (GetLocalInt(oModule, DEBUG_TOGGLE) == FALSE)
+                    {
+                        nColor = COLOR_GRAY_LIGHT;
+                        SetLocalInt(oModule, DEBUG_TOGGLE, TRUE);
+                    }
+                    else
+                    {
+                        nColor = nStripeColor;
+                        SetLocalInt(oModule, DEBUG_TOGGLE, FALSE);
+                    }
+                } break;
+            }
         }
 
         sColor = HexToColor(nColor);
@@ -236,6 +260,7 @@ void Debug(string sMessage, int nLevel = DEBUG_LEVEL_DEBUG, object oTarget = OBJ
 {
     if (IsDebugging(nLevel, oTarget))
     {
+        object oModule = GetModule();
         string sColor = GetDebugColor(nLevel);
         string sPrefix;
 
@@ -248,7 +273,7 @@ void Debug(string sMessage, int nLevel = DEBUG_LEVEL_DEBUG, object oTarget = OBJ
 
         sMessage = sPrefix + sMessage;
 
-        int nLogging = GetLocalInt(GetModule(), DEBUG_LOG);
+        int nLogging = GetLocalInt(oModule, DEBUG_LOG);
 
         if (nLogging & DEBUG_LOG_FILE)
             WriteTimestampedLogEntry(UnColorString(sMessage));
@@ -261,11 +286,15 @@ void Debug(string sMessage, int nLevel = DEBUG_LEVEL_DEBUG, object oTarget = OBJ
         if (nLogging & DEBUG_LOG_PC)
             SendMessageToPC(GetFirstPC(), sMessage);
 
-        if (nLevel != DEBUG_LEVEL_NONE && nLevel != DEBUG_LEVEL_DEBUG)
+        // Signal DEBUG_SCRIPT script, if specified
+        string sScript = GetLocalString(oModule, DEBUG_VAR_SCRIPT);
+        int nMinimumLevel = GetLocalInt(oModule, DEBUG_VAR_SCRIPT_LEVEL);
+
+        if (sScript != "" && nLevel <= nMinimumLevel)
         {
             PushArgumentInt(nLevel);
             PushArgumentString(sMessage);
-            //ExecuteScript("module_debug", oTarget);
+            ExecuteScript(sScript, oTarget);
             ClearArgumentStacks();
         }
     }

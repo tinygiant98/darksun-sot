@@ -42,6 +42,31 @@ const string FALLBACK_DATABASE = "ds_sot";
 // - DEBUG_LOG_ALL: debug messages are sent to the log files, DMs, and first PC
 int DEBUG_LOGGING = DEBUG_LOG_ALL;
 
+// The debug system can run a script whenever a debug statement is created.
+// This script will only run when a debug statement is successfully created; it
+// will not run, for example, if the module's debug setting is set to
+// DEBUG_LEVEL_NOTICE and a message at DEBUG_LEVEL_DEBUG is created.  This
+// function is useful for conveying information to outside sources, such as
+// discord servers and webpages.  Setting this constant to "" will turn this
+// feature off.  The following variables are available when the script runs, 
+// and are sourced through util_i_argstack:
+// -- Debug Level:  GetArgumentInt();
+// -- Debug Message:  GetArgumentString();
+const string DEBUG_SCRIPT = "module_debug";
+
+// When displaying debug statements to the in-game chat windows (DEBUG_LOG_PC),
+// it can be difficult to discern where one statement ends and another begins as
+// all the output is a single color.  Set this variable to the color you want to
+// alternate with.  Turn this feature off by setting this value to 0.  Striping
+// only applies to DEBUG_LEVEL_DEBUG messages.
+const int DEBUG_STRIPE_COLOR = COLOR_BLUE_LIGHT;
+
+// If DEBUG_SCRIPT is set above, set this constant to the minimum debug level
+// desired to run the DEBUG_SCRIPT script.  This is useful to prevent spamming
+// external resources with DEBUG_LEVEL_DEBUG messages or if you only want higher
+// level errors to trigger the DEBUG_SCRIPT.
+const int MINIMUM_SCRIPT_DEBUG_LEVEL = DEBUG_LEVEL_ERROR;
+
 // This is the level of debug messages to generate. This can be overriden to
 // debug specific objects or events (see below).
 //
@@ -196,7 +221,8 @@ const float ON_AREA_EMPTY_EVENT_DELAY = 60.0;
 
 // This is the script that will run before the framework initializes the first
 // time.  An empty string means no script will run.
-const string ON_MODULE_PRELOAD = "module_preload";
+//const string ON_MODULE_PRELOAD = "module_preload";
+const string ON_MODULE_PRELOAD = "";
 
 // When using AOE hook scripts, NPCs can be added to the AOE roster for easier
 // access during scripting.  To only allow PC objects on the AOE rosters, set

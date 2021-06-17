@@ -138,6 +138,7 @@ const string MODULE_EVENT_ON_USER_DEFINED             = "OnUserDefined";
 const string MODULE_EVENT_ON_MODULE_SHUTDOWN          = "OnModuleShutdown";
 const string MODULE_EVENT_ON_MODULE_STABLE            = "OnModuleStable";
 const string MODULE_EVENT_ON_PLAYER_CHAT_COMMAND      = "OnPlayerChatCommand";
+const string MODULE_EVENT_ON_PLAYER_TARGET            = "OnPlayerTarget";
 
 // These are pseudo-events called by the Core Framework
 const string MODULE_EVENT_ON_SPELLHOOK                = "OnSpellhook";
@@ -158,6 +159,7 @@ const string AREA_EVENT_ON_EMPTY                      = "OnAreaEmpty";
 const string AOE_EVENT_ON_ENTER                       = "OnAoEEnter";
 const string AOE_EVENT_ON_EXIT                        = "OnAoEExit";
 const string AOE_EVENT_ON_HEARTBEAT                   = "OnAoEHeartbeat";
+const string AOE_EVENT_ON_USER_DEFINED                = "OnAoEUserDefined";
 
 // These are pseudo-events called by the Core Framework
 const string AOE_EVENT_ON_EMPTY                       = "OnAoEEmpty";
@@ -192,6 +194,7 @@ const string DOOR_EVENT_ON_PHYSICAL_ATTACKED          = "OnDoorPhysicalAttacked"
 const string DOOR_EVENT_ON_SPELL_CAST_AT              = "OnDoorSpellCastAt";
 const string DOOR_EVENT_ON_UNLOCK                     = "OnDoorUnLock";
 const string DOOR_EVENT_ON_USER_DEFINED               = "OnDoorUserDefined";
+const string DOOR_EVENT_ON_CONVERSATION               = "OnDoorConversation";
 
 // ----- Encounter Events ------------------------------------------------------
 
@@ -216,6 +219,7 @@ const string PLACEABLE_EVENT_ON_SPELL_CAST_AT         = "OnPlaceableSpellCastAt"
 const string PLACEABLE_EVENT_ON_UNLOCK                = "OnPlaceableUnLock";
 const string PLACEABLE_EVENT_ON_USED                  = "OnPlaceableUsed";
 const string PLACEABLE_EVENT_ON_USER_DEFINED          = "OnPlaceableUserDefined";
+const string PLACEABLE_EVENT_ON_CONVERSATION          = "OnPlaceableConversation";
 
 // ----- Store Events ----------------------------------------------------------
 
