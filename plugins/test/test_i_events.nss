@@ -13,7 +13,7 @@
 #include "test_i_main"
 #include "x2_inc_switches"
 #include "dlg_i_dialogs"
-#include "util_i_chat"
+#include "chat_i_main"
 #include "util_i_libraries"
 #include "core_c_config"
 #include "util_i_time"
@@ -54,7 +54,7 @@ void test_script_OnPlayerChat()
     }
     else
         SendChatResult("Cannot run script; script argument blank" +
-                       "\n  Arguments received -> " + GetChatArguments(oPC), oPC, FLAG_ERROR);
+                       "\n  Arguments received -> " + GetChatArguments(oPC), oPC, CHAT_FLAG_ERROR);
 }
 
 void test_identify_OnPlayerChat()
@@ -170,13 +170,13 @@ void test_go_OnPlayerChat()
                 AssignCommand(oPC, ActionJumpToObject(oTarget));
             }
             else
-                SendChatResult("Go: " + sTarget + " is not a valid target", oPC, FLAG_ERROR);
+                SendChatResult("Go: " + sTarget + " is not a valid target", oPC, CHAT_FLAG_ERROR);
         }
         else
-            SendChatResult("Go: You can only jump to one place, dumbass.  Make a decision already.", oPC, FLAG_ERROR);
+            SendChatResult("Go: You can only jump to one place, dumbass.  Make a decision already.", oPC, CHAT_FLAG_ERROR);
     }
     else
-        SendChatResult("Go: No target argument provided", oPC, FLAG_ERROR);
+        SendChatResult("Go: No target argument provided", oPC, CHAT_FLAG_ERROR);
 }
 
 void test_get_OnPlayerChat()
@@ -188,7 +188,7 @@ void test_get_OnPlayerChat()
     object oTarget, oStake;
 
     if (!nCount)
-        SendChatResult("Get: No target argument(s) provided", oPC, FLAG_ERROR);
+        SendChatResult("Get: No target argument(s) provided", oPC, CHAT_FLAG_ERROR);
 
     oStake = GetChatTarget(oPC);
     
@@ -224,7 +224,7 @@ void test_time_OnPlayerChat()
         sTime = SubtractGameTimeElement(TIME_HOURS, nHours);
     }
     else
-        SendChatResult("Current game time is " + FormatGameTime(), oPC, FLAG_INFO);
+        SendChatResult("Current game time is " + FormatGameTime(), oPC, CHAT_FLAG_INFO);
 
     if (sTime != "")
     {
@@ -243,7 +243,7 @@ void test_var_OnPlayerChat()
     // If no variable names passed, abort
     if (!CountChatArguments(oPC))
     {
-        SendChatResult("Variable names required, but not received", oPC, FLAG_ERROR);
+        SendChatResult("Variable names required, but not received", oPC, CHAT_FLAG_ERROR);
         return;
     }
 
@@ -256,21 +256,21 @@ void test_var_OnPlayerChat()
     if (HasChatOption(oPC, "set"))
     {
         if (bHelp)
-            SendChatResult(SetVariableHelp(), oPC, FLAG_HELP);
+            SendChatResult(SetVariableHelp(), oPC, CHAT_FLAG_HELP);
         else
             SetVariable(oPC, oTarget);
     }
     else if (HasChatOption(oPC, "d,del,delete"))
     {
         if (bHelp)
-            SendChatResult(DeleteVariableHelp(), oPC, FLAG_HELP);
+            SendChatResult(DeleteVariableHelp(), oPC, CHAT_FLAG_HELP);
         else
             DeleteVariable(oPC, oTarget);
     }
     else
     {
         if (bHelp)
-            SendChatResult(GetVariableHelp(), oPC, FLAG_HELP);
+            SendChatResult(GetVariableHelp(), oPC, CHAT_FLAG_HELP);
         else
             GetVariable(oPC, oTarget);
     }
@@ -305,7 +305,7 @@ void test_stake_OnPlayerChat()
 void test_debug_OnPlayerChat()
 {
     object oTarget, oPC = GetPCChatSpeaker();
-    if ((oTarget = GetChatTarget(oPC, TARGET_NO_REVERT, GetModule())) == OBJECT_INVALID)
+    if ((oTarget = GetChatTarget(oPC, CHAT_TARGET_NO_REVERT, GetModule())) == OBJECT_INVALID)
         return;
 
     int nLevel;

@@ -14,7 +14,6 @@
 // -----------------------------------------------------------------------------
 
 #include "util_i_library"
-#include "util_i_chat"
 #include "core_i_framework"
 #include "pw_i_const"
 #include "ds_fug_i_events"

@@ -99,3 +99,5 @@ const string H2_EPOCH = "H2_EPOCH";
 const string H2_EVENT_ON_PLAYER_LIVES = "OnPlayerLives";
 
 const string MODULE_EVENT_ON_CHARACTER_REGISTRATION = "OnCharacterRegistration";
+
+const string PC_IP_ADDRESS = "PC_IP_ADDRESS";

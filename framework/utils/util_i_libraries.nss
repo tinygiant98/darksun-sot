@@ -97,6 +97,9 @@ void LoadLibraries(string sLibraries, int bForce = FALSE);
 //   OBJECT_SELF when the library script is called.
 int RunLibraryScript(string sScript, object oSelf = OBJECT_SELF);
 
+// ---< DelayLibraryScript >---
+// ---< util_i_libraries >---
+// Convenience function to allow RunLibraryScript to be delayed or assigned
 void DelayLibraryScript(string sScript, object oSelf = OBJECT_SELF);
 
 // ---< RunLibraryScripts >---

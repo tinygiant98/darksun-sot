@@ -15,8 +15,7 @@
 #include "bus_i_text"
 
 #include "util_i_data"
-#include "util_i_varlists"
-#include "util_i_csvlists"
+#include "util_i_lists"
 #include "util_i_override"
 #include "util_i_time"
 

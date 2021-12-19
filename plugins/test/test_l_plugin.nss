@@ -10,7 +10,7 @@
 // -----------------------------------------------------------------------------
 
 #include "util_i_library"
-#include "util_i_chat"
+#include "chat_i_main"
 #include "core_i_framework"
 #include "test_i_events"
 

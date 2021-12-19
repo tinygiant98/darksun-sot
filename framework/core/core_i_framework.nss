@@ -11,8 +11,7 @@
 // HCR2, EPOlson's Common Scripting Framework, and William Bull's Memetic AI.
 // -----------------------------------------------------------------------------
 
-#include "util_i_csvlists"
-#include "util_i_varlists"
+#include "util_i_lists"
 #include "util_i_libraries"
 #include "core_i_constants"
 #include "core_i_database"
@@ -424,18 +423,11 @@ void InitializeCoreFramework()
 
     SetLocalInt(oModule, CORE_INITIALIZED, TRUE);
 
+    if (ON_MODULE_PRELOAD != "")
+        ExecuteScript(ON_MODULE_PRELOAD, GetModule());
     // Start debugging
     SetDebugLevel(INITIALIZATION_DEBUG_LEVEL, oModule);
     SetDebugLogging(DEBUG_LOGGING);
-
-    Notice("Checking for Module Preload script ...");
-    if (ON_MODULE_PRELOAD != "")
-    {
-        Notice("Running Module Preload script " + ON_MODULE_PRELOAD);
-        ExecuteScript(ON_MODULE_PRELOAD, GetModule());
-    }
-    else
-        Notice("Module Preload script not specified");
 
     // Set specific event debug levels
     if (HEARTBEAT_DEBUG_LEVEL)

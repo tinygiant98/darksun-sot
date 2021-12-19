@@ -118,7 +118,7 @@ string GetVariable(object oPC, object oTarget, string sOverride = "")
                 SendChatResult(GetListItem(sKeys, n) + " " + sVarName + " on " + sTitle + " -> " + GetListItem(sValues, n), oPC);
         }
         else if (!nInternal)
-            SendChatResult("Variable " + sVarName + " not found on " + sTitle + " (or is default value)", oPC, FLAG_ERROR);
+            SendChatResult("Variable " + sVarName + " not found on " + sTitle + " (or is default value)", oPC, CHAT_FLAG_ERROR);
 
         sKeys = "";
         sValues = "";
@@ -140,8 +140,8 @@ void DeleteVariable(object oPC, object oTarget)
 
         if (!CountList(sTypes))
         {
-            SendChatResult("Variable " + sVarName + " not found on " + sTitle + " (or is default value)", oPC, FLAG_ERROR);
-            SendChatResult(DeleteVariableHelp(), oPC, FLAG_HELP);
+            SendChatResult("Variable " + sVarName + " not found on " + sTitle + " (or is default value)", oPC, CHAT_FLAG_ERROR);
+            SendChatResult(DeleteVariableHelp(), oPC, CHAT_FLAG_HELP);
             continue;
         }
 
@@ -237,8 +237,8 @@ void DeleteVariable(object oPC, object oTarget)
         {
             SendChatResult("Found multiple types for variable " + sVarName + "; type to delete must be specified" +
                            "\n  Variable types found -> " + sTypes +
-                           "\n  Variable types not specified for deletion -> " + sConfirm, oPC, FLAG_ERROR);
-            SendChatResult(DeleteVariableHelp(), oPC, FLAG_HELP);
+                           "\n  Variable types not specified for deletion -> " + sConfirm, oPC, CHAT_FLAG_ERROR);
+            SendChatResult(DeleteVariableHelp(), oPC, CHAT_FLAG_HELP);
         }
 
         for (nType = 0; nType < nTypes; nType++)
@@ -259,7 +259,7 @@ void SetVariable(object oPC, object oTarget)
 
     if (CountChatArguments(oPC) > 1)
         SendChatResult("More than one variable name passed; only the first will be used" +
-                       "\n  Arguments received -> " + GetChatArguments(oPC), oPC, FLAG_ERROR);
+                       "\n  Arguments received -> " + GetChatArguments(oPC), oPC, CHAT_FLAG_ERROR);
 
     sVarName = GetChatArgument(oPC);
 
@@ -305,8 +305,8 @@ void SetVariable(object oPC, object oTarget)
         if (CountList(sValues) != 5)
         {
             SendChatResult("Incorrect number of arguments passed in the --[l|loc|location] value" +
-                           "\n  Values received -> " + sValue, oPC, FLAG_ERROR);
-            SendChatResult(SetVariableHelp(), oPC, FLAG_HELP);
+                           "\n  Values received -> " + sValue, oPC, CHAT_FLAG_ERROR);
+            SendChatResult(SetVariableHelp(), oPC, CHAT_FLAG_HELP);
             return;
         }
 
@@ -328,7 +328,7 @@ void SetVariable(object oPC, object oTarget)
         }
         else
             SendChatResult("Could not find a valid object for passed object tag" +
-                           "\n  Tag received -> " + GetListItem(sValues, 0), oPC, FLAG_ERROR);
+                           "\n  Tag received -> " + GetListItem(sValues, 0), oPC, CHAT_FLAG_ERROR);
     }
 /*    
     else if (HasChatKey(oPC, "v,vec,vector"))
@@ -358,7 +358,7 @@ void SetVariable(object oPC, object oTarget)
 */
     else
         SendChatResult("Variable type could not be determined from options" +
-                       "\n  Key-Value Pairs received -> " + GetChatPairs(oPC), oPC, FLAG_ERROR);
+                       "\n  Key-Value Pairs received -> " + GetChatPairs(oPC), oPC, CHAT_FLAG_ERROR);
 
     if (sType != "")      
         SendChatResult(sType + " variable " + sVarName + " with value " + (sResult == "" ? sValue : sResult) + " set on " + (GetIsPC(oPC) ? GetName(oTarget) : GetTag(oTarget)), oPC);

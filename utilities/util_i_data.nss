@@ -13,6 +13,8 @@
 #include "util_i_debug"
 #include "util_i_variables"
 
+const string IS_DEVELOPER = "IS_DEVELOPER";
+
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------

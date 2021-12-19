@@ -92,7 +92,6 @@ const string TIMER_ON_AREA_EMPTY = "TIMER_ON_AREA_EMPTY";   // Timer variable na
 // ----- Player Management -----------------------------------------------------
 
 const string PC_CD_KEY         = "PC_CD_KEY";
-const string PC_IP_ADDRESS     = "PC_IP_ADDRESS";
 const string PC_PLAYER_NAME    = "PC_PLAYER_NAME";
 const string PLAYER_ROSTER     = "PLAYER_ROSTER";
 const string DM_ROSTER         = "DM_ROSTER";
@@ -100,10 +99,8 @@ const string LOGIN_BOOT        = "LOGIN_BOOT";
 const string LOGIN_DEATH       = "LOGIN_DEATH";
 const string AREA_ROSTER       = "AREA_ROSTER";
 const string AOE_ROSTER        = "AOE_ROSTER";
-const string STORE_ROSTER      = "STORE_ROSTER";
 const string IS_PC             = "IS_PC";
 const string IS_DM             = "IS_DM";
-const string IS_DEVELOPER      = "IS_DEVELOPER";
 
 // ----- Miscellaneous ---------------------------------------------------------
 
@@ -122,16 +119,21 @@ const string MODULE_EVENT_ON_CLIENT_LEAVE             = "OnClientLeave";
 const string MODULE_EVENT_ON_CUTSCENE_ABORT           = "OnCutSceneAbort";
 const string MODULE_EVENT_ON_HEARTBEAT                = "OnHeartbeat";
 const string MODULE_EVENT_ON_MODULE_LOAD              = "OnModuleLoad";
+const string MODULE_EVENT_ON_MODULE_START             = "OnModuleStart";
+const string MODULE_EVENT_ON_NUI                      = "OnNUI";
 const string MODULE_EVENT_ON_PLAYER_CHAT              = "OnPlayerChat";
 const string MODULE_EVENT_ON_PLAYER_DEATH             = "OnPlayerDeath";
 const string MODULE_EVENT_ON_PLAYER_DYING             = "OnPlayerDying";
 const string MODULE_EVENT_ON_PLAYER_EQUIP_ITEM        = "OnPlayerEquipItem";
+const string MODULE_EVENT_ON_PLAYER_GUI               = "OnPlayerGUI";
 const string MODULE_EVENT_ON_PLAYER_LEVEL_UP          = "OnPlayerLevelUp";
 const string MODULE_EVENT_ON_PLAYER_RESPAWN           = "OnPlayerReSpawn";
 const string MODULE_EVENT_ON_PLAYER_REST              = "OnPlayerRest";
 const string MODULE_EVENT_ON_PLAYER_REST_STARTED      = "OnPlayerRestStarted";
 const string MODULE_EVENT_ON_PLAYER_REST_CANCELLED    = "OnPlayerRestCancelled";
 const string MODULE_EVENT_ON_PLAYER_REST_FINISHED     = "OnPlayerRestFinished";
+const string MODULE_EVENT_ON_PLAYER_TARGET            = "OnPlayerTarget";
+const string MODULE_EVENT_ON_PLAYER_TILE_ACTION       = "OnPlayerTileAction";
 const string MODULE_EVENT_ON_PLAYER_UNEQUIP_ITEM      = "OnPlayerUnEquipItem";
 const string MODULE_EVENT_ON_UNACQUIRE_ITEM           = "OnUnAcquireItem";
 const string MODULE_EVENT_ON_USER_DEFINED             = "OnUserDefined";
@@ -155,6 +157,7 @@ const string AREA_EVENT_ON_EMPTY                      = "OnAreaEmpty";
 const string AOE_EVENT_ON_ENTER                       = "OnAoEEnter";
 const string AOE_EVENT_ON_EXIT                        = "OnAoEExit";
 const string AOE_EVENT_ON_HEARTBEAT                   = "OnAoEHeartbeat";
+const string AOE_EVENT_ON_USER_DEFINED                = "OnAoEUserDefined";
 
 // These are pseudo-events called by the Core Framework
 const string AOE_EVENT_ON_EMPTY                       = "OnAoEEmpty";
@@ -179,6 +182,7 @@ const string CREATURE_EVENT_ON_USER_DEFINED           = "OnCreatureUserDefined";
 
 const string DOOR_EVENT_ON_AREA_TRANSITION_CLICK      = "OnDoorAreaTransitionClick";
 const string DOOR_EVENT_ON_CLOSE                      = "OnDoorClose";
+const string DOOR_EVENT_ON_CONVERSATION               = "OnDoorConversation";
 const string DOOR_EVENT_ON_DAMAGED                    = "OnDoorDamaged";
 const string DOOR_EVENT_ON_DEATH                      = "OnDoorDeath";
 const string DOOR_EVENT_ON_FAIL_TO_OPEN               = "OnDoorFailToOpen";
@@ -202,6 +206,7 @@ const string ENCOUNTER_EVENT_ON_USER_DEFINED          = "OnEncounterUserDefined"
 
 const string PLACEABLE_EVENT_ON_CLICK                 = "OnPlaceableClick";
 const string PLACEABLE_EVENT_ON_CLOSE                 = "OnPlaceableClose";
+const string PLACEABLE_EVENT_ON_CONVERSATION          = "OnPlaceableConversation";
 const string PLACEABLE_EVENT_ON_DAMAGED               = "OnPlaceableDamaged";
 const string PLACEABLE_EVENT_ON_DEATH                 = "OnPlaceableDeath";
 const string PLACEABLE_EVENT_ON_DISTURBED             = "OnPlaceableDisturbed";
@@ -237,6 +242,3 @@ const string TRIGGER_EVENT_ON_USER_DEFINED            = "OnTriggerUserDefined";
 // These are pseudo-events called by the Core Framework.
 const string PLUGIN_EVENT_ON_ACTIVATE                 = "OnPluginActivate";
 const string PLUGIN_EVENT_ON_DEACTIVATE               = "OnPluginDeactivate";
-
-// test
-const string PLAYER_EVENT_ON_HEARTBEAT = "OnPlayerHeartbeat";

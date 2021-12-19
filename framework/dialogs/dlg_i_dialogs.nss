@@ -36,8 +36,7 @@
 
 #include "util_i_datapoint"
 #include "util_i_debug"
-#include "util_i_csvlists"
-#include "util_i_varlists"
+#include "util_i_lists"
 #include "util_i_libraries"
 #include "dlg_c_dialogs"
 
@@ -1417,7 +1416,7 @@ int LoadDialogPage()
     string sMessage;
     string sPage = GetDialogPage();
     if (!HasDialogPage(sPage))
-        Debug(sMessage = "No dialog page found. Aborting...");
+        Warning(sMessage = "No dialog page found. Aborting...");
     else if (GetDialogState() == DLG_STATE_ENDED)
         Debug(sMessage = "Dialog ended by the event script. Aborting...");
 

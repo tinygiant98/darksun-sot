@@ -9,4 +9,4 @@
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 
-//
+const string PLAYER_EVENT_ON_HEARTBEAT = "OnPlayerHeartbeat";
