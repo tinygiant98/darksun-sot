@@ -17,7 +17,6 @@
 #include "pw_i_config"
 #include "pw_i_text"
 
-#include "core_i_database"
 #include "core_i_framework"
 #include "util_i_data"
 #include "util_i_override"
@@ -384,7 +383,8 @@ void h2_BanPlayerByCDKey(object oPC)
 {
     string sMessage = GetName(oPC) + "_" + GetPCPlayerName(oPC) + " banned by: " + GetName(OBJECT_SELF) + "_" + GetPCPlayerName(OBJECT_SELF);
 
-    SetDatabaseString(H2_BANNED_PREFIX + GetPCPublicCDKey(oPC), sMessage);
+    // TODO
+    //SetDatabaseString(H2_BANNED_PREFIX + GetPCPublicCDKey(oPC), sMessage);
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
     h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
@@ -394,7 +394,8 @@ void h2_BanPlayerByIPAddress(object oPC)
 {
     string sMessage = GetName(oPC) + "_" + GetPCPlayerName(oPC) + " banned by: " + GetName(OBJECT_SELF) + "_" + GetPCPlayerName(OBJECT_SELF);
     
-    SetDatabaseString(H2_BANNED_PREFIX + GetPCIPAddress(oPC), sMessage);
+    // TODO
+    //SetDatabaseString(H2_BANNED_PREFIX + GetPCIPAddress(oPC), sMessage);
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
     h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
@@ -1041,7 +1042,8 @@ int h2_SkillCheck(int nSkill, object oUser, int nBroadCastLevel = 1)
 
 void h2_SaveCurrentCalendar()
 {
-    SetDatabaseString(H2_SERVER_TIME, GetSystemTime());
+    // TODO
+    //SetDatabaseString(H2_SERVER_TIME, GetSystemTime());
 }
 
 void h2_SavePCLocation(object oPC)
@@ -1054,10 +1056,13 @@ void h2_SavePCLocation(object oPC)
 
 void h2_RestoreSavedCalendar()
 {
+    // TODO
+    /*
     string sTime = GetDatabaseString(H2_SERVER_TIME);
 
     if (sTime != "")
         _SetCalendar(sTime, TRUE, TRUE);
+    */
 }
 
 void h2_SaveServerStartTime()
@@ -1105,11 +1110,15 @@ void h2_StartSavePCLocationTimer()
 // TODO swap to sm database
 string h2_GetNewUniquePCID()
 {
+    // TODO
+    /*
     int nextID = GetDatabaseInt(H2_NEXT_UNIQUE_PC_ID);
     string id = IntToHexString(nextID);
 
     SetDatabaseInt(H2_NEXT_UNIQUE_PC_ID, ++nextID);
     return id;
+    */
+    return "";
 }
 
 void h2_SendPCToSavedLocation(object oPC)
@@ -1138,10 +1147,13 @@ void h2_SetPlayerID(object oPC)
     {
         uniquepcid = h2_GetNewUniquePCID();
         SetPlayerString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
-        SetDatabaseString(uniquepcid, fullpcname);
+        // TODO
+        //SetDatabaseString(uniquepcid, fullpcname);
     }
     else
     {
+        // TODO
+        /*
         string storedName = GetDatabaseString(uniquepcid);
         if (storedName != fullpcname)
         {
@@ -1152,11 +1164,14 @@ void h2_SetPlayerID(object oPC)
             SetPlayerString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
             SetDatabaseString(uniquepcid, fullpcname);
         }
+        */
     }
 }
 
 void h2_RegisterPC(object oPC)
 {
+    // TODO
+    /*
     int registeredCharCount = GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
     SetPlayerInt(oPC, H2_REGISTERED, TRUE);
     SetPlayerInt(oPC, H2_INITIAL_LOGIN, TRUE); //TODO why'd I put this here again?
@@ -1165,6 +1180,7 @@ void h2_RegisterPC(object oPC)
     SendMessageToPC(oPC, H2_TEXT_MAX_REGISTERED_CHARS + IntToString(H2_REGISTERED_CHARACTERS_ALLOWED));
 
     // Run an event for character registration
+    */
     RunEvent(MODULE_EVENT_ON_CHARACTER_REGISTRATION, oPC);
 }
 

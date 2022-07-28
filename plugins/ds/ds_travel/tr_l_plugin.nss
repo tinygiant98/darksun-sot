@@ -31,9 +31,9 @@ void OnLibraryLoad()
     object oPlugin = GetPlugin("ds");
 
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, AREA_EVENT_ON_ENTER,              "tr_OnAreaEnter");
-    RegisterEventScripts(oPlugin, AREA_EVENT_ON_EXIT,               "tr_OnAreaExit");
-    RegisterEventScripts(oPlugin, TRAVEL_ENCOUNTER_ON_TIMER_EXPIRE, "tr_encounter_OnTimerExpire");
+    RegisterEventScript(oPlugin, AREA_EVENT_ON_ENTER,              "tr_OnAreaEnter");
+    RegisterEventScript(oPlugin, AREA_EVENT_ON_EXIT,               "tr_OnAreaExit");
+    RegisterEventScript(oPlugin, TRAVEL_ENCOUNTER_ON_TIMER_EXPIRE, "tr_encounter_OnTimerExpire");
 
     // ----- Module Events -----
     RegisterLibraryScript("tr_encounter_OnTimerExpire", 1);

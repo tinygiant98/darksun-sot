@@ -26,10 +26,10 @@ void OnLibraryLoad()
 
     /*
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_CANCELLED, "rest_OnPlayerRestCancelled", 4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_FINISHED,  "rest_OnPlayerRestFinished",  4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_STARTED,   "rest_OnPlayerRestStarted",   4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,          "rest_OnClientEnter",         4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_REST_CANCELLED, "rest_OnPlayerRestCancelled", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_REST_FINISHED,  "rest_OnPlayerRestFinished",  4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_REST_STARTED,   "rest_OnPlayerRestStarted",   4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,          "rest_OnClientEnter",         4.0);
 
     // ----- Module Events -----
     RegisterLibraryScript("rest_OnPlayerRestCancelled", 1);

@@ -9,7 +9,6 @@
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 
-
 #include "util_i_library"
 #include "core_i_framework"
 #include "bus_i_events"
@@ -20,11 +19,14 @@
 
 void OnLibraryLoad()
 {
-    object oPlugin = GetPlugin("lotr");
+    if (!GetIfPluginExists("pw"))
+        return;
+
+    object oPlugin = GetPlugin("pw");
 
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "business_OnModuleLoad", 4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_HOUR, "business_OnHour", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "business_OnModuleLoad", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_HOUR, "business_OnHour", 4.0);
 
     // ----- Module Events -----
     RegisterLibraryScript("business_OnModuleLoad", 0);

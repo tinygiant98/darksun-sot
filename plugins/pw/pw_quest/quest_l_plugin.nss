@@ -19,12 +19,15 @@
 
 void OnLibraryLoad()
 {
+    if (!GetIfPluginExists("pw"))
+        return;
+
     object oPlugin = GetPlugin("pw");
 
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "quest_OnModuleLoad", 4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "quest_OnClientEnter", 4.0);
-    RegisterEventScripts(oPlugin, CHAT_PREFIX + "!quest", "quest_OnPlayerChat", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "quest_OnModuleLoad", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "quest_OnClientEnter", 4.0);
+    RegisterEventScript(oPlugin, CHAT_PREFIX + "!quest", "quest_OnPlayerChat", 4.0);
 
     // ----- Module Events -----
     RegisterLibraryScript("quest_OnModuleLoad", 1);

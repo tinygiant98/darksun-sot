@@ -84,6 +84,8 @@ void pw_OnModuleHeartbeat()
 
 void pw_OnClientEnter()
 {
+    // TODO
+    /*
     object oPC = GetEnteringObject();
     
     CreateVariablesTable(oPC);
@@ -159,6 +161,7 @@ void pw_OnClientEnter()
     string sTime = FormatSystemTime("h:mmtt on dddd, MMMM d, yyyy", GetSystemTime());
     string sMessage = "Today is " + sTime;
     SendMessageToPC(oPC, sMessage);
+    */
 }
 
 void pw_OnClientLeave()

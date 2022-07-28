@@ -58,7 +58,7 @@ void h2_InitHungerThirstCheck(object oPC)
     if (!GetPlayerInt(oPC, H2_HT_IS_STARVING) && GetPlayerFloat(oPC, H2_HT_CURR_HUNGER) == 0.0)
         SetPlayerFloat(oPC, H2_HT_CURR_HUNGER, 1.0);
 
-    int timerID = CreateTimer(oPC, H2_HT_ON_TIMER_EXPIRE, HoursToSeconds(1), 0, 0);
+    int timerID = CreateTimer(oPC, H2_HT_ON_TIMER_EXPIRE, HoursToSeconds(1), 0, 0.0);
     StartTimer(timerID, FALSE);
 
     if (_GetIsPC(oPC) && H2_HT_DISPLAY_INFO_BARS)
@@ -207,7 +207,7 @@ void h2_ApplyAlchoholEffects(object oPC, object oItem)
         SetPlayerFloat(oPC, H2_HT_CURR_ALCOHOL, currAlcohol);
         if (GetLocalInt(oPC, H2_HT_DRUNK_TIMERID) == 0 && currAlcohol >= 0.4)
         {
-            int timerID = CreateTimer(oPC, H2_HT_DRUNK_ON_TIMER_EXPIRE, 150.0, 0, 30);
+            int timerID = CreateTimer(oPC, H2_HT_DRUNK_ON_TIMER_EXPIRE, 150.0, 0, 30.0);
             SetLocalInt(oPC, H2_HT_DRUNK_TIMERID, timerID);
             StartTimer(timerID, TRUE);
         }
@@ -460,7 +460,7 @@ void h2_InitFatigueCheck(object oPC)
     if (!GetPlayerInt(oPC, H2_IS_FATIGUED) && GetPlayerFloat(oPC, H2_CURR_FATIGUE) == 0.0)
         SetPlayerFloat(oPC, H2_CURR_FATIGUE, 1.0);
 
-    int timerID = CreateTimer(oPC, H2_FATIGUE_ON_TIMER_EXPIRE, HoursToSeconds(1), 0, 0);
+    int timerID = CreateTimer(oPC, H2_FATIGUE_ON_TIMER_EXPIRE, HoursToSeconds(1), 0, 0.0);
     StartTimer(timerID, FALSE);
 
     if (_GetIsPC(oPC) && H2_FATIGUE_DISPLAY_INFO_BAR)

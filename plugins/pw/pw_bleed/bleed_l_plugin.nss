@@ -23,16 +23,19 @@ void OnLibraryLoad()
     if (!H2_USE_BLEED_SYSTEM)
         return;
 
+        if (!GetIfPluginExists("pw"))
+        return;
+
     object oPlugin = GetPlugin("pw");
 
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,        "bleed_OnClientEnter",       4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DYING,        "bleed_OnPlayerDying",       4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_STARTED, "bleed_OnPlayerRestStarted", 4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH,        "bleed_OnPlayerDeath",       4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,        "bleed_OnClientEnter",       4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DYING,        "bleed_OnPlayerDying",       4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_REST_STARTED, "bleed_OnPlayerRestStarted", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH,        "bleed_OnPlayerDeath",       4.0);
 
     // ----- Timer Events -----
-    RegisterEventScripts(oPlugin, BLEED_EVENT_ON_TIMER_EXPIRE,         "bleed_OnTimerExpire",       4.0);
+    RegisterEventScript(oPlugin, BLEED_EVENT_ON_TIMER_EXPIRE,         "bleed_OnTimerExpire",       4.0);
 
     // --- Module Events ---
     RegisterLibraryScript("bleed_OnClientEnter",       1);

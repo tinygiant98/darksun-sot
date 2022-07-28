@@ -22,11 +22,14 @@ void OnLibraryLoad()
     if (!H2_USE_LOOT_SYSTEM)
         return;
 
+    if (!GetIfPluginExists("pw"))
+        return;
+
     object oPlugin = GetPlugin("pw");
 
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DYING, "loot_OnPlayerDying", 4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "loot_OnPlayerDeath", 4.5);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DYING, "loot_OnPlayerDying", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "loot_OnPlayerDeath", 4.5);
 
     // ----- Module Events -----
     RegisterLibraryScript("loot_OnPlayerDying", 1);

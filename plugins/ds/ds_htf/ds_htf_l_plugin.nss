@@ -35,13 +35,13 @@ void OnLibraryLoad()
     // ----- Local Events -----
     if (H2_USE_HUNGERTHIRST_SYSTEM || H2_USE_FATIGUE_SYSTEM)
     {
-        RegisterEventScripts(oPlugin, AREA_EVENT_ON_ENTER, "ds_htf_OnAreaEnter",                9.0);
-        RegisterEventScripts(oPlugin, AREA_EVENT_ON_EXIT,  "ds_htf_OnAreaExit",                 9.0);
+        RegisterEventScript(oPlugin, AREA_EVENT_ON_ENTER, "ds_htf_OnAreaEnter",                9.0);
+        RegisterEventScript(oPlugin, AREA_EVENT_ON_EXIT,  "ds_htf_OnAreaExit",                 9.0);
     }
 
     // ----- Timer Events -----
     if (H2_USE_HUNGERTHIRST_SYSTEM || H2_USE_FATIGUE_SYSTEM)
-        RegisterEventScripts(oPlugin, DS_HTF_AREA_ON_TIMER_EXPIRE, "ds_htf_area_OnTimerExpire", 9.0);
+        RegisterEventScript(oPlugin, DS_HTF_AREA_ON_TIMER_EXPIRE, "ds_htf_area_OnTimerExpire", 9.0);
 
     // ----- Local Events -----
     if (H2_USE_HUNGERTHIRST_SYSTEM || H2_USE_FATIGUE_SYSTEM)

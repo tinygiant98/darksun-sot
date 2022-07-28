@@ -64,10 +64,10 @@ void OnLibraryLoad()
     object oPlugin = GetPlugin("ds");
 
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "ds_quest_OnModuleLoad", 3.0);
-    RegisterEventScripts(oPlugin, QUEST_EVENT_ON_ASSIGN, "ds_quest_OnQuestAssign");
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_ACQUIRE_ITEM, "ds_quest_OnAcquireItem");
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_UNACQUIRE_ITEM, "ds_quest_OnUnacquireItem");
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "ds_quest_OnModuleLoad", 3.0);
+    RegisterEventScript(oPlugin, QUEST_EVENT_ON_ASSIGN, "ds_quest_OnQuestAssign");
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_ACQUIRE_ITEM, "ds_quest_OnAcquireItem");
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_UNACQUIRE_ITEM, "ds_quest_OnUnacquireItem");
 
     // ----- Module Events -----
     RegisterLibraryScript("ds_quest_OnModuleLoad", 1);

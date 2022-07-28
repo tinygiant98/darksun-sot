@@ -22,10 +22,13 @@ void OnLibraryLoad()
     if (!H2_USE_DEITY_SYSTEM)
         return;
 
+    if (!GetIfPluginExists("pw"))
+        return;
+
     object oPlugin = GetPlugin("pw");
 
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "deity_OnPlayerDeath", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "deity_OnPlayerDeath", 4.0);
 
     // ----- Module Events -----
     RegisterLibraryScript("deity_OnPlayerDeath", 1);

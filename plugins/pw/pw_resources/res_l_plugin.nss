@@ -20,39 +20,42 @@
 
 void OnLibraryLoad()
 {
+    if (!GetIfPluginExists("pw"))
+        return;
+
     object oPlugin = GetPlugin("pw");
 
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "resources_OnModuleLoad", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "resources_OnModuleLoad", EVENT_PRIORITY_FIRST);
 
     // ----- Creature Events -----
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_BLOCKED, "resources_OnCreatureBlocked", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_COMBAT_ROUND_END, "resources_OnCreatureCombatRoundEnd", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_CONVERSATION, "resources_OnCreatureConversation", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_DAMAGED, "resources_OnCreatureDamaged", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_DEATH, "resources_OnCreatureDeath", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_DISTURBED, "resources_OnCreatureDisturbed", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_HEARTBEAT, "resources_OnCreatureHeartbeat", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_PERCEPTION, "resources_OnCreaturePerception", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_PHYSICAL_ATTACKED, "resources_OnCreaturePhysicalAttacked", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_RESTED, "resources_OnCreatureRested", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_SPAWN, "resources_OnCreatureSpawn", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_SPELL_CAST_AT, "resources_OnCreatureSpellCastAt", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, CREATURE_EVENT_ON_USER_DEFINED, "resources_OnCreatureUserDefined", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_BLOCKED, "resources_OnCreatureBlocked", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_COMBAT_ROUND_END, "resources_OnCreatureCombatRoundEnd", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_CONVERSATION, "resources_OnCreatureConversation", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_DAMAGED, "resources_OnCreatureDamaged", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_DEATH, "resources_OnCreatureDeath", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_DISTURBED, "resources_OnCreatureDisturbed", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_HEARTBEAT, "resources_OnCreatureHeartbeat", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_PERCEPTION, "resources_OnCreaturePerception", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_PHYSICAL_ATTACKED, "resources_OnCreaturePhysicalAttacked", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_RESTED, "resources_OnCreatureRested", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_SPAWN, "resources_OnCreatureSpawn", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_SPELL_CAST_AT, "resources_OnCreatureSpellCastAt", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, CREATURE_EVENT_ON_USER_DEFINED, "resources_OnCreatureUserDefined", EVENT_PRIORITY_FIRST);
 
     // ----- Placeable Events -----
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_CLICK, "resources_OnPlaceableClick", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_CLOSE, "resources_OnPlaceableClose", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_DAMAGED, "resources_OnPlaceableDamaged", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_DEATH, "resources_OnPlaceableDeath", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_DISTURBED, "resources_OnPlaceableDisturbed", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_HEARTBEAT, "resources_OnPlaceableHeartbeat", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_LOCK, "resources_OnPlaceableLock", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_PHYSICAL_ATTACKED, "resources_OnPlaceablePhysicalAttacked", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_OPEN, "resources_OnPlaceableOpen", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_SPELL_CAST_AT, "resources_OnPlaceableSpellCastAt", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_UNLOCK, "resources_OnPlaceableUnlock", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_USED, "resources_OnPlaceableUsed", EVENT_PRIORITY_FIRST);
-    RegisterEventScripts(oPlugin, PLACEABLE_EVENT_ON_USER_DEFINED, "resources_OnPlaceableUserDefined", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_CLICK, "resources_OnPlaceableClick", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_CLOSE, "resources_OnPlaceableClose", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_DAMAGED, "resources_OnPlaceableDamaged", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_DEATH, "resources_OnPlaceableDeath", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_DISTURBED, "resources_OnPlaceableDisturbed", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_HEARTBEAT, "resources_OnPlaceableHeartbeat", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_LOCK, "resources_OnPlaceableLock", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_PHYSICAL_ATTACKED, "resources_OnPlaceablePhysicalAttacked", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_OPEN, "resources_OnPlaceableOpen", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_SPELL_CAST_AT, "resources_OnPlaceableSpellCastAt", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_UNLOCK, "resources_OnPlaceableUnlock", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_USED, "resources_OnPlaceableUsed", EVENT_PRIORITY_FIRST);
+    RegisterEventScript(oPlugin, PLACEABLE_EVENT_ON_USER_DEFINED, "resources_OnPlaceableUserDefined", EVENT_PRIORITY_FIRST);
     
     // ----- Module Events -----
     RegisterLibraryScript("resources_OnModuleLoad", 0);

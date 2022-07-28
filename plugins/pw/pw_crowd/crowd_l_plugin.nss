@@ -21,17 +21,20 @@ void OnLibraryLoad()
     if (!PW_USE_CROWD_SYSTEM)
         return;
 
+    if (!GetIfPluginExists("pw"))
+        return;
+
     object oPlugin = GetPlugin("pw");
 
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_LOAD,  "crowd_OnModuleLoad");
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_MODULE_LOAD,  "crowd_OnModuleLoad");
 
     // ----- Area Events -----
-    RegisterEventScripts(oPlugin, AREA_EVENT_ON_ENTER,          "crowd_OnAreaEnter");
-    RegisterEventScripts(oPlugin, AREA_EVENT_ON_EXIT,           "crowd_OnAreaExit");
+    RegisterEventScript(oPlugin, AREA_EVENT_ON_ENTER,          "crowd_OnAreaEnter");
+    RegisterEventScript(oPlugin, AREA_EVENT_ON_EXIT,           "crowd_OnAreaExit");
  
     // ----- Timer Events -----
-    RegisterEventScripts(oPlugin, CROWD_EVENT_ON_TIMER_EXPIRED, "crowd_OnTimerExpired");
+    RegisterEventScript(oPlugin, CROWD_EVENT_ON_TIMER_EXPIRED, "crowd_OnTimerExpired");
 
     // ----- Module Events -----
     RegisterLibraryScript("crowd_OnModuleLoad",    1);

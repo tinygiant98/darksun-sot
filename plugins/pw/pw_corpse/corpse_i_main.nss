@@ -15,8 +15,6 @@
 #include "corpse_i_text"
 #include "pw_i_core"
 #include "x0_i0_position"
-#include "core_i_database"
-
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -242,12 +240,15 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
     }
     else //player was offline
     {
+        // TODO
+        /*
         SendMessageToPC(oCaster, H2_TEXT_OFFLINE_RESS_CASTER_FEEDBACK);
         SetDatabaseLocation(uniquePCID + H2_RESS_LOCATION, castLoc);
 
         if (_GetIsDM(oCaster))
             SetDatabaseInt(uniquePCID + H2_RESS_BY_DM, TRUE);
         sMessage += H2_TEXT_OFFLINE_PLAYER + " " + GetDatabaseString(uniquePCID);
+        */
     }
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
@@ -256,6 +257,8 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
 // TODO change unqiueid to uuid?
 void h2_PerformOffLineRessurectionLogin(object oPC, location ressLoc)
 {
+    // TODO
+    /*
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     DeleteDatabaseVariable(uniquePCID + H2_RESS_LOCATION);
     SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
@@ -271,4 +274,5 @@ void h2_PerformOffLineRessurectionLogin(object oPC, location ressLoc)
     string sMessage = GetName(oPC) + "_" + GetPCPlayerName(oPC) + H2_TEXT_OFFLINE_RESS_LOGIN;
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
+    */
 }

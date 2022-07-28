@@ -24,15 +24,18 @@ void OnLibraryLoad()
     if (!H2_USE_TORCH_SYSTEM)
         return;
 
+        if (!GetIfPluginExists("pw"))
+        return;
+
     object oPlugin = GetPlugin("pw");
 
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_SPELLHOOK,   "torch_OnSpellHook",   4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "torch_OnClientEnter", 4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_LEAVE,  "torch_OnClientLeave", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_SPELLHOOK,   "torch_OnSpellHook",   4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "torch_OnClientEnter", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_LEAVE,  "torch_OnClientLeave", 4.0);
 
     // ----- Timer Events -----
-    RegisterEventScripts(oPlugin, TORCH_EVENT_ON_TIMER_EXPIRE, "torch_OnTimerExpire", 4.0);
+    RegisterEventScript(oPlugin, TORCH_EVENT_ON_TIMER_EXPIRE, "torch_OnTimerExpire", 4.0);
 
     // ----- Module Events -----
     RegisterLibraryScript("torch_OnClientEnter", 0);

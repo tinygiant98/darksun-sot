@@ -30,7 +30,7 @@ void OnLibraryLoad()
 
     // ----- Module Events -----
     // Set priority to 4.1 so it runs just before the PW script.
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "ds_fug_OnPlayerDeath", 4.1);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "ds_fug_OnPlayerDeath", 4.1);
 
     // ----- Module Scripts -----
     RegisterLibraryScript("ds_fug_OnPlayerDeath", 1);

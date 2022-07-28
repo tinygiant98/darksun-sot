@@ -22,10 +22,13 @@ void OnLibraryLoad()
     if (!H2_USE_UNID_SYSTEM)
         return;
 
+    if (!GetIfPluginExists("pw"))
+        return;
+
     object oPlugin = GetPlugin("pw");
 
     // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_UNACQUIRE_ITEM, "unid_OnUnacquireItem");
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_UNACQUIRE_ITEM, "unid_OnUnacquireItem");
 
     // ----- Module Events -----
     RegisterLibraryScript("unid_OnUnacquireItem", 1);

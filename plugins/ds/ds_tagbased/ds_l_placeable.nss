@@ -96,7 +96,7 @@ void placeable_tag()
 
 void quest_deliver_wagon()
 {
-    string sEvent = GetName(GetCurrentEvent());
+    string sEvent = GetCurrentEvent();
     object oPC, oPlaceable = OBJECT_SELF;
 
     if (sEvent == PLACEABLE_EVENT_ON_CLOSE)

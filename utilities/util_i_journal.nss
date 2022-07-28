@@ -9,6 +9,9 @@
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 
+// TODO
+/*
+
 #include "core_i_database"
 #include "util_i_data"
 
@@ -502,3 +505,4 @@ void dhHideJournalQuestEntry(object oPlayer, string strPlotId)
     // remove from journal for aestetic reasons
     RemoveJournalQuestEntry(strPlotId, oPlayer);
 }
+*/

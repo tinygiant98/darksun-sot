@@ -182,8 +182,12 @@ void DialogToken_Area()
 
 void OnLibraryLoad()
 {
+    if (!GetIfPluginExists("pw"))
+        return;
+
     object oPlugin = GetPlugin("pw");
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "token_OnModuleLoad");
+    
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "token_OnModuleLoad");
 
     RegisterLibraryScript("TOKEN_EvaluateTokens", 1);
     RegisterLibraryScript("token_OnModuleLoad", 10);

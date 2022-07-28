@@ -20,10 +20,13 @@
 
 void nwnx_WalkTest()
 {
+    // TODO
+    /*
     int bRun = StringToInt(NWNX_Events_GetEventData("RUN_TO_POINT"));
 
     if (bRun)
         DelayCommand(0.2, DelayLibraryScript("test_pc_CheckMovementRate", OBJECT_SELF));
+    */
 }
 
 void test_run_OnPlayerChat()
@@ -45,14 +48,20 @@ void test_run_OnPlayerChat()
 
 void nwnx_KeyboardTest()
 {
+    // TODO
+    /*
     string sKey = NWNX_Events_GetEventData("KEY");
     if (sKey == "W")
         DelayCommand(0.2, DelayLibraryScript("test_pc_CheckMovementRate", OBJECT_SELF));
+    */
 }
 
 void test_pc_OnPlayerHeartbeat()
 {
+    // TODO
+    /*
     DelayCommand(0.2, DelayLibraryScript("test_pc_CheckMovementRate", OBJECT_SELF));
+    */
 }
 
 void test_pc_CheckMovementRate()
@@ -90,33 +99,33 @@ void OnLibraryLoad()
 
     if (!GetIfPluginExists("test"))
     {
-        object oPlugin = GetPlugin("test", TRUE);
+        object oPlugin = CreatePlugin("test");
         SetName(oPlugin, "[Plugin] System :: Module Testing System");
         SetDescription(oPlugin,
             "This plugin provides functionality for testing various module systems.");
-        SetPluginLibraries(oPlugin, "test_l_dialog");
+        LoadLibraries("test_l_dialog");
     
-        RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "test_OnClientEnter", 10.0);
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!convo", "test_convo_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!go", "test_go_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!get", "test_get_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!stake", "test_stake_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!items", "test_items_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!level", "test_level_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!identify", "test_identify_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!unlock", "test_unlock_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!libraries", "test_libraries_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!time", "test_time_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!var", "test_var_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!script", "test_script_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!debug", "test_debug_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!destroy", "test_destroy_OnPlayerChat");
-        RegisterEventScripts(oPlugin, CHAT_PREFIX + "!run", "test_run_OnPlayerChat");
+        RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "test_OnClientEnter", 10.0);
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!convo", "test_convo_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!go", "test_go_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!get", "test_get_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!stake", "test_stake_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!items", "test_items_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!level", "test_level_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!identify", "test_identify_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!unlock", "test_unlock_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!libraries", "test_libraries_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!time", "test_time_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!var", "test_var_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!script", "test_script_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!debug", "test_debug_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!destroy", "test_destroy_OnPlayerChat");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!run", "test_run_OnPlayerChat");
 
-        RegisterEventScripts(oPlugin, "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "nwnx_WalkTest");
-        RegisterEventScripts(oPlugin, "NWNX_ON_INPUT_KEYBOARD_BEFORE", "nwnx_KeyboardTest");
+        RegisterEventScript(oPlugin, "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "nwnx_WalkTest");
+        RegisterEventScript(oPlugin, "NWNX_ON_INPUT_KEYBOARD_BEFORE", "nwnx_KeyboardTest");
 
-        RegisterEventScripts(oPlugin, PLAYER_EVENT_ON_HEARTBEAT, "test_pc_OnPlayerHeartbeat", 10.0);
+        RegisterEventScript(oPlugin, PLAYER_EVENT_ON_HEARTBEAT, "test_pc_OnPlayerHeartbeat", 10.0);
     }
 
     RegisterLibraryScript("test_OnClientEnter", 0);

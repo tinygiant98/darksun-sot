@@ -32,13 +32,16 @@ void OnLibraryLoad()
     if (!H2_USE_FUGUE_SYSTEM)
         return;
     
+    if (!GetIfPluginExists("pw"))
+        return;
+
     object oPlugin = GetPlugin("pw");
 
     // ----- Module Events -----      
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "fugue_OnClientEnter", 4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "fugue_OnPlayerDeath", 4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DYING, "fugue_OnPlayerDying", 4.0);
-    RegisterEventScripts(oPlugin, CHAT_PREFIX + ".", "fugue_OnPlayerChat");
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "fugue_OnClientEnter", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "fugue_OnPlayerDeath", 4.0);
+    RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DYING, "fugue_OnPlayerDying", 4.0);
+    RegisterEventScript(oPlugin, CHAT_PREFIX + ".", "fugue_OnPlayerChat");
 
     // ----- Module Events -----
     RegisterLibraryScript("fugue_OnClientEnter", 1);

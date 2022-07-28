@@ -51,6 +51,8 @@ void corpse_pccorpseitem();
 
 void corpse_OnClientEnter()
 {
+    // TODO
+    /*
     object oPC = GetEnteringObject();
     string sUniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     location lRessLoc = GetDatabaseLocation(sUniquePCID + H2_RESS_LOCATION);
@@ -64,6 +66,7 @@ void corpse_OnClientEnter()
             DestroyObject(oItem);
         oItem = GetNextItemInInventory(oPC);
     }
+    */
 }
 
 void corpse_OnClientLeave()

@@ -33,17 +33,17 @@ void OnLibraryLoad()
     //Need to check for pw plugin and this is a sub-plugin
     if (!GetIfPluginExists("ds"))
     {
-        object oPlugin = GetPlugin("ds", TRUE);
+        object oPlugin = CreatePlugin("ds");
         SetName(oPlugin, "[Plugin] DS :: Core");
         SetDescription(oPlugin,
             "This plugin controls the UnID Item on Drop Persistent World Subsystem.");
-        SetPluginLibraries(oPlugin, "tr_l_plugin, ds_htf_l_plugin, ds_l_aoe, ds_l_area, ds_l_creature, " +
+        LoadLibraries("tr_l_plugin, ds_htf_l_plugin, ds_l_aoe, ds_l_area, ds_l_creature, " +
             "ds_l_door, ds_l_encounter, ds_l_item, ds_l_merchant, ds_l_placeable, ds_l_quest, ds_l_trap, " +
             "ds_l_trigger, ds_fug_l_plugin, ds_fug_l_dialog, ds_rest_l_plugin, ds_qst_l_plugin, " +
             "ds_qst_l_dialog, ds_wh_l_plugin");
 
         //Add module level events
-        RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "ds_OnClientEnter", 4.0);
+        RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "ds_OnClientEnter", 4.0);
     }
 
     RegisterLibraryScript("ds_OnClientEnter", 1);
