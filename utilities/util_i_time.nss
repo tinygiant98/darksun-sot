@@ -116,7 +116,7 @@ string GetSystemTime();
 string GetGameTime();
 
 // ---< GetMaxSystemTime >---
-// Returns the time vector that represents that compares system time vectors sTime1 and sTime2
+// Returns the time vector that compares system time vectors sTime1 and sTime2
 //  and returns the time vector which represents the greater time.  If sTime2 is not
 //  passed, current system time used.  Optionally, you can pass an element constant to use
 //  when comparing the two time vectors.  In some cases, changing nElement may increase the
@@ -124,7 +124,7 @@ string GetGameTime();
 string GetMaxSystemTime(string sTime1, string sTime2 = TIME_INVALID, int nElement = TIME_HOURS);
 
 // ---< GetMinSystemTime >---
-// Returns the time vector that represents that compares system time vectors sTime1 and sTime2
+// Returns the time vector that compares system time vectors sTime1 and sTime2
 //  and returns the time vector which represents the lesser time.  If sTime2 is not
 //  passed, current system time used.  Optionally, you can pass an element constant to use
 //  when comparing the two time vectors.  In some cases, changing nElement may increase the

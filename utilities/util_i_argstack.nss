@@ -130,13 +130,34 @@ void ClearRegisters(string sListName = "", object oTarget = OBJECT_INVALID);
 //                              Function Definitions
 // -----------------------------------------------------------------------------
 
-int PushArgumentInt(int nValue, string sListName = "", object oTarget = OBJECT_INVALID)
+string _GetStackListName(string sListName)
 {
     if (sListName == "")
-        sListName = ARGS_DEFAULT_STACK;
+        return ARGS_DEFAULT_STACK;
+    else
+        return sListName;
+}
 
+string _GetReturnListName(string sListName)
+{
+    if (sListName == "")
+        return ARGS_DEFAULT_RETURN;
+    else 
+        return sListName;
+}
+
+object _GetTargetObject(object oTarget)
+{
     if (oTarget == OBJECT_INVALID || GetIsObjectValid(oTarget) == FALSE)
-        oTarget = GetModule();
+        return GetModule();
+    else 
+        return oTarget;
+}
+
+int PushArgumentInt(int nValue, string sListName = "", object oTarget = OBJECT_INVALID)
+{
+    sListName = _GetStackListName(sListName);
+    oTarget = _GetTargetObject(oTarget);
 
     AddListInt(oTarget, nValue, sListName, FALSE);
     return CountIntList(oTarget, sListName);
@@ -144,16 +165,21 @@ int PushArgumentInt(int nValue, string sListName = "", object oTarget = OBJECT_I
 
 int GetArgumentInt(string sListName = "", object oTarget = OBJECT_INVALID)
 {
-    if (sListName == "")
-        sListName = ARGS_DEFAULT_STACK;
-
-    if (oTarget == OBJECT_INVALID || GetIsObjectValid(oTarget) == FALSE)
-        oTarget = GetModule();
+    sListName = _GetStackListName(sListName);
+    oTarget = _GetTargetObject(oTarget);
 
     int nResult = GetListInt(oTarget, 0, sListName);
     DeleteListInt(oTarget, 0, sListName, TRUE);
 
     return nResult;
+}
+
+int PopArgumentInt(string sListName = "", object oTarget = OBJECT_INVALID)
+{
+    if (sListName == "")
+        sListName = ARGS_DEFAULT_STACK;
+    
+    return 0;
 }
 
 int PushArgumentString(string sValue, string sListName = "", object oTarget = OBJECT_INVALID)
