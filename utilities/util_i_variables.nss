@@ -12,17 +12,47 @@
 // [Get|Set|Delete]Player* functions are designed to store player object-specific
 // variables.  By default, these variables will be stored in the player object's
 // organic sqlite database, which is saved into the character's .bic file.
-// If player variables are to be stored temporarily instead of persistently, they
-// will be stored on the player object.
 
 // [Get|Set|Delete]Module* functions are designed to store module object-specific
-// variables.  If these variable are configured to be stored persistently, they
-// will be saved to the campaign database.  If temporary, they will be saved to
-// the module object's organic sqlite database.
+// variables.  These variables will be stored in the module's volatile sqlite
+// database.  This database will be lost when the module shuts down.
 
 // [Get|Set|Delete]Persistent* functions are designed to persistently store variable
 // data assigned to any game object.  These functions will always store the
 // passed variable to the campaign database using organic sqlite functionality.
+
+// [Get|Set|Delete]Object* functions are designed to store object-specific
+// variables.  These variables will be stored in the module's volatile sqlite
+// database.  This database will be lost when the module shuts down.
+
+// ***NOTE*** Variables should not be saved to persistent database tables if those
+//  variables are associated with a game object which is not the module itself.
+//  Game object ids may not be the same from session to session and variables
+//  saved to persistent database tables may not be retrieved reliably in other
+//  than the current session.  Game object-specific data should be saved to the
+//  module's volatile database using *Object* functions.
+
+// Delete[Player|Module|Persistent|Object]Variables{By}[Tag|Type] functions allow
+// variables to be deleted in groups.  When setting a variable, an optional tag
+// can be applied which could later be used to delete a group of variables.
+// Additionally, variables groups can be deleted by type (integer, string, etc.)
+// or by object.
+
+// -----------------------------------------------------------------------------
+//                                Configuration
+// -----------------------------------------------------------------------------
+
+// This volatile table will be created on the GetModule() object the first time
+// a module variable is set.
+const string VARIABLE_TABLE_MODULE      = "module_variables";
+
+// This persitent table will be created on the PC object the first time a player
+// variable is set.  This table will be stored in the player's .bic file.
+const string VARIABLE_TABLE_PC          = "player_variables";
+
+// A persistent table will be created in a campaign datase with the following
+// name.  The table name will be VARIABLE_TABLE_MODULE above.
+const string VARIABLE_CAMPAIGN_DATABASE = "campaign_variables";
 
 // -----------------------------------------------------------------------------
 //                                  Constants
@@ -37,18 +67,60 @@ const int VARIABLE_TYPE_STRING       = 4;
 const int VARIABLE_TYPE_OBJECT       = 8;
 const int VARIABLE_TYPE_VECTOR       = 16;
 const int VARIABLE_TYPE_LOCATION     = 32;
+const int VARIABLE_TYPE_JSON         = 64;
 
 // Query mode; used when preparing queries to reduce the number of
 // required functions.
-const int VARIABLE_MODE_GET          = 1;
-const int VARIABLE_MODE_SET          = 2;
-const int VARIABLE_MODE_DELETE       = 3;
+const int VARIABLE_MODE_GET            = 1;
+const int VARIABLE_MODE_SET            = 2;
+const int VARIABLE_MODE_DELETE         = 3;
+const int VARIABLE_MODE_DELETE_ALL     = 4;
+const int VARIABLE_MODE_DELETE_BY_TAG  = 5;
+const int VARIABLE_MODE_DELETE_BY_TYPE = 6;
+
+// -----------------------------------------------------------------------------
+//                              Private Functions
+// -----------------------------------------------------------------------------
+
+json _GetVectorObject(vector vPosition = [0.0, 0.0, 0.0])
+{
+    json jPosition = JsonObject();
+         jPosition = JsonObjectSet(jPosition, "x", JsonFloat(vPosition.x));
+         jPosition = JsonObjectSet(jPosition, "y", JsonFloat(vPosition.y));
+    return           JsonObjectSet(jPosition, "z", JsonFloat(vPosition.z));
+}
+
+vector _GetObjectVector(json jPosition)
+{
+    float x = JsonGetFloat(JsonObjectGet(jPosition, "x"));
+    float y = JsonGetFloat(JsonObjectGet(jPosition, "y"));
+    float z = JsonGetFloat(JsonObjectGet(jPosition, "z"));
+
+    return Vector(x, y, z);
+}
+
+json _GetLocationObject(location lLocation)
+{
+    json jLocation = JsonObject();
+         jLocation = JsonObjectSet(jLocation, "area", JsonString(ObjectToString(GetAreaFromLocation(lLocation))));
+         jLocation = JsonObjectSet(jLocation, "position", _GetVectorObject(GetPositionFromLocation(lLocation)));
+    return           JsonObjectSet(jLocation, "facing", JsonFloat(GetFacingFromLocation(lLocation)));
+}
+
+location _GetObjectLocation(json jLocation)
+{
+    object oArea = StringToObject(JsonGetString(JsonObjectGet(jLocation, "area")));
+    vector vPosition = _GetObjectVector(JsonObjectGet(jLocation, "position"));
+    float fFacing = JsonGetFloat(JsonObjectGet(jLocation, "facing"));
+    
+    return Location(oArea, vPosition, fFacing);
+}
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< [Get|Set|Delete]Player[Int|Float|String|Object|Location|Vector] >---
+// ---< [Get|Set|Delete]Player[Int|Float|String|Object|Location|Vector|Json] >---
 // These functions will force variables to be saved to the player's internal
 // sqlite database.  If oObject is not a PC object, these methods will fail.
 int      GetPlayerInt        (object oObject, string sVarName);
@@ -57,13 +129,15 @@ string   GetPlayerString     (object oObject, string sVarName);
 object   GetPlayerObject     (object oObject, string sVarName);
 location GetPlayerLocation   (object oObject, string sVarName);
 vector   GetPlayerVector     (object oObject, string sVarName);
+json     GetPlayerJson       (object oObject, string sVarName);
 
-void     SetPlayerInt        (object oObject, string sVarName, int      nValue);
-void     SetPlayerFloat      (object oObject, string sVarName, float    fValue);
-void     SetPlayerString     (object oObject, string sVarName, string   sValue);
-void     SetPlayerObject     (object oObject, string sVarName, object   oValue);
-void     SetPlayerLocation   (object oObject, string sVarName, location lValue);
-void     SetPlayerVector     (object oObject, string sVarName, vector   vValue);
+void     SetPlayerInt        (object oObject, string sVarName, int      nValue, string sTag = "");
+void     SetPlayerFloat      (object oObject, string sVarName, float    fValue, string sTag = "");
+void     SetPlayerString     (object oObject, string sVarName, string   sValue, string sTag = "");
+void     SetPlayerObject     (object oObject, string sVarName, object   oValue, string sTag = "");
+void     SetPlayerLocation   (object oObject, string sVarName, location lValue, string sTag = "");
+void     SetPlayerVector     (object oObject, string sVarName, vector   vValue, string sTag = "");
+void     SetPlayerJson       (object oObject, string sVarName, json     jValue, string sTag = "");
 
 void     DeletePlayerInt     (object oObject, string sVarName);
 void     DeletePlayerFloat   (object oObject, string sVarName);
@@ -71,32 +145,36 @@ void     DeletePlayerString  (object oObject, string sVarName);
 void     DeletePlayerObject  (object oObject, string sVarName);
 void     DeletePlayerLocation(object oObject, string sVarName);
 void     DeletePlayerVector  (object oObject, string sVarName);
+void     DeletePlayerJson    (object oObject, string sVarName);
 
-// ---< [Get|Set|Delete]Module[Int|Float|String|Object|Location|Vector] >---
+// ---< [Get|Set|Delete]Module[Int|Float|String|Object|Location|Vector|Json] >---
 // These functions will force variables to be saved to the module's internal
-// sqlite database.
-int      GetModuleInt        (object oObject, string sVarName);
-float    GetModuleFloat      (object oObject, string sVarName);
-string   GetModuleString     (object oObject, string sVarName);
-object   GetModuleObject     (object oObject, string sVarName);
-location GetModuleLocation   (object oObject, string sVarName);
-vector   GetModuleVector     (object oObject, string sVarName);
+// sqlite database.  This database is volatile.
+int      GetModuleInt        (string sVarName);
+float    GetModuleFloat      (string sVarName);
+string   GetModuleString     (string sVarName);
+object   GetModuleObject     (string sVarName);
+location GetModuleLocation   (string sVarName);
+vector   GetModuleVector     (string sVarName);
+json     GetModuleJson       (string sVarName);
 
-void     SetModuleInt        (object oObject, string sVarName, int      nValue);
-void     SetModuleFloat      (object oObject, string sVarName, float    fValue);
-void     SetModuleString     (object oObject, string sVarName, string   sValue);
-void     SetModuleObject     (object oObject, string sVarName, object   oValue);
-void     SetModuleLocation   (object oObject, string sVarName, location lValue);
-void     SetModuleVector     (object oObject, string sVarName, vector   vValue);
+void     SetModuleInt        (string sVarName, int      nValue, string sTag = "");
+void     SetModuleFloat      (string sVarName, float    fValue, string sTag = "");
+void     SetModuleString     (string sVarName, string   sValue, string sTag = "");
+void     SetModuleObject     (string sVarName, object   oValue, string sTag = "");
+void     SetModuleLocation   (string sVarName, location lValue, string sTag = "");
+void     SetModuleVector     (string sVarName, vector   vValue, string sTag = "");
+void     SetModuleJson       (string sVarName, json     jValue, string sTag = "");
 
-void     DeleteModuleInt     (object oObject, string sVarName);
-void     DeleteModuleFloat   (object oObject, string sVarName);
-void     DeleteModuleString  (object oObject, string sVarName);
-void     DeleteModuleObject  (object oObject, string sVarName);
-void     DeleteModuleLocation(object oObject, string sVarName);
-void     DeleteModuleVector  (object oObject, string sVarName);
+void     DeleteModuleInt     (string sVarName);
+void     DeleteModuleFloat   (string sVarName);
+void     DeleteModuleString  (string sVarName);
+void     DeleteModuleObject  (string sVarName);
+void     DeleteModuleLocation(string sVarName);
+void     DeleteModuleVector  (string sVarName);
+void     DeleteModuleJson    (string sVarName);
 
-// ---< [Get|Set|Delete]Persistent[Int|Float|String|Object|Location|Vector] >---
+// ---< [Get|Set|Delete]Persistent[Int|Float|String|Object|Location|Vector|Json] >---
 // These functions will force variables to be saved to the module's external
 // campaign sqlite database.  They are essentially duplicates of the *Module*
 // functions above, but force variables to the campaign database.
@@ -106,13 +184,15 @@ string   GetPersistentString     (object oObject, string sVarName);
 object   GetPersistentObject     (object oObject, string sVarName);
 location GetPersistentLocation   (object oObject, string sVarName);
 vector   GetPersistentVector     (object oObject, string sVarName);
+json     GetPersistentJson       (object oObject, string sVarName);
 
-void     SetPersistentInt        (object oObject, string sVarName, int      nValue);
-void     SetPersistentFloat      (object oObject, string sVarName, float    fValue);
-void     SetPersistentString     (object oObject, string sVarName, string   sValue);
-void     SetPersistentObject     (object oObject, string sVarName, object   oValue);
-void     SetPersistentLocation   (object oObject, string sVarName, location lValue);
-void     SetPersistentVector     (object oObject, string sVarName, vector   vValue);
+void     SetPersistentInt        (object oObject, string sVarName, int      nValue, string sTag = "");
+void     SetPersistentFloat      (object oObject, string sVarName, float    fValue, string sTag = "");
+void     SetPersistentString     (object oObject, string sVarName, string   sValue, string sTag = "");
+void     SetPersistentObject     (object oObject, string sVarName, object   oValue, string sTag = "");
+void     SetPersistentLocation   (object oObject, string sVarName, location lValue, string sTag = "");
+void     SetPersistentVector     (object oObject, string sVarName, vector   vValue, string sTag = "");
+void     SetPersistentJson       (object oObject, string sVarName, json     jValue, string sTag = "");
 
 void     DeletePersistentInt     (object oObject, string sVarName);
 void     DeletePersistentFloat   (object oObject, string sVarName);
@@ -120,89 +200,86 @@ void     DeletePersistentString  (object oObject, string sVarName);
 void     DeletePersistentObject  (object oObject, string sVarName);
 void     DeletePersistentLocation(object oObject, string sVarName);
 void     DeletePersistentVector  (object oObject, string sVarName);
+void     DeletePersistentJson    (object oObject, string sVarName);
+
+// ---< [Get|Set|Delete]Object[Int|Float|String|Object|Location|Vector|Json] >---
+// These functions will save variables to the module's volatile database.
+// These variables will be identified by the object's ID.
+int      GetObjectInt        (object oObject, string sVarName);
+float    GetObjectFloat      (object oObject, string sVarName);
+string   GetObjectString     (object oObject, string sVarName);
+object   GetObjectObject     (object oObject, string sVarName);
+location GetObjectLocation   (object oObject, string sVarName);
+vector   GetObjectVector     (object oObject, string sVarName);
+json     GetObjectJson       (object oObject, string sVarName);
+
+void     SetObjectInt        (object oObject, string sVarName, int      nValue, string sTag = "");
+void     SetObjectFloat      (object oObject, string sVarName, float    fValue, string sTag = "");
+void     SetObjectString     (object oObject, string sVarName, string   sValue, string sTag = "");
+void     SetObjectObject     (object oObject, string sVarName, object   oValue, string sTag = "");
+void     SetObjectLocation   (object oObject, string sVarName, location lValue, string sTag = "");
+void     SetObjectVector     (object oObject, string sVarName, vector   vValue, string sTag = "");
+void     SetObjectJson       (object oObject, string sVarName, json     jValue, string sTag = "");
+
+void     DeleteObjectInt     (object oObject, string sVarName);
+void     DeleteObjectFloat   (object oObject, string sVarName);
+void     DeleteObjectString  (object oObject, string sVarName);
+void     DeleteObjectObject  (object oObject, string sVarName);
+void     DeleteObjectLocation(object oObject, string sVarName);
+void     DeleteObjectVector  (object oObject, string sVarName);
+void     DeleteObjectJson    (object oObject, string sVarName);
 
 // -----------------------------------------------------------------------------
 //                             Function Definitions
 // -----------------------------------------------------------------------------
 
-string __LocationToString(location l)
-{
-    //string sAreaId = ObjectToString(GetAreaFromLocation(l)));
-    string sAreaId = GetTag(GetAreaFromLocation(l));
-    vector vPosition = GetPositionFromLocation(l);
-    float fFacing = GetFacingFromLocation(l);
-
-    return "#A#" + sAreaId +
-           "#X#" + FloatToString(vPosition.x, 0, 5) +
-           "#Y#" + FloatToString(vPosition.y, 0, 5) +
-           "#Z#" + FloatToString(vPosition.z, 0, 5) +
-           "#F#" + FloatToString(fFacing, 0, 5) + "#";
-}
-
-location __StringToLocation(string sLocation)
-{
-    location l;
-    int nLength = GetStringLength(sLocation);
-
-    if (nLength > 0)
-    {
-        int nPos, nCount;
-
-        nPos = FindSubString(sLocation, "#A#") + 3;
-        nCount = FindSubString(GetSubString(sLocation, nPos, nLength - nPos), "#");
-        object oArea = StringToObject(GetSubString(sLocation, nPos, nCount));
-
-        nPos = FindSubString(sLocation, "#X#") + 3;
-        nCount = FindSubString(GetSubString(sLocation, nPos, nLength - nPos), "#");
-        float fX = StringToFloat(GetSubString(sLocation, nPos, nCount));
-
-        nPos = FindSubString(sLocation, "#Y#") + 3;
-        nCount = FindSubString(GetSubString(sLocation, nPos, nLength - nPos), "#");
-        float fY = StringToFloat(GetSubString(sLocation, nPos, nCount));
-
-        nPos = FindSubString(sLocation, "#Z#") + 3;
-        nCount = FindSubString(GetSubString(sLocation, nPos, nLength - nPos), "#");
-        float fZ = StringToFloat(GetSubString(sLocation, nPos, nCount));
-
-        vector vPosition = Vector(fX, fY, fZ);
-
-        nPos = FindSubString(sLocation, "#F#") + 3;
-        nCount = FindSubString(GetSubString(sLocation, nPos, nLength - nPos), "#");
-        float fOrientation = StringToFloat(GetSubString(sLocation, nPos, nCount));
-
-        if (GetIsObjectValid(oArea))
-            l = Location(oArea, vPosition, fOrientation);
-        else
-            l = GetStartingLocation();
-    }
-
-    return l;
-}
-
-// Should be called from OnModuleLoad and OnClientEnter
-void CreateVariablesTable(object oObject)
+void CreateVariablesTable(object oObject, int bCampaign = FALSE)
 {
     int bPC = GetIsPC(oObject);
-    string sTable = (bPC ? "player_variables" : "module_variables");
+    string sTable = (bPC ? VARIABLE_TABLE_PC : VARIABLE_TABLE_MODULE);
 
     string query = "CREATE TABLE IF NOT EXISTS " + sTable + " (" +
         (bPC ? "" : "object TEXT, ") +
         "type INTEGER, " +
         "varname TEXT, " +
         "value TEXT, " +
+        "tag TEXT, " +
         "timestamp INTEGER, " +
         "PRIMARY KEY(" + (bPC ? "" : "object, ") + "type, varname));";
 
-    sqlquery sql = SqlPrepareQueryObject((bPC ? oObject : GetModule()), query);
+    sqlquery sql;
+    if (!bCampaign && (bPC || oObject == GetModule()))
+        sql = SqlPrepareQueryObject((bPC ? oObject : GetModule()), query);
+    else
+        sql = SqlPrepareQueryCampaign(VARIABLE_CAMPAIGN_DATABASE, query);
+    
     SqlStep(sql);
 }
 
-sqlquery PrepareQuery(object oObject, string sVarName, int nVarType, int nMode, int bForceCampaign = FALSE)
+sqlquery PrepareQuery(object oObject, string sVarName, int nVarType, int nMode, int bCampaign = FALSE)
 {
     int bPC = GetIsPC(oObject);    
-    string query, sTable = (bPC ? "player_variables" : "module_variables");
+    string query, sTable = (bPC ? VARIABLE_TABLE_PC : VARIABLE_TABLE_MODULE);
     sqlquery sql;
 
+    if (!bCampaign)
+    {
+        object oTarget = (bPC ? oObject : GetModule());
+        if (GetLocalInt(oTarget, "VARIABLES_INITIALIZED") == FALSE)
+        {
+            CreateVariablesTable(oTarget);
+            SetLocalInt(oTarget, "VARIABLES_INITIALIZED", TRUE);
+        }
+    }
+    else 
+    {
+        if (GetLocalInt(GetModule(), "CAMPAIGN_VARIABLES_INITIALIZED") == FALSE)
+        {
+            CreateVariablesTable(OBJECT_INVALID, TRUE);
+            SetLocalInt(GetModule(), "CAMPAIGN_VARIABLES_INITIALIZED", TRUE);
+        }
+    }
+    
     switch (nMode)
     {
         case VARIABLE_MODE_GET:
@@ -211,23 +288,38 @@ sqlquery PrepareQuery(object oObject, string sVarName, int nVarType, int nMode, 
             break;
         case VARIABLE_MODE_SET:
             query = "INSERT INTO " + sTable + " " +
-                "(" + (bPC ? "" : "object, ") + "type, varname, value, timestamp) " +
-                "VALUES (" + (bPC ? "" : "@object, ") + "@type, @varname, @value, strftime('%s','now')) " +
-                "ON CONFLICT (" + (bPC ? "" : "object, ") + "type, varname) DO UPDATE SET value = @value, timestamp = strftime('%s','now');";
+                "(" + (bPC ? "" : "object, ") + "type, varname, value, tag, timestamp) " +
+                "VALUES (" + (bPC ? "" : "@object, ") + "@type, @varname, @value, @tag, strftime('%s','now')) " +
+                "ON CONFLICT (" + (bPC ? "" : "object, ") + "type, varname, tag) DO UPDATE SET value = @value, timestamp = strftime('%s','now');";
             break;
         case VARIABLE_MODE_DELETE:
             query = "DELETE FROM " + sTable + " " +
                 "WHERE " + (bPC ? "" : "object = @object AND ") + "type = @type AND varname = @varname;";
             break;
+        case VARIABLE_MODE_DELETE_ALL:
+            query = "DELETE FROM " + sTable +
+                (bPC ? "" : "WHERE object = @object") + ";";
+            break;
+        case VARIABLE_MODE_DELETE_BY_TAG:
+            query = "DELETE FROM " + sTable + " " +
+                "WHERE " + (bPC ? "" : "object = @object AND ") + "tag = @tag;";
+            break;
+        case VARIABLE_MODE_DELETE_BY_TYPE:
+            query = "DELETE FROM " + sTable + " " +
+                "WHERE " + (bPC ? "" : "object = @object AND ") + "type = @type;";
+            break;
     }
     
-    if (!bForceCampaign && (bPC || oObject == GetModule()))
+    if (!bCampaign && (bPC || oObject == GetModule()))
         sql = SqlPrepareQueryObject((bPC ? oObject : GetModule()), query);
     else
-        sql = SqlPrepareQueryCampaign("dssot_variables", query);
+        sql = SqlPrepareQueryCampaign(VARIABLE_CAMPAIGN_DATABASE, query);
 
-    SqlBindInt(sql, "@type", nVarType);
-    SqlBindString(sql, "@varname", sVarName);
+    if (nMode != VARIABLE_MODE_DELETE_ALL && nMode != VARIABLE_MODE_DELETE_BY_TAG)
+        SqlBindInt(sql, "@type", nVarType);
+
+    if (nMode <= VARIABLE_MODE_DELETE)
+        SqlBindString(sql, "@varname", sVarName);
     
     if (!bPC)
         SqlBindString(sql, "@object", ObjectToString(oObject));
@@ -235,41 +327,51 @@ sqlquery PrepareQuery(object oObject, string sVarName, int nVarType, int nMode, 
     return sql;
 }
 
-// Intervening functions, called by all sqlite-setting functions
-void SetSQLiteInt(object oObject, string sVarName, int nValue, int bCampaign = FALSE)
+void SetSQLiteInt(object oObject, string sVarName, int nValue, string sTag = "", int bCampaign = FALSE)
 {
     sqlquery sql = PrepareQuery(oObject, sVarName, VARIABLE_TYPE_INT, VARIABLE_MODE_SET, bCampaign);
     SqlBindInt(sql, "@value", nValue);
+    SqlBindString(sql, "@tag", sTag);
 
     SqlStep(sql);
 }
 
-void SetSQLiteFloat(object oObject, string sVarName, float fValue, int bCampaign = FALSE)
+void SetSQLiteFloat(object oObject, string sVarName, float fValue, string sTag = "", int bCampaign = FALSE)
 {
     sqlquery sql = PrepareQuery(oObject, sVarName, VARIABLE_TYPE_FLOAT, VARIABLE_MODE_SET, bCampaign);
     SqlBindFloat(sql, "@value", fValue);
+    SqlBindString(sql, "@tag", sTag);
 
     SqlStep(sql);
 }
 
-// String, object, location
-void SetSQLiteString(object oObject, string sVarName, string sValue, int nType = VARIABLE_TYPE_STRING, int bCampaign = FALSE)
+void SetSQLiteString(object oObject, string sVarName, string sValue, string sTag = "", int nType = VARIABLE_TYPE_STRING, int bCampaign = FALSE)
 {
     sqlquery sql = PrepareQuery(oObject, sVarName, nType, VARIABLE_MODE_SET, bCampaign);
     SqlBindString(sql, "@value", sValue);
+    SqlBindString(sql, "@tag", sTag);
 
     SqlStep(sql);
 }
 
-void SetSQLiteVector(object oObject, string sVarName, vector vValue, int bCampaign = FALSE)
+void SetSQLiteVector(object oObject, string sVarName, vector vValue, string sTag = "", int bCampaign = FALSE)
 {
     sqlquery sql = PrepareQuery(oObject, sVarName, VARIABLE_TYPE_VECTOR, VARIABLE_MODE_SET, bCampaign);
     SqlBindVector(sql, "@value", vValue);
+    SqlBindString(sql, "@tag", sTag);
 
     SqlStep(sql);
 }
 
-// Intervening functions, called by all sqlite-setting functions
+void SetSQLiteJson(object oObject, string sVarName, json jValue, string sTag = "", int nType = VARIABLE_TYPE_JSON, int bCampaign = FALSE)
+{
+    sqlquery sql = PrepareQuery(oObject, sVarName, VARIABLE_TYPE_JSON, VARIABLE_MODE_SET, bCampaign);
+    SqlBindJson(sql, "@value", jValue);
+    SqlBindString(sql, "@tag", sTag);
+
+    SqlStep(sql);
+}
+
 int GetSQLiteInt(object oObject, string sVarName, int bCampaign = FALSE)
 {
     sqlquery sql = PrepareQuery(oObject, sVarName, VARIABLE_TYPE_INT, VARIABLE_MODE_GET, bCampaign);
@@ -282,173 +384,186 @@ float GetSQLiteFloat(object oObject, string sVarName, int bCampaign = FALSE)
     return SqlStep(sql) ? SqlGetFloat(sql, 0) : 0.0;
 }
 
-// String, object, location
-string GetSQLiteString(object oObject, string sVarName, int nType = VARIABLE_TYPE_STRING, int bCampaign = FALSE)
-{
-    sqlquery sql = PrepareQuery(oObject, sVarName, nType, VARIABLE_MODE_GET, bCampaign);
-    return SqlStep(sql) ? SqlGetString(sql, 0) : "";
-}
-
 vector GetSQLiteVector(object oObject, string sVarName, int bCampaign = FALSE)
 {
     sqlquery sql = PrepareQuery(oObject, sVarName, VARIABLE_TYPE_VECTOR, VARIABLE_MODE_GET, bCampaign);
     return SqlStep(sql) ? SqlGetVector(sql, 0) : Vector();
 }
 
-// Intervening functions, called by all sqlite-setting functions
+string GetSQLiteString(object oObject, string sVarName, int nType = VARIABLE_TYPE_STRING, int bCampaign = FALSE)
+{
+    sqlquery sql = PrepareQuery(oObject, sVarName, nType, VARIABLE_MODE_GET, bCampaign);
+    return SqlStep(sql) ? SqlGetString(sql, 0) : "";
+}
+
+json GetSQLiteJson(object oObject, string sVarName, int nType = VARIABLE_TYPE_JSON, int bCampaign = FALSE)
+{
+    sqlquery sql = PrepareQuery(oObject, sVarName, VARIABLE_TYPE_JSON, VARIABLE_MODE_GET, bCampaign);
+    return SqlStep(sql) ? SqlGetJson(sql, 0) : JsonNull();
+}
+
 void DeleteSQLiteInt(object oObject, string sVarName, int bCampaign = FALSE)
 {
-    sqlquery sql = PrepareQuery(oObject, sVarName, VARIABLE_TYPE_INT, VARIABLE_MODE_DELETE, bCampaign);
-    SqlStep(sql);
+    SqlStep(PrepareQuery(oObject, sVarName, VARIABLE_TYPE_INT, VARIABLE_MODE_DELETE, bCampaign));
 }
 
 void DeleteSQLiteFloat(object oObject, string sVarName, int bCampaign = FALSE)
 {
-    sqlquery sql = PrepareQuery(oObject, sVarName, VARIABLE_TYPE_FLOAT, VARIABLE_MODE_DELETE, bCampaign);
-    SqlStep(sql);
-}
-
-// String, object, location
-void DeleteSQLiteString(object oObject, string sVarName, int nType = VARIABLE_TYPE_STRING, int bCampaign = FALSE)
-{
-    sqlquery sql = PrepareQuery(oObject, sVarName, nType, VARIABLE_MODE_DELETE, bCampaign);
-    SqlStep(sql);
+    SqlStep(PrepareQuery(oObject, sVarName, VARIABLE_TYPE_FLOAT, VARIABLE_MODE_DELETE, bCampaign));
 }
 
 void DeleteSQLiteVector(object oObject, string sVarName, int bCampaign = FALSE)
 {
-    sqlquery sql = PrepareQuery(oObject, sVarName, VARIABLE_TYPE_VECTOR, VARIABLE_MODE_DELETE, bCampaign);
+    SqlStep(PrepareQuery(oObject, sVarName, VARIABLE_TYPE_VECTOR, VARIABLE_MODE_DELETE, bCampaign));
+}
+
+void DeleteSQLiteString(object oObject, string sVarName, int nType = VARIABLE_TYPE_STRING, int bCampaign = FALSE)
+{
+    SqlStep(PrepareQuery(oObject, sVarName, nType, VARIABLE_MODE_DELETE, bCampaign));
+}
+
+void DeleteSQLiteJson(object oObject, string sVarName, int nType = VARIABLE_TYPE_JSON, int bCampaign = FALSE)
+{
+    SqlStep(PrepareQuery(oObject, sVarName, VARIABLE_TYPE_JSON, VARIABLE_MODE_DELETE, bCampaign));
+}
+
+void DeleteSQLiteVariables(object oObject, int bCampaign = FALSE)
+{
+    SqlStep(PrepareQuery(oObject, "", -1, VARIABLE_MODE_DELETE_ALL, bCampaign));
+}
+
+void DeleteSQLiteVariablesByType(object oObject, int nType, int bCampaign = FALSE)
+{
+    SqlStep(PrepareQuery(oObject, "", nType, VARIABLE_MODE_DELETE_BY_TYPE, bCampaign));
+}
+
+void DeleteSQLiteVariablesByTag(object oObject, string sTag, int bCampaign = FALSE)
+{
+    sqlquery sql = PrepareQuery(oObject, sTag, -1, VARIABLE_MODE_DELETE_BY_TAG, bCampaign);
+    SqlBindString(sql, "@tag", sTag);
     SqlStep(sql);
 }
 
 // -----------------------------------------------------------------------------
 //                          [Set|Get|Delete]Player*
 // -----------------------------------------------------------------------------
-void SetPlayerInt(object oObject, string sVarName, int nValue)       {SetSQLiteInt   (oObject, sVarName, nValue);}
-void SetPlayerString(object oObject, string sVarName, string sValue) {SetSQLiteString(oObject, sVarName, sValue);}
-void SetPlayerFloat(object oObject, string sVarName, float fValue)   {SetSQLiteFloat (oObject, sVarName, fValue);}
-void SetPlayerVector(object oObject, string sVarName, vector vValue) {SetSQLiteVector(oObject, sVarName, vValue);}
+void SetPlayerInt     (object oObject, string sVarName, int      nValue, string sTag = "") {SetSQLiteInt   (oObject, sVarName, nValue,                     sTag);}
+void SetPlayerString  (object oObject, string sVarName, string   sValue, string sTag = "") {SetSQLiteString(oObject, sVarName, sValue,                     sTag);}
+void SetPlayerFloat   (object oObject, string sVarName, float    fValue, string sTag = "") {SetSQLiteFloat (oObject, sVarName, fValue,                     sTag);}
+void SetPlayerVector  (object oObject, string sVarName, vector   vValue, string sTag = "") {SetSQLiteVector(oObject, sVarName, vValue,                     sTag);}
+void SetPlayerJson    (object oObject, string sVarName, json     jValue, string sTag = "") {SetSQLiteJson  (oObject, sVarName, jValue,                     sTag);}
+void SetPlayerObject  (object oObject, string sVarName, object   oValue, string sTag = "") {SetSQLiteString(oObject, sVarName, ObjectToString    (oValue), sTag, VARIABLE_TYPE_OBJECT);}
+void SetPlayerLocation(object oObject, string sVarName, location lValue, string sTag = "") {SetSQLiteJson  (oObject, sVarName, _GetLocationObject(lValue), sTag, VARIABLE_TYPE_LOCATION);}
 
-void SetPlayerObject(object oObject, string sVarName, object oValue)
-{
-    string sObject = ObjectToString(oValue);
-    SetSQLiteString(oObject, sVarName, sObject, VARIABLE_TYPE_OBJECT);
-}
+int      GetPlayerInt     (object oObject, string sVarName) {return GetSQLiteInt      (oObject, sVarName);}
+float    GetPlayerFloat   (object oObject, string sVarName) {return GetSQLiteFloat    (oObject, sVarName);}
+string   GetPlayerString  (object oObject, string sVarName) {return GetSQLiteString   (oObject, sVarName);}
+vector   GetPlayerVector  (object oObject, string sVarName) {return GetSQLiteVector   (oObject, sVarName);}
+json     GetPlayerJson    (object oObject, string sVarName) {return GetSQLiteJson     (oObject, sVarName);}
+object   GetPlayerObject  (object oObject, string sVarName) {return StringToObject    (GetSQLiteString(oObject, sVarName, VARIABLE_TYPE_OBJECT));}
+location GetPlayerLocation(object oObject, string sVarName) {return _GetObjectLocation(GetSQLiteJson  (oObject, sVarName, VARIABLE_TYPE_LOCATION));}
 
-void SetPlayerLocation(object oObject, string sVarName, location lValue)
-{
-    string sLocation = __LocationToString(lValue);
-    SetSQLiteString(oObject, sVarName, sLocation, VARIABLE_TYPE_LOCATION);
-}
+void DeletePlayerInt     (object oObject, string sVarName) {DeleteSQLiteInt   (oObject, sVarName);}
+void DeletePlayerFloat   (object oObject, string sVarName) {DeleteSQLiteFloat (oObject, sVarName);}
+void DeletePlayerString  (object oObject, string sVarName) {DeleteSQLiteString(oObject, sVarName);}
+void DeletePlayerVector  (object oObject, string sVarName) {DeleteSQLiteVector(oObject, sVarName);}
+void DeletePlayerJson    (object oObject, string sVarName) {DeleteSQLiteJson  (oObject, sVarName);}
+void DeletePlayerObject  (object oObject, string sVarName) {DeleteSQLiteString(oObject, sVarName, VARIABLE_TYPE_OBJECT);}
+void DeletePlayerLocation(object oObject, string sVarName) {DeleteSQLiteJson  (oObject, sVarName, VARIABLE_TYPE_LOCATION);}
 
-int GetPlayerInt(object oObject, string sVarName)       {return GetSQLiteInt   (oObject, sVarName);}
-float GetPlayerFloat(object oObject, string sVarName)   {return GetSQLiteFloat (oObject, sVarName);}
-string GetPlayerString(object oObject, string sVarName) {return GetSQLiteString(oObject, sVarName);}
-vector GetPlayerVector(object oObject, string sVarName) {return GetSQLiteVector(oObject, sVarName);}
-
-object GetPlayerObject(object oObject, string sVarName)
-{
-    string sObject = GetSQLiteString(oObject, sVarName, VARIABLE_TYPE_OBJECT);
-    return StringToObject(sObject);
-}
-
-location GetPlayerLocation(object oObject, string sVarName)
-{
-    string sLocation = GetSQLiteString(oObject, sVarName, VARIABLE_TYPE_LOCATION);
-    return __StringToLocation(sLocation);
-}
-
-void DeletePlayerInt(object oObject, string sVarName)      {DeleteSQLiteInt   (oObject, sVarName);}
-void DeletePlayerFloat(object oObject, string sVarName)    {DeleteSQLiteFloat (oObject, sVarName);}
-void DeletePlayerString(object oObject, string sVarName)   {DeleteSQLiteString(oObject, sVarName);}
-void DeletePlayerVector(object oObject, string sVarName)   {DeleteSQLiteVector(oObject, sVarName);}
-void DeletePlayerObject(object oObject, string sVarName)   {DeleteSQLiteString(oObject, sVarName, VARIABLE_TYPE_OBJECT);}
-void DeletePlayerLocation(object oObject, string sVarName) {DeleteSQLiteString(oObject, sVarName, VARIABLE_TYPE_LOCATION);}
+void DeletePlayerVariables      (object oObject)              {DeleteSQLiteVariables      (oObject);}
+void DeletePlayerVariablesByTag (object oObject, string sTag) {DeleteSQLiteVariablesByTag (oObject, sTag);}
+void DeletePlayerVariablesByType(object oObject, int nType)   {DeleteSQLiteVariablesByType(oObject, nType);}
 
 // -----------------------------------------------------------------------------
 //                          [Set|Get|Delete]Module*
 // -----------------------------------------------------------------------------
-void SetModuleInt(object oObject, string sVarName, int nValue)       {SetSQLiteInt(GetModule(), sVarName, nValue);}
-void SetModuleString(object oObject, string sVarName, string sValue) {SetSQLiteString(GetModule(), sVarName, sValue);}
-void SetModuleFloat(object oObject, string sVarName, float fValue)   {SetSQLiteFloat(GetModule(), sVarName, fValue);}
-void SetModuleVector(object oObject, string sVarName, vector vValue) {SetSQLiteVector(GetModule(), sVarName, vValue);}
+void SetModuleInt     (string sVarName, int      nValue, string sTag = "") {SetSQLiteInt   (GetModule(), sVarName, nValue,                     sTag);}
+void SetModuleString  (string sVarName, string   sValue, string sTag = "") {SetSQLiteString(GetModule(), sVarName, sValue,                     sTag);}
+void SetModuleFloat   (string sVarName, float    fValue, string sTag = "") {SetSQLiteFloat (GetModule(), sVarName, fValue,                     sTag);}
+void SetModuleVector  (string sVarName, vector   vValue, string sTag = "") {SetSQLiteVector(GetModule(), sVarName, vValue,                     sTag);}
+void SetModuleJson    (string sVarName, json     jValue, string sTag = "") {SetSQLiteJson  (GetModule(), sVarName, jValue,                     sTag);}
+void SetModuleObject  (string sVarName, object   oValue, string sTag = "") {SetSQLiteString(GetModule(), sVarName, ObjectToString    (oValue), sTag, VARIABLE_TYPE_OBJECT);}
+void SetModuleLocation(string sVarName, location lValue, string sTag = "") {SetSQLiteJson  (GetModule(), sVarName, _GetLocationObject(lValue), sTag, VARIABLE_TYPE_LOCATION);}
 
-void SetModuleObject(object oObject, string sVarName, object oValue)
-{
-    string sObject = ObjectToString(oValue);
-    SetSQLiteString(GetModule(), sVarName, sObject, VARIABLE_TYPE_OBJECT);
-}
+int      GetModuleInt     (string sVarName) {return GetSQLiteInt      (GetModule(), sVarName);}
+float    GetModuleFloat   (string sVarName) {return GetSQLiteFloat    (GetModule(), sVarName);}
+string   GetModuleString  (string sVarName) {return GetSQLiteString   (GetModule(), sVarName);}
+vector   GetModuleVector  (string sVarName) {return GetSQLiteVector   (GetModule(), sVarName);}
+json     GetModuleJson    (string sVarName) {return GetSQLiteJson     (GetModule(), sVarName);}
+object   GetModuleObject  (string sVarName) {return StringToObject    (GetSQLiteString(GetModule(), sVarName, VARIABLE_TYPE_OBJECT));}
+location GetModuleLocation(string sVarName) {return _GetObjectLocation(GetSQLiteJson  (GetModule(), sVarName, VARIABLE_TYPE_LOCATION));}
 
-void SetModuleLocation(object oObject, string sVarName, location lValue)
-{
-    string sLocation = __LocationToString(lValue);
-    SetSQLiteString(GetModule(), sVarName, sLocation, VARIABLE_TYPE_LOCATION);
-}
+void DeleteModuleInt     (string sVarName) {DeleteSQLiteInt   (GetModule(), sVarName);}
+void DeleteModuleFloat   (string sVarName) {DeleteSQLiteFloat (GetModule(), sVarName);}
+void DeleteModuleString  (string sVarName) {DeleteSQLiteString(GetModule(), sVarName);}
+void DeleteModuleVector  (string sVarName) {DeleteSQLiteVector(GetModule(), sVarName);}
+void DeleteModuleJson    (string sVarName) {DeleteSQLiteJson  (GetModule(), sVarName);}
+void DeleteModuleObject  (string sVarName) {DeleteSQLiteString(GetModule(), sVarName, VARIABLE_TYPE_OBJECT);}
+void DeleteModuleLocation(string sVarName) {DeleteSQLiteJson  (GetModule(), sVarName, VARIABLE_TYPE_LOCATION);}
 
-int GetModuleInt(object oObject, string sVarName)       {return GetSQLiteInt   (GetModule(), sVarName);}
-float GetModuleFloat(object oObject, string sVarName)   {return GetSQLiteFloat (GetModule(), sVarName);}
-string GetModuleString(object oObject, string sVarName) {return GetSQLiteString(GetModule(), sVarName);}
-vector GetModuleVector(object oObject, string sVarName) {return GetSQLiteVector(GetModule(), sVarName);}
-
-object GetModuleObject(object oObject, string sVarName)
-{
-    string sObject = GetSQLiteString(GetModule(), sVarName, VARIABLE_TYPE_OBJECT);
-    return StringToObject(sObject);
-}
-
-location GetModuleLocation(object oObject, string sVarName)
-{
-    string sLocation = GetSQLiteString(GetModule(), sVarName, VARIABLE_TYPE_LOCATION);
-    return __StringToLocation(sLocation);
-}
-
-void DeleteModuleInt(object oObject, string sVarName)      {DeleteSQLiteInt   (GetModule(), sVarName);}
-void DeleteModuleFloat(object oObject, string sVarName)    {DeleteSQLiteFloat (GetModule(), sVarName);}
-void DeleteModuleString(object oObject, string sVarName)   {DeleteSQLiteString(GetModule(), sVarName);}
-void DeleteModuleVector(object oObject, string sVarName)   {DeleteSQLiteVector(GetModule(), sVarName);}
-void DeleteModuleObject(object oObject, string sVarName)   {DeleteSQLiteString(GetModule(), sVarName, VARIABLE_TYPE_OBJECT);}
-void DeleteModuleLocation(object oObject, string sVarName) {DeleteSQLiteString(GetModule(), sVarName, VARIABLE_TYPE_LOCATION);}
+void DeleteModuleVariables      ()            {DeleteSQLiteVariables      (GetModule());}
+void DeleteModuleVariablesByTag (string sTag) {DeleteSQLiteVariablesByTag (GetModule(), sTag);}
+void DeleteModuleVariablesByType(int nType)   {DeleteSQLiteVariablesByType(GetModule(), nType);}
 
 // -----------------------------------------------------------------------------
 //                          [Set|Get|Delete]Persistent*
 // -----------------------------------------------------------------------------
-void SetPersistentInt     (object oObject, string sVarName, int nValue)    {SetSQLiteInt   (oObject, sVarName, nValue);}
-void SetPersistentrString (object oObject, string sVarName, string sValue) {SetSQLiteString(oObject, sVarName, sValue);}
-void SetPersistentFloat   (object oObject, string sVarName, float fValue)  {SetSQLiteFloat (oObject, sVarName, fValue);}
-void SetPersistentVector  (object oObject, string sVarName, vector vValue) {SetSQLiteVector(oObject, sVarName, vValue);}
+void SetPersistentInt     (object oObject, string sVarName, int      nValue, string sTag = "") {SetSQLiteInt   (oObject, sVarName, nValue,                     sTag, TRUE);}
+void SetPersistentrString (object oObject, string sVarName, string   sValue, string sTag = "") {SetSQLiteString(oObject, sVarName, sValue,                     sTag, TRUE);}
+void SetPersistentFloat   (object oObject, string sVarName, float    fValue, string sTag = "") {SetSQLiteFloat (oObject, sVarName, fValue,                     sTag, TRUE);}
+void SetPersistentVector  (object oObject, string sVarName, vector   vValue, string sTag = "") {SetSQLiteVector(oObject, sVarName, vValue,                     sTag, TRUE);}
+void SetPersistentJson    (object oObject, string sVarName, json     jValue, string sTag = "") {SetSQLiteJson  (oObject, sVarName, jValue,                     sTag, VARIABLE_TYPE_JSON, TRUE);}
+void SetPersistentObject  (object oObject, string sVarName, object   oValue, string sTag = "") {SetSQLiteString(oObject, sVarName, ObjectToString    (oValue), sTag, VARIABLE_TYPE_OBJECT, TRUE);}
+void SetPersistentLocation(object oObject, string sVarName, location lValue, string sTag = "") {SetSQLiteJson  (oObject, sVarName, _GetLocationObject(lValue), sTag, VARIABLE_TYPE_LOCATION, TRUE);}
 
-void SetPersistentObject  (object oObject, string sVarName, object oValue) 
-{
-    string sObject = ObjectToString(oValue);
-    SetSQLiteString(oObject, sVarName, sObject, VARIABLE_TYPE_OBJECT);
-}
+int      GetPersistentInt     (object oObject, string sVarName) {return GetSQLiteInt      (oObject, sVarName, TRUE);}
+float    GetPersistentFloat   (object oObject, string sVarName) {return GetSQLiteFloat    (oObject, sVarName, TRUE);}
+string   GetPersistentString  (object oObject, string sVarName) {return GetSQLiteString   (oObject, sVarName, TRUE);}
+vector   GetPersistentVector  (object oObject, string sVarName) {return GetSQLiteVector   (oObject, sVarName, TRUE);}
+json     GetPersistentJson    (object oObject, string sVarName) {return GetSQLiteJson     (oObject, sVarName, VARIABLE_TYPE_JSON, TRUE);}
+object   GetPersistentObject  (object oObject, string sVarName) {return StringToObject    (GetSQLiteString(oObject, sVarName, VARIABLE_TYPE_OBJECT,   TRUE));}
+location GetPersistentLocation(object oObject, string sVarName) {return _GetObjectLocation(GetSQLiteJson  (oObject, sVarName, VARIABLE_TYPE_LOCATION, TRUE));}
 
-void SetPersistentLocation(object oObject, string sVarName, location lValue)
-{
-    string sLocation = __LocationToString(lValue);
-    SetSQLiteString(oObject, sVarName, sLocation, VARIABLE_TYPE_LOCATION);
-}
+void DeletePersistentInt     (object oObject, string sVarName) {DeleteSQLiteInt   (oObject, sVarName, TRUE);}
+void DeletePersistentFloat   (object oObject, string sVarName) {DeleteSQLiteFloat (oObject, sVarName, TRUE);}
+void DeletePersistentString  (object oObject, string sVarName) {DeleteSQLiteString(oObject, sVarName, TRUE);}
+void DeletePersistentVector  (object oObject, string sVarName) {DeleteSQLiteVector(oObject, sVarName, TRUE);}
+void DeletePersistentJson    (object oObject, string sVarName) {DeleteSQLiteJson  (oObject, sVarName, VARIABLE_TYPE_JSON, TRUE);}
+void DeletePersistentObject  (object oObject, string sVarName) {DeleteSQLiteString(oObject, sVarName, VARIABLE_TYPE_OBJECT, TRUE);}
+void DeletePersistentLocation(object oObject, string sVarName) {GetSQLiteJson     (oObject, sVarName, VARIABLE_TYPE_LOCATION, TRUE);}
 
-int    GetPersistentInt       (object oObject, string sVarName) {return GetSQLiteInt   (oObject, sVarName);}
-float  GetPersistentFloat     (object oObject, string sVarName) {return GetSQLiteFloat (oObject, sVarName);}
-string GetPersistentString    (object oObject, string sVarName) {return GetSQLiteString(oObject, sVarName);}
-vector GetPersistentVector    (object oObject, string sVarName) {return GetSQLiteVector(oObject, sVarName);}
+void DeletePersistentVariables      (object oObject)              {DeleteSQLiteVariables      (oObject, TRUE);}
+void DeletePersistentVariablesByTag (object oObject, string sTag) {DeleteSQLiteVariablesByTag (oObject, sTag, TRUE);}
+void DeletePersistentVariablesByType(object oObject, int nType)   {DeleteSQLiteVariablesByType(oObject, nType, TRUE);}
 
-object GetPersistentObject    (object oObject, string sVarName)
-{
-    string sObject = GetSQLiteString(oObject, sVarName, VARIABLE_TYPE_OBJECT);
-    return StringToObject(sObject);
-}
+// -----------------------------------------------------------------------------
+//                          [Set|Get|Delete]Object*
+// -----------------------------------------------------------------------------
+void SetObjectInt     (object oObject, string sVarName, int      nValue, string sTag = "") {SetSQLiteInt   (oObject, sVarName, nValue,                     sTag);}
+void SetObjectString  (object oObject, string sVarName, string   sValue, string sTag = "") {SetSQLiteString(oObject, sVarName, sValue,                     sTag);}
+void SetObjectFloat   (object oObject, string sVarName, float    fValue, string sTag = "") {SetSQLiteFloat (oObject, sVarName, fValue,                     sTag);}
+void SetObjectVector  (object oObject, string sVarName, vector   vValue, string sTag = "") {SetSQLiteVector(oObject, sVarName, vValue,                     sTag);}
+void SetObjectJson    (object oObject, string sVarName, json     jValue, string sTag = "") {SetSQLiteJson  (oObject, sVarName, jValue,                     sTag);}
+void SetObjectObject  (object oObject, string sVarName, object   oValue, string sTag = "") {SetSQLiteString(oObject, sVarName, ObjectToString    (oValue), sTag, VARIABLE_TYPE_OBJECT);}
+void SetObjectLocation(object oObject, string sVarName, location lValue, string sTag = "") {SetSQLiteJson  (oObject, sVarName, _GetLocationObject(lValue), sTag, VARIABLE_TYPE_LOCATION);}
 
-location GetPersistentLocation(object oObject, string sVarName)
-{
-    string sLocation = GetSQLiteString(oObject, sVarName, VARIABLE_TYPE_LOCATION);
-    return __StringToLocation(sLocation);
-}
+int      GetObjectInt     (object oObject, string sVarName) {return GetSQLiteInt      (oObject, sVarName);}
+float    GetObjectFloat   (object oObject, string sVarName) {return GetSQLiteFloat    (oObject, sVarName);}
+string   GetObjectString  (object oObject, string sVarName) {return GetSQLiteString   (oObject, sVarName);}
+vector   GetObjectVector  (object oObject, string sVarName) {return GetSQLiteVector   (oObject, sVarName);}
+json     GetObjectJson    (object oObject, string sVarName) {return GetSQLiteJson     (oObject, sVarName);}
+object   GetObjectObject  (object oObject, string sVarName) {return StringToObject    (GetSQLiteString(oObject, sVarName, VARIABLE_TYPE_OBJECT));}
+location GetObjectLocation(object oObject, string sVarName) {return _GetObjectLocation(GetSQLiteJson  (oObject, sVarName, VARIABLE_TYPE_LOCATION));}
 
-void DeletePersistentInt     (object oObject, string sVarName) {DeleteSQLiteInt   (oObject, sVarName);}
-void DeletePersistentFloat   (object oObject, string sVarName) {DeleteSQLiteFloat (oObject, sVarName);}
-void DeletePersistentString  (object oObject, string sVarName) {DeleteSQLiteString(oObject, sVarName);}
-void DeletePersistentVector  (object oObject, string sVarName) {DeleteSQLiteVector(oObject, sVarName);}
-void DeletePersistentObject  (object oObject, string sVarName) {DeleteSQLiteString(oObject, sVarName, VARIABLE_TYPE_OBJECT);}
-void DeletePersistentLocation(object oObject, string sVarName) {DeleteSQLiteString(oObject, sVarName, VARIABLE_TYPE_LOCATION);}
+void DeleteObjectInt     (object oObject, string sVarName) {DeleteSQLiteInt   (oObject, sVarName);}
+void DeleteObjectFloat   (object oObject, string sVarName) {DeleteSQLiteFloat (oObject, sVarName);}
+void DeleteObjectString  (object oObject, string sVarName) {DeleteSQLiteString(oObject, sVarName);}
+void DeleteObjectVector  (object oObject, string sVarName) {DeleteSQLiteVector(oObject, sVarName);}
+void DeleteObjectJson    (object oObject, string sVarName) {DeleteSQLiteJson  (oObject, sVarName);}
+void DeleteObjectObject  (object oObject, string sVarName) {DeleteSQLiteString(oObject, sVarName, VARIABLE_TYPE_OBJECT);}
+void DeleteObjectLocation(object oObject, string sVarName) {DeleteSQLiteJson  (oObject, sVarName, VARIABLE_TYPE_LOCATION);}
+
+void DeleteObjectVariables      (object oObject)              {DeleteSQLiteVariables      (oObject);}
+void DeleteObjectVariablesByTag (object oObject, string sTag) {DeleteSQLiteVariablesByTag (oObject, sTag);}
+void DeleteObjectVariablesByType(object oObject, int nType)   {DeleteSQLiteVariablesByType(oObject, nType);}

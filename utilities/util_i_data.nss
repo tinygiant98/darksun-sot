@@ -9,17 +9,23 @@
 //  This include should be "included" in just about every script in the system.
 // -----------------------------------------------------------------------------
 
+// This script will provide access to all debug functions, core constants and
+// variable control function.  This script should likely be included in just
+// about every other script in the module to ensure consistent application
+// of variable/data methodology.
+
 #include "core_i_constants"
 #include "util_i_debug"
 #include "util_i_variables"
+#include "util_i_lists"
 
-const string IS_DEVELOPER = "IS_DEVELOPER";
+//const string IS_DEVELOPER = "IS_DEVELOPER";
+
+object MODULE = GetModule();
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
-
-object MODULE = GetModule();
 
 // ---< _GetIsDM >---
 // A module-level function intended to replace the game's GetIsDM() function.
