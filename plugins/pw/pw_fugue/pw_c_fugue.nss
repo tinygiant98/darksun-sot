@@ -22,3 +22,9 @@ const string H2_FUGUE_PLANE = "h2_fugueplane";
 // Tag of the waypoint in the fugue plan (H2_FUGUE_PLANE) to send the PC
 //  to upon death.
 const string H2_WP_FUGUE = "H2_FUGUE";
+
+// -----------------------------------------------------------------------------
+//                                 Translatable Text
+// -----------------------------------------------------------------------------
+
+// There is no text associated with this system.
