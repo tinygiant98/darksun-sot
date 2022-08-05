@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
-//    File: unid_i_main.nss
-//  System: UnID Item on Drop (core)
+//    File: pw_i_deity.nss
+//  System: Deity (core)
 // -----------------------------------------------------------------------------
 // Description:
 //  Core functions for PW Subsystem.
@@ -9,10 +9,15 @@
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 
+// -----------------------------------------------------------------------------
+//                                   Constants
+// -----------------------------------------------------------------------------
+
+// There are no constants associated with this system.
+
+#include "util_i_data"
 #include "pw_i_core"
-#include "deity_i_config"
-#include "deity_i_const"
-#include "deity_i_text"
+#include "pw_c_deity"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -81,4 +86,30 @@ int h2_CheckForDeityRez(object oPC)
     
     SendMessageToPC(oPC, H2_TEXT_DEITY_NO_REZ);
     return FALSE;
+}
+
+// -----------------------------------------------------------------------------
+//                              Function Prototypes
+// -----------------------------------------------------------------------------
+
+// ---< deity_OnPlayerDeath >---
+// This is a framework-registerd script that fires on the module-level
+//  OnPlayerDeath event to determine whether a PC will be resurrected
+//  by their deity.
+void deity_OnPlayerDeath();
+
+// -----------------------------------------------------------------------------
+//                             Function Definitions
+// -----------------------------------------------------------------------------
+
+void deity_OnPlayerDeath()
+{
+    object oPC = GetLastPlayerDied();
+
+    //if some other death subsystem set the player state back to alive before this one, no need to continue
+    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
+        return;
+
+    if (h2_CheckForDeityRez(oPC))
+        h2_DeityRez(oPC);
 }

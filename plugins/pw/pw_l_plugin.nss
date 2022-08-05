@@ -27,7 +27,7 @@ void OnLibraryLoad()
             "This plugin controls basic functions of the HCR2-base persistent world system and " +
             "loads all pw subsystems.");
         SetDebugPrefix(HexColorString("[PW Management]", COLOR_BLUE_SLATE_MEDIUM));
-        LoadLibraries("bleed_l_plugin, corpse_l_plugin, crowd_l_plugin, deity_l_plugin, " +
+        LoadLibraries("bleed_l_plugin, corpse_l_plugin, crowd_l_plugin, pw_l_deity, " +
             "fugue_l_plugin, pw_l_fugue, htf_l_plugin, pw_l_loot, rest_l_plugin, rest_l_dialog, " +
             "pw_l_torch, pw_l_unid, gren_l_plugin, bus_l_plugin, res_l_plugin, res_l_placeables, " +
             "res_l_creatures, quest_l_plugin, pw_l_token");

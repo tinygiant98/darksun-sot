@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-//    File: deity_i_config.nss
+//    File: pw_c_deity.nss
 //  System: Deity Resurrection (configuration)
 // -----------------------------------------------------------------------------
 // Description:
@@ -38,3 +38,12 @@ const int H2_DEITY_REZ_AT_DEATH_LOCATION = 50;
 //that a player ressurected by their deity will be jumped to.
 //This waypoint will be used if a deity-specifc waypoint is not found.
 const string H2_GENERAL_DEITY_REZ_WAYPOINT = "H2_WP_DIETY_REZ";  //TODO make this the well of eru point or change the point to this
+
+// -----------------------------------------------------------------------------
+//                               Translatable Text
+// -----------------------------------------------------------------------------
+
+const string H2_TEXT_DEITY_REZZED = "Your God has heard your prayers and ressurected you!";
+const string H2_TEXT_DEITY_NO_REZ = "Your God has refused to hear your prayers.";
+const string H2_TEXT_DM_DEITY_REZZED = /*GetName(oPC) + "_" + GetPCPlayerName(oPC) +*/
+                                    " was ressurected by their deity: "; /* + GetDiety(oPC) */

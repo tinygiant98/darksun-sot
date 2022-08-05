@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-//    File: deity_l_plugin.nss
+//    File: pw_l_deity.nss
 //  System: Deity Resurrection Persistent World Subsystem (library)
 // -----------------------------------------------------------------------------
 // Description:
