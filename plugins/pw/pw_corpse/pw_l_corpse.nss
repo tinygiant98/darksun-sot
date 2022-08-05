@@ -9,10 +9,9 @@
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 
-
 #include "util_i_library"
 #include "core_i_framework"
-#include "corpse_i_events"
+#include "pw_i_corpse"
 
 // -----------------------------------------------------------------------------
 //                               Library Dispatch
