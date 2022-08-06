@@ -29,7 +29,7 @@ void OnLibraryLoad()
         SetDebugPrefix(HexColorString("[PW Management]", COLOR_BLUE_SLATE_MEDIUM));
         LoadLibraries("bleed_l_plugin, pw_l_corpse, crowd_l_plugin, pw_l_deity, " +
             "fugue_l_plugin, pw_l_fugue, htf_l_plugin, pw_l_loot, rest_l_plugin, rest_l_dialog, " +
-            "pw_l_torch, pw_l_unid, gren_l_plugin, bus_l_plugin, res_l_plugin, res_l_placeables, " +
+            "pw_l_torch, pw_l_unid, gren_l_plugin, pw_l_business, res_l_plugin, res_l_placeables, " +
             "res_l_creatures, quest_l_plugin, pw_l_token");
 
         // ----- Module Events -----

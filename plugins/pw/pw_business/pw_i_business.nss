@@ -9,19 +9,65 @@
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 
-
-#include "bus_i_config"
-#include "bus_i_const"
-#include "bus_i_text"
+#include "pw_c_business"
 
 #include "util_i_data"
 #include "util_i_lists"
 #include "util_i_override"
 #include "util_i_time"
+#include "util_i_libraries"
 
 const string LIST_REF_BU = "BU";
 const string LIST_REF_BP = "BP";
 const string LIST_REF_HO = "HO";
+
+const string BUSINESS_DATAPOINT = "BUSINESS_DATAPOINT";
+object       BUSINESS           = GetDatapoint(BUSINESS_DATAPOINT);
+
+const int BUSINESS_HOURS_OPEN = 25;
+const int BUSINESS_HOURS_CLOSED = -1;
+const int BUSINESS_HOURS_DEFAULT = -3;
+const int BUSINESS_HOURS_ALWAYS_OPEN = 26;
+const int BUSINESS_HOURS_ALWAYS_CLOSED = -2;
+
+const string BUSINESS_STATE_SET = "BUSINESS_STATE_SET";
+
+const string BUSINESS_ACTION = "BUSINESS_ACTION";
+const int BUSINESS_ACTION_DEFAULT = -1;
+const int BUSINESS_ACTION_OPEN = 0;
+const int BUSINESS_ACTION_CLOSE = 1;
+
+const int BUSINESS_RESOURCE_TYPE_NPC = 1;
+const int BUSINESS_RESOURCE_TYPE_PROFILE = 2;
+const int BUSINESS_RESOURCE_TYPE_DOOR = 3;
+
+const string BUSINESS_PROFILE_CRAFT = "BUSINESS_PROFILE_CRAFT";
+const string BUSINESS_PROFILE_TRADE = "BUSINESS_PROFILE_TRADE";
+const string BUSINESS_PROFILE_MILL = "BUSINESS_PROFILE_MILL";
+const string BUSINESS_PROFILE_TEMPLE = "BUSINESS_PROFILE_TEMPLE";
+const string BUSINESS_PROFILE_OPEN = "BUSINESS_PROFILE_OPEN";
+const string BUSINESS_PROFILE_CLOSED = "BUSINESS_PROFILE_CLOSED";
+
+const string BUS_LIST_BUSINESS = "BUS_LIST_BUSINESS";
+
+const string BUS_LIST_PROFILE = "BUS_LIST_PROFILE";
+const string BUS_LIST_PROFILE_DAY = "BUS_LIST_PROFILE_DAY";
+const string BUS_LIST_PROFILE_OPEN = "BUS_LIST_PROFILE_OPEN";
+const string BUS_LIST_PROFILE_CLOSE = "BUS_LIST_PROFILE_CLOSE";
+
+const string BUS_LIST_WORKER_BUSINESS = "BUS_LIST_WORKER_BUSINESS";
+const string BUS_LIST_WORKER_NPC = "BUS_LIST_WORKER_NPC";
+
+const string BUS_LIST_PROFILE_BUSINESS = "BUS_LIST_PROFILE_BUSINESS";
+const string BUS_LIST_PROFILE_PROFILE = "BUS_LIST_PROFILE_PROFILE";
+
+const string BUS_LIST_DOOR_BUSINESS = "BUS_LIST_DOOR_BUSINESS";
+const string BUS_LIST_DOOR_DOOR = "BUS_LIST_DOOR_DOOR";
+
+const string BUS_LIST_HOLIDAY = "BUS_LIST_HOLIDAY";
+
+
+
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -938,4 +984,36 @@ void SetBusinessState(int nAction = BUSINESS_ACTION_DEFAULT, int nRevive = FALSE
             DeleteLocalInt(MODULE, BUSINESS_ACTION);
         }
     }
+}
+
+// -----------------------------------------------------------------------------
+//                              Function Prototypes
+// -----------------------------------------------------------------------------
+
+// ---< business_OnModuleLoad >---
+// Registers all businesses and business data to the business datapoint.
+void business_OnModuleLoad();
+
+// ---< business_OnHour >---
+// Sets the business' open/close state based on profile information set
+//  OnModuleLoad unless a previous hard state has been set.  This event runs
+//  on every game hour.
+void business_OnHour();
+
+// -----------------------------------------------------------------------------
+//                             Function Definitions
+// -----------------------------------------------------------------------------
+
+void business_OnModuleLoad()
+{
+    RegisterBusinessProfiles();
+    RegisterBusinessHolidays();
+    RegisterBusinesses();
+    SetBusinessState(BUSINESS_ACTION_DEFAULT, TRUE);
+}
+
+void business_OnHour()
+{
+    if (!GetLocalInt(BUSINESS, BUSINESS_STATE_SET))
+        SetBusinessState();
 }
