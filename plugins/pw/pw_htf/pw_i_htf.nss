@@ -10,11 +10,59 @@
 // -----------------------------------------------------------------------------
 
 #include "pw_i_core"
-#include "htf_i_const"
-#include "htf_i_config"
-#include "htf_i_text"
+#include "pw_c_htf"
 #include "util_i_color"
 #include "util_i_libraries"
+
+// -----------------------------------------------------------------------------
+//                                   Constants
+// -----------------------------------------------------------------------------
+
+const string H2_HT_CANTEEN = "h2_canteen";
+const string H2_HT_FOODITEM = "h2_fooditem";
+const string H2_HT_IS_DEHYDRATED = "H2_HT_IS_DEHYDRATED";
+const string H2_HT_IS_STARVING = "H2_HT_IS_STARVING";
+const string H2_HT_CURR_THIRST = "H2_HT_CURR_THIRST";
+const string H2_HT_CURR_HUNGER = "H2_HT_CURR_HUNGER";
+const string H2_HT_CURR_ALCOHOL = "H2_HT_CURR_ALCOHOL";
+//const string H2_HT_TIMER_SCRIPT = "h2_httimer";
+const string H2_HT_TIMER_SCRIPT = "ds_htf_httimer";
+const string H2_HT_INFO_BAR = "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||";
+const string H2_HT_HUNGER_HOUR_COUNT = "H2_HT_HUNGER_HOUR_COUNT";
+const string H2_HT_THIRST_NONLETHAL_DAMAGE = "H2_HT_THIRST_NONLETHAL_DAMAGE";
+const string H2_HT_HUNGER_NONLETHAL_DAMAGE = "H2_HT_HUNGER_NONLETHAL_DAMAGE";
+const string H2_HT_THIRST_SAVE_COUNT = "H2_HT_THIRST_SAVE_COUNT";
+const string H2_HT_HUNGER_SAVE_COUNT = "H2_HT_HUNGER_SAVE_COUNT";
+const string H2_HT_THIRST_VALUE = "H2_HT_THIRST_VALUE";
+const string H2_HT_HUNGER_VALUE = "H2_HT_HUNGER_VALUE";
+const string H2_HT_ALCOHOL_VALUE = "H2_HT_ALCOHOL_VALUE";
+const string H2_HT_DELAY = "H2_HT_DELAY";
+const string H2_HT_POISON = "H2_HT_POISON";
+const string H2_HT_DISEASE = "H2_HT_DISEASE";
+const string H2_HT_SLEEP = "H2_HT_SLEEP";
+const string H2_HT_HPBONUS = "H2_HT_HPBONUS";
+const string H2_HT_FEEDBACK = "H2_HT_FEEDBACK";
+const string H2_HT_DRUNK_TIMERID = "H2_HT_DRUNK_TIMERID";
+const string H2_HT_DRUNK_TIMER_SCRIPT = "h2_htdrunktimer";
+const string H2_HT_TRIGGER = "H2_HT_TRIGGER";
+const string H2_HT_MAX_CHARGES = "H2_HT_MAX_CHARGES";
+const string H2_HT_CURR_CHARGES = "H2_HT_CURR_CHARGES";
+const string H2_HT_CANTEEN_SOURCE = "H2_HT_CANTEEN_SOURCE";
+const string H2_HT_ON_TIMER_EXPIRE = "HT_OnTimerExpire";
+const string H2_HT_DRUNK_ON_TIMER_EXPIRE = "HT_Drunk_OnTimerExpire";
+
+const int H2_HT_COLOR_RED = COLOR_RED;
+const int H2_HT_COLOR_GREEN = COLOR_GREEN;
+
+
+const string H2_CURR_FATIGUE = "H2_CURR_FATIGUE";
+const string H2_IS_FATIGUED = "H2_IS_FATIGUED";
+const string H2_FATIGUE_INFO_BAR = "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||";
+const string H2_FATIGUE_EFFECTS = "H2_FATIGUE_EFFECTS";
+//const string H2_FATIGUE_TIMER_SCRIPT = "h2_fatiguetimer";
+const string H2_FATIGUE_TIMER_SCRIPT = "ds_htf_ftimer";
+const string H2_FATIGUE_SAVE_COUNT = "H2_FATIGUE_SAVE_COUNT";
+const string H2_FATIGUE_ON_TIMER_EXPIRE = "F_OnTimerExpire";
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -540,4 +588,128 @@ void h2_PerformFatigueCheck(object oPC, float fCustomFatigueDecrement = -1.0)
         h2_DoFatigueFortitudeCheck(oPC);
     else
         DeletePlayerInt(oPC, H2_FATIGUE_SAVE_COUNT);
+}
+
+#include "x2_inc_switches"
+
+// -----------------------------------------------------------------------------
+//                              Function Prototypes
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+//                             Function Definitions
+// -----------------------------------------------------------------------------
+
+// ----- Module Events -----
+
+void hungerthirst_OnClientEnter()
+{
+    object oPC = GetEnteringObject();
+    if (!_GetIsDM(oPC))
+        h2_InitHungerThirstCheck(oPC);
+}
+
+void fatigue_OnClientEnter()
+{
+    object oPC = GetEnteringObject();
+    if (!_GetIsDM(oPC))
+        h2_InitFatigueCheck(oPC);
+}
+
+void hungerthirst_OnPlayerDeath()
+{
+    object oPC = GetLastPlayerDied();
+    DeletePlayerFloat(oPC, H2_HT_CURR_THIRST);
+    DeletePlayerFloat(oPC, H2_HT_CURR_HUNGER);
+    DeletePlayerFloat(oPC, H2_HT_CURR_ALCOHOL);
+    int timerID = GetLocalInt(oPC, H2_HT_DRUNK_TIMERID);
+    KillTimer(timerID);
+    DeletePlayerInt(oPC, H2_HT_DRUNK_TIMERID);
+    DeletePlayerInt(oPC, H2_HT_IS_DEHYDRATED);
+    DeletePlayerInt(oPC, H2_HT_IS_STARVING);
+    DeletePlayerInt(oPC, H2_HT_HUNGER_NONLETHAL_DAMAGE);
+    DeletePlayerInt(oPC, H2_HT_THIRST_NONLETHAL_DAMAGE);
+}
+
+void hungerthirst_OnPlayerRestFinished()
+{
+    object oPC = GetLastPCRested();
+    DeletePlayerFloat(oPC, H2_HT_CURR_ALCOHOL);
+    int timerID = GetLocalInt(oPC, H2_HT_DRUNK_TIMERID);
+    KillTimer(timerID);
+    DeletePlayerInt(oPC, H2_HT_DRUNK_TIMERID);
+}
+
+void fatigue_OnPlayerRestFinished()
+{
+    object oPC = GetLastPCRested();
+    SetLocalFloat(oPC, H2_CURR_FATIGUE, 1.0);
+    DeletePlayerInt(oPC, H2_IS_FATIGUED);
+    DeletePlayerInt(oPC, H2_FATIGUE_SAVE_COUNT);
+}
+
+//This script should be placed in the on used event
+//of a placeable that acts as a source of food or drink.
+
+//Make this placeable a useable, non-container and assign variables to it
+//in the same way that you would assign variables to an h2_fooditem.
+void htf_OnPlaceableUsed()
+{
+    object oPC = GetLastUsedBy();
+    SendMessageToPC(oPC, H2_TEXT_TAKE_A_DRINK);
+    AssignCommand(oPC, ActionPlayAnimation(ANIMATION_FIREFORGET_DRINK));
+    h2_ConsumeFoodItem(oPC, OBJECT_SELF);
+}
+
+void hungerthirst_OnTriggerEnter()
+{
+    object oPC = GetEnteringObject();
+    SetLocalObject(oPC, H2_HT_TRIGGER, OBJECT_SELF);
+}
+
+void hungerthirst_OnTriggerExit()
+{
+    object oPC = GetExitingObject();
+    DeleteLocalObject(oPC, H2_HT_TRIGGER);
+}
+
+// ----- Tag-based Scripting -----
+
+void htf_canteen()
+{
+    int nEvent = GetUserDefinedItemEventNumber();
+    if (nEvent ==  X2_ITEM_EVENT_ACTIVATE)
+    {
+        object oPC   = GetItemActivator();
+        object oItem = GetItemActivated();
+        h2_UseCanteen(oPC, oItem);
+    }
+}
+
+void htf_fooditem()
+{
+    int nEvent = GetUserDefinedItemEventNumber();
+    if (nEvent ==  X2_ITEM_EVENT_ACTIVATE)
+    {
+        object oPC   = GetItemActivator();
+        object oItem = GetItemActivated();
+        h2_ConsumeFoodItem(oPC, oItem);
+    }
+}
+
+// ----- Timer Events -----
+
+void htf_drunk_OnTimerExpire()
+{
+    h2_DoDrunkenAntics(OBJECT_SELF);
+}
+
+void htf_ht_OnTimerExpire()
+{
+    h2_PerformHungerThirstCheck(OBJECT_SELF);
+}
+
+void htf_f_OnTimerExpire()
+{
+    h2_PerformFatigueCheck(OBJECT_SELF);
 }
