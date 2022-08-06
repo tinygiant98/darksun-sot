@@ -62,3 +62,16 @@ const int DS_HTF_ASSOCIATE_DISPLAY_TYPE = ASSOCIATE_DISPLAY_NUMBERS;
 const int DS_HTF_THRESHHOLD_OK = 100;
 const int DS_HTF_THRESHHOLD_CAUTION = 50;
 const int DS_HTF_THRESHHOLD_DIRE = 10;
+
+// -----------------------------------------------------------------------------
+//                                   Constants
+// -----------------------------------------------------------------------------
+
+const string DS_TEXT_NO_WATER_TO_BE_FOUND = "Unfortunately, there doesn't seem to be any water here.";
+const string DS_TEXT_PC_FAILED_TO_FIND_WATER = "You failed to find water!";
+const string DS_TEXT_CANTEEN_NOT_FOUND_PREFIX = "You are not carrying a canteen, so the ";
+const string DS_TEXT_CANTEEN_NOT_FOUND_SUFFIX = " units of water you found are reabsorbed into the ground at your feet.";
+const string DS_TEXT_CANTEEN_FULL_PREFIX = "You have no remaining canteen space, so the extra ";
+const string DS_TEXT_CANTEEN_FULL_SUFFIX = " units of water you found are reabsorbed into the ground at your feet.";
+const string DS_TEXT_PC_FIND_WATER_PREFIX = "Success! You found ";
+const string DS_TEXT_PC_FIND_WATER_SUFFIX = " units of water!";
