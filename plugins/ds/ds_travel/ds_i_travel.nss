@@ -18,16 +18,74 @@
 //   Summary:
 // -----------------------------------------------------------------------------
 
-#include "tr_i_config"
-#include "tr_i_const"
-#include "tr_i_text"
+#include "ds_c_travel"
 #include "ds_i_const"
 #include "util_i_data"
 #include "core_i_constants"
-#include "corpse_i_const"
-#include "loot_i_main"
+#include "pw_i_corpse"
+#include "pw_i_loot"
 #include "pw_i_core"
 #include "util_i_varlists"
+
+// -----------------------------------------------------------------------------
+//                                   Constants
+// -----------------------------------------------------------------------------
+
+// TODO clean up these constants
+
+// ----- Custom Events
+const string TRAVEL_ENCOUNTER_ON_TIMER_EXPIRE = "tr_encounter_OnTimerExpire";
+const string TRAVEL_ENCOUNTER_NEXT_ID  = "TRAVEL_ENCOUNTER_NEXT_ID";
+
+// ----- Variable Names
+// --- PC Variables
+const string TRAVEL_ENCOUNTER_TIMER_ID  = "TRAVEL_ENCOUNTER_TIMER_ID";
+const string TRAVEL_ENCOUNTER_ID        = "TRAVEL_ENCOUNTER_ID";
+const string TRAVEL_MAX_ENCOUNTERS      = "TRAVEL_MAX_ENCOUNTERS";
+const string TRAVEL_CURRENT_ENCOUNTERS  = "TRAVEL_CURRENT_ENCOUNTERS";
+const string TRAVEL_CREATURE_LOCATION   = "TRAVEL_CREATURE_LOCATION";
+const string TRAVEL_ENCOUNTER_CHASE     = "TRAVEL_ENCOUNTER_CHASE";
+
+// --- Area Variables
+const string TRAVEL_ENCOUNTER_AREAS        = "TRAVEL_ENCOUNTER_AREAS";
+const string TRAVEL_ENCOUNTER_AREA_TAG     = "TRAVEL_ENCOUNTER_AREA_TAG";
+const string TRAVEL_WAYPOINT_TYPE          = "TRAVEL_WAYPOINT_TYPE";
+const string TRAVEL_WAYPOINT_TAG           = "TRAVEL_WAYPOINT_TAG";
+const string TRAVEL_ENCOUNTER_AOE          = "TRAVEL_ENCOUNTER_AOE";
+const string TRAVEL_ENCOUNTER_AOE_TAG      = "TRAVEL_ENCOUNTER_AOE_TAG";
+const string TRAVEL_ENCOUNTER_PLAYER_DEATH = "TRAVEL_ENCOUNTER_PLAYER_DEATH";
+
+// ----- Area Variable Values
+// --- TRAVEL_WAYPOINT_TYPE
+const string TRAVEL_WAYPOINT_TYPE_SPAWN = "spawn";
+const string TRAVEL_WAYPOINT_TYPE_PRIMARY = "primary";
+const string TRAVEL_WAYPOINT_TYPE_SECONDARY = "secondary";
+const string TRAVEL_ENCOUNTER_AOE_SCRIPT = "tr_encounter_OnAOEEnter";
+
+// ----- Encounter Data
+const string ENCOUNTER_AREA = "ENCOUNTER_AREA";
+const string ENCOUNTER_TRIGGERED_BY = "ENCOUNTER_TRIGGERED_BY";
+const string ENCOUNTER_PRIMARY_WAYPOINT = "ENCOUNTER_PRIMARY_WAYPOINT";
+const string ENCOUNTER_SECONDARY_WAYPOINTS = "ENCOUNTER_SECONDARY_WAYPOINTS";
+const string ENCOUNTER_SPAWNPOINTS = "ENCOUNTER_SPAWNPOINTS";
+
+struct TRAVEL_ENCOUNTER
+{
+    int nEncounterID;
+    string sEncounterID;
+    object oTriggeredBy;
+    object oEncounterArea;
+    string sPrimaryWaypoint;
+    string sSecondaryWaypoints;
+    string sSpawnPoints;
+};
+
+
+
+
+//const string TRAVEL_ENCOUNTER_ACTIVE = "TRAVEL_ENCOUNTER_ACTIVE";
+const string TRAVEL_ENCOUNTER_AREA = "TRAVEL_ENCOUNTER_AREA";
+
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -328,4 +386,205 @@ void tr_KillEncounter(int nEncounterID = 0)
     DeleteLocalString(ENCOUNTERS, ENCOUNTER_PRIMARY_WAYPOINT    + sEncounterID);
     DeleteLocalString(ENCOUNTERS, ENCOUNTER_SECONDARY_WAYPOINTS + sEncounterID);
     DeleteLocalString(ENCOUNTERS, ENCOUNTER_SPAWNPOINTS         + sEncounterID);
+}
+
+// -----------------------------------------------------------------------------
+//                              Function Prototypes
+// -----------------------------------------------------------------------------
+
+// ---< tr_OnAreaEnter >---
+// Local OnAreaEnter event function for overland travel maps.  This function
+//  initiates the encounter variables for the current travel map and starts
+//  the encounter check timer for each PC.
+void tr_OnAreaEnter();
+
+// ---< tr_OnAreaEnter >---
+// Local OnAreaExit event function for overland travel maps.  This function
+//  cleans up the variables set when the PC entered the map.
+void tr_OnAreaExit();
+
+// -----------------------------------------------------------------------------
+//                             Function Definitions
+// -----------------------------------------------------------------------------
+
+void tr_OnAreaEnter()
+{
+    object oPC = GetEnteringObject();
+
+    if (!_GetIsPC(oPC))
+        return;
+
+    if (!CountList(GetLocalString(OBJECT_SELF, TRAVEL_ENCOUNTER_AREAS)))
+        return;
+
+    int nTimerID, nReturning = GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
+
+    if (!nReturning)    //Entering area from another area, not from an encounter
+    {
+        SetLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS, TRAVEL_ENCOUNTER_LIMIT + (-1 + Random(3)) * Random(TRAVEL_ENCOUNTER_LIMIT_JITTER));
+        DeleteLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
+
+        Debug("Maximum encounters for this PC is " + IntToString(GetLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS)));
+
+        nTimerID = CreateTimer(oPC, TRAVEL_ENCOUNTER_ON_TIMER_EXPIRE, TRAVEL_ENCOUNTER_TIMER_INTERVAL, 0, TRAVEL_ENCOUNTER_TIMER_JITTER);
+        SetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID, nTimerID);
+        StartTimer(nTimerID, FALSE);
+    }
+    else
+    {
+        nTimerID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
+        StartTimer(nTimerID, FALSE);
+        DelayCommand(5.0f, DeleteLocalInt(oPC, TRAVEL_ENCOUNTER_ID));
+    }
+
+    SetObjectVisualTransform(oPC, OBJECT_VISUAL_TRANSFORM_SCALE, 0.5f);
+}
+
+void tr_OnAreaExit()
+{
+    object oPC = GetExitingObject();
+
+    if (!_GetIsPC(oPC))
+        return;
+
+    if (!CountList(GetLocalString(OBJECT_SELF, TRAVEL_ENCOUNTER_AREAS)))
+        return;
+
+    int nEncounterID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
+    int nTimerID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
+    
+    SetObjectVisualTransform(oPC, OBJECT_VISUAL_TRANSFORM_SCALE, 1.0f);
+
+    if (!nEncounterID)
+    {
+        KillTimer(nTimerID);
+
+        DeleteLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
+        DeleteLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
+        DeleteLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS);
+        DeleteLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
+        DeleteLocalLocation(oPC, TRAVEL_CREATURE_LOCATION);
+
+        /*TODO Chase implementation
+        if (_GetLocalInt(oPC,TRAVEL_ENCOUNTER_CHASE ))
+        {
+            _DeleteLocalInt(oPC, TRAVEL_ENCOUNTER_CHASE);
+            tr_KillEncounter(nEncounterID)
+        }*/
+    }
+    else
+        StopTimer(nTimerID);
+}
+
+void tr_encounter_OnPlayerDeath()
+{
+    SetLocalInt(OBJECT_SELF, TRAVEL_ENCOUNTER_PLAYER_DEATH, TRUE);
+}
+
+void tr_encounter_OnTimerExpire()
+{
+    object oPC = OBJECT_SELF;
+    int nTimerID, nGoing, nEncounters = GetLocalInt(oPC, TRAVEL_CURRENT_ENCOUNTERS);
+    int nEncounterID, nMaxEncounters = GetLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS);
+
+    if (!_GetIsPC(oPC))
+        return;
+
+    /* TODO Chase implementation
+    - if being chased and variable set
+    - guarantee the encounter to the previous id
+    */
+    
+    if (nEncounters >= nMaxEncounters && TRAVEL_ENCOUNTER_LIMIT)
+    {
+        nTimerID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID);
+        KillTimer(nTimerID);
+        Debug("Max encounters reached, no more for this guys.");
+        return;
+    }
+ 
+    if (GetIsDawn() || GetIsDay())
+        nGoing = (Random(100) <= TRAVEL_ENCOUNTER_CHANCE_DAY);
+    else
+        nGoing = (Random(100) < TRAVEL_ENCOUNTER_CHANCE_NIGHT);
+
+    if (nGoing)
+    {
+        if (nEncounterID = tf_CreateEncounter(oPC))
+            tr_StartEncounter(nEncounterID);
+    }
+    else
+        Debug("Encounter checked for " + GetName(oPC) + ".  Party is staying put for now.");
+}
+
+void tr_encounter_OnAreaExit()
+{
+    //This needs to be run after the module removes the player from the area_roster
+    object oPC = GetExitingObject();
+    location lPC = GetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION);
+    int nEncounterID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);;
+
+    struct TRAVEL_ENCOUNTER te = tr_GetEncounterData(nEncounterID);
+
+    if (!GetIsObjectValid(GetAreaFromLocation(lPC)))
+    {
+        //TODO Need a default destination here, in case of getting stucks and no DMs are online.
+        return;
+    }
+
+    AssignCommand(oPC, ClearAllActions());
+    AssignCommand(oPC, JumpToLocation(lPC));
+
+    //big TODO make sure all required functions are exposed in the library script
+    if (!CountObjectList(te.oEncounterArea, AREA_ROSTER))
+    {
+        /* TODO Chase implementation
+        - if any enemies in area
+            - decide if going to give chase
+            - if yes, set variable to guarantee re-encounter after specific number of
+            -   timer intervals
+            -if not, kill encounter*/
+    
+        tr_KillEncounter(te.nEncounterID);
+    }
+}
+
+void tr_encounter_OnAOEEnter()
+{
+    object oTarget, oEncounterAOE = OBJECT_SELF;
+    object oPC = GetEnteringObject();
+    int nEncounterID = GetLocalInt(oPC, TRAVEL_ENCOUNTER_ID);
+        
+    if (nEncounterID)
+        return;
+
+    nEncounterID = GetLocalInt(oEncounterAOE, TRAVEL_ENCOUNTER_ID);
+    struct TRAVEL_ENCOUNTER te = tr_GetEncounterData(nEncounterID);
+ 
+    int nWaypointCount = CountList(te.sSecondaryWaypoints);
+
+    if ((TRAVEL_ENCOUNTER_ALLOW_STRANGERS) || (TRAVEL_ENCOUNTER_ALLOW_LATE_ENTRY && _GetIsPartyMember(oPC, te.oTriggeredBy)))
+    {
+        if (GetIsObjectValid(te.oEncounterArea) && CountObjectList(te.oEncounterArea, AREA_ROSTER))
+        {
+            if (nWaypointCount)
+                oTarget = GetWaypointByTag(GetListItem(te.sSecondaryWaypoints, Random(nWaypointCount) + 1));
+            else
+                oTarget = GetWaypointByTag(te.sPrimaryWaypoint);
+
+            if (GetIsObjectValid(oTarget))
+            {
+                SetLocalInt(oPC, TRAVEL_ENCOUNTER_ID, nEncounterID);
+                SetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION, GetLocation(oPC));
+                AssignCommand(oPC, ClearAllActions());
+                AssignCommand(oPC, JumpToObject(oTarget));
+
+                Debug(GetName(oPC) + " has been sent to the encounter area for encounter " +
+                    te.sEncounterID + " via the encounter AOE");
+            }
+            else
+                Debug(GetName(oPC) + " is attempting to enter encounter " + te.sEncounterID +
+                    "via an AOE entry, but a valid entry waypoint could not be found.");
+        }
+    }
 }

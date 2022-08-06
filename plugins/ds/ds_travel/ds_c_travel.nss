@@ -70,3 +70,9 @@ const float TRAVEL_ENCOUNTER_WAYPOINT_INCLUDE = 10.0;
 //  area.
 const int TRAVEL_ENCOUNTER_ALLOW_LATE_ENTRY = TRUE;
 const int TRAVEL_ENCOUNTER_ALLOW_STRANGERS = FALSE;
+
+// -----------------------------------------------------------------------------
+//                                   Constants
+// -----------------------------------------------------------------------------
+
+// There is no text associated with this system.
