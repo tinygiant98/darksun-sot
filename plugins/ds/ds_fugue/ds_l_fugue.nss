@@ -27,6 +27,7 @@ void OnLibraryLoad()
         return;
 
     object oPlugin = GetPlugin("ds");
+    LoadLibraries("dlg_ds_l_fugue");
 
     // ----- Module Events -----
     // Set priority to 4.1 so it runs just before the PW script.

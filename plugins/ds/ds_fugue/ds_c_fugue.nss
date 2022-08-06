@@ -27,3 +27,10 @@ const string WP_ANGEL = "ah_death";
 
 // Chance that a player will be sent to the Angel versus the Fugue
 const int DS_FUGUE_ANGEL_CHANCE = 50;
+
+// -----------------------------------------------------------------------------
+//                                   Constants
+// -----------------------------------------------------------------------------
+
+// There is no text associated with this system.
+
