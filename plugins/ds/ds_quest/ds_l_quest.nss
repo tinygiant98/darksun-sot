@@ -62,6 +62,7 @@ void ds_quest_OnUnacquireItem()
 void OnLibraryLoad()
 {
     object oPlugin = GetPlugin("ds");
+    LoadLibraries("dlg_l_ds_quest");
 
     // ----- Module Events -----
     RegisterEventScript(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "ds_quest_OnModuleLoad", 3.0);
