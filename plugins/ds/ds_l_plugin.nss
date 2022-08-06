@@ -39,7 +39,7 @@ void OnLibraryLoad()
             "This plugin controls the UnID Item on Drop Persistent World Subsystem.");
         LoadLibraries("ds_l_travel, ds_l_fugue, ds_l_aoe, ds_l_area, ds_l_creature, " +
             "ds_l_door, ds_l_encounter, ds_l_item, ds_l_merchant, ds_l_placeable, ds_l_quest, ds_l_trap, " +
-            "ds_l_trigger, ds_rest_l_plugin, ds_qst_l_plugin, " +
+            "ds_l_trigger, ds_l_rest, ds_qst_l_plugin, " +
             "ds_qst_l_dialog, ds_wh_l_plugin");
 
         //Add module level events
