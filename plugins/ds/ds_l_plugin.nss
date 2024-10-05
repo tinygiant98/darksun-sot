@@ -37,7 +37,7 @@ void OnLibraryLoad()
         SetName(oPlugin, "[Plugin] DS :: Core");
         SetDescription(oPlugin,
             "This plugin represents the Dark Sun Core functions.");
-        SetPluginLibraries(oPlugin, "tr_l_plugin, ds_htf_l_plugin, ds_l_aoe, ds_l_area, ds_l_creature, " +
+        LoadLibraries(oPlugin, "tr_l_plugin, ds_htf_l_plugin, ds_l_aoe, ds_l_area, ds_l_creature, " +
             "ds_l_door, ds_l_encounter, ds_l_item, ds_l_merchant, ds_l_placeable, ds_l_quest, ds_l_trap, " +
             "ds_l_trigger, ds_fug_l_plugin, ds_fug_l_dialog, ds_rest_l_plugin, ds_qst_l_plugin, " +
             "ds_qst_l_dialog, ds_wh_l_plugin");
