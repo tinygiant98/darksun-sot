@@ -19,6 +19,7 @@
 #include "util_i_varlists"
 #include "util_i_argstack"
 #include "util_i_debug"
+#include "util_i_libraries"
 
 #include "nwnx_player"
 #include "nwnx_webhook_rch"
