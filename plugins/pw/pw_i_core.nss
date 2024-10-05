@@ -17,7 +17,7 @@
 #include "pw_i_config"
 #include "pw_i_text"
 
-#include "core_i_database"
+//#include "core_i_database"
 #include "core_i_framework"
 #include "util_i_data"
 #include "util_i_override"
@@ -384,7 +384,7 @@ void h2_BanPlayerByCDKey(object oPC)
 {
     string sMessage = GetName(oPC) + "_" + GetPCPlayerName(oPC) + " banned by: " + GetName(OBJECT_SELF) + "_" + GetPCPlayerName(OBJECT_SELF);
 
-    SetDatabaseString(H2_BANNED_PREFIX + GetPCPublicCDKey(oPC), sMessage);
+    //SetDatabaseString(H2_BANNED_PREFIX + GetPCPublicCDKey(oPC), sMessage);
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
     h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
@@ -394,7 +394,7 @@ void h2_BanPlayerByIPAddress(object oPC)
 {
     string sMessage = GetName(oPC) + "_" + GetPCPlayerName(oPC) + " banned by: " + GetName(OBJECT_SELF) + "_" + GetPCPlayerName(OBJECT_SELF);
     
-    SetDatabaseString(H2_BANNED_PREFIX + GetPCIPAddress(oPC), sMessage);
+    //SetDatabaseString(H2_BANNED_PREFIX + GetPCIPAddress(oPC), sMessage);
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
     h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
@@ -1041,7 +1041,7 @@ int h2_SkillCheck(int nSkill, object oUser, int nBroadCastLevel = 1)
 
 void h2_SaveCurrentCalendar()
 {
-    SetDatabaseString(H2_SERVER_TIME, GetSystemTime());
+    //SetDatabaseString(H2_SERVER_TIME, GetSystemTime());
 }
 
 void h2_SavePCLocation(object oPC)
@@ -1054,7 +1054,7 @@ void h2_SavePCLocation(object oPC)
 
 void h2_RestoreSavedCalendar()
 {
-    string sTime = GetDatabaseString(H2_SERVER_TIME);
+    string sTime = "";//GetDatabaseString(H2_SERVER_TIME);
 
     if (sTime != "")
         _SetCalendar(sTime, TRUE, TRUE);
@@ -1105,10 +1105,10 @@ void h2_StartSavePCLocationTimer()
 // TODO swap to sm database
 string h2_GetNewUniquePCID()
 {
-    int nextID = GetDatabaseInt(H2_NEXT_UNIQUE_PC_ID);
+    int nextID = 0;//GetDatabaseInt(H2_NEXT_UNIQUE_PC_ID);
     string id = IntToHexString(nextID);
 
-    SetDatabaseInt(H2_NEXT_UNIQUE_PC_ID, ++nextID);
+    //SetDatabaseInt(H2_NEXT_UNIQUE_PC_ID, ++nextID);
     return id;
 }
 
@@ -1137,20 +1137,20 @@ void h2_SetPlayerID(object oPC)
     if (uniquepcid == "")
     {
         uniquepcid = h2_GetNewUniquePCID();
-        SetPlayerString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
-        SetDatabaseString(uniquepcid, fullpcname);
+        //SetPlayerString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
+        //SetDatabaseString(uniquepcid, fullpcname);
     }
     else
     {
-        string storedName = GetDatabaseString(uniquepcid);
+        string storedName = "";//GetDatabaseString(uniquepcid);
         if (storedName != fullpcname)
         {
             string sMessage = fullpcname + H2_WARNING_INVALID_PLAYERID + storedName + H2_WARNING_ASSIGNED_NEW_PLAYERID;
             Debug(sMessage);
             SendMessageToAllDMs(sMessage);
             uniquepcid = h2_GetNewUniquePCID();
-            SetPlayerString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
-            SetDatabaseString(uniquepcid, fullpcname);
+            //SetPlayerString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
+            //SetDatabaseString(uniquepcid, fullpcname);
         }
     }
 }
