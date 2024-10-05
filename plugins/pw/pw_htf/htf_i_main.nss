@@ -207,7 +207,7 @@ void h2_ApplyAlchoholEffects(object oPC, object oItem)
         SetPlayerFloat(oPC, H2_HT_CURR_ALCOHOL, currAlcohol);
         if (GetLocalInt(oPC, H2_HT_DRUNK_TIMERID) == 0 && currAlcohol >= 0.4)
         {
-            int timerID = CreateTimer(oPC, H2_HT_DRUNK_ON_TIMER_EXPIRE, 150.0, 0, 30);
+            int timerID = Random(500); //CreateTimer(oPC, H2_HT_DRUNK_ON_TIMER_EXPIRE, 150.0, 0, 30);
             SetLocalInt(oPC, H2_HT_DRUNK_TIMERID, timerID);
             StartTimer(timerID, TRUE);
         }

@@ -42,7 +42,7 @@ void h2_InitializeRecoveryRestTime(object oPC)
     {
         string sTime = GetSystemTime();
         sTime = SubtractSystemTimeElement(TIME_SECONDS, H2_MINIMUM_SPELL_RECOVERY_REST_TIME, sTime);
-        SetModuleString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME, sTime);
+        //SetModuleString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME, sTime);
     }
 }
 
