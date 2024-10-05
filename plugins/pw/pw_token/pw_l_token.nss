@@ -20,13 +20,14 @@ const string DLG_TOKEN_VALUES  = "*TokenValues";
 
 string NormalizeDialogToken(string sToken)
 {
-    if (GetModuleInt(MODULE, DLG_TOKEN + "*" + sToken))
-        return sToken;
+    //if (GetModuleInt(MODULE, DLG_TOKEN + "*" + sToken))
+    //    return sToken;
 
     string sLower = GetStringLowerCase(sToken);
-    if (sToken == sLower || !GetModuleInt(MODULE, DLG_TOKEN + "*" + sLower))
-        return "";
+    //if (sToken == sLower || !GetModuleInt(MODULE, DLG_TOKEN + "*" + sLower))
+    //    return "";
 
+    //return sLower;
     return sLower;
 }
 

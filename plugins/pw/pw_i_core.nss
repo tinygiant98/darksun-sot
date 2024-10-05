@@ -249,12 +249,13 @@ void h2_LimitPostRestHeal(object oPC, int postRestHealAmt);
 //  the server epoch.  The following five functions are not original to HCR2.
 void h2_SaveServerEpoch()
 {
-    SetModuleString(MODULE, H2_EPOCH, GetSystemTime());
+    //SetModuleString(MODULE, H2_EPOCH, GetSystemTime());
 }
 
 string h2_GetServerEpoch()
 {
-    return GetModuleString(MODULE, H2_EPOCH);
+    return "";
+    //return GetModuleString(MODULE, H2_EPOCH);
 }
 
 string h2_GetTimeSinceServerStart()
