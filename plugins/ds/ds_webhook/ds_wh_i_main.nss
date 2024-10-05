@@ -596,7 +596,7 @@ void ChatCommandWebhook(object oPC)
 
 void DebugWebhook(int nLevel, string sMessage, object oTarget)
 {
-    string sLevel = DebugLevelToString(nLevel);
+    string sLevel = IntToString(nLevel); //DebugLevelToString(nLevel);
     string sName = GetName(oTarget);
     string sTag = GetTag(oTarget);
 
