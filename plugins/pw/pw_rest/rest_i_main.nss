@@ -49,7 +49,7 @@ void h2_InitializeRecoveryRestTime(object oPC)
 void h2_SaveLastRecoveryRestTime(object oPC)
 {
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    SetModuleString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME, GetSystemTime());
+    //SetModuleString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME, GetSystemTime());
 }
 
 int h2_RemainingTimeForRecoveryInRest(object oPC)

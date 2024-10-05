@@ -460,7 +460,7 @@ void h2_InitFatigueCheck(object oPC)
     if (!GetPlayerInt(oPC, H2_IS_FATIGUED) && GetPlayerFloat(oPC, H2_CURR_FATIGUE) == 0.0)
         SetPlayerFloat(oPC, H2_CURR_FATIGUE, 1.0);
 
-    int timerID = CreateTimer(oPC, H2_FATIGUE_ON_TIMER_EXPIRE, HoursToSeconds(1), 0, 0);
+    int timerID = Random(1000); //CreateTimer(oPC, H2_FATIGUE_ON_TIMER_EXPIRE, HoursToSeconds(1), 0, 0);
     StartTimer(timerID, FALSE);
 
     if (_GetIsPC(oPC) && H2_FATIGUE_DISPLAY_INFO_BAR)
