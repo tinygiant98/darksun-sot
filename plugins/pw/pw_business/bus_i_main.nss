@@ -228,7 +228,7 @@ void RegisterBusinessHoliday(string sHolidayName, int nMonth, int nDay, string s
 //  values, as defined in bus_i_config, will be used.
 void RegisterBusinessProfile(string sProfile, int nDay, int nOpen = BUSINESS_HOUR_OPEN, int nClose = BUSINESS_HOUR_CLOSE)
 {
-    string LIST_REF_BP = "BP:";
+    //string LIST_REF_BP = "BP:";
     string sProfiles = GetLocalString(BUSINESS, BUS_LIST_PROFILE);
 
     if (!HasListItem(sProfiles, sProfile))

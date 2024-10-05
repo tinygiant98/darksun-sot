@@ -111,15 +111,15 @@ void pw_OnClientEnter()
         return;
     }
 
-    string sBannedByCDKey = GetDatabaseString(H2_BANNED_PREFIX + GetPCPublicCDKey(oPC));
-    string sBannedByIPAddress = GetDatabaseString(H2_BANNED_PREFIX + GetPCIPAddress(oPC));
+    //string sBannedByCDKey = GetDatabaseString(H2_BANNED_PREFIX + GetPCPublicCDKey(oPC));
+    //string sBannedByIPAddress = GetDatabaseString(H2_BANNED_PREFIX + GetPCIPAddress(oPC));
     
-    if (sBannedByCDKey != "" || sBannedByIPAddress != "")
-    {
-        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-        h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
-        return;
-    }
+    //if (sBannedByCDKey != "" || sBannedByIPAddress != "")
+    //{
+    //    SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+    //    h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
+    //    return;
+    //}
 
     if (!bIsDM && h2_MaximumPlayersReached())
     {
