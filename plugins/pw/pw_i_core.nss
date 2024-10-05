@@ -1157,10 +1157,10 @@ void h2_SetPlayerID(object oPC)
 
 void h2_RegisterPC(object oPC)
 {
-    int registeredCharCount = GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
+    int registeredCharCount = 1;//GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
     SetPlayerInt(oPC, H2_REGISTERED, TRUE);
     SetPlayerInt(oPC, H2_INITIAL_LOGIN, TRUE); //TODO why'd I put this here again?
-    SetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX, registeredCharCount + 1);
+    //SetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX, registeredCharCount + 1);
     SendMessageToPC(oPC, H2_TEXT_CHAR_REGISTERED);
     SendMessageToPC(oPC, H2_TEXT_MAX_REGISTERED_CHARS + IntToString(H2_REGISTERED_CHARACTERS_ALLOWED));
 
