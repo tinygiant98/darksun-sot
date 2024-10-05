@@ -339,7 +339,7 @@ void ds_SaveLastFindWaterTime(object oPC)
 {
     int findWaterTime = h2_GetSecondsSinceServerStart();
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    SetModuleInt(MODULE, uniquePCID + DS_HTF_VARIABLE_LAST_PC_FINDWATER_TIME, findWaterTime);
+    //SetModuleInt(MODULE, uniquePCID + DS_HTF_VARIABLE_LAST_PC_FINDWATER_TIME, findWaterTime);
 }
 
 void ds_SearchForWater(object oPC, int iAreaType)
