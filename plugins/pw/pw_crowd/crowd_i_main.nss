@@ -296,15 +296,15 @@ int GetCrowdLimit(object oItem)
 
     object oArea = GetLocalObject(oItem, CROWD_OWNER);
     
-    int max = GetLocalInt(oItem, CROWD_POPULATION_DAY);
+    int nMax = GetLocalInt(oItem, CROWD_POPULATION_DAY);
     if (GetIsNight())
-        max = GetLocalInt(oItem, CROWD_POPULATION_NIGHT);
+        nMax = GetLocalInt(oItem, CROWD_POPULATION_NIGHT);
 
     int weather = GetWeather(oArea);
     if (weather == WEATHER_RAIN || weather == WEATHER_SNOW)
-        max = min(max, GetLocalInt(oItem, CROWD_POPULATION_WEATHER));
+        nMax = min(nMax, GetLocalInt(oItem, CROWD_POPULATION_WEATHER));
 
-    return max;
+    return nMax;
 }
 
 int GetCrowdWaypointCount(object oArea, string sTag)
