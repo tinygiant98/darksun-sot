@@ -4,10 +4,9 @@
 // set before any other framework instructions are run.
 
 #include "nwnx_util"
-#include "util_i_debug"
 
-void main()
+void DS_Module_Init()
 {
-    Notice("running module_preload");
-    NWNX_Util_SetInstructionLimit(5000000);
+    NWNX_Util_SetInstructionLimit(NWNX_Util_GetInstructionLimit() * 64);
+    SetEventScript(GetModule(), EVENT_SCRIPT_MODULE_ON_MODULE_LOAD, "hook_nwnx");
 }
