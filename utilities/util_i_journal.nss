@@ -9,7 +9,7 @@
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 
-#include "core_i_database"
+//#include "core_i_database"
 #include "util_i_data"
 
 // The bHideFinishedQuests boolean variable controls if
@@ -128,19 +128,19 @@ void dhAddJournalQuestEntry(string strCategoryTag, int iEntryId, object oCreatur
     if (bMarkAsFinished) 
     {
         strTag = "bQuestFinished_" + strCategoryTag;
-        DeleteDatabaseVariable(strTag, oCreature);
-        SetDatabaseInt(strTag, TRUE, oCreature);
+        //DeleteDatabaseVariable(strTag, oCreature);
+        //SetDatabaseInt(strTag, TRUE, oCreature);
 
-        strTag = GetDatabaseString("strCompletedQuests", oCreature);
+        //strTag = GetDatabaseString("strCompletedQuests", oCreature);
 
-        strTag += (strCategoryTag + ".");
-        DeleteDatabaseVariable("strCompletedQuests", oCreature);
-        SetDatabaseString("strCompletedQuests", strTag, oCreature);
+        //strTag += (strCategoryTag + ".");
+        //DeleteDatabaseVariable("strCompletedQuests", oCreature);
+        //SetDatabaseString("strCompletedQuests", strTag, oCreature);
     }
 
     // store the serialized string
-    DeleteDatabaseVariable("strCompletedQuests", oCreature);
-    SetDatabaseString("strQuestStates", strSerialized, oCreature);
+    //DeleteDatabaseVariable("strCompletedQuests", oCreature);
+    //SetDatabaseString("strQuestStates", strSerialized, oCreature);
 }
 
 //:://////////////////////////////////////////////
@@ -227,17 +227,17 @@ void dhRemoveJournalQuestEntry(string strPlotId, object oCreature, int bAllParty
     // because it will create an unnecessary database entry).
     if (bRemoveIfFinished) {
         strTag = "bQuestFinished_" + strPlotId;
-        iState = GetDatabaseInt(strTag, oCreature);
-        if (iState) 
-        {
-            DeleteDatabaseVariable(strTag, oCreature);
-            SetDatabaseInt(strTag, FALSE, oCreature);
-        }
+        //iState = GetDatabaseInt(strTag, oCreature);
+        //if (iState) 
+        //{
+        //    DeleteDatabaseVariable(strTag, oCreature);
+        //    SetDatabaseInt(strTag, FALSE, oCreature);
+        //}
     }
 
     // store the serialized string
-    DeleteDatabaseVariable("strCompletedQuests", oCreature);
-    SetDatabaseString("strQuestStates", strSerialized, oCreature);
+    //DeleteDatabaseVariable("strCompletedQuests", oCreature);
+    //SetDatabaseString("strQuestStates", strSerialized, oCreature);
 }
 
 //:://////////////////////////////////////////////
@@ -313,24 +313,24 @@ void dhClearJournal(object oPlayer)
     string strToken;
     string strTag;
 
-    strCompleted = GetDatabaseString("strCompletedQuests", oPlayer);
-    while (TRUE) 
-    {
-        strToken = dhNextToken(strCompleted, iStart);
-        iStart += (GetStringLength(strToken) + 1);
-
-        if (strToken == "") break;
-
-        strTag = "bQuestFinished_" + strToken;
-        DeleteDatabaseVariable(strTag, oPlayer);
-        SetDatabaseInt(strTag, FALSE, oPlayer);
-    }
-
-    // clear the pending quests and completed quests
-    DeleteDatabaseVariable("strCompletedQuests", oPlayer);
-    SetDatabaseString("strCompletedQuests", "", oPlayer);
-    DeleteDatabaseVariable("strQuestStates", oPlayer);
-    SetDatabaseString("strQuestStates", "", oPlayer);
+//    strCompleted = GetDatabaseString("strCompletedQuests", oPlayer);
+//    while (TRUE) 
+//    {
+//        strToken = dhNextToken(strCompleted, iStart);
+//        iStart += (GetStringLength(strToken) + 1);
+//
+//        if (strToken == "") break;
+//
+//        strTag = "bQuestFinished_" + strToken;
+//        DeleteDatabaseVariable(strTag, oPlayer);
+//        SetDatabaseInt(strTag, FALSE, oPlayer);
+//    }
+//
+//    // clear the pending quests and completed quests
+//    DeleteDatabaseVariable("strCompletedQuests", oPlayer);
+//    SetDatabaseString("strCompletedQuests", "", oPlayer);
+//    DeleteDatabaseVariable("strQuestStates", oPlayer);
+//    SetDatabaseString("strQuestStates", "", oPlayer);
 }
 
 //:://////////////////////////////////////////////
@@ -364,24 +364,24 @@ void dhLoadJournalQuestStates(object oPlayer)
     }
 
     // get serialized quest states
-    strSerialized = GetDatabaseString("strQuestStates", oPlayer);
-    while (TRUE) 
-    {
-        strToken1 = dhNextToken(strSerialized, iStart);
-        iStart += (GetStringLength(strToken1) + 1);
-        strToken2 = dhNextToken(strSerialized, iStart);
-        iStart += (GetStringLength(strToken2) + 1);
-
-        if (strToken1 == "" || strToken2 == "")
-            break;
-
-        AddJournalQuestEntry(strToken1, StringToInt(strToken2), oPlayer, FALSE);
-        strTag = "strQuestTag"+IntToString(iMaxIndex);
-        _SetLocalString(oPlayer, strTag, strToken1);
-        iMaxIndex++;
-    }
-
-    _SetLocalInt(oPlayer, "iJournalMaxIndex", iMaxIndex+1);
+//    strSerialized = GetDatabaseString("strQuestStates", oPlayer);
+//    while (TRUE) 
+//    {
+//        strToken1 = dhNextToken(strSerialized, iStart);
+//        iStart += (GetStringLength(strToken1) + 1);
+//        strToken2 = dhNextToken(strSerialized, iStart);
+//        iStart += (GetStringLength(strToken2) + 1);
+//
+//        if (strToken1 == "" || strToken2 == "")
+//            break;
+//
+//        AddJournalQuestEntry(strToken1, StringToInt(strToken2), oPlayer, FALSE);
+//        strTag = "strQuestTag"+IntToString(iMaxIndex);
+//        _SetLocalString(oPlayer, strTag, strToken1);
+//        iMaxIndex++;
+//    }
+//
+//    _SetLocalInt(oPlayer, "iJournalMaxIndex", iMaxIndex+1);
 }
 
 //:://////////////////////////////////////////////
@@ -467,9 +467,9 @@ void dhHideJournalQuestEntry(object oPlayer, string strPlotId)
     // make sure the quest is marked as finished
     strTag = "bQuestFinished_" + strPlotId;
     
-    if (!GetDatabaseInt(strTag, oPlayer));
-        return;
-
+//    if (!GetDatabaseInt(strTag, oPlayer));
+//        return;
+//
     // find the quest in the list and exclude from
     // serialize string
     for (idx = 0; idx < iMaxIndex; idx++) 
@@ -496,8 +496,8 @@ void dhHideJournalQuestEntry(object oPlayer, string strPlotId)
     }
 
     // save the new serialized string
-    DeleteDatabaseVariable("strQuestStates", oPlayer);
-    SetDatabaseString("strQuestStates", strSerialized, oPlayer);
+   //DeleteDatabaseVariable("strQuestStates", oPlayer);
+   //SetDatabaseString("strQuestStates", strSerialized, oPlayer);
 
     // remove from journal for aestetic reasons
     RemoveJournalQuestEntry(strPlotId, oPlayer);

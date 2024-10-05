@@ -9,6 +9,8 @@
 //  None!  Leave me alone.
 // -----------------------------------------------------------------------------
 
+#include "util_i_datapoint"
+
 const string BUSINESS_DATAPOINT = "BUSINESS_DATAPOINT";
 object       BUSINESS           = GetDatapoint(BUSINESS_DATAPOINT);
 
