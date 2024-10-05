@@ -3,16 +3,10 @@
 // to a much higher value, allowing the framework to fully load.  This must be
 // set before any other framework instructions are run.
 
-#include "nwnx_admin"
+#include "nwnx_util"
 
 void DS_Module_Init()
 {
     NWNX_Util_SetInstructionLimit(NWNX_Util_GetInstructionLimit() * 64);
     SetEventScript(GetModule(), EVENT_SCRIPT_MODULE_ON_MODULE_LOAD, "hook_nwnx");
 }
-
-
-//void main()
-//{
-//    NWNX_Administration_SetPlayerPassword(GetRandomUUID());
-//}
