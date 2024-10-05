@@ -15,7 +15,7 @@
 #include "corpse_i_text"
 #include "pw_i_core"
 #include "x0_i0_position"
-#include "core_i_database"
+//#include "core_i_database"
 
 
 // -----------------------------------------------------------------------------
@@ -243,11 +243,11 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
     else //player was offline
     {
         SendMessageToPC(oCaster, H2_TEXT_OFFLINE_RESS_CASTER_FEEDBACK);
-        SetDatabaseLocation(uniquePCID + H2_RESS_LOCATION, castLoc);
+        //SetDatabaseLocation(uniquePCID + H2_RESS_LOCATION, castLoc);
 
-        if (_GetIsDM(oCaster))
-            SetDatabaseInt(uniquePCID + H2_RESS_BY_DM, TRUE);
-        sMessage += H2_TEXT_OFFLINE_PLAYER + " " + GetDatabaseString(uniquePCID);
+        if (_GetIsDM(oCaster)) {}
+            //SetDatabaseInt(uniquePCID + H2_RESS_BY_DM, TRUE);
+        //sMessage += H2_TEXT_OFFLINE_PLAYER + " " + GetDatabaseString(uniquePCID);
     }
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
@@ -257,17 +257,17 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
 void h2_PerformOffLineRessurectionLogin(object oPC, location ressLoc)
 {
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    DeleteDatabaseVariable(uniquePCID + H2_RESS_LOCATION);
+    //DeleteDatabaseVariable(uniquePCID + H2_RESS_LOCATION);
     SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
     SendMessageToPC(oPC, H2_TEXT_YOU_HAVE_BEEN_RESSURECTED);
     DelayCommand(H2_CLIENT_ENTER_JUMP_DELAY, AssignCommand(oPC, JumpToLocation(ressLoc)));
-    if (H2_APPLY_XP_LOSS_FOR_RESS && !GetDatabaseInt(uniquePCID + H2_RESS_BY_DM))
-    {
-        int lostXP = h2_XPLostForRessurection(oPC);
-        GiveXPToCreature(oPC, -lostXP);
-    }
+    //if (H2_APPLY_XP_LOSS_FOR_RESS && !GetDatabaseInt(uniquePCID + H2_RESS_BY_DM))
+    //{
+    //    int lostXP = h2_XPLostForRessurection(oPC);
+    //    GiveXPToCreature(oPC, -lostXP);
+    //}
     
-    DeleteDatabaseVariable(uniquePCID + H2_RESS_BY_DM);
+    //DeleteDatabaseVariable(uniquePCID + H2_RESS_BY_DM);
     string sMessage = GetName(oPC) + "_" + GetPCPlayerName(oPC) + H2_TEXT_OFFLINE_RESS_LOGIN;
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
