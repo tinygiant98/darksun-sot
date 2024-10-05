@@ -34,7 +34,7 @@ void OnLibraryLoad()
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_RESPAWN, "webhook_OnPlayerReSpawn", 1.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_LEVEL_UP, "webhook_OnPlayerLevelUp", 1.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_CHAT, "webhook_OnPlayerChat", 1.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_CHAT_COMMAND, "webhook_OnPlayerChatCommand", 1.0);
+    RegisterEventScripts(oPlugin, "OnPlayerChatCommand", "webhook_OnPlayerChatCommand", 1.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_HOUR, "webhook_OnHour", 1.0);
 
     RegisterEventScripts(oPlugin, "QUEST_EVENT_ON_ACCEPT", "webhook_OnQuestEvent", 3.5);
