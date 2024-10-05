@@ -52,10 +52,10 @@ void corpse_pccorpseitem();
 void corpse_OnClientEnter()
 {
     object oPC = GetEnteringObject();
-    string sUniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    location lRessLoc = GetDatabaseLocation(sUniquePCID + H2_RESS_LOCATION);
-    if (h2_GetIsLocationValid(lRessLoc))
-        h2_PerformOffLineRessurectionLogin(oPC, lRessLoc);
+    //string sUniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
+    //location lRessLoc = GetDatabaseLocation(sUniquePCID + H2_RESS_LOCATION);
+    //if (h2_GetIsLocationValid(lRessLoc))
+    //    h2_PerformOffLineRessurectionLogin(oPC, lRessLoc);
 
     object oItem = GetFirstItemInInventory(oPC);
     while (GetIsObjectValid(oItem))
