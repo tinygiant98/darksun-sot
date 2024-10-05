@@ -260,8 +260,9 @@ string h2_GetServerEpoch()
 
 string h2_GetTimeSinceServerStart()
 {
-    string sTime = GetModuleString(MODULE, H2_SERVER_START_TIME);
-    return GetSystemTimeDifference(sTime);
+    //string sTime = GetModuleString(MODULE, H2_SERVER_START_TIME);
+    //return GetSystemTimeDifference(sTime);
+    return "";
 }
 
 int h2_GetIsLocationValid(location loc)

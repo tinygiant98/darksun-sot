@@ -105,7 +105,7 @@ void creature_tag()
 
 void nw_goblina()
 {
-    string sEvent = GetName(GetCurrentEvent());
+    string sEvent = GetCurrentEvent(); //GetName(GetCurrentEvent());
     object oCreature = OBJECT_SELF;
 
     if (sEvent == CREATURE_EVENT_ON_DEATH)
@@ -117,7 +117,7 @@ void nw_goblina()
 
 void nw_oldman()
 {
-    string sEvent = GetName(GetCurrentEvent());
+    string sEvent = GetCurrentEvent(); //GetName(GetCurrentEvent());
     object oCreature = OBJECT_SELF;
 
     if (sEvent == CREATURE_EVENT_ON_DEATH)

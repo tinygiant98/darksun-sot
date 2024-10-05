@@ -3,6 +3,7 @@
 #include "core_i_framework"
 
 void main()
-{
-    RunEvent(MODULE_EVENT_ON_MODULE_SHUTDOWN);
+{   
+    RunEvent("OnModuleShutdown");
+    //RunEvent(MODULE_EVENT_ON_MODULE_SHUTDOWN);
 }

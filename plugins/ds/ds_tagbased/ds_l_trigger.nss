@@ -49,7 +49,7 @@ void trigger_tag()
 
 void quest_trigger_1()
 {
-    string sEvent = GetName(GetCurrentEvent());
+    string sEvent = GetCurrentEvent(); //GetName(GetCurrentEvent());
     object oPC, oTrigger = OBJECT_SELF;
 
     if (sEvent == TRIGGER_EVENT_ON_ENTER)
@@ -62,7 +62,7 @@ void quest_trigger_1()
 
 void quest_trigger_2()
 {
-    string sEvent = GetName(GetCurrentEvent());
+    string sEvent = GetCurrentEvent(); //GetName(GetCurrentEvent());
     object oPC, oTrigger = OBJECT_SELF;
 
     if (sEvent == TRIGGER_EVENT_ON_EXIT)
