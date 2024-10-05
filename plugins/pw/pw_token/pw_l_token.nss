@@ -156,8 +156,8 @@ string EvalDialogTokens(string sString, object oPC)
 
 void TOKEN_EvaluateTokens()
 {
-    string sMessage = GetArgumentString();
-    object oPC = GetArgumentObject();
+    string sMessage = PopString(); //GetArgumentString();
+    object oPC = PopObject(); //GetArgumentObject();
 
     sMessage = EvalDialogTokens(sMessage, oPC);
     PushReturnValueString(sMessage);

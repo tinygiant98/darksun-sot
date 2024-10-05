@@ -42,8 +42,8 @@ void quest_OnClientEnter()
 
 void QUEST_GetQuestString()
 {
-    string sQuestTag = GetArgumentString();
-    int nStep = GetArgumentInt();
+    string sQuestTag = PopString(); //GetArgumentString();
+    int nStep = PopInt(); //GetArgumentInt();
 
     string sMessage = GetQuestWebhookMessage(sQuestTag, nStep);
     PushReturnValueString(sMessage);

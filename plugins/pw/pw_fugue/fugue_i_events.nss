@@ -41,10 +41,10 @@ void fugue_OnClientEnter()
 {
     object oPC = GetEnteringObject();
     int playerstate = GetPlayerInt(oPC, H2_PLAYER_STATE);
-    string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    location ressLoc = GetDatabaseLocation(uniquePCID + H2_RESS_LOCATION);
-    if (GetTag(GetArea(oPC)) != H2_FUGUE_PLANE && playerstate == H2_PLAYER_STATE_DEAD && !h2_GetIsLocationValid(ressLoc))
-        DelayCommand(H2_CLIENT_ENTER_JUMP_DELAY, h2_SendPlayerToFugue(oPC));
+    //string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
+    //location ressLoc = GetDatabaseLocation(uniquePCID + H2_RESS_LOCATION);
+    //if (GetTag(GetArea(oPC)) != H2_FUGUE_PLANE && playerstate == H2_PLAYER_STATE_DEAD && !h2_GetIsLocationValid(ressLoc))
+    //    DelayCommand(H2_CLIENT_ENTER_JUMP_DELAY, h2_SendPlayerToFugue(oPC));
 }
 
 void fugue_OnPlayerDeath()

@@ -108,8 +108,8 @@ void webhook_OnPlayerChatCommand()
 
 void webhook_OnModuleDebug()
 {
-    int nLevel = GetArgumentInt();
-    string sMessage = GetArgumentString();
+    int nLevel = PopInt(); //GetArgumentInt();
+    string sMessage = PopString(); //GetArgumentString();
     object oTarget = OBJECT_SELF;
 
     DebugWebhook(nLevel, sMessage, oTarget);

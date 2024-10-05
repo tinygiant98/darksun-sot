@@ -14,6 +14,7 @@
 #include "core_i_constants"
 #include "core_c_config"
 #include "util_i_chat"
+#include "util_i_variables"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
