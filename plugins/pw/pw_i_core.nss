@@ -1076,9 +1076,9 @@ void h2_AddPlayerDataMenuItem(string sMenuText, string sConvResRef)
     int index = 1; //GetModuleInt(MODULE, H2_PLAYER_DATA_MENU_INDEX) + 1;
     if (index <=20)
     {
-        SetModuleInt(MODULE, H2_PLAYER_DATA_MENU_INDEX, index);
-        SetModuleString(MODULE, H2_PLAYER_DATA_MENU_ITEM_TEXT + IntToString(index), sMenuText);
-        SetModuleString(MODULE, H2_CONVERSATION_RESREF + IntToString(index), sConvResRef);
+        //SetModuleInt(MODULE, H2_PLAYER_DATA_MENU_INDEX, index);
+        //SetModuleString(MODULE, H2_PLAYER_DATA_MENU_ITEM_TEXT + IntToString(index), sMenuText);
+        //SetModuleString(MODULE, H2_CONVERSATION_RESREF + IntToString(index), sConvResRef);
     }
     else
         Debug("Player Data Menu Item: " + sMenuText + " exceeded maximum allowed.");
@@ -1089,7 +1089,7 @@ void h2_StartCharExportTimer()
     if (H2_EXPORT_CHARACTERS_INTERVAL > 0.0)
     {
         int nTimerID = CreateTimer(MODULE, H2_EXPORT_CHAR_ON_TIMER_EXPIRE, H2_EXPORT_CHARACTERS_INTERVAL);
-        SetModuleInt(MODULE, H2_EXPORT_CHAR_TIMER_ID, nTimerID);
+        //SetModuleInt(MODULE, H2_EXPORT_CHAR_TIMER_ID, nTimerID);
         StartTimer(nTimerID, TRUE);
     }
 }
@@ -1099,7 +1099,7 @@ void h2_StartSavePCLocationTimer()
     if (H2_SAVE_PC_LOCATION_TIMER_INTERVAL > 0.0)
     {
         int nTimerID = CreateTimer(MODULE, H2_SAVE_LOCATION_ON_TIMER_EXPIRE, H2_SAVE_PC_LOCATION_TIMER_INTERVAL);
-        SetModuleInt(MODULE, H2_SAVE_LOCATION_TIMER_ID, nTimerID);
+        //SetModuleInt(MODULE, H2_SAVE_LOCATION_TIMER_ID, nTimerID);
         StartTimer(nTimerID, TRUE);
     }
 }
@@ -1120,7 +1120,7 @@ void h2_SendPCToSavedLocation(object oPC)
         return;
 
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    int hasLoggedInThisReset = GetModuleInt(MODULE, uniquePCID + H2_INITIAL_LOGIN);
+    int hasLoggedInThisReset = 0; //GetModuleInt(MODULE, uniquePCID + H2_INITIAL_LOGIN);
     if (!hasLoggedInThisReset && H2_SAVE_PC_LOCATION)
     {
         location savedLocation = GetPlayerLocation(oPC, H2_PC_SAVED_LOC);
@@ -1188,18 +1188,18 @@ void h2_InitializePC(object oPC)
         h2_StripOnFirstLogin(oPC);
 
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    int savedHP = GetModuleInt(MODULE, uniquePCID + H2_PLAYER_HP);
+    int savedHP = 40; //GetModuleInt(MODULE, uniquePCID + H2_PLAYER_HP);
     if (savedHP < GetMaxHitPoints(oPC) && savedHP > 0)
     {
-        DeleteModuleInt(MODULE, uniquePCID + H2_PLAYER_HP);
+        //DeleteModuleInt(MODULE, uniquePCID + H2_PLAYER_HP);
         SetPlayerInt(oPC, H2_PLAYER_HP, savedHP);
         h2_SetPlayerHitPointsToSavedValue(oPC);
     }
 
-    string spelltrack = GetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS);
-    string spelluses = GetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_USES);
-    string feattrack = GetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS);
-    string featuses = GetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_USES);
+    string spelltrack = ""; //GetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS);
+    string spelluses = ""; //GetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_USES);
+    string feattrack = ""; //GetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS);
+    string featuses = ""; //GetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_USES);
 
     if (GetRacialType(oPC) > 6)
     {   //If racial type is above 6, then the PC is polymorphed.
@@ -1214,8 +1214,8 @@ void h2_InitializePC(object oPC)
 
     if (spelltrack != "")
     {
-        DeleteModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS);
-        DeleteModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_USES);
+        //DeleteModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS);
+        //DeleteModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_USES);
         SetPlayerString(oPC, H2_SPELL_TRACK_SPELLS, spelltrack);
         SetPlayerString(oPC, H2_SPELL_TRACK_USES, spelluses);
         DelayCommand(1.0, h2_SetAvailableSpellsToSavedValues(oPC));
@@ -1223,15 +1223,15 @@ void h2_InitializePC(object oPC)
 
     if (feattrack != "")
     {
-        DeleteModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS);
-        DeleteModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_USES);
+        //DeleteModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS);
+        //DeleteModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_USES);
         SetPlayerString(oPC, H2_FEAT_TRACK_FEATS, feattrack);
         SetPlayerString(oPC, H2_FEAT_TRACK_USES, featuses);
         DelayCommand(1.0, h2_SetAvailableFeatsToSavedValues(oPC));
     }
 
     h2_SendPCToSavedLocation(oPC);
-    SetModuleInt(MODULE, uniquePCID + H2_INITIAL_LOGIN, TRUE);
+    //SetModuleInt(MODULE, uniquePCID + H2_INITIAL_LOGIN, TRUE);
 
     int isRegistered = GetPlayerInt(oPC, H2_REGISTERED);
     if (!isRegistered && H2_REGISTERED_CHARACTERS_ALLOWED > 0)
@@ -1257,19 +1257,19 @@ void h2_SavePersistentPCData(object oPC)
 {
     int hp = GetCurrentHitPoints(oPC);
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    SetModuleInt(MODULE, uniquePCID + H2_PLAYER_HP, hp);
+    //SetModuleInt(MODULE, uniquePCID + H2_PLAYER_HP, hp);
     h2_SavePCAvailableSpells(oPC);
     h2_SavePCAvailableFeats(oPC);
 
     string spelltrack = GetPlayerString(oPC, H2_SPELL_TRACK_SPELLS);
     string spelluses = GetPlayerString(oPC, H2_SPELL_TRACK_USES);
-    SetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS, spelltrack);
-    SetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_USES, spelluses);
+    //SetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_SPELLS, spelltrack);
+    //SetModuleString(MODULE, uniquePCID + H2_SPELL_TRACK_USES, spelluses);
 
     string feattrack = GetPlayerString(oPC, H2_FEAT_TRACK_FEATS);
     string featuses = GetPlayerString(oPC, H2_FEAT_TRACK_USES);
-    SetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS, feattrack);
-    SetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_USES, featuses);
+    //SetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_FEATS, feattrack);
+    //SetModuleString(MODULE, uniquePCID + H2_FEAT_TRACK_USES, featuses);
 }
 
 int h2_GetAllowRest(object oPC)
