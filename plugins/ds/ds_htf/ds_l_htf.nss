@@ -20,7 +20,7 @@
 
 #include "util_i_library"
 #include "core_i_framework"
-#include "htf_i_config"
+#include "pw_c_htf"
 #include "ds_htf_i_const"
 #include "ds_htf_i_events"
 
