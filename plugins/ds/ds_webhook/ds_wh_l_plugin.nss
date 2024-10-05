@@ -27,7 +27,7 @@ void OnLibraryLoad()
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "webhook_OnModuleLoad", 4.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "webhook_OnClientEnter", 4.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_LEAVE, "webhook_OnClientLeave", 4.0);
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_SHUTDOWN, "webhook_OnModuleShutdown", 4.0);
+    RegisterEventScripts(oPlugin, "OnModuleShutdown", "webhook_OnModuleShutdown", 4.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_STABLE, "webhook_OnModuleStable", 4.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "webhook_OnPlayerDeath", 1.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DYING, "webhook_OnPlayerDying", 1.0);

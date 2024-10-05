@@ -1064,7 +1064,7 @@ void h2_RestoreSavedCalendar()
 
 void h2_SaveServerStartTime()
 {
-    SetModuleString(MODULE, H2_SERVER_START_TIME, GetSystemTime());
+    //SetModuleString(MODULE, H2_SERVER_START_TIME, GetSystemTime());
 }
 
 //TODO the whole menu/convo thing.  Get rid of and replace with dynamic dialog.

@@ -33,9 +33,9 @@ string NormalizeDialogToken(string sToken)
 
 void AddDialogToken(string sToken, string sEvalScript, string sValues = "")
 {
-    SetModuleInt   (MODULE, DLG_TOKEN + "*" + sToken, TRUE);
-    SetModuleString(MODULE, DLG_TOKEN + "*" + sToken, sEvalScript);
-    SetModuleString(MODULE, DLG_TOKEN_VALUES + "*" + sToken, sValues);
+    //SetModuleInt   (MODULE, DLG_TOKEN + "*" + sToken, TRUE);
+    //SetModuleString(MODULE, DLG_TOKEN + "*" + sToken, sEvalScript);
+    //SetModuleString(MODULE, DLG_TOKEN_VALUES + "*" + sToken, sValues);
 }
 
 void AddDialogTokens()

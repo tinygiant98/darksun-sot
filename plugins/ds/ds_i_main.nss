@@ -1,4 +1,5 @@
 #include "nwnx_admin"
+#include "core_i_framework"
 
 const string MODULE_EVENT_ON_MODULE_STABLE = "OnModuleStable";
 

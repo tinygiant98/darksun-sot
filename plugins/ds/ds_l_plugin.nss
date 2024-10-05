@@ -33,7 +33,7 @@ void OnLibraryLoad()
     //Need to check for pw plugin and this is a sub-plugin
     if (!GetIfPluginExists("ds"))
     {
-        object oPlugin = GetPlugin("ds", TRUE);
+        object oPlugin = CreatePlugin("ds");
         SetName(oPlugin, "[Plugin] DS :: Core");
         SetDescription(oPlugin,
             "This plugin represents the Dark Sun Core functions.");
