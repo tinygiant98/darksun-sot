@@ -46,25 +46,29 @@ void QUEST_GetQuestString()
     int nStep = PopInt(); //GetArgumentInt();
 
     string sMessage = GetQuestWebhookMessage(sQuestTag, nStep);
-    PushReturnValueString(sMessage);
+    //PushReturnValueString(sMessage);
+    PushString(sMessage);
 }
 
 void QUEST_GetCurrentQuest()
 {
     string sQuestTag = GetCurrentQuest();
-    PushReturnValueString(sQuestTag);
+    PushString(sQuestTag);
+    //PushReturnValueString(sQuestTag);
 }
 
 void QUEST_GetCurrentQuestStep()
 {
     int nStep = GetCurrentQuestStep();
-    PushReturnValueInt(nStep);
+    PushInt(nStep);
+    //PushReturnValueInt(nStep);
 }
 
 void QUEST_GetCurrentQuestEvent()
 {
     string sEvent = GetCurrentQuestEvent();
-    PushReturnValueString(sEvent);
+    PushString(sEvent);
+    //PushReturnValueString(sEvent);
 }
 
 void QUEST_GetCurrentWebhookMessage()
@@ -85,7 +89,8 @@ void QUEST_GetCurrentWebhookMessage()
         nStep = GetQuestCompletionStep(nQuestID, QUEST_ADVANCE_FAIL);
 
     string sMessage = GetQuestWebhookMessage(sQuestTag, nStep);
-    PushReturnValueString(sMessage);
+    PushString(sMessage);
+    //PushReturnValueString(sMessage);
 }
 
 void quest_OnPlayerChat()

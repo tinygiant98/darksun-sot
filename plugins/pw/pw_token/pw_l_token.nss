@@ -160,7 +160,8 @@ void TOKEN_EvaluateTokens()
     object oPC = PopObject(); //GetArgumentObject();
 
     sMessage = EvalDialogTokens(sMessage, oPC);
-    PushReturnValueString(sMessage);
+    PushString(sMessage);
+    //PushReturnValueString(sMessage);
 }
 
 void token_OnModuleLoad()

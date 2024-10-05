@@ -72,7 +72,7 @@ void pw_SavePCLocation_OnTimerExpire();
 
 void pw_OnModuleLoad()
 {
-    CreateVariablesTable(MODULE);
+    //CreateVariablesTable(MODULE);
 
     h2_SaveServerEpoch();
     h2_RestoreSavedCalendar();
@@ -93,7 +93,7 @@ void pw_OnClientEnter()
 {
     object oPC = GetEnteringObject();
     
-    CreateVariablesTable(oPC);
+    //CreateVariablesTable(oPC);
 
     if (!AssignRole(oPC))
     {
