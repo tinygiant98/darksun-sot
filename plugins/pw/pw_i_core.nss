@@ -1073,7 +1073,7 @@ void h2_AddPlayerDataMenuItem(string sMenuText, string sConvResRef)
      if (sMenuText == "")
         return;
 
-    int index = GetModuleInt(MODULE, H2_PLAYER_DATA_MENU_INDEX) + 1;
+    int index = 1; //GetModuleInt(MODULE, H2_PLAYER_DATA_MENU_INDEX) + 1;
     if (index <=20)
     {
         SetModuleInt(MODULE, H2_PLAYER_DATA_MENU_INDEX, index);

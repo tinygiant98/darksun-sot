@@ -96,12 +96,12 @@ string EvalDialogToken(string sToken, object oPC)
     if (sNormal == "")
         return "<" + sToken + ">";
 
-    string sScript = GetModuleString(MODULE, DLG_TOKEN + "*" + sNormal);
-    string sValues = GetModuleString(MODULE, DLG_TOKEN_VALUES + "*" + sNormal);
+//    string sScript = GetModuleString(MODULE, DLG_TOKEN + "*" + sNormal);
+//    string sValues = GetModuleString(MODULE, DLG_TOKEN_VALUES + "*" + sNormal);
 
-    SetLocalString(oPC, DLG_TOKEN, sNormal);
-    SetLocalString(oPC, DLG_TOKEN_VALUES, sValues);
-    RunLibraryScript(sScript, oPC);
+//    SetLocalString(oPC, DLG_TOKEN, sNormal);
+//    SetLocalString(oPC, DLG_TOKEN_VALUES, sValues);
+//    RunLibraryScript(sScript, oPC);
 
     string sEval = GetLocalString(oPC, DLG_TOKEN);
 
