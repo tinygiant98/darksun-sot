@@ -145,13 +145,13 @@ void pw_OnClientEnter()
 
     if (!bIsDM && H2_REGISTERED_CHARACTERS_ALLOWED > 0 && !GetPlayerInt(oPC, H2_REGISTERED))
     {
-        int registeredCharCount = GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
-        if (registeredCharCount >= H2_REGISTERED_CHARACTERS_ALLOWED)
-        {
-            SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-            h2_BootPlayer(oPC, H2_TEXT_TOO_MANY_CHARS_BOOT, 10.0);
-            return;
-        }
+        //int registeredCharCount = GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
+        //if (registeredCharCount >= H2_REGISTERED_CHARACTERS_ALLOWED)
+        //{
+        //    SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+        //    h2_BootPlayer(oPC, H2_TEXT_TOO_MANY_CHARS_BOOT, 10.0);
+        //    return;
+        //}
     }
     
     SetPlayerString(oPC, H2_PC_PLAYER_NAME, GetPCPlayerName(oPC));
