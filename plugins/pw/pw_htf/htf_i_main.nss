@@ -58,7 +58,7 @@ void h2_InitHungerThirstCheck(object oPC)
     if (!GetPlayerInt(oPC, H2_HT_IS_STARVING) && GetPlayerFloat(oPC, H2_HT_CURR_HUNGER) == 0.0)
         SetPlayerFloat(oPC, H2_HT_CURR_HUNGER, 1.0);
 
-    int timerID = CreateTimer(oPC, H2_HT_ON_TIMER_EXPIRE, HoursToSeconds(1), 0, 0);
+    int timerID = Random(30); //CreateTimer(oPC, H2_HT_ON_TIMER_EXPIRE, HoursToSeconds(1), 0, 0);
     StartTimer(timerID, FALSE);
 
     if (_GetIsPC(oPC) && H2_HT_DISPLAY_INFO_BARS)
