@@ -55,7 +55,7 @@ void h2_SaveLastRecoveryRestTime(object oPC)
 int h2_RemainingTimeForRecoveryInRest(object oPC)
 {
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    string lastRest = GetModuleString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME);
+    string lastRest = ""; //GetModuleString(MODULE, uniquePCID + H2_LAST_PC_REST_TIME);
     int elapsedTime = FloatToInt(GetSystemTimeDifferenceIn(TIME_SECONDS, lastRest));
     
     if (lastRest != "" && elapsedTime < H2_MINIMUM_SPELL_RECOVERY_REST_TIME)
