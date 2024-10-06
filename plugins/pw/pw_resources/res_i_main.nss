@@ -12,6 +12,7 @@
 #include "res_i_const"
 #include "core_i_constants"
 #include "util_i_debug"
+#include "util_i_csvlists"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes

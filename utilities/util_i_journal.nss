@@ -69,7 +69,7 @@ void dhAddJournalQuestEntry(string strCategoryTag, int iEntryId, object oCreatur
     AddJournalQuestEntry(strCategoryTag, iEntryId, oCreature, FALSE, FALSE, bAllowOverrideHigher);
 
     // setup processing
-    int iMaxIndex = _GetLocalInt(oCreature, "iJournalMaxIndex");
+    int iMaxIndex = GetLocalInt(oCreature, "iJournalMaxIndex");
     int bQuestFound = FALSE;
     int idx;
     string strTag;
