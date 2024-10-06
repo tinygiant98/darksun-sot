@@ -82,7 +82,7 @@ void dhAddJournalQuestEntry(string strCategoryTag, int iEntryId, object oCreatur
     for (idx = 0; idx < iMaxIndex; idx++) 
     {
         strTag = "strQuestTag" + IntToString(idx);
-        strTag = _GetLocalString(oCreature, strTag);
+        strTag = GetLocalString(oCreature, strTag);
 
         if (strTag == "")
             continue;
@@ -95,11 +95,11 @@ void dhAddJournalQuestEntry(string strCategoryTag, int iEntryId, object oCreatur
             // not put it in the serialized string.
             if (bHideFinishedQuests && bMarkAsFinished) {
                 strTag = "strQuestTag"+IntToString(idx);
-                _SetLocalString(oCreature, strTag, "");
+                SetLocalString(oCreature, strTag, "");
                 continue;
             }
         }
-        iState = _GetLocalInt(oCreature, "NW_JOURNAL_ENTRY"+strTag);
+        iState = GetLocalInt(oCreature, "NW_JOURNAL_ENTRY"+strTag);
 
         strSerialized += strTag;
         strSerialized += ".";
@@ -113,10 +113,10 @@ void dhAddJournalQuestEntry(string strCategoryTag, int iEntryId, object oCreatur
     if (!bQuestFound && (!bHideFinishedQuests || !bMarkAsFinished)) 
     {
         strTag = "strQuestTag" + IntToString(iMaxIndex);
-        _SetLocalInt(oCreature, "iJournalMaxIndex", iMaxIndex+1);
-        _SetLocalString(oCreature, strTag, strCategoryTag);
+        SetLocalInt(oCreature, "iJournalMaxIndex", iMaxIndex+1);
+        SetLocalString(oCreature, strTag, strCategoryTag);
 
-        iState = _GetLocalInt(oCreature, "NW_JOURNAL_ENTRY"+strCategoryTag);
+        iState = GetLocalInt(oCreature, "NW_JOURNAL_ENTRY"+strCategoryTag);
         strSerialized += strCategoryTag;
         strSerialized += ".";
         strSerialized += IntToString(iState);
@@ -192,7 +192,7 @@ void dhRemoveJournalQuestEntry(string strPlotId, object oCreature, int bAllParty
     RemoveJournalQuestEntry(strPlotId, oCreature, FALSE, FALSE);
 
     // setup processing
-    int iMaxIndex = _GetLocalInt(oCreature, "iJournalMaxIndex");
+    int iMaxIndex = GetLocalInt(oCreature, "iJournalMaxIndex");
     int idx;
     string strTag;
     string strSerialized = "";
@@ -203,7 +203,7 @@ void dhRemoveJournalQuestEntry(string strPlotId, object oCreature, int bAllParty
     // serialized string as we go.
     for (idx = 0; idx < iMaxIndex; idx++) {
         strTag = "strQuestTag" + IntToString(idx);
-        strTag = _GetLocalString(oCreature, strTag);
+        strTag = GetLocalString(oCreature, strTag);
 
         if (strTag == "")
             continue;
@@ -211,10 +211,10 @@ void dhRemoveJournalQuestEntry(string strPlotId, object oCreature, int bAllParty
         if (strTag == strPlotId) 
         {
             strTag = "strQuestTag"+IntToString(idx);
-            _SetLocalString(oCreature, strTag, "");
+            SetLocalString(oCreature, strTag, "");
             continue;
         }
-        iState = _GetLocalInt(oCreature, "NW_JOURNAL_ENTRY"+strTag);
+        iState = GetLocalInt(oCreature, "NW_JOURNAL_ENTRY"+strTag);
 
         strSerialized += strTag;
         strSerialized += ".";
@@ -261,7 +261,7 @@ int dhGetJournalQuestState(string strPlotId, object oCreature)
 
     // return the state stored on the player
     strTag = "NW_JOURNAL_ENTRY" + strPlotId;
-    int iState = _GetLocalInt(oCreature, strTag);
+    int iState = GetLocalInt(oCreature, strTag);
     return iState;
 }
 
@@ -351,7 +351,7 @@ void dhLoadJournalQuestStates(object oPlayer)
     string strTag;
 
     // error checking
-    if (!_GetIsPC(oPlayer))
+    if (!GetIsPC(oPlayer))
         return;
 
     // check to make sure this is not a new character
@@ -377,11 +377,11 @@ void dhLoadJournalQuestStates(object oPlayer)
 //
 //        AddJournalQuestEntry(strToken1, StringToInt(strToken2), oPlayer, FALSE);
 //        strTag = "strQuestTag"+IntToString(iMaxIndex);
-//        _SetLocalString(oPlayer, strTag, strToken1);
+//        SetLocalString(oPlayer, strTag, strToken1);
 //        iMaxIndex++;
 //    }
 //
-//    _SetLocalInt(oPlayer, "iJournalMaxIndex", iMaxIndex+1);
+//    SetLocalInt(oPlayer, "iJournalMaxIndex", iMaxIndex+1);
 }
 
 //:://////////////////////////////////////////////
@@ -458,7 +458,7 @@ int dhGiveQuestItem(string strPlotId, int iReqState, object oPlayer, string strR
 void dhHideJournalQuestEntry(object oPlayer, string strPlotId);
 void dhHideJournalQuestEntry(object oPlayer, string strPlotId)
 {
-    int iMaxIndex = _GetLocalInt(oPlayer, "iJournalMaxIndex");
+    int iMaxIndex = GetLocalInt(oPlayer, "iJournalMaxIndex");
     int idx;
     string strTag;
     string strSerialized = "";
@@ -475,7 +475,7 @@ void dhHideJournalQuestEntry(object oPlayer, string strPlotId)
     for (idx = 0; idx < iMaxIndex; idx++) 
     {
         strTag = "strQuestTag" + IntToString(idx);
-        strTag = _GetLocalString(oPlayer, strTag);
+        strTag = GetLocalString(oPlayer, strTag);
 
         if (strTag == "")
             continue;
@@ -484,10 +484,10 @@ void dhHideJournalQuestEntry(object oPlayer, string strPlotId)
         {
             // clear the array element and do not put it in the serialized string.
             strTag = "strQuestTag"+IntToString(idx);
-            _SetLocalString(oPlayer, strTag, "");
+            SetLocalString(oPlayer, strTag, "");
             continue;
         }
-        iState = _GetLocalInt(oPlayer, "NW_JOURNAL_ENTRY"+strTag);
+        iState = GetLocalInt(oPlayer, "NW_JOURNAL_ENTRY"+strTag);
 
         strSerialized += strTag;
         strSerialized += ".";
