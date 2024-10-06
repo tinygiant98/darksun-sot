@@ -14,6 +14,8 @@
 //                                   Constants
 // -----------------------------------------------------------------------------
 
+#include "util_i_datapoint"
+
 const string sDebugPlugin = "::Crowd System|";
 string dbg;
 

@@ -11,6 +11,7 @@
 
 #include "res_i_const"
 #include "core_i_constants"
+#include "util_i_debug"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes

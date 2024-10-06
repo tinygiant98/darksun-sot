@@ -14,6 +14,8 @@
 //                                   Constants
 // -----------------------------------------------------------------------------
 
+#include "util_i_color"
+
 const string H2_HT_CANTEEN = "h2_canteen";
 const string H2_HT_FOODITEM = "h2_fooditem";
 const string H2_HT_IS_DEHYDRATED = "H2_HT_IS_DEHYDRATED";
