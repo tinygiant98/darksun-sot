@@ -3,7 +3,7 @@
 // to a much higher value, allowing the framework to fully load.  This must be
 // set before any other framework instructions are run.
 
-#include "nwnx_admin"
+#include "nwnx_util"
 
 void DS_Module_Init()
 {
