@@ -8,7 +8,7 @@
 void DS_Module_Init()
 {
     NWNX_Util_SetInstructionLimit(NWNX_Util_GetInstructionLimit() * 64);
-    SetEventScript(GetModule(), EVENT_SCRIPT_MODULE_ON_MODULE_LOAD, "hook_nwnx");
+    SetEventScript(GetModule(), EVENT_SCRIPT_MODULE_ON_MODULE_LOAD, "hook_nwn");
 }
 
 
