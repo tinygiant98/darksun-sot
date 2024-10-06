@@ -256,7 +256,7 @@ int dhGetJournalQuestState(string strPlotId, object oCreature)
 {
     // check the database to see if the flag is set.
     string strTag = "bQuestFinished_" + strPlotId;
-    int bFlag = GetDatabaseInt(strTag, oCreature);
+    int bFlag = TRUE; //GetDatabaseInt(strTag, oCreature);
     if (bFlag) return -1;
 
     // return the state stored on the player
