@@ -58,7 +58,7 @@ void tr_OnAreaEnter()
 
         Debug("Maximum encounters for this PC is " + IntToString(GetLocalInt(oPC, TRAVEL_MAX_ENCOUNTERS)));
 
-        nTimerID = Random(100); //CreateTimer(oPC, TRAVEL_ENCOUNTER_ON_TIMER_EXPIRE, TRAVEL_ENCOUNTER_TIMER_INTERVAL, 0, TRAVEL_ENCOUNTER_TIMER_JITTER);
+        nTimerID = CreateEventTimer(oPC, TRAVEL_ENCOUNTER_ON_TIMER_EXPIRE, TRAVEL_ENCOUNTER_TIMER_INTERVAL, 0, TRAVEL_ENCOUNTER_TIMER_JITTER);
         SetLocalInt(oPC, TRAVEL_ENCOUNTER_TIMER_ID, nTimerID);
         StartTimer(nTimerID, FALSE);
     }

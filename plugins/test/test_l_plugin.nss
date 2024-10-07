@@ -184,3 +184,18 @@ void OnLibraryScript(string sScript, int nEntry)
         default: CriticalError("Library function " + sScript + " not found");
     }
 }
+
+/*
+c - config - no change
+i - include - any includes that aren't covered with other letters, and are available for inclusion in other plug-ins or subsystems
+e - events - not a single event script like core_e_nwn would be, but a file that contains all the event procedures in a plugin to help keep them separate from the chaff that might be used for an include somehwere else.  (i.e. subsystems may want to use `tot_i_common`, but they probably don't want or need `tot_e_events`.
+n - nwnx - like e above, but using the standardized file I created for nwnx events (certainly not a requirements, but complicated enough to have its own letter)
+s - starting conditions - but used as a clearing house for all dialog sc scripts through the use of script params
+a - action taken - same as for `s`, but with dialog actions taken
+d - dialog files - primarily custom dialogs associated with the plug-in that create conversations using your dialog system
+l - library - no change
+t - test
+p - plugin
+b f g h j m o q r u v w x y z
+
+*/

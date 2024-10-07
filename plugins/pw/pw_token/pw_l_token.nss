@@ -20,22 +20,21 @@ const string DLG_TOKEN_VALUES  = "*TokenValues";
 
 string NormalizeDialogToken(string sToken)
 {
-    //if (GetModuleInt(MODULE, DLG_TOKEN + "*" + sToken))
-    //    return sToken;
+    if (GetModuleInt(DLG_TOKEN + "*" + sToken))
+        return sToken;
 
     string sLower = GetStringLowerCase(sToken);
-    //if (sToken == sLower || !GetModuleInt(MODULE, DLG_TOKEN + "*" + sLower))
-    //    return "";
+    if (sToken == sLower || !GetModuleInt(DLG_TOKEN + "*" + sLower))
+        return "";
 
-    //return sLower;
     return sLower;
 }
 
 void AddDialogToken(string sToken, string sEvalScript, string sValues = "")
 {
-    //SetModuleInt   (MODULE, DLG_TOKEN + "*" + sToken, TRUE);
-    //SetModuleString(MODULE, DLG_TOKEN + "*" + sToken, sEvalScript);
-    //SetModuleString(MODULE, DLG_TOKEN_VALUES + "*" + sToken, sValues);
+    SetModuleInt   (DLG_TOKEN + "*" + sToken, TRUE);
+    SetModuleString(DLG_TOKEN + "*" + sToken, sEvalScript);
+    SetModuleString(DLG_TOKEN_VALUES + "*" + sToken, sValues);
 }
 
 void AddDialogTokens()
@@ -96,12 +95,12 @@ string EvalDialogToken(string sToken, object oPC)
     if (sNormal == "")
         return "<" + sToken + ">";
 
-//    string sScript = GetModuleString(MODULE, DLG_TOKEN + "*" + sNormal);
-//    string sValues = GetModuleString(MODULE, DLG_TOKEN_VALUES + "*" + sNormal);
+    string sScript = GetModuleString(DLG_TOKEN + "*" + sNormal);
+    string sValues = GetModuleString(DLG_TOKEN_VALUES + "*" + sNormal);
 
-//    SetLocalString(oPC, DLG_TOKEN, sNormal);
-//    SetLocalString(oPC, DLG_TOKEN_VALUES, sValues);
-//    RunLibraryScript(sScript, oPC);
+    SetLocalString(oPC, DLG_TOKEN, sNormal);
+    SetLocalString(oPC, DLG_TOKEN_VALUES, sValues);
+    RunLibraryScript(sScript, oPC);
 
     string sEval = GetLocalString(oPC, DLG_TOKEN);
 

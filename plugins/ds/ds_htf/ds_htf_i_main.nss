@@ -93,11 +93,9 @@ float _calculateTravelCostUnit(object oCreature)
 
 void ds_CreateAreaTravelTimer(object oPC)
 {
-    int timerID = Random(500); //CreateTimer(oPC, DS_HTF_AREA_ON_TIMER_EXPIRE, DS_HTF_AREATRAVELCOST_DELAY, 1, 0);
-    //int timerID = h2_CreateTimer(oPC, DS_HTF_AREATIMER_SCRIPT, DS_HTF_AREATRAVELCOST_DELAY, FALSE, 1);
+    int nTimerID = CreateEventTimer(oPC, DS_HTF_AREA_ON_TIMER_EXPIRE, DS_HTF_AREATRAVELCOST_DELAY, 1, 0.0);
     SetLocalInt(oPC, DS_HTF_VARIABLE_AREATIMER, timerID);
     StartTimer(timerID, FALSE);
-    //h2_StartTimer(timerID);
 }
 
 void ds_DestroyAreaTravelTimer(object oPC)
