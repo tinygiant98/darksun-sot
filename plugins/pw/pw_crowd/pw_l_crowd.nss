@@ -45,6 +45,8 @@ void OnLibraryLoad()
 
     // ----- Timer Events -----
     RegisterLibraryScript("crowd_OnTimerExpired",  5);
+
+    LoadLibrary("pw_d_crowd");
 }
 
 void OnLibraryScript(string sScript, int nEntry)
