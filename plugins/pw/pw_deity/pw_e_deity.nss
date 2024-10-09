@@ -1,24 +1,22 @@
-// -----------------------------------------------------------------------------
-//    File: pw_e_deity.nss
-//  System: Deity Resurrection (events)
-// -----------------------------------------------------------------------------
-// Description:
-//  Event functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_e_deity.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Deity Library (events)
+/// ----------------------------------------------------------------------------
 
- #include "pw_i_deity"
+#include "core_i_framework"
+
+#include "pw_i_deity"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< deity_OnPlayerDeath >---
-// This is a framework-registerd script that fires on the module-level
-//  OnPlayerDeath event to determine whether a PC will be resurrected
-//  by their deity.
+/// @brief Event handler for module-level OnPlayerDeath event.  If the dead
+///     player character has a deity and successfuly passes the check for
+///     deity resurrection, the player character is resurrected at the deity's
+///     respawn/resurrection point without penalty.
+/// @note Successful deity resurrection aborts OnPlayerDeath event processing.
 void deity_OnPlayerDeath();
 
 // -----------------------------------------------------------------------------
@@ -28,11 +26,12 @@ void deity_OnPlayerDeath();
 void deity_OnPlayerDeath()
 {
     object oPC = GetLastPlayerDied();
-
-    //if some other death subsystem set the player state back to alive before this one, no need to continue
     if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
         return;
 
     if (h2_CheckForDeityRez(oPC))
+    {
         h2_DeityRez(oPC);
+        SetEventState(EVENT_STATE_ABORT);
+    }
 }

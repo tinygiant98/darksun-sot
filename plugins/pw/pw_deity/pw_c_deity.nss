@@ -1,40 +1,32 @@
-// -----------------------------------------------------------------------------
-//    File: pw_d_deity.nss
-//  System: Deity Resurrection (configuration)
-// -----------------------------------------------------------------------------
-// Description:
-//  Configuration File for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  Set the variables below as directed in the comments for each variable.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_c_deity.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Deity Library (configuration)
+/// ----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-//                                   Variables
-// -----------------------------------------------------------------------------
+/// @brief Set this value to TRUE to load the deity system.
+const int DEITY_ACTIVE = FALSE;
 
-// Set this to false if you don't want to use the deity system.
-const int H2_USE_DEITY_SYSTEM = TRUE;
+/// @brief Set this value to the base percentage chance that a player character
+///     will be resurrected by their chosen deity.
+/// @note Value will be clamped to the range 0.0 - 100.0.
+const float DEITY_REZ_CHANCE_BASE = 5.0;
 
-// This is the base percentage change a PC will be resurrected by their deity.
-//  Value range is 0.0-100.0
-// Default value: 5.0
-const float H2_BASE_DEITY_REZ_CHANCE = 5.0;
+/// @brief Set this value to the percentage per level that modifies
+///     DEITY_REZ_CHANCE_BASE to determine the total percentage chance that
+///     a player character will be resurrected by their chosen deity.
+/// @note Value will be clamped to the range 0.0 - 100.0.
+const float DEITY_REZ_CHANCE_PER_LEVEL = 0.0;
 
-//Percentage chance per level that a player will be ressurected by their deity
-//(H2_DIETY_REZ_CHANCE_PER_LEVEL ^ playerlevel) + H2_BASE_DEITY_REZ_CHANCE equal total
-//percentage chance the player's diety will ressurect them.
-//
-//Allowed values (0 - 100)
-//Default value = 0.0
-const float H2_DEITY_REZ_CHANCE_PER_LEVEL = 0.0;
+/// @brief Set this value to the percentage chance that the deity will resurrect
+///     the player character at the location where the player character died.  If
+///     the chance is missed, the player character will respawn at the deity's
+///     specific resurrection point, or the generic point, if no deity is selected
+///     or the selected deity does not have a specific resurrection point.
+const int DEITY_REZ_AT_DEATH_LOCATION_CHANCE = 50;
 
-//Percentage chance that the deity will rez the PC at the location the PC died.  If
-//  the chance is missed, the PC will respawn at the specific/generic diety rez
-//  waypoint.
-const int H2_DEITY_REZ_AT_DEATH_LOCATION = 50;
-
-//This is the tag of a way point used as the generic location
-//that a player ressurected by their deity will be jumped to.
-//This waypoint will be used if a deity-specifc waypoint is not found.
-const string H2_GENERAL_DEITY_REZ_WAYPOINT = "H2_WP_DIETY_REZ";  //TODO make this the well of eru point or change the point to this
+/// @brief Set this value to the tag of the waypoint object that will be used as
+///     a generic respawn/resurrection point for any player characters that have
+///     not selected a deity or any deity that does not have a specified
+///     respawn/resurrection point.
+const string DEITY_REZ_GENERIC_WAYPOINT = "H2_WP_DIETY_REZ";

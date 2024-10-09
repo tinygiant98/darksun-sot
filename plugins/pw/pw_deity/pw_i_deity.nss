@@ -1,13 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: pw_i_deity.nss
-//  System: UnID Item on Drop (core)
-// -----------------------------------------------------------------------------
-// Description:
-//  Core functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_i_deity.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Deity Library (core)
+/// ----------------------------------------------------------------------------
 
 #include "pw_i_core"
 #include "pw_c_deity"
@@ -17,14 +12,16 @@
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< h2_DeityRez >---
-// If a PC is ressurected by his deity, this function resets all approriate
-//  PC variables and sends the PC to the deity ressurection waypoint.
+/// @brief If a player character is resurrected by their chosen deity, reset
+///     all appropriate variables and send the player character to the diety's
+///     specific respawn/resurrection waypoint, if it exists.
+/// @param oPC The player character to resurrect.
 void h2_DeityRez(object oPC);
 
-// ---< h2_CheckForDeityRez >---
-// This function will determine whether the PC will be resurrected by their
-//  diety.
+/// @brief Determine whether a player character will be resurrected by their
+///     chosen deity.
+/// @param oPC The player character to check for deity resurrection.
+/// @returns TRUE if the player character will be resurrected by their deity.
 int h2_CheckForDeityRez(object oPC);
 
 // -----------------------------------------------------------------------------
@@ -53,7 +50,7 @@ void h2_DeityRez(object oPC)
         return;
     }
 
-    deitywp = GetObjectByTag(H2_GENERAL_DEITY_REZ_WAYPOINT);
+    deitywp = GetObjectByTag(DEITY_REZ_GENERIC_WAYPOINT);
     if (GetIsObjectValid(deitywp))
     {
         AssignCommand(oPC, JumpToLocation(GetLocation(deitywp)));
@@ -70,12 +67,10 @@ int h2_CheckForDeityRez(object oPC)
     if (deity == "" || deity == "NONE")
         return FALSE;
 
-    float totalpercent  = (H2_BASE_DEITY_REZ_CHANCE + (GetHitDice(oPC) * H2_DEITY_REZ_CHANCE_PER_LEVEL));
-    totalpercent = totalpercent * 10.0;
+    float totalpercent = DEITY_REZ_CHANCE_BASE + (GetHitDice(oPC) * DEITY_REZ_CHANCE_PER_LEVEL) * 10.0;
     int random = Random(1000);
-    SendMessageToPC(oPC, IntToString(FloatToInt(totalpercent)) + " " + IntToString(random));
     
-    if (FloatToInt(totalpercent) > Random(1000))
+    if (totalpercent > random * 1.0)
         return TRUE;
     
     SendMessageToPC(oPC, H2_TEXT_DEITY_NO_REZ);
