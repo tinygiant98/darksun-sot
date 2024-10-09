@@ -1,16 +1,13 @@
-// -----------------------------------------------------------------------------
-//    File: pw_l_htf.nss
-//  System: Hunger Thirst Fatigue (library)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_l_htf.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Hunger, Thirst, Fatigue Library (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
-#include "core_i_framework"
+
 #include "pw_k_htf"
 #include "pw_e_htf"
 
@@ -22,88 +19,99 @@ void OnLibraryLoad()
 {
     object oPlugin = GetPlugin("pw");
 
-    if (!H2_USE_HUNGERTHIRST_SYSTEM && !H2_USE_FATIGUE_SYSTEM) 
+    if (!HUNGERTHIRST_ACTIVE && !FATIGUE_ACTIVE) 
         return;
 
-    if (H2_USE_HUNGERTHIRST_SYSTEM)
+    if (HUNGERTHIRST_ACTIVE)
     {
-        // ----- Module Events -----
+        // Module Events
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,         "hungerthirst_OnClientEnter",        4.0);
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH,         "hungerthirst_OnPlayerDeath",        4.0);
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_FINISHED, "hungerthirst_OnPlayerRestFinished", 4.0);
         RegisterEventScripts(oPlugin, TRIGGER_EVENT_ON_ENTER,               "hungerthirst_OnTriggerEnter",       4.0);
         RegisterEventScripts(oPlugin, TRIGGER_EVENT_ON_EXIT,                "hungerthirst_OnTriggerExit",        4.0);
         
-        // ----- Timer Events -----
+        // ----- Timer Events
         RegisterEventScripts(oPlugin, H2_HT_ON_TIMER_EXPIRE,                "htf_ht_OnTimerExpire",              4.0);
     }
 
-    if (H2_USE_FATIGUE_SYSTEM)
+    if (FATIGUE_ACTIVE)
     {
-        // ----- Module Events -----
+        // ----- Module Events
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,         "fatigue_OnClientEnter",             4.0);
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_REST_FINISHED, "fatigue_OnPlayerRestFinished",      4.0);
         
-        // ----- Timer Events -----
+        // ----- Timer Events
         RegisterEventScripts(oPlugin, H2_FATIGUE_ON_TIMER_EXPIRE,           "htf_f_OnTimerExpire",               4.0);
     }
 
-    if (H2_USE_HUNGERTHIRST_SYSTEM)
+    int n = 100;
+    if (HUNGERTHIRST_ACTIVE)
     {
-        // ----- Module Events -----
-        RegisterLibraryScript("hungerthirst_OnClientEnter",         1);
-        RegisterLibraryScript("hungerthirst_OnPlayerDeath",         2);
-        RegisterLibraryScript("hungerthirst_OnPlayerRestFinished",  3);
-        RegisterLibraryScript("hungerthirst_OnTriggerEnter",        11);
-        RegisterLibraryScript("hungerthirst_OnTriggerExit",         12);
+        // Module Events
+        RegisterLibraryScript("hungerthirst_OnClientEnter",         n++);
+        RegisterLibraryScript("hungerthirst_OnPlayerDeath",         n++);
+        RegisterLibraryScript("hungerthirst_OnPlayerRestFinished",  n++);
+        RegisterLibraryScript("hungerthirst_OnTriggerEnter",        n++);
+        RegisterLibraryScript("hungerthirst_OnTriggerExit",         n++);
         
-        // ----- Timer Events -----
-        RegisterLibraryScript("htf_ht_OnTimerExpire",               8);
-        RegisterLibraryScript("htf_drunk_OnTimerExpire",            10);
+        // Timer Events
+        RegisterLibraryScript("htf_ht_OnTimerExpire",               n++);
+        RegisterLibraryScript("htf_drunk_OnTimerExpire",            n++);
     }
 
-    if (H2_USE_FATIGUE_SYSTEM)
+    n = 200;
+    if (FATIGUE_ACTIVE)
     {
-        // ----- Module Events -----
-        RegisterLibraryScript("fatigue_OnClientEnter",              4);
-        RegisterLibraryScript("fatigue_OnPlayerRestFinished",       5);
+        // Module Events
+        RegisterLibraryScript("fatigue_OnClientEnter",              n++);
+        RegisterLibraryScript("fatigue_OnPlayerRestFinished",       n++);
 
-        // ----- Timer Events -----
-        RegisterLibraryScript("htf_f_OnTimerExpire",                9);
+        // Timer Events
+        RegisterLibraryScript("htf_f_OnTimerExpire",                n++);
     }
 
-    // ----- Tag-based Scripting -----
-    RegisterLibraryScript(H2_HT_CANTEEN,                            6);
-    RegisterLibraryScript(H2_HT_FOODITEM,                           7);
+    n = 300;
+    // Tag-based Scripting
+    RegisterLibraryScript(H2_HT_CANTEEN,                            n++);
+    RegisterLibraryScript(H2_HT_FOODITEM,                           n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    if (!H2_USE_HUNGERTHIRST_SYSTEM && !H2_USE_FATIGUE_SYSTEM) 
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        CriticalError("Library function called on inactive system (HTF).");
-        return;
-    }
+        case 100:
+        {
+            // Module Events
+            if      (nEntry == n++) hungerthirst_OnClientEnter();
+            else if (nEntry == n++) hungerthirst_OnPlayerDeath();
+            else if (nEntry == n++) hungerthirst_OnPlayerRestFinished();
+            else if (nEntry == n++) hungerthirst_OnTriggerEnter();
+            else if (nEntry == n++) hungerthirst_OnTriggerExit();
 
-    switch (nEntry)
-    {
-        // ----- Module Events -----
-        case 1:  hungerthirst_OnClientEnter();        break;
-        case 2:  hungerthirst_OnPlayerDeath();        break;
-        case 3:  hungerthirst_OnPlayerRestFinished(); break;
-        case 4:  fatigue_OnClientEnter();             break;
-        case 5:  fatigue_OnPlayerRestFinished();      break;
-        case 11: hungerthirst_OnTriggerEnter();       break;
-        case 12: hungerthirst_OnTriggerExit();        break;
+            // Timer Events
+            else if (nEntry == n++) htf_ht_OnTimerExpire();
+            else if (nEntry == n++) htf_drunk_OnTimerExpire();
+        } break;
+        case 200:
+        {
+            // Module Events
+            if      (nEntry == n++) fatigue_OnClientEnter();
+            else if (nEntry == n++) fatigue_OnPlayerRestFinished();
 
-        // ----- Tag-based Scripting -----
-        case 6:  htf_canteen();                       break;
-        case 7:  htf_fooditem();                      break;
-
-        // ----- Timer Events -----
-        case 8:  htf_ht_OnTimerExpire();              break;
-        case 9:  htf_f_OnTimerExpire();               break;
-        case 10: htf_drunk_OnTimerExpire();           break;
-        default: CriticalError("Library function " + sScript + " not found");
+            // Timer Events
+            else if (nEntry == n++) htf_f_OnTimerExpire();
+        } break;
+        case 300:
+        {
+            // Tag-based Scripting
+            if      (nEntry == n++) htf_canteen();
+            else if (nEntry == n++) htf_fooditem();
+        } break;
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in pw_l_htf.nss");
     }
 }

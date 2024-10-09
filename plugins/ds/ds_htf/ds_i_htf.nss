@@ -163,7 +163,7 @@ void ds_DisplayAssociateHTFValues(object oCreature, float fThirst, float fHunger
     if (_GetIsPC(oCreature) || _GetIsDM(oCreature) || GetAssociateType(oCreature) == ASSOCIATE_TYPE_NONE) 
         return;
 
-    if (!H2_USE_HUNGERTHIRST_SYSTEM && !H2_USE_FATIGUE_SYSTEM) 
+    if (!HUNGERTHIRST_ACTIVE && !FATIGUE_ACTIVE) 
         return;
      
     int currThirst = FloatToInt(fThirst);
@@ -185,17 +185,17 @@ void ds_DisplayAssociateHTFValues(object oCreature, float fThirst, float fHunger
     switch (DS_HTF_ASSOCIATE_DISPLAY_TYPE)
     {
         case ASSOCIATE_DISPLAY_NUMBERS:
-            if (H2_USE_HUNGERTHIRST_SYSTEM)
+            if (HUNGERTHIRST_ACTIVE)
             {
                 sThirst += IntToString(currThirst);
                 sHunger += IntToString(currHunger);
             }
 
-            if (H2_USE_FATIGUE_SYSTEM)
+            if (FATIGUE_ACTIVE)
                 sFatigue += IntToString(currFatigue);
         case ASSOCIATE_DISPLAY_BARS:
         case ASSOCIATE_DISPLAY_LETTERS:
-            if (H2_USE_HUNGERTHIRST_SYSTEM)
+            if (HUNGERTHIRST_ACTIVE)
             {
                 sThirst = currThirst > DS_HTF_THRESHHOLD_CAUTION ? HexColorString(sThirst, COLOR_GREEN) : 
                             currThirst <= DS_HTF_THRESHHOLD_DIRE ? HexColorString(sThirst, COLOR_RED) :
@@ -206,15 +206,15 @@ void ds_DisplayAssociateHTFValues(object oCreature, float fThirst, float fHunger
                                                                     HexColorString(sHunger, COLOR_YELLOW);
             }
 
-            if (H2_USE_FATIGUE_SYSTEM)
+            if (FATIGUE_ACTIVE)
                 sFatigue = currFatigue > DS_HTF_THRESHHOLD_CAUTION ? HexColorString(sFatigue, COLOR_GREEN) : 
                                 currFatigue <= DS_HTF_THRESHHOLD_DIRE ? HexColorString(sFatigue, COLOR_RED) :
                                                                         HexColorString(sFatigue, COLOR_YELLOW);
 
             sHTFBar = sOpen; 
-            if (H2_USE_HUNGERTHIRST_SYSTEM)
+            if (HUNGERTHIRST_ACTIVE)
                 sHTFBar += sHunger + " " + sDelimiter + " " + sThirst + " ";
-            if (H2_USE_FATIGUE_SYSTEM)
+            if (FATIGUE_ACTIVE)
                 sHTFBar += sFatigue;
             break;
         default:
@@ -223,14 +223,14 @@ void ds_DisplayAssociateHTFValues(object oCreature, float fThirst, float fHunger
 
     if(DS_HTF_ASSOCIATE_DISPLAY_TYPE == ASSOCIATE_DISPLAY_BARS)
     {
-        if (H2_USE_HUNGERTHIRST_SYSTEM)
+        if (HUNGERTHIRST_ACTIVE)
         {
             sThirst += _createAssociateHTFBar(currThirst) + " ";
             sHunger += _createAssociateHTFBar(currHunger) + " ";
             sHTFBar += sHunger + sThirst;
         }
 
-        if (H2_USE_FATIGUE_SYSTEM)
+        if (FATIGUE_ACTIVE)
         {
             sFatigue += _createAssociateHTFBar(currFatigue);
             sHTFBar += sFatigue;

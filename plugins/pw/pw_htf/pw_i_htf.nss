@@ -1,19 +1,15 @@
-// -----------------------------------------------------------------------------
-//    File: pw_i_htf.nss
-//  System: Hunger, Thirst, Fatigue (core)
-// -----------------------------------------------------------------------------
-// Description:
-//  Core functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_i_htf.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Hunger, Thirst, Fatigue Library (core)
+/// ----------------------------------------------------------------------------
+
+#include "util_i_color"
+#include "util_i_libraries"
 
 #include "pw_i_core"
 #include "pw_k_htf"
 #include "pw_c_htf"
-#include "util_i_color"
-#include "util_i_libraries"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -25,13 +21,13 @@
 
 float h2_GetHungerDecrement()
 {
-    return 1.0 / H2_HT_BASE_HUNGER_HOURS;
+    return 1.0 / HT_BASE_HUNGER_HOURS;
 }
 
 float h2_GetThirstDecrement(object oPC)
 {
     int conScore = GetAbilityScore(oPC, ABILITY_CONSTITUTION, TRUE);
-    return 1.0 / (H2_HT_BASE_THIRST_HOURS + conScore);
+    return 1.0 / (HT_BASE_THIRST_HOURS + conScore);
 }
 
 void h2_DisplayHTInfoBars(object oPC)
@@ -60,7 +56,7 @@ void h2_InitHungerThirstCheck(object oPC)
     int timerID = CreateEventTimer(oPC, H2_HT_ON_TIMER_EXPIRE, HoursToSeconds(1));
     StartTimer(timerID, FALSE);
 
-    if (_GetIsPC(oPC) && H2_HT_DISPLAY_INFO_BARS)
+    if (_GetIsPC(oPC) && HT_DISPLAY_INFO_BARS)
         h2_DisplayHTInfoBars(oPC);
 }
 
@@ -102,7 +98,7 @@ void h2_DoThirstFortitudeCheck(object oPC)
         nonlethaldamage += d6();
         SetPlayerInt(oPC, H2_HT_THIRST_NONLETHAL_DAMAGE, nonlethaldamage);
         if (nonlethaldamage > GetMaxHitPoints(oPC))
-            RunLibraryScript(H2_HT_DAMAGE_SCRIPT, oPC);
+            RunLibraryScript(HT_DAMAGE_SCRIPT, oPC);
     }
 
     SetPlayerInt(oPC, H2_HT_THIRST_SAVE_COUNT, thirstSaveCount + 1);
@@ -127,7 +123,7 @@ void h2_DoHungerFortitudeCheck(object oPC)
         nonlethaldamage +=  d6();
         SetPlayerInt(oPC, H2_HT_HUNGER_NONLETHAL_DAMAGE, nonlethaldamage);
         if (nonlethaldamage > GetMaxHitPoints(oPC))
-            RunLibraryScript(H2_HT_DAMAGE_SCRIPT, oPC);
+            RunLibraryScript(HT_DAMAGE_SCRIPT, oPC);
     }
 
     SetPlayerInt(oPC, H2_HT_HUNGER_SAVE_COUNT, hungerSaveCount + 1);
@@ -143,10 +139,9 @@ void h2_PerformHungerThirstCheck(object oPC, float fCustomThirstDecrement = -1.0
         DeleteLocalInt(oPC, H2_HT_DRUNK_TIMERID);
         return;
     }
+    
     int conScore = GetAbilityScore(oPC, ABILITY_CONSTITUTION, TRUE);
 
-    //tinygiant - 20200125
-    //Used to implement the new argument added for custom fatigue decrements.
     float thirstDrop = (fCustomThirstDecrement >= 0.0) ? fCustomThirstDecrement : h2_GetThirstDecrement(oPC);
     float hungerDrop = (fCustomHungerDecrement >= 0.0) ? fCustomHungerDecrement : h2_GetHungerDecrement();
 
@@ -179,7 +174,7 @@ void h2_PerformHungerThirstCheck(object oPC, float fCustomThirstDecrement = -1.0
     SetPlayerFloat(oPC, H2_HT_CURR_HUNGER, currHunger);
     SetPlayerFloat(oPC, H2_HT_CURR_ALCOHOL, currAlcohol);
 
-    if (H2_HT_DISPLAY_INFO_BARS)
+    if (HT_DISPLAY_INFO_BARS)
         h2_DisplayHTInfoBars(oPC);
 
     if (currThirst == 0.0)
@@ -441,7 +436,7 @@ void h2_UseCanteen(object oPC, object oCanteen)
 
 float h2_GetFatigueDecrement()
 {
-    return 1.0 / (H2_FATIGUE_HOURS_WITHOUT_REST);
+    return 1.0 / FATIGUE_HOURS_WITHOUT_REST;
 }
 
 void h2_DisplayFatigueInfoBar(object oPC)
@@ -462,7 +457,7 @@ void h2_InitFatigueCheck(object oPC)
     int timerID = CreateEventTimer(oPC, H2_FATIGUE_ON_TIMER_EXPIRE, HoursToSeconds(1));
     StartTimer(timerID, FALSE);
 
-    if (_GetIsPC(oPC) && H2_FATIGUE_DISPLAY_INFO_BAR)
+    if (_GetIsPC(oPC) && FATIGUE_DISPLAY_INFO_BAR)
         h2_DisplayFatigueInfoBar(oPC);
 }
 
@@ -524,7 +519,7 @@ void h2_PerformFatigueCheck(object oPC, float fCustomFatigueDecrement = -1.0)
     
     if(_GetIsPC(oPC))
     {
-        if (H2_FATIGUE_DISPLAY_INFO_BAR)
+        if (FATIGUE_DISPLAY_INFO_BAR)
             h2_DisplayFatigueInfoBar(oPC);
 
         if (currFatigue < 0.33 && currFatigue > 0.0)

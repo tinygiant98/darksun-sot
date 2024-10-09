@@ -1,12 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: pw_d_fugue.nss
-//  System: Dynamic Dialogs (library script)
-//     URL: https://github.com/squattingmonk/nwn-core-framework
-// Authors: Michael A. Sinclair (Squatting Monk) <squattingmonk@gmail.com>
-// -----------------------------------------------------------------------------
-// This library contains some example dialogs that show the features of the Core
-// Dialogs system. You can use it as a model for your own dialog libraries.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_d_fugue.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Fugue Library (dialog)
+/// ----------------------------------------------------------------------------
 
 #include "dlg_i_dialogs"
 #include "util_i_library"

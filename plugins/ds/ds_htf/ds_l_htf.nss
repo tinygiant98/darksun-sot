@@ -33,31 +33,31 @@ void OnLibraryLoad()
     object oPlugin = GetPlugin("ds");
 
     // ----- Local Events -----
-    if (H2_USE_HUNGERTHIRST_SYSTEM || H2_USE_FATIGUE_SYSTEM)
+    if (HUNGERTHIRST_ACTIVE || FATIGUE_ACTIVE)
     {
         RegisterEventScripts(oPlugin, AREA_EVENT_ON_ENTER, "ds_htf_OnAreaEnter",                9.0);
         RegisterEventScripts(oPlugin, AREA_EVENT_ON_EXIT,  "ds_htf_OnAreaExit",                 9.0);
     }
 
     // ----- Timer Events -----
-    if (H2_USE_HUNGERTHIRST_SYSTEM || H2_USE_FATIGUE_SYSTEM)
+    if (HUNGERTHIRST_ACTIVE || FATIGUE_ACTIVE)
         RegisterEventScripts(oPlugin, DS_HTF_AREA_ON_TIMER_EXPIRE, "ds_htf_area_OnTimerExpire", 9.0);
 
     // ----- Local Events -----
-    if (H2_USE_HUNGERTHIRST_SYSTEM || H2_USE_FATIGUE_SYSTEM)
+    if (HUNGERTHIRST_ACTIVE || FATIGUE_ACTIVE)
     {
         RegisterLibraryScript("ds_htf_OnAreaEnter",        1);
         RegisterLibraryScript("ds_htf_OnAreaExit",         2);
     }
 
     // ----- Timer Events -----
-    if (H2_USE_HUNGERTHIRST_SYSTEM || H2_USE_FATIGUE_SYSTEM)
+    if (HUNGERTHIRST_ACTIVE || FATIGUE_ACTIVE)
         RegisterLibraryScript("ds_htf_area_OnTimerExpire", 3);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    if (!H2_USE_HUNGERTHIRST_SYSTEM && !H2_USE_FATIGUE_SYSTEM)
+    if (!HUNGERTHIRST_ACTIVE && !FATIGUE_ACTIVE)
         {
             CriticalError("Library function called on inactive system (DS_HTF)");
             return;

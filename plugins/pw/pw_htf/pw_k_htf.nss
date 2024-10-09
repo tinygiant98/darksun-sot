@@ -1,20 +1,14 @@
-// -----------------------------------------------------------------------------
-//    File: pw_k_htf.nss
-//  System: Hunger, Thirst, Fatigue (constants)
-// -----------------------------------------------------------------------------
-// Description:
-//  Constants for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-//                                   Constants
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_k_htf.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Hunger, Thirst, Fatigue Library (constants)
+/// ----------------------------------------------------------------------------
 
 #include "util_i_color"
+
+/// ----------------------------------------------------------------------------
+///                                     CONSTANTS
+/// ----------------------------------------------------------------------------
 
 const string H2_HT_CANTEEN = "h2_canteen";
 const string H2_HT_FOODITEM = "h2_fooditem";
@@ -62,7 +56,9 @@ const string H2_FATIGUE_TIMER_SCRIPT = "ds_htf_ftimer";
 const string H2_FATIGUE_SAVE_COUNT = "H2_FATIGUE_SAVE_COUNT";
 const string H2_FATIGUE_ON_TIMER_EXPIRE = "F_OnTimerExpire";
 
-// ----- Timer Events -----
+/// ----------------------------------------------------------------------------
+///                                     TEXT
+/// ----------------------------------------------------------------------------
 
 const string H2_TEXT_THIRST = "Thirst:    ";
 const string H2_TEXT_HUNGER = "Hunger:  ";

@@ -1,17 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: pw_i_fugue.nss
-//  System: Fugue Death and Resurrection (core)
-// -----------------------------------------------------------------------------
-// Description:
-//  Core functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------
-//                                   Variables
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_i_fugue.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Fugue Library (core)
+/// ----------------------------------------------------------------------------
 
 #include "pw_i_core"
 #include "pw_c_fugue"
@@ -20,8 +11,7 @@
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< _SendPlayerToFugue >---
-// Upon player death, send the PC to the fugue plane and resurrect.
+/// @brief Send the player to the fugue plane and resurrect.
 void h2_SendPlayerToFugue(object oPC);
 
 // -----------------------------------------------------------------------------
@@ -30,7 +20,7 @@ void h2_SendPlayerToFugue(object oPC);
 
 void h2_SendPlayerToFugue(object oPC)
 {
-    object oFugueWP = GetObjectByTag(H2_WP_FUGUE);
+    object oFugueWP = GetObjectByTag(FUGUE_WP);
     SendMessageToPC(oPC, H2_TEXT_YOU_HAVE_DIED);
     ApplyEffectToObject(DURATION_TYPE_INSTANT, EffectResurrection(), oPC);
     ApplyEffectToObject(DURATION_TYPE_INSTANT, EffectHeal(GetMaxHitPoints(oPC)), oPC);

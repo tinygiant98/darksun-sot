@@ -1,26 +1,59 @@
-// -----------------------------------------------------------------------------
-//    File: pw_e_htf.nss
-//  System: Hunger, Thirst, Fatigue (events)
-// -----------------------------------------------------------------------------
-// Description:
-//  Event functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_e_htf.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Hunger, Thirst, Fatigue Library (events)
+/// ----------------------------------------------------------------------------
 
 #include "x2_inc_switches"
+
 #include "pw_i_htf"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
+/// @brief Event handler for module-level OnClientEnter event (ht).
+void hungerthirst_OnClientEnter();
+
+/// @brief Event handler for module-level OnClientEnter event (f).
+void fatigue_OnClientEnter();
+
+/// @brief Event handler for module-level OnPlayerDeath event.
+void hungerthirst_OnPlayerDeath();
+
+/// @brief Event handler for module-level OnPlayerRestFinished event (ht).
+void hungerthirst_OnPlayerRestFinished();
+
+/// @brief Event handler for module-level OnPlayerRestFinished event (f).
+void fatigue_OnPlayerRestFinished();
+
+/// @brief Event handler for OnPlaceableUsed event.
+void htf_OnPlaceableUsed();
+
+/// @brief Event handler for module-level OnTriggerEnter event.
+void hungerthirst_OnTriggerEnter();
+
+/// @brief Event handler for module-level OnTriggerExit event.
+void hungerthirst_OnTriggerExit();
+
+/// @brief Event handler for tag-based script (canteen).
+void htf_canteen();
+
+/// @brief Event handler for tag-based script (fooditem).
+void htf_fooditem();
+
+/// @brief Event handler for timer event (drunk).
+void htf_drunk_OnTimerExpire();
+
+/// @brief Event handler for timer event (ht expiration).
+void htf_ht_OnTimerExpire();
+
+/// @brief Event handler for timer event (f expiration).
+void htf_f_OnTimerExpire();
+
 // -----------------------------------------------------------------------------
 //                             Function Definitions
 // -----------------------------------------------------------------------------
-
-// ----- Module Events -----
 
 void hungerthirst_OnClientEnter()
 {
@@ -29,11 +62,13 @@ void hungerthirst_OnClientEnter()
         h2_InitHungerThirstCheck(oPC);
 }
 
-void fatigue_OnClientEnter()
+void hungerthirst_OnPlayerRestFinished()
 {
-    object oPC = GetEnteringObject();
-    if (!_GetIsDM(oPC))
-        h2_InitFatigueCheck(oPC);
+    object oPC = GetLastPCRested();
+    DeletePlayerFloat(oPC, H2_HT_CURR_ALCOHOL);
+    DeletePlayerInt(oPC, H2_HT_DRUNK_TIMERID);
+
+    KillTimer(GetLocalInt(oPC, H2_HT_DRUNK_TIMERID));
 }
 
 void hungerthirst_OnPlayerDeath()
@@ -42,22 +77,30 @@ void hungerthirst_OnPlayerDeath()
     DeletePlayerFloat(oPC, H2_HT_CURR_THIRST);
     DeletePlayerFloat(oPC, H2_HT_CURR_HUNGER);
     DeletePlayerFloat(oPC, H2_HT_CURR_ALCOHOL);
-    int timerID = GetLocalInt(oPC, H2_HT_DRUNK_TIMERID);
-    KillTimer(timerID);
     DeletePlayerInt(oPC, H2_HT_DRUNK_TIMERID);
     DeletePlayerInt(oPC, H2_HT_IS_DEHYDRATED);
     DeletePlayerInt(oPC, H2_HT_IS_STARVING);
     DeletePlayerInt(oPC, H2_HT_HUNGER_NONLETHAL_DAMAGE);
     DeletePlayerInt(oPC, H2_HT_THIRST_NONLETHAL_DAMAGE);
+
+    KillTimer(GetLocalInt(oPC, H2_HT_DRUNK_TIMERID));
 }
 
-void hungerthirst_OnPlayerRestFinished()
+void hungerthirst_OnTriggerEnter()
 {
-    object oPC = GetLastPCRested();
-    DeletePlayerFloat(oPC, H2_HT_CURR_ALCOHOL);
-    int timerID = GetLocalInt(oPC, H2_HT_DRUNK_TIMERID);
-    KillTimer(timerID);
-    DeletePlayerInt(oPC, H2_HT_DRUNK_TIMERID);
+    SetLocalObject(GetEnteringObject(), H2_HT_TRIGGER, OBJECT_SELF);
+}
+
+void hungerthirst_OnTriggerExit()
+{
+    DeleteLocalObject(GetExitingObject(), H2_HT_TRIGGER);
+}
+
+void fatigue_OnClientEnter()
+{
+    object oPC = GetEnteringObject();
+    if (!_GetIsDM(oPC))
+        h2_InitFatigueCheck(oPC);
 }
 
 void fatigue_OnPlayerRestFinished()
@@ -68,11 +111,6 @@ void fatigue_OnPlayerRestFinished()
     DeletePlayerInt(oPC, H2_FATIGUE_SAVE_COUNT);
 }
 
-//This script should be placed in the on used event
-//of a placeable that acts as a source of food or drink.
-
-//Make this placeable a useable, non-container and assign variables to it
-//in the same way that you would assign variables to an h2_fooditem.
 void htf_OnPlaceableUsed()
 {
     object oPC = GetLastUsedBy();
@@ -81,43 +119,17 @@ void htf_OnPlaceableUsed()
     h2_ConsumeFoodItem(oPC, OBJECT_SELF);
 }
 
-void hungerthirst_OnTriggerEnter()
-{
-    object oPC = GetEnteringObject();
-    SetLocalObject(oPC, H2_HT_TRIGGER, OBJECT_SELF);
-}
-
-void hungerthirst_OnTriggerExit()
-{
-    object oPC = GetExitingObject();
-    DeleteLocalObject(oPC, H2_HT_TRIGGER);
-}
-
-// ----- Tag-based Scripting -----
-
 void htf_canteen()
 {
-    int nEvent = GetUserDefinedItemEventNumber();
-    if (nEvent ==  X2_ITEM_EVENT_ACTIVATE)
-    {
-        object oPC   = GetItemActivator();
-        object oItem = GetItemActivated();
-        h2_UseCanteen(oPC, oItem);
-    }
+    if (GetUserDefinedItemEventNumber() == X2_ITEM_EVENT_ACTIVATE)
+        h2_UseCanteen(GetItemActivator(), GetItemActivated());
 }
 
 void htf_fooditem()
 {
-    int nEvent = GetUserDefinedItemEventNumber();
-    if (nEvent ==  X2_ITEM_EVENT_ACTIVATE)
-    {
-        object oPC   = GetItemActivator();
-        object oItem = GetItemActivated();
-        h2_ConsumeFoodItem(oPC, oItem);
-    }
+    if (GetUserDefinedItemEventNumber() == X2_ITEM_EVENT_ACTIVATE)
+        h2_ConsumeFoodItem(GetItemActivator(), GetItemActivated());
 }
-
-// ----- Timer Events -----
 
 void htf_drunk_OnTimerExpire()
 {

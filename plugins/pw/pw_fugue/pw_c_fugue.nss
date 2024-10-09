@@ -1,24 +1,16 @@
-// -----------------------------------------------------------------------------
-//    File: pw_c_fugue.nss
-//  System: Fugue Death and Resurrection (configuration)
-// -----------------------------------------------------------------------------
-// Description:
-//  Configuration File for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  Set the variables below as directed in the comments for each variable.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_c_fugue.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Fugue Library (configuration)
+/// ----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-//                                   Variables
-// -----------------------------------------------------------------------------
+/// @brief Set this value to TRUE to load the fugue system.
+const int FUGUE_ACTIVE = TRUE;
 
-// Set to false to not use the fugue system.
-const int H2_USE_FUGUE_SYSTEM = TRUE;
+/// @brief Set this value to the object tag of the area object that will be
+///     used as the fugue plane.
+const string FUGUE_PLANE = "h2_fugueplane";
 
-// Tag of the area to be used as the fugue plane.
-const string H2_FUGUE_PLANE = "h2_fugueplane";
-
-// Tag of the waypoint in the fugue plan (H2_FUGUE_PLANE) to send the PC
-//  to upon death.
-const string H2_WP_FUGUE = "H2_FUGUE";
+/// @brief Set this value to the object tag of the waypoint object in this
+///     fugue plane (FUGUE_PLANE above) that the PC will be sent to upon death.
+const string FUGUE_WP = "H2_FUGUE";

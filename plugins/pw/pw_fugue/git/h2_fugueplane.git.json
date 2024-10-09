@@ -1299,7 +1299,7 @@
         },
         "Value": {
           "type": "cexostring",
-          "value": "fugue_OnPlayerExit"
+          "value": "fugue_OnAreaExit"
         }
       }
     ]
