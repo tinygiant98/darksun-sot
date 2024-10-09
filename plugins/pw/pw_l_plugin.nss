@@ -26,8 +26,8 @@ void OnLibraryLoad()
         SetDescription(oPlugin,
             "This plugin controls basic functions of the HCR2-base persistent world system and " +
             "loads all pw subsystems.");
-        LoadLibraries("gren_l_plugin, bus_l_plugin, res_l_plugin, res_l_placeables, " +
-            "res_l_creatures, quest_l_plugin");
+        LoadLibraries("bus_l_plugin, res_l_plugin, res_l_placeables, " +
+            "res_l_creatures");
         LoadLibrariesByPattern("pw_l_*");
 
         // ----- Module Events -----

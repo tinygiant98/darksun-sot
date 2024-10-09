@@ -13,7 +13,7 @@
 #include "util_i_data"
 #include "core_i_framework"
 
-#include "quest_i_main"
+#include "pw_i_quest"
 
 /* Example
 void placeable_tag()

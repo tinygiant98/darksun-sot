@@ -594,21 +594,21 @@ void ChatCommandWebhook(object oPC)
     NWNX_WebHook_SendWebHookHTTPS("discordapp.com", WEBHOOK_CHAT_COMMANDS, sConstructedMsg);
 }
 
-void DebugWebhook(int nLevel, string sMessage, object oTarget)
+void DebugWebhook(int nLevel, string sPrefix, string sMessage, object oTarget)
 {
     string sLevel = IntToString(nLevel); //DebugLevelToString(nLevel);
     string sName = GetName(oTarget);
     string sTag = GetTag(oTarget);
 
-    sMessage = UnColorString(sMessage);
+    sMessage = UnColorString(sPrefix + sMessage);
 
     string sConstructedMsg;
     struct NWNX_WebHook_Message stMessage;
 
-    stMessage.sUsername = "Terminix:  Kills Bugs Dead";
+    stMessage.sUsername = "Terminix: Kills Bugs Dead";
     stMessage.sThumbnailURL = LOGO;
     stMessage.sColor = "#bc8812";
-    stMessage.sTitle = "Error Alert:  **" + sLevel + "**";
+    stMessage.sTitle = "Error Alert: **" + sLevel + "**";
     stMessage.sDescription = sMessage;
     stMessage.sFooterText = GetName(GetModule());
     stMessage.iTimestamp = GetUnixTimeStamp();

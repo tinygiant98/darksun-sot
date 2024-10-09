@@ -1,17 +1,15 @@
-// -----------------------------------------------------------------------------
-//    File: ds_fug_l_plugin.nss
-//  System: Fugue Death and Resurrection (library)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for DS Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-// Jacyn -Added the Registration for the OnPlayerDeath Handler
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_l_fugue.nss
+/// @author Edward Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Fugue System (library)
+/// ----------------------------------------------------------------------------
+
+/// @brief This library handles the Fugue System child plugin.  It is dependent
+///     on, and must be loaded after, the ds management plugin in ds_p_main.
+
+/// This library extends the fugue system by adding an "angel" functionality,
+///     giving a dead player a specified chance to revive in the angel's home.
+///     Additionally, it houses the dialog files for the angel system.
 
 #include "util_i_library"
 #include "util_i_chat"

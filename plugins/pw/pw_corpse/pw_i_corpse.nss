@@ -240,11 +240,11 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
     else //player was offline
     {
         SendMessageToPC(oCaster, H2_TEXT_OFFLINE_RESS_CASTER_FEEDBACK);
-        //SetDatabaseLocation(uniquePCID + H2_RESS_LOCATION, castLoc);
+        SetPersistentLocation(uniquePCID + H2_RESS_LOCATION, castLoc);
 
         if (_GetIsDM(oCaster)) {}
-            //SetDatabaseInt(uniquePCID + H2_RESS_BY_DM, TRUE);
-        //sMessage += H2_TEXT_OFFLINE_PLAYER + " " + GetDatabaseString(uniquePCID);
+            SetPersistentInt(uniquePCID + H2_RESS_BY_DM, TRUE);
+        sMessage += H2_TEXT_OFFLINE_PLAYER + " " + GetPersistentString(uniquePCID);
     }
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);

@@ -37,6 +37,7 @@ void OnLibraryLoad()
         SetName(oPlugin, "[Plugin] DS :: Core");
         SetDescription(oPlugin,
             "This plugin represents the Dark Sun Core functions.");
+        LoadLibrary("ds_rest_l_plugin");
         LoadLibrariesByPattern("ds_l_*");
 
         //Add module level events

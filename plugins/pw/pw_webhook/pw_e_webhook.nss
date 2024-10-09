@@ -97,6 +97,12 @@ void webhook_OnPlayerChat()
     if (_GetIsDM(oPC))
         DMChatWebhook();
 
+    if (HasChatOption(oPC, "test-error"))
+    {
+        Error("Webhook test: Debug Level Error");
+        CriticalError("Webhook test: Debug Level Critical Error");
+    }
+
 
 }
 
@@ -108,11 +114,7 @@ void webhook_OnPlayerChatCommand()
 
 void webhook_OnModuleDebug()
 {
-    int nLevel = PopInt(); //GetArgumentInt();
-    string sMessage = PopString(); //GetArgumentString();
-    object oTarget = OBJECT_SELF;
-
-    DebugWebhook(nLevel, sMessage, oTarget);
+    DebugWebhook(PopInt(), PopString(), PopString(), PopObject());
 }
 
 void webhook_OnHour()

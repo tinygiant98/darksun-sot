@@ -34,7 +34,7 @@ const int TRAVEL_ENCOUNTER_CHANCE_NIGHT = 95;
 //  timer cycle.  The jitter constant will add from 0 seconds to your set
 //  value to the interval.
 const float TRAVEL_ENCOUNTER_TIMER_INTERVAL = 50.0;
-const int   TRAVEL_ENCOUNTER_TIMER_JITTER   = 30;
+const float TRAVEL_ENCOUNTER_TIMER_JITTER   = 30.0;
 
 // This setting will determine the maximum number of encounters that a party can
 //  have when travelling on a single map.  A value of 0 means there is no limit.

@@ -16,10 +16,15 @@
 // -----------------------------------------------------------------------------
 //                                   Variables
 // -----------------------------------------------------------------------------
-// Turn on / off the Angel system
+
+/// @brief Set to TRUE to enable the Angel system.  If this system is not
+///     enabled, all fugue event handling will be accomplished by the base
+///     fugue system in pw_l_fugue.
 const int USE_ANGEL_SYSTEM = FALSE;
 
-// Tag of the area to be used as the Angel's Home.
+/// @brief Set this value to the tag of the area that will act as the
+///     angel's home.  This is the area the dead player will be sent if
+///     they pass the chance check.
 const string ANGEL_PLANE = "angelhome";
 
 // Tag of the waypoint in the Angel's Home to send the PC to upon death.

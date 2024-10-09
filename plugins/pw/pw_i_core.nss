@@ -1108,7 +1108,7 @@ string h2_GetNewUniquePCID()
     int nextID = GetPersistentInt(H2_NEXT_UNIQUE_PC_ID);
     string id = IntToHexString(nextID);
 
-    SetDatabaseInt(H2_NEXT_UNIQUE_PC_ID, ++nextID);
+    SetPersistentInt(H2_NEXT_UNIQUE_PC_ID, ++nextID);
     return id;
 }
 

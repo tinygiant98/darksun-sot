@@ -13,9 +13,7 @@
 // it to use its constants.
 // -----------------------------------------------------------------------------
 
-/*
-// These constants are used by the example code below. Uncomment if you want to
-// use them.
+#include "util_i_argstack"
 
 /// @brief This is the minimum debug level required to trigger custom handling.
 /// @details Setting this to DEBUG_LEVEL_ERROR means OnDebug() will handle only
@@ -23,14 +21,13 @@
 ///     DEBUG_LEVEL_NONE, the user-defined event will never be triggered.
 /// @warning It is not recommended to set this level to DEBUG_LEVEL_NOTICE or
 ///     DEBUG_LEVEL_DEBUG as this could create high message traffic rates.
-const int DEBUG_EVENT_TRIGGER_LEVEL = DEBUG_LEVEL_ERROR;
+const int DEBUG_EVENT_TRIGGER_LEVEL = 2;
 
 // These are varnames for script parameters
 const string DEBUG_PARAM_PREFIX  = "DEBUG_PARAM_PREFIX";
 const string DEBUG_PARAM_MESSAGE = "DEBUG_PARAM_MESSAGE";
 const string DEBUG_PARAM_LEVEL   = "DEBUG_PARAM_LEVEL";
 const string DEBUG_PARAM_TARGET  = "DEBUG_PARAM_TARGET";
-*/
 
 // -----------------------------------------------------------------------------
 //                                 Debug Handler
@@ -56,7 +53,6 @@ const string DEBUG_PARAM_TARGET  = "DEBUG_PARAM_TARGET";
 ///     CriticalError() from this function; that would cause an infinite loop.
 int HandleDebug(string sPrefix, string sMessage, int nLevel, object oTarget)
 {
-    /*
     // The following example code allows an external script to handle the event
     // with access to the appropriate script parameters. Optionally, all event
     // handling can be accomplished directly in this function.
@@ -65,13 +61,13 @@ int HandleDebug(string sPrefix, string sMessage, int nLevel, object oTarget)
     if (!nLevel || nLevel > DEBUG_EVENT_TRIGGER_LEVEL)
         return TRUE;
 
-    SetScriptParam(DEBUG_PARAM_PREFIX,  sPrefix);
-    SetScriptParam(DEBUG_PARAM_MESSAGE, sMessage);
-    SetScriptParam(DEBUG_PARAM_LEVEL,   IntToString(nLevel));
-    SetScriptParam(DEBUG_PARAM_TARGET,  ObjectToString(oTarget));
-    ExecuteScript("mydebugscript", oTarget);
-    return FALSE;
-    */
+    PushString(sPrefix);
+    PushString(sMessage);
+    PushInt(nLevel);
+    PushObject(oTarget);
 
+    ExecuteScript("module_debug", oTarget);
+
+    ClearStacks();
     return TRUE;
 }

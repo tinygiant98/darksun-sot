@@ -12,7 +12,7 @@
 #include "util_i_library"
 #include "core_i_framework"
 
-#include "quest_i_main"
+#include "pw_i_quest"
 
 /* Example
 void creature_tag()

@@ -3,9 +3,10 @@
 // to a much higher value, allowing the framework to fully load.  This must be
 // set before any other framework instructions are run.
 
-#include "util_i_libraries"
+#include "core_i_framework"
 
 void main()
 {
-    RunLibraryScript("webhook_OnModuleDebug", OBJECT_SELF);
+    RunEvent("OnModuleDebug", OBJECT_SELF);
+    //RunLibraryScript("webhook_OnModuleDebug", OBJECT_SELF);
 }
