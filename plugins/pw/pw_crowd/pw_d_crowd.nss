@@ -1,14 +1,13 @@
-// -----------------------------------------------------------------------------
-//    File: pw_d_crowd.nss
-//  System: Dynamic Dialogs (library script)
-//     URL: 
-// Authors: Edward Burke (tinygiant) <af.hog.pilot@gmail.com>
-// -----------------------------------------------------------------------------
-// This library contains some simlple dialogs for the crowd system.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_d_crowd.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Crowd Library (dialog)
+/// ----------------------------------------------------------------------------
 
 #include "dlg_i_dialogs"
+
 #include "util_i_library"
+
 #include "pw_i_crowd"
 
 // -----------------------------------------------------------------------------

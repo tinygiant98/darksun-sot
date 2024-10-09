@@ -1,16 +1,13 @@
-// -----------------------------------------------------------------------------
-//    File: pw_l_crowd.nss
-//  System: Simulated Population (library)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_l_crowd.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Crowd Library (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
-#include "core_i_framework"
+
 #include "pw_e_crowd"
 
 // -----------------------------------------------------------------------------
@@ -18,7 +15,7 @@
 // -----------------------------------------------------------------------------
 void OnLibraryLoad()
 {
-    if (!PW_USE_CROWD_SYSTEM)
+    if (!CROWD_ACTIVE)
         return;
 
     object oPlugin = GetPlugin("pw");
@@ -65,6 +62,8 @@ void OnLibraryScript(string sScript, int nEntry)
 
         // ----- Timer Events -----
         case 5: crowd_OnTimerExpired();   break;
-        default: CriticalError("Library function " + sScript + " not found");
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in pw_l_crowd.nss");
     }
 }

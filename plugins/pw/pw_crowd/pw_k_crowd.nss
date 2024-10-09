@@ -1,23 +1,10 @@
-// -----------------------------------------------------------------------------
-//    File: pw_k_crowd.nss
-//  System: Simulated Population (constants)
-// -----------------------------------------------------------------------------
-// Description:
-//  Constants for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-//                                   Constants
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_k_crowd.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Crowd Library (constants)
+/// ----------------------------------------------------------------------------
 
 #include "util_i_datapoint"
-
-const string sDebugPlugin = "::Crowd System|";
-string dbg;
 
 // CROWDS datapoint contains copies of all the crowd initializer items
 const string CROWD_DATA = "CROWD_DATA";

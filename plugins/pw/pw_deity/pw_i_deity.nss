@@ -4,6 +4,8 @@
 /// @brief  Deity Library (core)
 /// ----------------------------------------------------------------------------
 
+#include "util_i_math"
+
 #include "pw_i_core"
 #include "pw_c_deity"
 #include "pw_k_deity"
@@ -67,7 +69,11 @@ int h2_CheckForDeityRez(object oPC)
     if (deity == "" || deity == "NONE")
         return FALSE;
 
-    float totalpercent = DEITY_REZ_CHANCE_BASE + (GetHitDice(oPC) * DEITY_REZ_CHANCE_PER_LEVEL) * 10.0;
+    float fChance = fclamp(DEITY_REZ_CHANCE_BASE, 0.0, 100.0);
+    float fPerLevel = fclamp(DEITY_REZ_CHANCE_PER_LEVEL, 0.0, 100.0);
+
+    float totalpercent = fChance + (GetHitDice(oPC) * fPerLevel) * 10.0;
+    totalpercent = fclamp(totalpercent, 0.0, 1000.0);
     int random = Random(1000);
     
     if (totalpercent > random * 1.0)
