@@ -1,13 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: pw_e_loot.nss
-//  System: PC Corspe Loot (events)
-// -----------------------------------------------------------------------------
-// Description:
-//  Event functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_e_loot.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Loot Library (events)
+/// ----------------------------------------------------------------------------
 
 #include "pw_i_loot"
 
@@ -15,20 +10,18 @@
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< loot_OnPlayerDying >---
-// Registered as a library and event script in loot_l_plugin.  This function
-//  will execute on the module-level OnPlayerDying event.  This function creates
-//  the PC's lootbag and fills it with non-equipped items.
+/// @brief Event handler for module-level OnPlayerDying event.  Creates the
+///     loot placeable and transfers the player character's non-equipped item
+///     inventory to the placeable inventory.
 void loot_OnPlayerDying();
 
-// ---< loot_OnPlayerDeath >---
-// Registered as a library and event script in loot_l_plugin.  This function
-//  will execute on the module-level OnPlayerDeath event.  This function creates
-//  the PC's lootbag and fills it will all items in PC's inventory.
+/// @brief Event handler for module-level OnPlayerDeath event.  Creates the
+///     loot placeable and transfers the player character's inventory to the
+///     placeable inventory.
 void loot_OnPlayerDeath();
 
-// ---< loot_OnPlaceableClose >---
-// Run from loot placeable to destroy the lootbag once it's empty.
+/// @brief Event handler for OnPlaceableClose event.  Destroys the loot
+///     placeable once it's inventory is empty.
 void loot_OnPlaceableClose();
 
 // -----------------------------------------------------------------------------

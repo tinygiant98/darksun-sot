@@ -1,13 +1,10 @@
-// -----------------------------------------------------------------------------
-//    File: pw_i_loot.nss
-//  System: UnID Item on Drop (core)
-// -----------------------------------------------------------------------------
-// Description:
-//  Core functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_i_loot.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Loot Library (core)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "pw_i_core"
 #include "pw_c_loot"
@@ -16,8 +13,8 @@
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< h2_CreateLootBag >---
-//Creates an item to hold the items of oPC while they are dead or dying.
+/// @brief Create the placeable object that will hold all items looted from
+///     a dying or dead player character.
 object h2_CreateLootBag(object oPC);
 
 // -----------------------------------------------------------------------------
@@ -26,15 +23,17 @@ object h2_CreateLootBag(object oPC);
 
 object h2_CreateLootBag(object oPC)
 {
-    object oLootBag = GetLocalObject(oPC, H2_LOOT_BAG);
+    object oLootBag = GetLocalObject(oPC, LOOT_PLACEABLE);
     location lLootBag = GetLocation(oLootBag);
     location lPlayer = GetLocation(oPC);
     
     if (!GetIsObjectValid(oLootBag) || GetDistanceBetweenLocations(lPlayer, lLootBag) > 3.0 ||
         GetAreaFromLocation(lLootBag) != GetArea(oPC))
     {
-        oLootBag = CreateObject(OBJECT_TYPE_PLACEABLE, H2_LOOT_BAG, GetLocation(oPC));
-        SetLocalObject(oPC, H2_LOOT_BAG, oLootBag);
+        oLootBag = CreateObject(OBJECT_TYPE_PLACEABLE, LOOT_PLACEABLE, GetLocation(oPC));
+        SetLocalObject(oPC, LOOT_PLACEABLE, oLootBag);
+        HookObjectEvents(oLootBag, TRUE, FALSE);
+        SetLocalString(oLootBag, PLACEABLE_EVENT_ON_CLOSE, "loot_OnPlaceableClose");
     }
 
     return oLootBag;

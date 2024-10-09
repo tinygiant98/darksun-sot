@@ -1,21 +1,13 @@
-// -----------------------------------------------------------------------------
-//    File: pw_c_loot.nss
-//  System: PC Corpse Loot (configuration)
-// -----------------------------------------------------------------------------
-// Description:
-//  Configuration File for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  Set the constants below as directed in the comments for each constant.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_c_loot.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Loot Library (configuration)
+/// ----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-//                                   Variables
-// -----------------------------------------------------------------------------
+/// @brief Set this value to TRUE to load the loot system.
+const int LOOT_ACTIVE = FALSE;
 
-// Set this to false if you don't want to use the loot system.
-const int H2_USE_LOOT_SYSTEM = FALSE;
-
-//This is the resref of the item that will be used to hold all items that are
-//  looted from the PC corpse when the PC is dying or dead.
-const string H2_LOOT_BAG = "h2_lootbag";
+/// @brief Set this value to the resref of the placeable object that will be
+///     used to hold all items that are looted from the player character
+///     corpse when the player character is dying or dead.
+const string LOOT_PLACEABLE = "h2_lootbag";

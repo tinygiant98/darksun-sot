@@ -1,16 +1,13 @@
-// -----------------------------------------------------------------------------
-//    File: pw_l_loot.nss
-//  System: PC Corpse Loot (library)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_l_loot.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Loot Library (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
-#include "core_i_framework"
+
 #include "pw_e_loot"
 
 // -----------------------------------------------------------------------------
@@ -19,7 +16,7 @@
 
 void OnLibraryLoad()
 {
-    if (!H2_USE_LOOT_SYSTEM)
+    if (!LOOT_ACTIVE)
         return;
 
     object oPlugin = GetPlugin("pw");
