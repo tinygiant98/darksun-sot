@@ -6,7 +6,7 @@
 
 #include "pw_i_core"
 
-#include "ds_i_const"
+#include "ds_k_core"
 #include "pw_i_fugue"
 #include "ds_c_fugue"
 

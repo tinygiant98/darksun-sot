@@ -18,7 +18,7 @@
 //   Summary:
 // -----------------------------------------------------------------------------
 
-#include "ds_i_const"
+#include "ds_k_core"
 #include "pw_i_htf"
 #include "ds_k_htf"
 #include "ds_c_htf"

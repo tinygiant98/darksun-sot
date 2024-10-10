@@ -1,26 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: ds_k_travel.nss
-//  System: Travel (constants)
-//     URL: 
-// Authors: Edward A. Burke (tinygiant) <af.hog.pilot@gmail.com>
-// -----------------------------------------------------------------------------
-// Description:
-//  Constants for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
-// Acknowledgment:
-// -----------------------------------------------------------------------------
-//  Revision:
-//      Date:
-//    Author:
-//   Summary:
-// -----------------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------
-//                                   Constants
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_k_travel.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Travel Library (constants)
+/// ----------------------------------------------------------------------------
 
 // TODO clean up these constants
 
@@ -70,9 +52,3 @@ struct TRAVEL_ENCOUNTER
     string sSecondaryWaypoints;
     string sSpawnPoints;
 };
-
-
-
-
-//const string TRAVEL_ENCOUNTER_ACTIVE = "TRAVEL_ENCOUNTER_ACTIVE";
-const string TRAVEL_ENCOUNTER_AREA = "TRAVEL_ENCOUNTER_AREA";

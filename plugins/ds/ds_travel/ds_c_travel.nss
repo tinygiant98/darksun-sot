@@ -1,26 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: ds_c_travel.nss
-//  System: Travel (configuration)
-//     URL: 
-// Authors: Edward A. Burke (tinygiant) <af.hog.pilot@gmail.com>
-// -----------------------------------------------------------------------------
-// Description:
-//  Configuration File for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  Set the constants below as directed in the comments for each constant.
-// -----------------------------------------------------------------------------
-// Acknowledgment:
-// -----------------------------------------------------------------------------
-//  Revision:
-//      Date:
-//    Author:
-//   Summary:
-// -----------------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------
-//                                   Variables
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_c_travel.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Travel Library (configuration)
+/// ----------------------------------------------------------------------------
 
 // The party has a set chance to have an encounter during their overland travel.
 //  these settings determine what those chances are.  Setting both of these to

@@ -1,28 +1,14 @@
-// -----------------------------------------------------------------------------
-//    File: ds_l_plugin.nss
-//  System: Dark Sun Core System (library)
-//     URL: 
-// Authors: Edward A. Burke (tinygiant) <af.hog.pilot@gmail.com>
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
-// Acknowledgment:
-// This script is a copy of Edward Becks HCR2 script h2_core_i modified and renamed
-//  to work under Michael Sinclair's (Squatting Monk) core-framework system and
-//  for use in the Dark Sun Persistent World.  Some of the HCR2 pw functions
-//  have been removed because they are duplicates from the core-framework or no
-//  no longer applicable to the pw system within the core-framework.
-// -----------------------------------------------------------------------------
-// Revisions:
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_p_core.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Dark Sun PW (plugin)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
-#include "core_i_framework"
-#include "ds_i_main"
+
+#include "ds_i_core"
 
 // -----------------------------------------------------------------------------
 //                               Library Dispatch

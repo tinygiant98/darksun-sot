@@ -1,32 +1,22 @@
-// -----------------------------------------------------------------------------
-//    File: ds_i_travel.nss
-//  System: UnID Item on Drop (core)
-//     URL: 
-// Authors: Edward A. Burke (tinygiant) <af.hog.pilot@gmail.com>
-// -----------------------------------------------------------------------------
-// Description:
-//  Core functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
-// Acknowledgment:
-// -----------------------------------------------------------------------------
-//  Revision:
-//      Date:
-//    Author:
-//   Summary:
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_i_travel.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Travel Library (core)
+/// ----------------------------------------------------------------------------
 
-#include "ds_c_travel"
-#include "ds_k_travel"
-#include "ds_i_const"
-#include "util_i_data"
 #include "core_i_constants"
+
+#include "util_i_data"
+#include "util_i_varlists"
+
+#include "pw_i_core"
 #include "pw_i_corpse"
 #include "pw_i_loot"
-#include "pw_i_core"
-#include "util_i_varlists"
+
+#include "ds_k_core"
+#include "ds_c_travel"
+#include "ds_k_travel"
+
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes

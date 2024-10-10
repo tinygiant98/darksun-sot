@@ -1,11 +1,8 @@
-/*******************************************************************************
-* Description:  Add-on constants and functions for the Dark Sun Module
-  Usage:        Include in scripts where these add-on constants and functions
-                will be called
-********************************************************************************
-* Created By:   Melanie Graham (Nairn)
-* Created On:   2019-04-13
-*******************************************************************************/
+/// ----------------------------------------------------------------------------
+/// @file   ds_k_core.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Dark Sun PW (constants)
+/// ----------------------------------------------------------------------------
 
 #include "util_i_datapoint"
 
@@ -24,6 +21,12 @@ const int DS_RACIAL_TYPE_MUL =        31;
 const int DS_RACIAL_TYPE_HUMAN =      32;
 const int DS_RACIAL_TYPE_HALFGIANT =  33;
 const int DS_RACIAL_TYPE_TAREK =      34;
+
+//Other
+const float DS_DOOR_CLOSE_DELAY = 5.0;
+
+//const string TRAVEL_ENCOUNTER_ACTIVE = "TRAVEL_ENCOUNTER_ACTIVE";
+const string TRAVEL_ENCOUNTER_AREA = "TRAVEL_ENCOUNTER_AREA";
 
 // Area Type Constants
 const int DS_AREATYPE_BOULDERFIELD =  1;
@@ -64,6 +67,3 @@ const int DS_AREATRAVELCOST_SALTMARSH =       33;
 const int DS_AREATRAVELCOST_SANDYWASTE =      33;
 const int DS_AREATRAVELCOST_SCRUBPLAIN =      25;
 const int DS_AREATRAVELCOST_STONYBARREN =     33;
-
-//Other
-const float DS_DOOR_CLOSE_DELAY = 5.0;

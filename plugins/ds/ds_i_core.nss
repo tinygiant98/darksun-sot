@@ -1,5 +1,12 @@
-#include "nwnx_admin"
+/// ----------------------------------------------------------------------------
+/// @file   ds_i_core.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Dark Sun PW (core)
+/// ----------------------------------------------------------------------------
+
 #include "core_i_framework"
+
+#include "nwnx_admin"
 
 void ds_DelayStableEvent()
 {
