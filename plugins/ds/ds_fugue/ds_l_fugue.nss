@@ -21,15 +21,22 @@ void OnLibraryLoad()
     if (!ANGEL_ACTIVE)
         return;
 
-    object oPlugin = GetPlugin("ds");
+    if (GetIfPluginExists("ds"))
+    {
+        object oPlugin = GetPlugin("ds");
 
-    // ----- Module Events -----
-    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "ds_fug_OnPlayerDeath", 4.1);
+        // ----- Module Events -----
+        RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "ds_fug_OnPlayerDeath", 4.1);
 
-    // ----- Module Scripts -----
-    RegisterLibraryScript("ds_fug_OnPlayerDeath", 1);
+        // ----- Module Scripts -----
+        RegisterLibraryScript("ds_fug_OnPlayerDeath", 1);
 
-    LoadLibrary("ds_d_fugue");
+        LoadLibrary("ds_d_fugue");
+    }
+    else
+    {
+        CriticalError("ds_fugue library not loaded; ds plugin cannot be found.");
+    }
 }
 
 void OnLibraryScript(string sScript, int nEntry)
@@ -37,7 +44,8 @@ void OnLibraryScript(string sScript, int nEntry)
     switch (nEntry)
     {
         case 1: ds_fug_OnPlayerDeath(); break;
-
-        default: CriticalError("Library function " + sScript + " not found");
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in ds_l_fugue.nss");
     }
 }

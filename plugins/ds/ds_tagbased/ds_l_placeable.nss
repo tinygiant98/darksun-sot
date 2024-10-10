@@ -1,21 +1,17 @@
-// -----------------------------------------------------------------------------
-//    File: ds_l_placeable.nss
-//  System: Event Management
-// -----------------------------------------------------------------------------
-// Description:
-//  Library Functions and Dispatch
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_l_placeable.nss
+/// @author Edward Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Tagbased Scripting (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
 #include "util_i_data"
-#include "core_i_framework"
 
 #include "pw_i_quest"
 
-/* Example
+/*
 void placeable_tag()
 {
     string sEvent = GetName(GetCurrentEvent());
@@ -120,15 +116,32 @@ void quest_deliver_wagon()
 
 void OnLibraryLoad()
 {
-    RegisterLibraryScript("quest_deliver_wagon", 1);
+    int n;
+    // n = 0; quest placeables
+    RegisterLibraryScript("quest_deliver_wagon", n++);
+    
+    n = 100;
+    //RegisterLibraryScript("placeable_tag", n++);
+
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        case 1: quest_deliver_wagon(); break;
-        
-        default: CriticalError("Library function " + sScript + " not found");
+        case 0:
+        {
+            if      (nEntry == n++) quest_deliver_wagon();
+            //else if (nEntry == n++) something_else();
+        } break;
+        case 100:
+        {
+            //if      (nEntry == n++) placeable_tag();
+            //else if (nEntry == n++) something_else();
+        }
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in ds_l_placeable.nss");
     }
 }

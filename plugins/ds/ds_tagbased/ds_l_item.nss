@@ -1,18 +1,15 @@
-// -----------------------------------------------------------------------------
-//    File: ds_l_item.nss
-//  System: Event Mangament
-// -----------------------------------------------------------------------------
-// Description:
-//  Library Functions and Dispatch
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_l_item.nss
+/// @author Edward Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Tagbased Scripting (library)
+/// ----------------------------------------------------------------------------
 
-#include "util_i_library"
 #include "core_i_framework"
 
-/* Example
+#include "util_i_library"
+#include "util_i_data"
+
+/*
 void item_tag()
 {
     int nEvent = GetUserDefinedItemEventNumber();
@@ -57,15 +54,22 @@ void item_tag()
 
 void OnLibraryLoad()
 {
-    // RegisterLibraryScript("item_tag", 1);
+    int n;
+    // RegisterLibraryScript("item_tag", n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        // case 1:  item_tag();           break;
-        
-        default: CriticalError("Library function " + sScript + " not found");
+        case 0:
+        {
+            //if      (nEntry == n++) item_tag();
+            //else if (nEntry == n++) something_else();
+        } break;
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in ds_l_item.nss");
     }
 }

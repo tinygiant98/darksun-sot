@@ -1,19 +1,15 @@
-// -----------------------------------------------------------------------------
-//    File: ds_l_area.nss
-//  System: Event Management
-// -----------------------------------------------------------------------------
-// Description:
-//  Library Functions and Dispatch
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_l_area.nss
+/// @author Edward Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Tagbased Scripting (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
 #include "util_i_data"
-#include "core_i_framework"
 
-/* Sample ===
+/*
 void area_tag()
 {
     string sEvent = GetName(GetCurrentEvent());
@@ -51,15 +47,22 @@ void area_tag()
 
 void OnLibraryLoad()
 {
-    // RegisterLibraryScript("area_tag", 1);
+    int n;
+    // RegisterLibraryScript("area_tag", n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        // case 1:  area_tag();           break;
-        
-        default: CriticalError("Library function " + sScript + " not found");
+        case 0:
+        {
+            //if      (nEntry == n++) area_tag();
+            //else if (nEntry == n++) something_else();
+        } break;
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in ds_l_area.nss");
     }
 }

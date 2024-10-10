@@ -1,22 +1,19 @@
-// -----------------------------------------------------------------------------
-//    File: ds_l_aoe.nss
-//  System: Event Management
-// -----------------------------------------------------------------------------
-// Description:
-//  Library Functions and Dispatch
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_l_aoe.nss
+/// @author Edward Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Tagbased Scripting (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
 #include "util_i_data"
-#include "core_i_framework"
 
-/* Example
+
+/*
 void aoe_tag()
 {
-    string sEvent = GetName(GetCurrentEvent());
+    string sEvent = GetCurrentEvent();
     object oPC, oAOE = OBJECT_SELF;
 
     if (sEvent == AOE_EVENT_ON_ENTER)
@@ -42,15 +39,22 @@ void aoe_tag()
 
 void OnLibraryLoad()
 {
-    // RegisterLibraryScript("aoe_tag", 1);
+    int n;
+    // RegisterLibraryScript("aoe_tag", n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        // case 1:  aoe_tag();           break;
-        
-        default: CriticalError("Library function " + sScript + " not found");
+        case 0:
+        {
+            //if      (nEntry == n++) aoe_tag();
+            //else if (nEntry == n++) something_else();
+        } break;
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in ds_l_aoe.nss");
     }
 }

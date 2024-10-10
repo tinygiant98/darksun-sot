@@ -1,20 +1,16 @@
-// -----------------------------------------------------------------------------
-//    File: ds_l_creature.nss
-//  System: Event Mangament
-// -----------------------------------------------------------------------------
-// Description:
-//  Library Functions and Dispatch
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_l_creature.nss
+/// @author Edward Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Tagbased Scripting (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
-#include "core_i_framework"
 
 #include "pw_i_quest"
 
-/* Example
+/*
 void creature_tag()
 {
     string sEvent = GetName(GetCurrentEvent());
@@ -138,17 +134,25 @@ void nw_oldman()
 
 void OnLibraryLoad()
 {
-    RegisterLibraryScript("NW_GOBLINA", 1);
-    RegisterLibraryScript("NW_OLDMAN", 2);
+    int n;
+
+    // n = 0; quest creatures
+    RegisterLibraryScript("NW_GOBLINA",  n++);
+    RegisterLibraryScript("NW_OLDMAN",   n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        case 1:  nw_goblina(); break;
-        case 2:  nw_oldman(); break;
-        
-        default: CriticalError("Library function " + sScript + " not found");
+        case 0:
+        {
+            if      (nEntry == n++) nw_goblina();
+            else if (nEntry == n++) nw_oldman();
+        } break;
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in ds_l_creature.nss");
     }
 }

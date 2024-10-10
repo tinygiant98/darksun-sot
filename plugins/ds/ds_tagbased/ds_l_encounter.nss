@@ -1,17 +1,14 @@
-// -----------------------------------------------------------------------------
-//    File: ds_l_encounter.nss
-//  System: Event Management
-// -----------------------------------------------------------------------------
-// Description:
-//  Library Functions and Dispatch
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_l_encounter.nss
+/// @author Edward Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Tagbased Scripting (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
 #include "util_i_data"
-#include "core_i_framework"
+
 
 /* Example
 void encounter_tag()
@@ -50,15 +47,22 @@ void encounter_tag()
 
 void OnLibraryLoad()
 {
-    // RegisterLibraryScript("encounter_tag", 1);
+    int n;
+    // RegisterLibraryScript("encounter_tag", n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        // case 1:  encounter_tag();           break;
-        
-        default: CriticalError("Library function " + sScript + " not found");
+        case 0:
+        {
+            //if      (nEntry == n++) encounter_tag();
+            //else if (nEntry == n++) something_else();
+        } break;
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in ds_l_encounter.nss");
     }
 }

@@ -1,19 +1,15 @@
-// -----------------------------------------------------------------------------
-//    File: ds_l_trap.nss
-//  System: Event Management
-// -----------------------------------------------------------------------------
-// Description:
-//  Library Functions and Dispatch
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_l_trap.nss
+/// @author Edward Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Tagbased Scripting (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
 #include "util_i_data"
-#include "core_i_framework"
 
-/* Example
+/*
 void trap_tag()
 {
     string sEvent = GetName(GetCurrentEvent());
@@ -38,15 +34,23 @@ void trap_tag()
 
 void OnLibraryLoad()
 {
-    // RegisterLibraryScript("trap_tag", 1);
+    int n;
+    // RegisterLibraryScript("trap_tag", n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        // case 1:  trap_tag();           break;
-        
-        default: CriticalError("Library function " + sScript + " not found");
+        case 0:
+        {
+            //if      (nEntry == n++) trap_tag();
+            //else if (nEntry == n++) something_else();
+        } break;
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in ds_l_trap.nss");
     }
 }
+
