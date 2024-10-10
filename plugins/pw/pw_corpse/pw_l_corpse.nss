@@ -1,16 +1,13 @@
-// -----------------------------------------------------------------------------
-//    File: pw_l_corpse.nss
-//  System: PC Corpse (library)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_l_corpse.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Corpse Library (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
-#include "core_i_framework"
+
 #include "pw_e_corpse"
 
 // -----------------------------------------------------------------------------
@@ -19,7 +16,7 @@
 
 void OnLibraryLoad()
 {
-    if (!H2_USE_CORPSE_SYSTEM)
+    if (!CORPSE_ACTIVE)
         return;
 
     object oPlugin = GetPlugin("pw");
@@ -52,6 +49,8 @@ void OnLibraryScript(string sScript, int nEntry)
         
         // ----- Tag-based Scripting -----
         case 4:  corpse_pccorpseitem(); break;
-        default: CriticalError("Library function " + sScript + " not found");
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in pw_l_crowd.nss");
     }
 }

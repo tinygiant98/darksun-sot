@@ -1,13 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: pw_e_corpse.nss
-//  System: PC Corpse (events)
-// -----------------------------------------------------------------------------
-// Description:
-//  Event functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_e_corpse.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Corpse Library (events)
+/// ----------------------------------------------------------------------------
 
 #include "pw_i_corpse"
 
@@ -15,32 +10,23 @@
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ----- Module Events -----
-
-// ---< corpse_OnClientEnter >---
-// This function is library and event registered on the module-level
-//  OnClientEnter event.  This function ensures a PC is resurrected if
-//  their corpse item was resurrected while logged out and ensure they
-//  do not have corpse items in their inventory
+/// @brief Handler for OnClientEnter.  Ensures a PC is resurrected if their
+///     corpse item was resurrected while logged out and ensures they do not
+///     have corpse items in their inventory.
 void corpse_OnClientEnter();
 
-// ---< corpse_OnClientLeave >---
-// This function is library and event registered on the module-level
-//  OnClientLeave event.  This function ensures a player does not log
-//  out with a corpse item in their inventory.
+/// @brief Handler for OnClientLeave.  Ensures a PC does not log out with a
+///     corpse item in their inventory.
 void corpse_OnClientLeave();
 
-// ---< corpse_OnPlayerDeath >---
-// This function is library and event registered on the module-level
-//  OnPlayerDeath event.  This function creates the PC corpse upon
-//  player death.
+/// @brief Handler for OnPlayerDeath.  Creates a corpse upon player death.
 void corpse_OnPlayerDeath();
 
-// ----- Tag-based Scripting -----
+/// @brief Handler for OnPlayerLives.  Cleans up all corpse-related objects.
+void corpse_OnPlayerLives();
 
-// ---< corpse_pccorpseitem >---
-// This function is library registered as a tag-based scripting function and
-//  handles all actions required for use of the PC corpse item.
+/// @brief Handler for corpse item tag-based scripting.  Handles all actions
+///     required for use of the corpse item.
 void corpse_pccorpseitem();
 
 // -----------------------------------------------------------------------------
@@ -52,10 +38,10 @@ void corpse_pccorpseitem();
 void corpse_OnClientEnter()
 {
     object oPC = GetEnteringObject();
-    //string sUniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    //location lRessLoc = GetDatabaseLocation(sUniquePCID + H2_RESS_LOCATION);
-    //if (h2_GetIsLocationValid(lRessLoc))
-    //    h2_PerformOffLineRessurectionLogin(oPC, lRessLoc);
+    string sUniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
+    location lRessLoc = GetPersistentLocation(sUniquePCID + H2_RESS_LOCATION);
+    if (h2_GetIsLocationValid(lRessLoc))
+        h2_PerformOffLineRessurectionLogin(oPC, lRessLoc);
 
     object oItem = GetFirstItemInInventory(oPC);
     while (GetIsObjectValid(oItem))
