@@ -1,53 +1,46 @@
-// -----------------------------------------------------------------------------
-//    File: pw_e_torch.nss
-//  System: Torch and Lantern (events)
-// -----------------------------------------------------------------------------
-// Description:
-//  Event functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_e_torch.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Torch Library (events)
+/// ----------------------------------------------------------------------------
 
 #include "x2_inc_switches"
-#include "pw_i_torch"
+
 #include "util_i_override"
 #include "util_i_csvlists"
+
+#include "pw_i_torch"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< torch_OnSpellHook >---
-// This function is a library and event registered script for the module
-//  level event OnSpellHook.  This function provides a chance of failure for
-//  lighting an oil flask.
+/// @brief Event handler for OnSpellHook. Provides a chance of failure for
+///     lighting an oil flask.
 void torch_OnSpellHook();
 
-// ---< torch_oilflask >---
-// This function is tag-based scripting used to refill an empty lantern
+/// @brief Event handler for oilflask tag-based scriptin.  Refills an empty
+///     lantern.
 void torch_oilflask();
 
-// ---< torch_torch >---
-// This function is tag-based scripting used to add or remove light from the
-//  torch when it is equipped/unequipped.
+/// @brief Event handler for torch tag-based scripting.  Adds or removes light
+///     sourch from the torch when equipped/unequipped.
 void torch_torch();
 
-// ---< torch_OnTimerExpire >---
-// This function turns off the equipped light source permanently, forcing the
-// PC to either replace the torch or refill the lantern.
+/// @brief Event handler for torch timer expiration.  Turns off the equipped
+///     light source permanentl, forcing the player character to either
+///     replace the torch or refill the lantern.
+void torch_OnTimerExpire();
 
 // -----------------------------------------------------------------------------
 //                             Function Definitions
 // -----------------------------------------------------------------------------
 
-// ----- Module Events -----
-
 void torch_OnSpellHook()
 {
     object oItem = GetSpellCastItem();
     int spellID = GetSpellId();
-    if (GetTag(oItem) == H2_OILFLASK && GetSpellId() == SPELL_GRENADE_FIRE)
+    if (HasListItem(OILFLASK_TAG, GetTag(oItem)) && GetSpellId() == SPELL_GRENADE_FIRE)
     {
         if (d2() == 1)
         {
@@ -67,7 +60,7 @@ void torch_OnClientLeave()
     {
         oItem = GetItemInSlot(i, oPC);
         sItem = GetTag(oItem);
-        if (sItem == H2_TORCH || sItem == H2_LANTERN)
+        if (HasListItem(TORCH_TAG, sItem) || HasListItem(LANTERN_TAG, sItem))
         {
             AssignCommand(oPC, ActionUnequipItem(oItem));
             return;
@@ -95,10 +88,8 @@ void torch_OnClientEnter()
         }
     }
 
-    DelayCommand(1.0, _CreateItemOnObject(H2_TORCH, oPC, n));
+    DelayCommand(1.0, _CreateItemOnObject(GetListItem(TORCH_TAG), oPC, n));
 }
-
-// ----- Tag-based Scripting -----
 
 void torch_oilflask()
 {
@@ -112,7 +103,7 @@ void torch_oilflask()
         object oTarget = GetItemActivatedTarget();
         if (GetIsObjectValid(oTarget))
         {
-            if (GetTag(oTarget) == H2_LANTERN)
+            if (HasListItem(LANTERN_TAG, GetTag(oTarget)))
             {
                 h2_FillLantern(oItem, oTarget);
                 return;
@@ -126,16 +117,13 @@ void torch_oilflask()
 void torch_torch()
 {
     int nEvent = GetUserDefinedItemEventNumber();
-
     if (nEvent ==  X2_ITEM_EVENT_EQUIP)
-        h2_EquippedLightSource(GetTag(GetPCItemLastEquipped()) == H2_LANTERN);
+        h2_EquippedLightSource(HasListItem(LANTERN_TAG, GetTag(GetPCItemLastEquipped())));
     else if (nEvent == X2_ITEM_EVENT_UNEQUIP)
-        h2_UnEquipLightSource(GetTag(GetPCItemLastUnequipped()) == H2_LANTERN);
+        h2_UnEquipLightSource(HasListItem(LANTERN_TAG, GetTag(GetPCItemLastUnequipped())));
 }
-
-// ----- Timer Events -----
 
 void torch_OnTimerExpire()
 {
-    h2_BurnOutLightSource(OBJECT_SELF, GetTag(OBJECT_SELF) == H2_LANTERN);
+    h2_BurnOutLightSource(OBJECT_SELF, HasListItem(LANTERN_TAG, GetTag(OBJECT_SELF)));
 }

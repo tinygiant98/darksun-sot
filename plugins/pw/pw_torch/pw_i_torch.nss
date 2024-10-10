@@ -1,51 +1,48 @@
-// -----------------------------------------------------------------------------
-//    File: pw_i_torch.nss
-//  System: Torch and Lantern (core)
-// -----------------------------------------------------------------------------
-// Description:
-//  Core functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_i_torch.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Torch Library (core)
+/// ----------------------------------------------------------------------------
 
+#include "util_i_time"
+
+#include "pw_i_core"
 #include "pw_c_torch"
 #include "pw_k_torch"
-#include "pw_i_core"
-#include "util_i_time"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< h2_RemoveLight >---
-// Removes ITEM_PROPERTY_LIGHT from the passed object, if it exists.
+/// @brief Removes ITEM_PROPERTY_LIGHT from the passed object, if it exists.
+/// @param oLantern The object to remove the light property from.
 void h2_RemoveLight(object oLantern);
 
-// ---< h2_AddLigt >---
-// Adds ItemPropertyLight of normal brightness and color white to the passed
-//  object.
+/// @brief Adds ItemPropertyLight of normal brightness and color white.
+/// @param oLantern The object to add the light property to.
 void h2_AddLight(object oLantern);
 
-// ---< h2_EquippedLightSource >---
-// When a PC uses a light source (torch/lantern), this function determines if it
-//  has the necessary fuel (if required) and how much burn time is remaining.
+/// @brief Determines if a light source has the necessary fuel and how much
+///     burn time is remaining.
+/// @param isLantern TRUE/FALSE Whether the light source is a lantern.
 void h2_EquippedLightSource(int isLantern);
 
-// ---< h2_UnEquipLightSource >---
-// When a PC stops using a light source, this function sets the appropriate
-//  time variables and kills the associted timer.
+/// @brief When a PC stops using a light source, this function sets the appropriate
+///     time variables and kills the associated timer.
+/// @param isLantern TRUE/FALSE Whether the light source is a lantern.
 void h2_UnEquipLightSource(int isLantern);
 
-// ---< h2_BurnOutLightSource >---
-// When a light source can no longer function (fuel/time), this function removes
-//  the light source itemproperty and either unequips or destroys the light
-//  source, depending on the type (lantern = unequip, torch = destroy)
+/// @brief When a light source can no longer function (fuel/time), this function removes
+///     the light source itemproperty and either unequips or destroys the light
+///     source, depending on the type (lantern = unequip, torch = destroy).
+/// @param oLight The light source object.
+/// @param isLantern TRUE/FALSE Whether the light source is a lantern.
 void h2_BurnOutLightSource(object oLight, int isLantern);
 
-// ---< h2_FillLantern >---
-// When a lantern requires oil, this function will add burn time to the lantern
-//  and destroy the oil flask used to fill it.  
+/// @brief When a lantern requires oil, this function will add burn time to the lantern
+///     and destroy the oil flask used to fill it.
+/// @param oOilFlask The oil flask object.
+/// @param oLantern The lantern object.
 void h2_FillLantern(object oOilFlask, object oLantern);
 
 // -----------------------------------------------------------------------------
@@ -65,15 +62,15 @@ void h2_RemoveLight(object oLantern)
 
 void h2_AddLight(object oLantern)
 {
-    itemproperty light = ItemPropertyLight(IP_CONST_LIGHTBRIGHTNESS_NORMAL, IP_CONST_LIGHTCOLOR_WHITE);
-    AddItemProperty(DURATION_TYPE_PERMANENT, light, oLantern);
+    itemproperty ip = ItemPropertyLight(IP_CONST_LIGHTBRIGHTNESS_NORMAL, IP_CONST_LIGHTCOLOR_WHITE);
+    AddItemProperty(DURATION_TYPE_PERMANENT, ip, oLantern);
 }
 
 void h2_EquippedLightSource(int isLantern)
 {
     object oLight = GetPCItemLastEquipped();
     object oPC = GetPCItemLastEquippedBy();
-    int burncount = H2_TORCH_BURN_COUNT;
+    int nBurnTime = TORCH_BURN_COUNT;
 
     if (isLantern)
     {
@@ -82,13 +79,13 @@ void h2_EquippedLightSource(int isLantern)
             SendMessageToPC(oPC, H2_TEXT_LANTERN_OUT);
             return;
         }
-        burncount = H2_LANTERN_BURN_COUNT;
+        nBurnTime = LANTERN_BURN_COUNT;
     }
     
     SetLocalString(oLight, H2_LIGHT_EQUIPPED, GetSystemTime());
     int elapsedBurn = GetLocalInt(oLight, H2_ELAPSED_BURN);
-    int burnLeft = burncount - elapsedBurn;
-    float percentRemaining = (IntToFloat(burnLeft) / IntToFloat(burncount)) * 100.0;
+    int burnLeft = nBurnTime - elapsedBurn;
+    float percentRemaining = (IntToFloat(burnLeft) / IntToFloat(nBurnTime)) * 100.0;
     SendMessageToPC(oPC, H2_TEXT_REMAINING_BURN + FloatToString(percentRemaining, 5, 1));
     
     int timerID = CreateEventTimer(oLight, TORCH_EVENT_ON_TIMER_EXPIRE, IntToFloat(burnLeft), 1);
