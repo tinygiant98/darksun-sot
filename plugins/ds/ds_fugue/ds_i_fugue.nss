@@ -1,24 +1,21 @@
-// -----------------------------------------------------------------------------
-//    File: ds_i_fugue.nss
-//  System: Fugue Death and Resurrection (core)
-// -----------------------------------------------------------------------------
-// Description:
-//  Core functions for DS Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_i_fugue.nss
+/// @author Anthony Sovaca (Jacyn)
+/// @brief  Fugue System (core)
+/// ----------------------------------------------------------------------------
+
+#include "pw_i_core"
+
 #include "ds_i_const"
 #include "pw_i_fugue"
 #include "ds_c_fugue"
-#include "pw_i_core"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< SendPlayerToAngel >---
-// Sends dead player character to the angel plane.
+/// @brief Send a dead player character to the angel plane.
+/// @param oPC The dead player character.
 void SendPlayerToAngel(object oPC);
 
 // -----------------------------------------------------------------------------
