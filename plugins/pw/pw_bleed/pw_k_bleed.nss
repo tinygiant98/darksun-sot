@@ -1,13 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: pw_k_bleed.nss
-//  System: Bleed Persistent World Subsystem (constants)
-// -----------------------------------------------------------------------------
-// Description:
-//  Constants for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_k_bleed.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Bleed Library (constants)
+/// ----------------------------------------------------------------------------
 
 const string H2_BLEED_TIMER_SCRIPT = "h2_bleedtimer";
 const string H2_LAST_HIT_POINTS = "H2_LASTHITPOINTS";

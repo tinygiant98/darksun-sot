@@ -1,16 +1,13 @@
-// -----------------------------------------------------------------------------
-//    File: pw_l_bleed.nss
-//  System: Bleed Persistent World Subsystem (library)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_l_bleed.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Bleed Library (library)
+/// ----------------------------------------------------------------------------
+
+#include "core_i_framework"
 
 #include "util_i_library"
-#include "core_i_framework"
+
 #include "pw_k_bleed"
 #include "pw_e_bleed"
 
@@ -20,7 +17,7 @@
 
 void OnLibraryLoad()
 {
-    if (!H2_USE_BLEED_SYSTEM)
+    if (!BLEED_ACTIVE)
         return;
 
     object oPlugin = GetPlugin("pw");
@@ -62,6 +59,8 @@ void OnLibraryScript(string sScript, int nEntry)
 
         // ----- Timer Events -----
         case 5:  bleed_OnTimerExpire();       break;
-        default: CriticalError("Library function " + sScript + " not found");
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in pw_l_bleed.nss");
     }
 }

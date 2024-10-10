@@ -1,58 +1,44 @@
-// -----------------------------------------------------------------------------
-//    File: pw_e_bleed.nss
-//  System: Bleed Persistent World Subsystem (events)
-// -----------------------------------------------------------------------------
-// Description:
-//  Event functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_e_bleed.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Bleed Library (events)
+/// ----------------------------------------------------------------------------
 
 #include "x2_inc_switches"
+
 #include "pw_i_bleed"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< bleed_OnClientEnter >---
-// Library and event registered script for the module-level OnClientEnter
-//  event.  This function ensures each entering player has a Heal Widget in
-//  their inventory.
+/// @brief Event handler for OnClientEnter.  Ensures each entering player has a
+///    Heal Widget in their inventory.
 void bleed_OnClientEnter();
 
-// ---< bleed_OnPlayerDeath >---
-// Library and event registered script for the module-level OnPlayerDeath
-//  event.  This function starts the bleed functions if the player is not dead.
+/// @brief Handler for OnPlayerDeath.  Starts the bleed functions if the player
+///     is not dead.
 void bleed_OnPlayerDeath();
 
-// ---< bleed_OnPlayerRestStarted >---
-// Library and event registered script for the module-level OnPlayerRestStarted
-//  event.  This function sets the maximum amount of healing a PC can do.
+/// @brief Handler for OnPlayerRestStarted.  Sets the maximum amount of healing
+///     a player character can recover during a rest period.
 void bleed_OnPlayerRestStarted();
 
-// ---< bleed_OnPlayerDying >---
-// Library and event registered script for the module-level OnPlayerDying
-//  event.  This function marks the PC's state and starts the bleed system.
+/// @brief Handler for OnPlayerDying.  Marks the player character as dying and
+///     starts the bleed functions.
 void bleed_OnPlayerDying();
 
-// ---< bleed_healwidget >---
-// Library registered script for tag-based sripting for the healwidget item.
+/// @brief Tag-bsed scripting handler for heal widget item.
 void bleed_healwidget();
 
-// ---< bleed_OnTimerExpire >---
-// Event registered script that runs when the bleed timer expires.  This
-//  function will apply additional damage, check for self-stabilization, or
-//  kill the PC, as required by the bleen system and custom settings.
-// Note: OnTimerExpire is not a framework event.
+/// @brief Time expiration handler for bleed timer.  Applies additional damage,
+///     checks for self-stabilization, or kills the PC, as required by the
+///     bleed system and custom settings.
 void bleed_OnTimerExpire();
 
 // -----------------------------------------------------------------------------
 //                             Function Definitions
 // -----------------------------------------------------------------------------
-
-// ----- Module Events -----
 
 void bleed_OnClientEnter()
 {
@@ -92,8 +78,6 @@ void bleed_OnPlayerDying()
         h2_BeginPlayerBleeding(oPC);
 }
 
-// ----- Tag-based Scripting -----
-
 void bleed_healwidget()
 {
     int nEvent = GetUserDefinedItemEventNumber();
@@ -109,8 +93,6 @@ void bleed_healwidget()
         h2_UseHealWidgetOnTarget(oTarget);
     }
 }
-
-// ----- Timer Events -----
 
 void bleed_OnTimerExpire()
 {

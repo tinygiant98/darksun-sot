@@ -1,13 +1,10 @@
-// -----------------------------------------------------------------------------
-//    File: pw_i_bleed.nss
-//  System: Bleed Persistent World Subsystem (core)
-// -----------------------------------------------------------------------------
-// Description:
-//  Primary functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   pw_i_bleed.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Bleed Library (core)
+/// ----------------------------------------------------------------------------
+
+#include "util_i_math"
 
 #include "pw_i_core"
 #include "pw_k_bleed"
@@ -17,26 +14,32 @@
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-//Creates and starts a timer to track the bleeding of oPC.
+/// @brief Creates and starts a timer to track player character bleeding.
 void h2_BeginPlayerBleeding(object oPC);
 
-//Makes the player oPC fully recover from a dying or stable state.
-//This brings oPC to 1 HP and sets their player state to H2_PLAYER_STATE_ALIVE.
+/// @brief Makes the player oPC fully recover from a dying or stable state.
+///     This brings oPC to 1 HP and sets their player state to H2_PLAYER_STATE_ALIVE.
+/// @param oPC The player character to recover.
 void h2_MakePlayerFullyRecovered(object oPC);
 
-//Sets oPC's player state to H2_PLAYER_STATE_STABLE if oPC's player state was H2_PLAYER_STATE_DYING
-//or makes oPC fully recovered if the oPC's player state was H2_PLAYER_STATE_STABLE
-//and bDoFullRecovery is TRUE.
+/// @brief Sets oPC's player state to H2_PLAYER_STATE_STABLE if oPC's player state
+///     was H2_PLAYER_STATE_DYING or makes oPC fully recovered if the oPC's player
+///     state was H2_PLAYER_STATE_STABLE and bDoFullRecovery is TRUE.
+/// @param oPC The player character to stabilize.
+/// @param bDoFullRecovery If TRUE, the player character will be fully recovered.
 void h2_StabilizePlayer(object oPC, int bDoFullRecovery = FALSE);
 
-//Causes bleed damage to oPC.
+/// @brief Apply bleed damage to oPC.
+/// @param oPC The player character to apply bleed damage to.
 void h2_DoBleedDamageToPC(object oPC);
 
-//Checks to see if oPC was able to stabilize on their own, if not
-//bleed damage is done to oPC.
+/// @brief Checks to see if oPC was able to stabilize on their own, if not, bleed
+///     damage is applied to oPC.
+/// @param oPC The player character to check for self-stabilization.
 void h2_CheckForSelfStabilize(object oPC);
 
-//Handles when the healing skill widget is used on a target.
+/// @brief Handles using heal widget on a target.
+/// @param oTarget The target to use the healing widget on.
 void h2_UseHealWidgetOnTarget(object oTarget);
 
 // -----------------------------------------------------------------------------
@@ -48,7 +51,7 @@ void h2_BeginPlayerBleeding(object oPC)
     int nCurrentHitPoints = GetCurrentHitPoints(oPC);
     SetPlayerInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
     
-    int timerID = CreateEventTimer(oPC, BLEED_EVENT_ON_TIMER_EXPIRE, H2_BLEED_DELAY);
+    int timerID = CreateEventTimer(oPC, BLEED_EVENT_ON_TIMER_EXPIRE, BLEED_CHECK_DELAY);
     SetLocalInt(oPC, H2_BLEED_TIMER_ID, timerID);
     StartTimer(timerID, FALSE);
 }
@@ -110,21 +113,21 @@ void h2_DoBleedDamageToPC(object oPC)
     }
 
     SendMessageToPC(oPC, H2_TEXT_WOUNDS_BLEED);
-    effect eBloodloss = EffectDamage(H2_BLEED_BLOOD_LOSS, DAMAGE_TYPE_MAGICAL, DAMAGE_POWER_ENERGY);
+    effect eBloodloss = EffectDamage(BLEED_HP_LOSS, DAMAGE_TYPE_MAGICAL, DAMAGE_POWER_ENERGY);
     ApplyEffectToObject(DURATION_TYPE_INSTANT, eBloodloss, oPC);
 }
 
 void h2_CheckForSelfStabilize(object oPC)
 {
     int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
-    int stabilizechance = H2_SELF_STABILIZE_CHANCE;
+    int stabilizechance = max(BLEED_SELF_STABILIZE_CHANCE, 0);
     if (nPlayerState == H2_PLAYER_STATE_STABLE || nPlayerState == H2_PLAYER_STATE_RECOVERING)
-        stabilizechance = H2_SELF_RECOVERY_CHANCE;
+        stabilizechance = max(BLEED_SELF_RECOVERY_CHANCE, 0);
 
     string lastCheck = GetPlayerString(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
     float secondsSinceLastCheck = GetSystemTimeDifferenceIn(TIME_SECONDS, lastCheck);
 
-    if (nPlayerState == H2_PLAYER_STATE_DYING || secondsSinceLastCheck >= H2_STABLE_DELAY)
+    if (nPlayerState == H2_PLAYER_STATE_DYING || secondsSinceLastCheck >= BLEED_STABLE_DELAY)
     {
         if (d100() <= stabilizechance)
             h2_StabilizePlayer(oPC, TRUE);
@@ -154,7 +157,7 @@ void h2_UseHealWidgetOnTarget(object oTarget)
             case H2_PLAYER_STATE_DYING:
             case H2_PLAYER_STATE_STABLE:
                 rollResult = h2_SkillCheck(SKILL_HEAL, oUser);
-                if (rollResult >= H2_FIRST_AID_DC)
+                if (rollResult >= BLEED_FIRST_AID_DC)
                 {
                     SetPlayerInt(oTarget, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
                     SendMessageToPC(oTarget,  H2_TEXT_PLAYER_STABLIZED);
@@ -173,7 +176,7 @@ void h2_UseHealWidgetOnTarget(object oTarget)
                     return;
                 }
                 rollResult = h2_SkillCheck(SKILL_HEAL, oUser, 0);
-                if (rollResult >= H2_LONG_TERM_CARE_DC)
+                if (rollResult >= BLEED_LONG_TERM_CARE_DC)
                     SetLocalInt(oTarget, H2_LONG_TERM_CARE, 1);
                     
                 SendMessageToPC(oUser, H2_TEXT_ATTEMPT_LONG_TERM_CARE);
