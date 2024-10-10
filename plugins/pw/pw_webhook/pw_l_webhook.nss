@@ -28,8 +28,8 @@ void OnLibraryLoad()
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "webhook_OnModuleLoad", 4.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "webhook_OnClientEnter", 4.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_LEAVE, "webhook_OnClientLeave", 4.0);
-    RegisterEventScripts(oPlugin, "OnModuleShutdown", "webhook_OnModuleShutdown", 4.0);
-    RegisterEventScripts(oPlugin, "OnModuleStable", "webhook_OnModuleStable", 4.0);
+    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_SHUTDOWN, "webhook_OnModuleShutdown", 4.0);
+    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_STABLE, "webhook_OnModuleStable", 4.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "webhook_OnPlayerDeath", 1.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_DYING, "webhook_OnPlayerDying", 1.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_RESPAWN, "webhook_OnPlayerReSpawn", 1.0);
@@ -37,49 +37,55 @@ void OnLibraryLoad()
     RegisterEventScripts(oPlugin, CHAT_PREFIX + "!webhook", "webhook_OnPlayerChat", 1.0);
     RegisterEventScripts(oPlugin, "OnPlayerChatCommand", "webhook_OnPlayerChatCommand", 1.0);
     RegisterEventScripts(oPlugin, MODULE_EVENT_ON_HOUR, "webhook_OnHour", 1.0);
-    RegisterEventScripts(oPlugin, "OnModuleDebug", "webhook_OnModuleDebug", 1.0);
+    RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_DEBUG, "webhook_OnModuleDebug", 1.0);
 
     RegisterEventScripts(oPlugin, "QUEST_EVENT_ON_ACCEPT", "webhook_OnQuestEvent", 3.5);
     RegisterEventScripts(oPlugin, "QUEST_EVENT_ON_ADVANCE", "webhook_OnQuestEvent", 3.5);
     RegisterEventScripts(oPlugin, "QUEST_EVENT_ON_COMPLETE", "webhook_OnQuestEvent", 3.5);
     RegisterEventScripts(oPlugin, "QUEST_EVENT_ON_FAIL", "webhook_OnQuestEvent", 3.5);
 
-    RegisterLibraryScript("webhook_OnModuleLoad", 1);
-    RegisterLibraryScript("webhook_OnClientEnter", 2);
-    RegisterLibraryScript("webhook_OnClientLeave", 3);
-    RegisterLibraryScript("webhook_OnModuleShutdown", 4);
-    RegisterLibraryScript("webhook_OnModuleStable", 5);
-    RegisterLibraryScript("webhook_OnPlayerDeath", 6);
-    RegisterLibraryScript("webhook_OnPlayerDying", 7);
-    RegisterLibraryScript("webhook_OnReSpawn", 8);
-    RegisterLibraryScript("webhook_OnLevelUp", 9);
-    RegisterLibraryScript("webhook_OnPlayerChat", 10);
-    RegisterLibraryScript("webhook_OnPlayerChatCommand", 11);
-    RegisterLibraryScript("webhook_OnModuleDebug", 12);
-    RegisterLibraryScript("webhook_OnHour", 13);
+    int n;
+    RegisterLibraryScript("webhook_OnModuleLoad",        n++);
+    RegisterLibraryScript("webhook_OnClientEnter",       n++);
+    RegisterLibraryScript("webhook_OnClientLeave",       n++);
+    RegisterLibraryScript("webhook_OnModuleShutdown",    n++);
+    RegisterLibraryScript("webhook_OnModuleStable",      n++);
+    RegisterLibraryScript("webhook_OnPlayerDeath",       n++);
+    RegisterLibraryScript("webhook_OnPlayerDying",       n++);
+    RegisterLibraryScript("webhook_OnReSpawn",           n++);
+    RegisterLibraryScript("webhook_OnLevelUp",           n++);
+    RegisterLibraryScript("webhook_OnPlayerChat",        n++);
+    RegisterLibraryScript("webhook_OnPlayerChatCommand", n++);
+    RegisterLibraryScript("webhook_OnModuleDebug",       n++);
+    RegisterLibraryScript("webhook_OnHour",              n++);
 
-    RegisterLibraryScript("webhook_OnQuestEvent", 20);
+    RegisterLibraryScript("webhook_OnQuestEvent",        n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        case 1: webhook_OnModuleLoad(); break;
-        case 2: webhook_OnClientEnter(); break;
-        case 3: webhook_OnClientLeave(); break;
-        case 4: webhook_OnModuleShutdown(); break;
-        case 5: webhook_OnModuleStable(); break;
-        case 6: webhook_OnPlayerDeath(); break;
-        case 7: webhook_OnPlayerDying(); break;
-        case 8: webhook_OnPlayerReSpawn(); break;
-        case 9: webhook_OnPlayerLevelUp(); break;
-        case 10: webhook_OnPlayerChat(); break;
-        case 11: webhook_OnPlayerChatCommand(); break;
-        case 12: webhook_OnModuleDebug(); break;
-        case 13: webhook_OnHour(); break;
-
-        case 20: webhook_OnQuestEvent(); break;
-        default: CriticalError("Library function " + sScript + " not found");
+        case 0:
+        {
+            if      (nEntry == n++) webhook_OnModuleLoad();
+            else if (nEntry == n++) webhook_OnClientEnter();
+            else if (nEntry == n++) webhook_OnClientLeave();
+            else if (nEntry == n++) webhook_OnModuleShutdown();
+            else if (nEntry == n++) webhook_OnModuleStable();
+            else if (nEntry == n++) webhook_OnPlayerDeath();
+            else if (nEntry == n++) webhook_OnPlayerDying();
+            else if (nEntry == n++) webhook_OnPlayerReSpawn();
+            else if (nEntry == n++) webhook_OnPlayerLevelUp();
+            else if (nEntry == n++) webhook_OnPlayerChat();
+            else if (nEntry == n++) webhook_OnPlayerChatCommand();
+            else if (nEntry == n++) webhook_OnModuleDebug();
+            else if (nEntry == n++) webhook_OnHour();
+            else if (nEntry == n++) webhook_OnQuestEvent();
+        } break;
+        default:
+            CriticalError("Library function " + sScript + " (" + IntToString(nEntry) + ") " +
+                "not found in pw_l_webhook.nss");
     }
 }

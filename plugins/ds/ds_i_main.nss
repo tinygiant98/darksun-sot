@@ -1,8 +1,6 @@
 #include "nwnx_admin"
 #include "core_i_framework"
 
-const string MODULE_EVENT_ON_MODULE_STABLE = "OnModuleStable";
-
 void ds_DelayStableEvent()
 {
     RunEvent(MODULE_EVENT_ON_MODULE_STABLE);

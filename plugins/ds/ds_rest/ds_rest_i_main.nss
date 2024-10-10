@@ -11,7 +11,6 @@
 
 #include "ds_rest_i_config"
 #include "ds_rest_i_const"
-#include "ds_rest_i_text"
 #include "pw_i_core"
 
 // -----------------------------------------------------------------------------

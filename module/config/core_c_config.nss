@@ -259,3 +259,8 @@ const int INCLUDE_NPC_IN_AOE_ROSTER = FALSE;
 /// This is the welcome message that will be sent to all players and DMs that
 /// log into the module.
 const string WELCOME_MESSAGE = "Welcome to Athas.  Good luck.";
+
+/// Custom event constants
+const string MODULE_EVENT_ON_MODULE_SHUTDOWN = "OnModuleShutdown";
+const string MODULE_EVENT_ON_MODULE_STABLE = "OnModuleStable";
+const string MODULE_EVENT_ON_MODULE_DEBUG = "OnModuleDebug";
