@@ -8,7 +8,7 @@
 
 #include "util_i_library"
 
-#include "pw_i_quest"
+#include "quest_i_main"
 
 /*
 void creature_tag()

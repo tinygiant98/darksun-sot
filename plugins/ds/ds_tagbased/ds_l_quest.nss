@@ -13,7 +13,7 @@
 #include "util_i_data"
 #include "core_i_framework"
 
-#include "ds_qst_i_main"
+#include "quest_i_demo"
 #include "quest_i_main"
 
 
@@ -49,10 +49,10 @@ void quest_tag()
 
 void quest_demo_kill()
 {
-    string sEvent = GetCurrentQuestEvent();
+    int nEvent = GetCurrentQuestEvent();
     object oPC = OBJECT_SELF;
 
-    if (sEvent == QUEST_EVENT_ON_ADVANCE)
+    if (nEvent == QUEST_EVENT_ON_ADVANCE)
     {
         int nStep = GetCurrentQuestStep();
         if (nStep == 1)
@@ -66,7 +66,7 @@ void quest_demo_kill()
                 CreateObject(OBJECT_TYPE_CREATURE, "nw_goblina", lWP);
         }
     }
-    else if (sEvent == QUEST_EVENT_ON_COMPLETE)
+    else if (nEvent == QUEST_EVENT_ON_COMPLETE)
     {   
         int n = 1;
         object oGoblin = GetNearestObjectByTag("NW_GOBLINA", oPC, n);
@@ -82,10 +82,10 @@ void quest_demo_kill()
 
 void quest_demo_protect()
 {
-    string sEvent = GetCurrentQuestEvent();
+    int nEvent = GetCurrentQuestEvent();
     object oPC = OBJECT_SELF;
     
-    if (sEvent == QUEST_EVENT_ON_ADVANCE)
+    if (nEvent == QUEST_EVENT_ON_ADVANCE)
     {
         int nStep = GetCurrentQuestStep();
         if (nStep == 1)
@@ -108,11 +108,11 @@ void quest_demo_protect()
             SetLocalObject(oProtect, "QUEST_PROTECTOR", oPC);
         }
     }
-    else if (sEvent == QUEST_EVENT_ON_COMPLETE)
+    else if (nEvent == QUEST_EVENT_ON_COMPLETE)
     {
         SetImmortal(oPC, FALSE);
     }
-    else if (sEvent == QUEST_EVENT_ON_FAIL)
+    else if (nEvent == QUEST_EVENT_ON_FAIL)
     {   
         int n = 1;
         object oGoblin = GetNearestObjectByTag("NW_GOBLINA", oPC, n);
@@ -128,31 +128,31 @@ void quest_demo_protect()
 
 void quest_demo_gather()
 {
-    string sEvent = GetCurrentQuestEvent();
+    int nEvent = GetCurrentQuestEvent();
     object oPC = OBJECT_SELF;
 
-    if (sEvent == QUEST_EVENT_ON_ADVANCE)
+    if (nEvent == QUEST_EVENT_ON_ADVANCE)
     {
         int nStep = GetCurrentQuestStep();
         if (nStep == 1)
             ResetGatherQuestArea(oPC);
     }
-    else if (sEvent == QUEST_EVENT_ON_COMPLETE)
+    else if (nEvent == QUEST_EVENT_ON_COMPLETE)
         ResetGatherQuestArea(oPC, TRUE);
 }
 
 void quest_demo_deliver()
 {
-    string sEvent = GetCurrentQuestEvent();
+    int nEvent = GetCurrentQuestEvent();
     object oPC = OBJECT_SELF;
 
-    if (sEvent == QUEST_EVENT_ON_ADVANCE)
+    if (nEvent == QUEST_EVENT_ON_ADVANCE)
     {
         int nStep = GetCurrentQuestStep();
         if (nStep == 1)
             ResetGatherQuestArea(oPC);
     }
-    else if (sEvent == QUEST_EVENT_ON_COMPLETE)
+    else if (nEvent == QUEST_EVENT_ON_COMPLETE)
         ResetGatherQuestArea(oPC, TRUE);
 }
 

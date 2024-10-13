@@ -1,16 +1,11 @@
-// -----------------------------------------------------------------------------
-//    File: ds_i_quest.nss
-//  System: Quest Persistent World Subsystem
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   ds_i_quest.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Quest Library (core)
+/// ----------------------------------------------------------------------------
 
 #include "core_i_framework"
-#include "pw_i_quest"
+#include "quest_i_main"
 
 void define_quest_demo_discover()
 {

@@ -10,7 +10,7 @@
 
 #include "util_i_library"
 #include "dlg_i_dialogs"
-#include "pw_i_quest"
+#include "quest_i_main"
 
 void _ResetPCQuestData(object oPC, string sQuestTag)
 {

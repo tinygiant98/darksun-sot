@@ -655,16 +655,16 @@ void DebugWebhook(int nLevel, string sPrefix, string sMessage, object oTarget)
 void SendQuestWebhookMessage(object oPC)
 {
     RunLibraryScript("QUEST_GetCurrentWebhookMessage");
-    string sMessage = PopString(); //GetReturnValueString();
+    string sMessage = PopString();
 
     if (sMessage == "")
         return;
 
-    PushString(sMessage); //PushArgumentString(sMessage);
-    PushObject(oPC); //PushArgumentObject(oPC);
-
+    PushString(sMessage);
+    PushObject(oPC);
+    
     RunLibraryScript("TOKEN_EvaluateTokens", oPC);
-    sMessage = PopString(); //GetReturnValueString();
+    sMessage = PopString();
 
     string sConstructedMsg;
     struct NWNX_WebHook_Message stMessage;
