@@ -10,7 +10,7 @@
 // -----------------------------------------------------------------------------
 
 #include "x2_inc_switches"
-#include "pw_i_core"
+#include "ds_i_pw"
 #include "core_i_constants"
 #include "core_c_config"
 

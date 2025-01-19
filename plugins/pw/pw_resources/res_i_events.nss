@@ -176,6 +176,17 @@ void resources_OnModuleLoad()
     int nObjectType, nCount;
     object oObject, oArea = GetFirstArea();
 
+    // instead of looping each game object, which could easily run into TMIs, how's about we use the CompileScript function to
+    //  create a new game override for each heartbeat script, then in each heartbeat, register that object to the framework and assign
+    //  a different script?
+
+    // Every object type, except stores has a heartbeat.  So we really just need to know the names of the heartbeat scripts, this take them
+    // over for their first run; but, um, not every object has a heartbeat script assigned?  so that might not work as expected ...
+
+    // Look in the game code to see which ones use `default`, maybe be can override that for some effet?
+    // How's about maybe the first heartbeat of each area registering objects in that area?  On Module Load could assign the heartbeat script
+    //  to us, then we take it away once we're all done with it.
+
     while (GetIsObjectValid(oArea))
     {
         if (GetStringLeft(GetEventScript(oArea, EVENT_SCRIPT_AREA_ON_ENTER), GetStringLength(HOOK_SCRIPT_PREFIX)) != HOOK_SCRIPT_PREFIX)

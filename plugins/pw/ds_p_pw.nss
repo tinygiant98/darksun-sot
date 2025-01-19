@@ -1,17 +1,11 @@
 // -----------------------------------------------------------------------------
-//    File: pw_l_plugin.nss
-//  System: Persistent World Administration (library)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
+//    File: ds_p_pw.nss
+//  System: Persistent World Administration (plugin)
 // -----------------------------------------------------------------------------
 
 #include "util_i_library"
 #include "core_i_framework"
-#include "pw_i_events"
+#include "ds_e_pw"
 
 // -----------------------------------------------------------------------------
 //                               Library Dispatch

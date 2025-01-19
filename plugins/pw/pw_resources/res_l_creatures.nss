@@ -5246,240 +5246,292 @@ void __creature_nw_c2_dimdoor()
 void OnLibraryLoad()
 {
     object oPlugin = GetPlugin("resources");
+    int n;
 
     // ----- Module Events -----
     //RegisterEventScripts(oPlugin, EVENT_CONSTANT, "function_name", 4.0);
 
     // ----- Heartbeat Events -----
-    RegisterLibraryScript("x2_def_heartbeat",       1);
-    RegisterLibraryScript("nw_c2_default1",         2);
-    RegisterLibraryScript("nw_ch_ac1",              3);
-    RegisterLibraryScript("x0_ch_hen_heart",        4);
-    RegisterLibraryScript("x3_c2_pm_hb",            5);
-    RegisterLibraryScript("x0_wyrm_heart",          6);
-    RegisterLibraryScript("nw_c2_gargoyle",         7);
-    RegisterLibraryScript("x2_c2_gcube_hbt",        8);
+    RegisterLibraryScript("x2_def_heartbeat",       n++);
+    RegisterLibraryScript("nw_c2_default1",         n++);
+    RegisterLibraryScript("nw_ch_ac1",              n++);
+    RegisterLibraryScript("x0_ch_hen_heart",        n++);
+    RegisterLibraryScript("x3_c2_pm_hb",            n++);
+    RegisterLibraryScript("x0_wyrm_heart",          n++);
+    RegisterLibraryScript("nw_c2_gargoyle",         n++);
+    RegisterLibraryScript("x2_c2_gcube_hbt",        n++);
 
+    n = 100;
     // ----- Spell Cast At Events -----
-    RegisterLibraryScript("nw_c2_defaultb",         10);
-    RegisterLibraryScript("nw_ch_acb",              11);
-    RegisterLibraryScript("nw_ch_fmb",              12);
-    RegisterLibraryScript("nw_nw_acb",              13);
-    RegisterLibraryScript("nw_ochrejlly_osc",       14);
-    RegisterLibraryScript("q2_spell_djinn",         15);
-    RegisterLibraryScript("x2_bb_spellcast",        16);
-    RegisterLibraryScript("x2_def_spellcast",       17);
-    RegisterLibraryScript("x2_hen_spell",           18);
+    RegisterLibraryScript("nw_c2_defaultb",         n++);
+    RegisterLibraryScript("nw_ch_acb",              n++);
+    RegisterLibraryScript("nw_ch_fmb",              n++);
+    RegisterLibraryScript("nw_nw_acb",              n++);
+    RegisterLibraryScript("nw_ochrejlly_osc",       n++);
+    RegisterLibraryScript("q2_spell_djinn",         n++);
+    RegisterLibraryScript("x2_bb_spellcast",        n++);
+    RegisterLibraryScript("x2_def_spellcast",       n++);
+    RegisterLibraryScript("x2_hen_spell",           n++);
 
+    n = 200;
     // ----- Physical Attacked Events -----
-    RegisterLibraryScript("nw_c2_default5",         20);
-    RegisterLibraryScript("nw_ch_ac5",              21);
-    RegisterLibraryScript("nw_ch_acd",              22);
-    RegisterLibraryScript("nw_e0_default5",         23);
-    RegisterLibraryScript("nw_ochrejlly_opa",       24);
-    RegisterLibraryScript("q2_attack_djinn",        25);
-    RegisterLibraryScript("x0_ch_hen_attack",       26);
-    RegisterLibraryScript("x2_def_attacked",        27);
+    RegisterLibraryScript("nw_c2_default5",         n++);
+    RegisterLibraryScript("nw_ch_ac5",              n++);
+    RegisterLibraryScript("nw_ch_acd",              n++);
+    RegisterLibraryScript("nw_e0_default5",         n++);
+    RegisterLibraryScript("nw_ochrejlly_opa",       n++);
+    RegisterLibraryScript("q2_attack_djinn",        n++);
+    RegisterLibraryScript("x0_ch_hen_attack",       n++);
+    RegisterLibraryScript("x2_def_attacked",        n++);
 
+    n = 300;
     // ----- Damaged Events -----
-    RegisterLibraryScript("nw_c2_default6",         30);
-    //RegisterLibraryScript("nw_ch_ac5",              31); <-- shared with physical attacked
-    RegisterLibraryScript("nw_ch_ac6",              32);
-    RegisterLibraryScript("x0_ch_hen_damage",       33);
-    RegisterLibraryScript("x0_hatch_dam",           34);
-    RegisterLibraryScript("x2_def_ondamage",        35);
+    RegisterLibraryScript("nw_c2_default6",         n++);
+    //RegisterLibraryScript("nw_ch_ac5",              n++); <-- shared with physical attacked
+    RegisterLibraryScript("nw_ch_ac6",              n++);
+    RegisterLibraryScript("x0_ch_hen_damage",       n++);
+    RegisterLibraryScript("x0_hatch_dam",           n++);
+    RegisterLibraryScript("x2_def_ondamage",        n++);
 
+    n = 400;
     // ----- Death Events -----
-    RegisterLibraryScript("nw_c2_default7",         40);
-    RegisterLibraryScript("nw_c2_stnkbtdie",        41);
-    RegisterLibraryScript("nw_c2_vampire7",         42);
-    RegisterLibraryScript("nw_ch_ac7",              43);
-    RegisterLibraryScript("nw_s3_balordeth",        44);
-    //RegisterLibraryScript("x0_hatch_dam",           45); <-- shared with damaged above
-    RegisterLibraryScript("x2_def_ondeath",         46);
-    RegisterLibraryScript("x2_hen_death",           47);
-    RegisterLibraryScript("x3_c2_pm_death",         48);
+    RegisterLibraryScript("nw_c2_default7",         n++);
+    RegisterLibraryScript("nw_c2_stnkbtdie",        n++);
+    RegisterLibraryScript("nw_c2_vampire7",         n++);
+    RegisterLibraryScript("nw_ch_ac7",              n++);
+    RegisterLibraryScript("nw_s3_balordeth",        n++);
+    //RegisterLibraryScript("x0_hatch_dam",           n++); <-- shared with damaged above
+    RegisterLibraryScript("x2_def_ondeath",         n++);
+    RegisterLibraryScript("x2_hen_death",           n++);
+    RegisterLibraryScript("x3_c2_pm_death",         n++);
 
+    n = 500;
     // ----- Conversation Events -----
-    RegisterLibraryScript("nw_ch_ac4",              51);
-    RegisterLibraryScript("nw_c2_default4",         51);
-    RegisterLibraryScript("x2_def_onconv",          52);
-    RegisterLibraryScript("x0_ch_hen_conv",         53);
-    RegisterLibraryScript("nw_ch_fm4",              54);
-    RegisterLibraryScript("x0_cheatlisten",         55);
+    RegisterLibraryScript("nw_ch_ac4",              n++);
+    RegisterLibraryScript("nw_c2_default4",         n++);
+    RegisterLibraryScript("x2_def_onconv",          n++);
+    RegisterLibraryScript("x0_ch_hen_conv",         n++);
+    RegisterLibraryScript("nw_ch_fm4",              n++);
+    RegisterLibraryScript("x0_cheatlisten",         n++);
 
+    n = 600;
+    RegisterLibraryScript("nw_ch_ac8",              n++);
+    RegisterLibraryScript("nw_c2_default8",         n++);
+    RegisterLibraryScript("x2_def_ondisturb",       n++);
+    RegisterLibraryScript("x0_ch_hen_distrb",       n++);
+    RegisterLibraryScript("nw_e0_default8",         n++);
 
-    RegisterLibraryScript("nw_ch_ac8",              60);
-    RegisterLibraryScript("nw_c2_default8",         61);
-    RegisterLibraryScript("x2_def_ondisturb",       62);
-    RegisterLibraryScript("x0_ch_hen_distrb",       63);
-    RegisterLibraryScript("nw_e0_default8",         64);
-
+    n = 700;
     // ----- End Combat Round Events -----
-    RegisterLibraryScript("nw_c2_default3",         70);
-    RegisterLibraryScript("nw_ch_ac3",              71);
-    RegisterLibraryScript("nw_ch_fm3",              72);
-    RegisterLibraryScript("x0_ch_hen_combat",       73);
-    RegisterLibraryScript("x2_def_endcombat",       74);
+    RegisterLibraryScript("nw_c2_default3",         n++);
+    RegisterLibraryScript("nw_ch_ac3",              n++);
+    RegisterLibraryScript("nw_ch_fm3",              n++);
+    RegisterLibraryScript("x0_ch_hen_combat",       n++);
+    RegisterLibraryScript("x2_def_endcombat",       n++);
 
+    n = 800;
     // ----- Blocked Events -----
-    RegisterLibraryScript("nw_c2_default3",         80);
-    RegisterLibraryScript("nw_ch_ace",              80);
-    RegisterLibraryScript("x0_ch_hen_block",        82);
-    RegisterLibraryScript("x2_def_onblocked",       83);
+    RegisterLibraryScript("nw_c2_default3",         n++);
+    RegisterLibraryScript("nw_ch_ace",              n++);
+    RegisterLibraryScript("x0_ch_hen_block",        n++);
+    RegisterLibraryScript("x2_def_onblocked",       n++);
 
+    n = 900;
     // ----- Perception Events -----
-    RegisterLibraryScript("nw_c2_default2",         90);
-    RegisterLibraryScript("nw_ch_ac2",              91);
-    RegisterLibraryScript("x0_ch_hen_percep",       92);
-    RegisterLibraryScript("x2_def_percept",         93);
+    RegisterLibraryScript("nw_c2_default2",         n++);
+    RegisterLibraryScript("nw_ch_ac2",              n++);
+    RegisterLibraryScript("x0_ch_hen_percep",       n++);
+    RegisterLibraryScript("x2_def_percept",         n++);
 
+    n = 1000;
     // ----- Rested Events -----
-    RegisterLibraryScript("nw_c2_defaulta",         100);
-    RegisterLibraryScript("nw_ch_aca",              101);
-    RegisterLibraryScript("x0_ch_hen_rest",         102);
-    RegisterLibraryScript("x2_def_rested",          103);
+    RegisterLibraryScript("nw_c2_defaulta",         n++);
+    RegisterLibraryScript("nw_ch_aca",              n++);
+    RegisterLibraryScript("x0_ch_hen_rest",         n++);
+    RegisterLibraryScript("x2_def_rested",          n++);
 
+    n = 1200;
     // ----- Spawn Events -----
-    RegisterLibraryScript("nw_c2_bat9",             120);
-    RegisterLibraryScript("nw_c2_default9",         121);
-    RegisterLibraryScript("nw_c2_dimdoors",         122);
-    RegisterLibraryScript("nw_c2_dropin9",          123);
-    RegisterLibraryScript("nw_c2_gated",            124);
-    RegisterLibraryScript("nw_c2_gatedbad",         125);
-    RegisterLibraryScript("nw_c2_herbivore",        126);
-    RegisterLibraryScript("nw_c2_lycan_9",          127);
-    RegisterLibraryScript("nw_c2_omnivore",         128);
-    RegisterLibraryScript("nw_c2_vampireg9",        129);
-    RegisterLibraryScript("nw_ch_ac9",              130);
-    RegisterLibraryScript("nw_ch_acani9",           131);
-    RegisterLibraryScript("nw_ch_acgs9",            132);
-    RegisterLibraryScript("nw_ch_summon_9",         133);
-    RegisterLibraryScript("x0_ch_hen_spawn",        134);
-    RegisterLibraryScript("x2_ch_summon_sld",       135);
-    RegisterLibraryScript("x2_def_spawn",           136);
-    RegisterLibraryScript("x2_spawn_genie",         137);
+    RegisterLibraryScript("nw_c2_bat9",             n++);
+    RegisterLibraryScript("nw_c2_default9",         n++);
+    RegisterLibraryScript("nw_c2_dimdoors",         n++);
+    RegisterLibraryScript("nw_c2_dropin9",          n++);
+    RegisterLibraryScript("nw_c2_gated",            n++);
+    RegisterLibraryScript("nw_c2_gatedbad",         n++);
+    RegisterLibraryScript("nw_c2_herbivore",        n++);
+    RegisterLibraryScript("nw_c2_lycan_9",          n++);
+    RegisterLibraryScript("nw_c2_omnivore",         n++);
+    RegisterLibraryScript("nw_c2_vampireg9",        n++);
+    RegisterLibraryScript("nw_ch_ac9",              n++);
+    RegisterLibraryScript("nw_ch_acani9",           n++);
+    RegisterLibraryScript("nw_ch_acgs9",            n++);
+    RegisterLibraryScript("nw_ch_summon_9",         n++);
+    RegisterLibraryScript("x0_ch_hen_spawn",        n++);
+    RegisterLibraryScript("x2_ch_summon_sld",       n++);
+    RegisterLibraryScript("x2_def_spawn",           n++);
+    RegisterLibraryScript("x2_spawn_genie",         n++);
 
+    n = 1500;
     // ----- User Defined Events -----
-    RegisterLibraryScript("nw_c2_dimdoor",          150);
+    RegisterLibraryScript("nw_c2_dimdoor",          n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        // ----- Heartbeat Events -----
-        case 1:   //x2_def_heartbeat calls nw_c2_default1
-        case 2:   __creature_nw_c2_default1(); break;
-        case 3:   __creature_nw_ch_ac1(); break;
-        case 4:   __creature_x0_ch_hen_heart(); break;
-        case 5:   __creature_x3_c2_pm_hb(); break;
-        case 6:   __creature_x0_wyrm_heart(); break;
-        case 7:   __creature_nw_c2_gargoyle(); break;
-        case 8:   __creature_x2_c2_gcube_hbt(); break;
+        case 0:
+        {
+            // ----- Heartbeat Events -----
+            if      (nEntry == n++) __creature_nw_c2_default1(); // x2_def_hearbeat calls nw_c2_default1
+            else if (nEntry == n++) __creature_nw_c2_default1();
+            else if (nEntry == n++) __creature_nw_ch_ac1();
+            else if (nEntry == n++) __creature_x0_ch_hen_heart();
+            else if (nEntry == n++) __creature_x3_c2_pm_hb();
+            else if (nEntry == n++) __creature_x0_wyrm_heart();
+            else if (nEntry == n++) __creature_nw_c2_gargoyle();
+            else if (nEntry == n++) __creature_x2_c2_gcube_hbt();
+        } break;
 
-        // ----- Spell Cast At Events -----
-        case 10:  __creature_nw_c2_defaultb();
-        case 11:  __creature_nw_ch_acb(); break;
-        case 12:  __creature_nw_ch_fmb(); break;
-        case 13:  __creature_nw_nw_acb(); break;
-        case 14:  __creature_nw_ochrejlly_osc(); break;
-        case 15:  __creature_q2_spell_djinn(); break;
-        case 16:  __creature_x2_bb_spellcast(); break;
-        case 17:  __creature_x2_def_spellcast(); break;
-        case 18:  __creature_x2_hen_spell(); break;
+        case 100:
+        {
+            // ----- Spell Cast At Events -----
+            if      (nEntry == n++) __creature_nw_c2_defaultb();
+            else if (nEntry == n++) __creature_nw_ch_acb();
+            else if (nEntry == n++) __creature_nw_ch_fmb();
+            else if (nEntry == n++) __creature_nw_nw_acb();
+            else if (nEntry == n++) __creature_nw_ochrejlly_osc();
+            else if (nEntry == n++) __creature_q2_spell_djinn();
+            else if (nEntry == n++) __creature_x2_bb_spellcast();
+            else if (nEntry == n++) __creature_x2_def_spellcast();
+            else if (nEntry == n++) __creature_x2_hen_spell();
+        } break;
 
-        // ----- Physical Attacked Events -----
-        case 20:  __creature_nw_c2_default5();
-        case 21:  __creature_nw_ch_ac5(); break;
-        case 22:  __creature_nw_ch_acd(); break;
-        case 23:  __creature_nw_e0_default5(); break;
-        case 24:  __creature_nw_ochrejlly_opa(); break;
-        case 25:  __creature_q2_attack_djinn(); break;
-        case 26:  __creature_x0_ch_hen_attack(); break;
-        case 27:  __creature_x2_def_attacked(); break;
+        case 200:
+        {
+            // ----- Physical Attacked Events -----
+            if      (nEntry == n++) __creature_nw_c2_default5();
+            else if (nEntry == n++) __creature_nw_ch_ac5();
+            else if (nEntry == n++) __creature_nw_ch_acd();
+            else if (nEntry == n++) __creature_nw_e0_default5();
+            else if (nEntry == n++) __creature_nw_ochrejlly_opa();
+            else if (nEntry == n++) __creature_q2_attack_djinn();
+            else if (nEntry == n++) __creature_x0_ch_hen_attack();
+            else if (nEntry == n++) __creature_x2_def_attacked();
+        } break;
 
-        // ----- Damaged Events -----
-        case 30:  __creature_nw_c2_default6(); break;
-        //case 31:  __creature_nw_ch_ac5(); break;
-        case 32:  __creature_nw_ch_ac6(); break;
-        case 33:  __creature_x0_ch_hen_damage(); break;
-        case 34:  __creature_x0_hatch_dam(); break;
-        case 35:  __creature_x2_def_ondamage(); break;
+        case 300:
+        {
+            // ----- Damaged Events -----
+            if      (nEntry == n++) __creature_nw_c2_default6();
+            //else if (nEntry == n++) __creature_nw_ch_ac5();
+            else if (nEntry == n++) __creature_nw_ch_ac6();
+            else if (nEntry == n++) __creature_x0_ch_hen_damage();
+            else if (nEntry == n++) __creature_x0_hatch_dam();
+            else if (nEntry == n++) __creature_x2_def_ondamage();
+        } break;
 
-        // ----- Death Events -----
-        case 40:  __creature_nw_c2_default7(); break;
-        case 41:  __creature_nw_c2_stnkbtdie(); break;
-        case 42:  __creature_nw_c2_vampire7(); break;
-        case 43:  __creature_nw_ch_ac7(); break;
-        case 44:  __creature_nw_s3_balordeth(); break;
-        //case 45:  __creature_x0_hatch_dam(); break;
-        case 46:  __creature_x2_def_ondeath(); break;
-        case 47:  __creature_x2_hen_death(); break;
-        case 48:  __creature_x3_c2_pm_death(); break;
+        case 400:
+        {
+            // ----- Death Events -----
+            if      (nEntry == n++) __creature_nw_c2_default7();
+            else if (nEntry == n++) __creature_nw_c2_stnkbtdie();
+            else if (nEntry == n++) __creature_nw_c2_vampire7();
+            else if (nEntry == n++) __creature_nw_ch_ac7();
+            else if (nEntry == n++) __creature_nw_s3_balordeth();
+            //else if (nEntry == n++) __creature_x0_hatch_dam();
+            else if (nEntry == n++) __creature_x2_def_ondeath();
+            else if (nEntry == n++) __creature_x2_hen_death();
+            else if (nEntry == n++) __creature_x3_c2_pm_death();
+        } break;
 
-        // ----- Conversation Events -----
-        case 50:  __creature_nw_ch_ac4(); break;
-        case 51:  __creature_nw_c2_default4(); break;
-        case 52:  __creature_x2_def_onconv(); break;
-        case 53:  __creature_x0_ch_hen_conv(); break;
-        case 54:  __creature_nw_ch_fm4(); break;
-        case 55:  __creature_x0_cheatlisten(); break;
+        case 500:
+        {
+            // ----- Conversation Events -----
+            if      (nEntry == n++) __creature_nw_ch_ac4();
+            else if (nEntry == n++) __creature_nw_c2_default4();
+            else if (nEntry == n++) __creature_x2_def_onconv();
+            else if (nEntry == n++) __creature_x0_ch_hen_conv();
+            else if (nEntry == n++) __creature_nw_ch_fm4();
+            else if (nEntry == n++) __creature_x0_cheatlisten();
+        } break;
 
-        // ----- Disturbed Events -----
-        case 60:  __creature_nw_ch_ac8(); break;
-        case 61:  __creature_nw_c2_default8(); break;
-        case 62:  __creature_x2_def_ondisturb(); break;
-        case 63:  __creature_x0_ch_hen_distrb(); break;
-        case 64:  __creature_nw_e0_default8(); break;
+        case 600:
+        {
+            // ----- Disturbed Events -----
+            if      (nEntry == n++) __creature_nw_ch_ac8();
+            else if (nEntry == n++) __creature_nw_c2_default8();
+            else if (nEntry == n++) __creature_x2_def_ondisturb();
+            else if (nEntry == n++) __creature_x0_ch_hen_distrb();
+            else if (nEntry == n++) __creature_nw_e0_default8();
+        } break;
 
-        // ----- End Combat Round Events -----
-        case 70:  __creature_nw_c2_default3(); break;
-        case 71:  __creature_nw_ch_ac3(); break;
-        case 72:  __creature_nw_ch_fm3(); break;
-        case 73:  __creature_x0_ch_hen_combat(); break;
-        case 74:  __creature_x2_def_endcombat(); break;
+        case 700:
+        {
+            // ----- End Combat Round Events -----
+            if      (nEntry == n++) __creature_nw_c2_default3();
+            else if (nEntry == n++) __creature_nw_ch_ac3();
+            else if (nEntry == n++) __creature_nw_ch_fm3();
+            else if (nEntry == n++) __creature_x0_ch_hen_combat();
+            else if (nEntry == n++) __creature_x2_def_endcombat();
+        } break;
 
-        // ----- Blocked Events -----
-        case 80:  __creature_nw_c2_defaulte(); break;
-        case 81:  __creature_nw_ch_ace(); break;
-        case 82:  __creature_x0_ch_hen_block(); break;
-        case 83:  __creature_x2_def_onblocked(); break;
+        case 800:
+        {
+            // ----- Blocked Events -----
+            if      (nEntry == n++) __creature_nw_c2_defaulte();
+            else if (nEntry == n++) __creature_nw_ch_ace();
+            else if (nEntry == n++) __creature_x0_ch_hen_block();
+            else if (nEntry == n++) __creature_x2_def_onblocked();
+        } break;
 
-        // ----- Perception Events -----
-        case 90:  __creature_nw_c2_default2(); break;
-        case 91:  __creature_nw_ch_ac2(); break;
-        case 92:  __creature_x0_ch_hen_percep(); break;
-        case 93:  __creature_x2_def_percept(); break;
+        case 900:
+        {
+            // ----- Perception Events -----
+            if      (nEntry == n++) __creature_nw_c2_default2();
+            else if (nEntry == n++) __creature_nw_ch_ac2();
+            else if (nEntry == n++) __creature_x0_ch_hen_percep();
+            else if (nEntry == n++) __creature_x2_def_percept();
+        } break;
 
-        // ----- Rested Events -----
-        case 100: __creature_nw_c2_defaulta(); break;
-        case 101: __creature_nw_ch_aca(); break;
-        case 102: __creature_x0_ch_rest(); break;
-        case 103: __creature_x2_def_rested(); break;
+        case 1000:
+        {
+            // ----- Rested Events -----
+            if      (nEntry == n++) __creature_nw_c2_defaulta();
+            else if (nEntry == n++) __creature_nw_ch_aca();
+            else if (nEntry == n++) __creature_x0_ch_rest();
+            else if (nEntry == n++) __creature_x2_def_rested();
+        } break;
 
-        // ----- Spawn Events -----
-        case 120: __creature_nw_c2_bat9(); break;
-        case 121: __creature_nw_c2_default9(); break;
-        case 122: __creature_nw_c2_dimdoors(); break;
-        case 123: __creature_nw_c2_dropin9(); break;
-        case 124: __creature_nw_c2_gated(); break;
-        case 125: __creature_nw_c2_gatedbad(); break;
-        case 126: __creature_nw_c2_herbivore(); break;
-        case 127: __creature_nw_c2_lycan_9(); break;
-        case 128: __creature_nw_c2_omnivore(); break;
-        case 129: __creature_nw_c2_vampireg9(); break;
-        case 130: __creature_nw_ch_ac9(); break;
-        case 131: __creature_nw_ch_acani9(); break;
-        case 132: __creature_nw_ch_acgs9(); break;
-        case 133: __creature_nw_ch_summon_9(); break;
-        case 134: __creature_x0_ch_hen_spawn(); break;
-        case 135: __creature_x2_ch_summon_sld(); break;
-        case 136: __creature_x2_def_spawn(); break;
-        case 137: __creature_x2_spawn_genie(); break;
+        case 1200:
+        {
+            // ----- Spawn Events -----
+            if      (nEntry == n++) __creature_nw_c2_bat9();
+            else if (nEntry == n++) __creature_nw_c2_default9();
+            else if (nEntry == n++) __creature_nw_c2_dimdoors();
+            else if (nEntry == n++) __creature_nw_c2_dropin9();
+            else if (nEntry == n++) __creature_nw_c2_gated();
+            else if (nEntry == n++) __creature_nw_c2_gatedbad();
+            else if (nEntry == n++) __creature_nw_c2_herbivore();
+            else if (nEntry == n++) __creature_nw_c2_lycan_9();
+            else if (nEntry == n++) __creature_nw_c2_omnivore();
+            else if (nEntry == n++) __creature_nw_c2_vampireg9();
+            else if (nEntry == n++) __creature_nw_ch_ac9();
+            else if (nEntry == n++) __creature_nw_ch_acani9();
+            else if (nEntry == n++) __creature_nw_ch_acgs9();
+            else if (nEntry == n++) __creature_nw_ch_summon_9();
+            else if (nEntry == n++) __creature_x0_ch_hen_spawn();
+            else if (nEntry == n++) __creature_x2_ch_summon_sld();
+            else if (nEntry == n++) __creature_x2_def_spawn();
+            else if (nEntry == n++) __creature_x2_spawn_genie();
+        } break;
 
-        // ----- User Defined Events -----
-        case 150: __creature_nw_c2_dimdoor(); break;
+        case 1500:
+        {
+            // ----- User Defined Events -----
+            if      (nEntry == n++) __creature_nw_c2_dimdoor();
+        }
 
         default: CriticalError("Library function " + sScript + " not found");
     }

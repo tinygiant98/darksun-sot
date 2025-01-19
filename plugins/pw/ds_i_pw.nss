@@ -13,9 +13,8 @@
 // -----------------------------------------------------------------------------
 
 #include "x3_inc_string"
-#include "pw_i_const"
-#include "pw_i_config"
-#include "pw_i_text"
+#include "ds_c_pw"
+#include "ds_t_pw"
 
 #include "core_i_framework"
 #include "util_i_data"
