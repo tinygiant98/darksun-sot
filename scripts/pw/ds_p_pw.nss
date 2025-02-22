@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-//    File: pw_l_plugin.nss
+//    File: ds_p_pw.nss
 //  System: Persistent World Administration (library)
 // -----------------------------------------------------------------------------
 // Description:
@@ -22,12 +22,10 @@ void OnLibraryLoad()
     if (!GetIfPluginExists("pw"))
     {
         object oPlugin = CreatePlugin("pw");
-        SetName(oPlugin, "[Plugin] HCR2 :: Core");
+        SetName(oPlugin, "[Plugin] PW Admin :: Core");
         SetDescription(oPlugin,
             "This plugin controls basic functions of the HCR2-base persistent world system and " +
             "loads all pw subsystems.");
-        LoadLibraries("bus_l_plugin, res_l_plugin, res_l_placeables, " +
-            "res_l_creatures");
         LoadLibrariesByPattern("pw_l_*");
 
         // ----- Module Events -----
