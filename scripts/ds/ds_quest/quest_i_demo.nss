@@ -47,7 +47,7 @@ void define_quest_demo_kill()
     SetQuestVersionActionDelete();
     
     AddQuestStep();
-    SetQuestStepPrewardFloatingText("They're coming right for us!");
+    //SetQuestStepPrewardFloatingText("They're coming right for us!");
     SetQuestStepObjectiveKill("nw_goblina", 5);
     SetQuestStepRewardMessage("The quest you just accomplished was a demonstration of a KILL quest. " +
         "Each goblin you killed was tallied and when you reach five goblins killed, the quest step was " +
@@ -88,9 +88,9 @@ void define_quest_demo_gather()
     SetQuestRepetitions(0);
     SetQuestVersion(1);
     SetQuestVersionActionDelete();
-    SetQuestWebhookMessage("<FullName>, one of the greatest <race> <classes> to have ever graced the " +
-        "hallowed ground of, ummm, <area>, has undertaken the very dangerous quest to gather the strewn " +
-        "armor pieces from the open prairies, so carelessly left there by that little know-it-all Hadji.");
+    //SetQuestWebhookMessage("<FullName>, one of the greatest <race> <classes> to have ever graced the " +
+    //    "hallowed ground of, ummm, <area>, has undertaken the very dangerous quest to gather the strewn " +
+    //    "armor pieces from the open prairies, so carelessly left there by that little know-it-all Hadji.");
 
     AddQuestStep();
     SetQuestStepPrewardMessage(HexColorString("This quest demonstrates a non-sequential progression.  You're required " +
@@ -102,8 +102,8 @@ void define_quest_demo_gather()
     
 
     AddQuestResolutionSuccess();
-    SetQuestWebhookMessage("OMG, did you see that, <FullName> totally picked up all that trash that Hadji Singh left. " +
-        "Dude, <he/she>'ll do anything for a little gold.  Quick, tell <him/her> to put in the wagon next, see if <he/she> does it.");
+    //SetQuestWebhookMessage("OMG, did you see that, <FullName> totally picked up all that trash that Hadji Singh left. " +
+    //    "Dude, <he/she>'ll do anything for a little gold.  Quick, tell <him/her> to put in the wagon next, see if <he/she> does it.");
     SetQuestStepRewardAlignment(ALIGNMENT_GOOD, 2);
     SetQuestStepRewardMessage("Thanks for the help!");
     SetQuestStepRewardMessage(HexColorString("Since this is just a demonstration, all the items you just collected " +

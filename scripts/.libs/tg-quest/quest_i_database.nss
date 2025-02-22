@@ -23,7 +23,7 @@
 */
 
 #include "util_i_csvlists"
-
+#include "util_i_time"
 #include "quest_i_const"
 #include "quest_i_debug"
 
@@ -245,24 +245,24 @@ int CountRowChanges(object oTarget)
     return SqlStep(sql) ? SqlGetInt(sql, 0) : -1;
 }
 
-string GetTimeStamp()
-{
-    //sQuery = "SELECT strftime('%s', 'now')";
-    sQuery = "SELECT CURRENT_TIMESTAMP;";
-    sql = SqlPrepareQueryObject(GetModule(), sQuery);
-    SqlStep(sql);
-    
-    return SqlGetString(sql, 0);
-}
+//string GetTimeStamp()
+//{
+//    //sQuery = "SELECT strftime('%s', 'now')";
+//    sQuery = "SELECT CURRENT_TIMESTAMP;";
+//    sql = SqlPrepareQueryObject(GetModule(), sQuery);
+//    SqlStep(sql);
+//    
+//    return SqlGetString(sql, 0);
+//}
 
-int GetUnixTimeStamp()
-{
-    sQuery = "SELECT strftime('%s', 'now')";
-    sql = SqlPrepareQueryObject(GetModule(), sQuery);
-    SqlStep(sql);
-
-    return SqlGetInt(sql, 0);
-}
+//int GetUnixTimeStamp()
+//{
+//    sQuery = "SELECT strftime('%s', 'now')";
+//    sql = SqlPrepareQueryObject(GetModule(), sQuery);
+//    SqlStep(sql);
+//
+//    return SqlGetInt(sql, 0);
+//}
 
 string GetGreaterTimeStamp(string sTime1, string sTime2)
 {
