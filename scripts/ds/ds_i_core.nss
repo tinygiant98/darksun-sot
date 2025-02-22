@@ -10,7 +10,7 @@
 
 void ds_DelayStableEvent()
 {
-    RunEvent(MODULE_EVENT_ON_MODULE_STABLE);
+    //RunEvent(MODULE_EVENT_ON_MODULE_STABLE);
 }
 
 void ds_OnClientEnter()

@@ -28,7 +28,7 @@ void OnLibraryLoad()
 
         //Add module level events
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "ds_OnClientEnter", 4.0);
-        RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_STABLE, "ds_OnModuleStable", 4.0);
+        //RegisterEventScripts(oPlugin, MODULE_EVENT_ON_MODULE_STABLE, "ds_OnModuleStable", 4.0);
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_HEARTBEAT, "ds_OnHeartbeat", EVENT_PRIORITY_FIRST);
         RegisterEventScripts(oPlugin, MODULE_EVENT_ON_PLAYER_CHAT, "ds_OnPlayerChat", 4.0);
     }
