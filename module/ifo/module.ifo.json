@@ -11,20 +11,6 @@
         "__struct_id": 6,
         "Area_Name": {
           "type": "resref",
-          "value": "angelhome"
-        }
-      },
-      {
-        "__struct_id": 6,
-        "Area_Name": {
-          "type": "resref",
-          "value": "h2_fugueplane"
-        }
-      },
-      {
-        "__struct_id": 6,
-        "Area_Name": {
-          "type": "resref",
           "value": "startarea"
         }
       }
@@ -74,15 +60,15 @@
   },
   "Mod_Entry_X": {
     "type": "float",
-    "value": 15.3233
+    "value": 93.6344
   },
   "Mod_Entry_Y": {
     "type": "float",
-    "value": 16.0786
+    "value": 71.5789
   },
   "Mod_Entry_Z": {
     "type": "float",
-    "value": 0.0
+    "value": -0.0
   },
   "Mod_Expan_List": {
     "type": "list",
