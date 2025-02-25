@@ -1,0 +1,5 @@
+// Renderhint
+renderhint NormalAndSpecMapped
+
+// Textures
+texture0 ds_tt_stucco01

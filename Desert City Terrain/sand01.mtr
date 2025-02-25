@@ -1,0 +1,5 @@
+// Renderhint
+renderhint NormalAndSpecMapped
+
+// Textures
+texture0 tds21_sand01
