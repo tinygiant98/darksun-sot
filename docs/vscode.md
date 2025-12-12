@@ -27,13 +27,13 @@ Navigate to the [VS Code downloads page](https://code.visualstudio.com/download)
 
 On the left side of the window, on the Activity Bar (several icons stacked vertically), you should see the markeplace icon.
 
-![extensions icon](images/vscodeextensions.jpg)
+![extensions icon](images/vscodeextensions.JPG)
 
 Click it to open the VS Code extension manager.  At the top of the extension manager, there is a search bar.  In this bar, type in `nwscript` and press enter (or just wait ... it's a live search).  Once you see the extension `nwscript 0.0.2`, click on the green install button in the lower right corner of the extension.
 
 That's it.  This extension will allow you to have your scripts color-coded if you've designated that file as a Neverwinter Script file.  You can change how the file is presented on-screen by selecting the language mode.  In the lower right corner of the window, you'll see some information in a status bar format.  It includes such information as line count, column count, tab indentation, etc.  For a new file, the default language mode is `Plain Text`.  You can click on it to change it to `Neverwinter Script`.  If you're working on a different file, you can change it to `Markdown`, `C` or whatever other language you're working in.  If you're looking at one of the converted .json files, it should say `JSON`.
 
-![status bar](images/vscodestatusbar.jpg)
+![status bar](images/vscodestatusbar.JPG)
 
 ## Setting up Your Workspace
 
@@ -41,13 +41,13 @@ The following steps assume you've setup your local repository as recommended in 
 
 1. Click on the `File` tab and select `Add Folder to Workspace...`.  Navigate to your darksun repository folder and select it.  Once you do that, open the explorer tab if it's not already open.  The explorer tab icon looks like this:
 
-    ![explorer icon](images/vscodeexplorer.jpg)
+    ![explorer icon](images/vscodeexplorer.JPG)
 
     The number on the blue circular background means that I currently have one open modified file.  Once you have the explorer tab open, you should see your repository in the treeview on the left side of the window.
 
     VS Code should automatically recognize that your repository is, in fact, a repository and set it up for source control functions.  It cannot do this unless you have already [installed Git](tools.md/#git).  Initially, all of your files will be in a white font.  As you work, this will change.  New files that you have created, but aren't tracking yet, will appear in green font with a green `U` next to them.  Modified files will appear in orange font with an orange `M` next to them.  When you start tracking new files (using the `git add .` command), those files will appear in green font with a green `A` next to them.  This way, you always know the status of your files.  Once you stage, commit and push your files, all files will appear in white font again.  If you see a green or orange dot next to a folder name, that indicates the folder has a color-coded file in it somewhere.  Here is an example of untracked and modified file designations.
 
-    ![working tree example](images/treegitexample.jpg)
+    ![working tree example](images/treegitexample.JPG)
 
 2. You can set up a custom task in VSCode to compile your code, but I recommend using Nasher to compile your scripts.  Nasher allows us to have our scripts and other module resources heavily segmented into a custom directory structure and uses a configuration file to pull them all together.  If you use a custom task within VSCode, NWNSC does not allow recursive searching within subdirectories, so you have to manually add every folder in the repository.  It can be done, but using nasher to compile is much simpler since it automatically combines all required resources into a single directory, then compiles them during the install process.  You can also compile without installing by using the compile command much like the install command:
 
@@ -63,7 +63,7 @@ The following steps assume you've setup your local repository as recommended in 
 
 A successful install should provide the following feedback in your command line utility.
 
-![terminal example](images/terminalexample.jpg)
+![terminal example](images/terminalexample.JPG)
 
 To Be Continued ...
 
