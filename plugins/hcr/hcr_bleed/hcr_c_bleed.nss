@@ -22,38 +22,45 @@ const string H2_TEXT_RECEIVE_LONG_TERM_CARE = "An attempt to provide you with lo
 /// @section Configuration.  The following values should be modified to suit
 ///     the needs of the module.
 
-// Set this to false if you don't want to use bleed system.
+/// @brief This setting determines whether the HCR bleed system is loaded
+///     during the module load process.
+///     TRUE: Enable the HCR bleed system.
+///     FALSE: Disable the HCR bleed system.
 const int H2_USE_BLEED_SYSTEM = TRUE;
 
-//Amount of time in seconds between when the player character bleeds while dying.
-//Note this is seconds in real time, not game time.
-//Recommend value: 6 seconds (1 heartbeat/round)
-const float H2_BLEED_DELAY = 6.0;
+/// @brief This setting defines the interval between bleed checks.  Once
+///     initiated, the bleed system re-evaluate the player on this interval
+///     to determine the next player state.
+/// @note This value is seconds of real time, not game time.
+const float H2_BLEED_INTERVAL = 6.0;
 
-//Amount of time in seconds between when a stable player character nexts checks to see if they begin to recover.
-//Note this is seconds in real time, not game time.
-//Recommended Equation: [Minutes per game hour] * 60 seconds = HoursToSeconds(1).
-//float H2_STABLE_DELAY = HoursToSeconds(1);
-float H2_STABLE_DELAY = H2_BLEED_DELAY * 2.0;
+/// @brief This setting defines the interval between self-recovery checks.
+///     Sine self-recovery is a more unlikely option, this setting can be
+///     set to a longer interval than the bleed check interval to reduce
+///     the chances of self-recovery occurring by reducing the number of
+///     self-recovery checks performed.
+/// @note This value is seconds of real time, not game time.
+float H2_STABLE_INTERVAL = H2_BLEED_INTERVAL * 2.0;
 
-//Percent chance a player character will self stabilize and stop bleedng when dying.
-//Range of values is 0 - 100
-//Recommended value: 10 (as per 3.5 rules giving 10% chance)
+/// @brief This setting defines the change a player charater will self-
+///     stabilize and stop the bleeding process.
+/// @note This value is a percentage change is clamped from [0..100].
 const int H2_SELF_STABILIZE_CHANCE = 10;
 
-//Percent chance a player character will regain conciousness and begin recovery after self-stabilizing.
-//Range of values is 0 - 100
-//Recommended value: 10 (as per 3.5 rules giving 10% chance)
+/// @brief This setting defines the change a player character will begin
+///     the recovery process after self-stabilizing.
+/// @note This value is a percentage change is clamped from [0..100].
 const int H2_SELF_RECOVERY_CHANCE = 10;
 
-//Amount of hitpoints lost when a player character bleeds.
-//Recomended value: 1
+/// @brief This setting defines how many HP a player character will lose
+///     if the system determines they are still bleeding.
+/// @note This HP amount will be lost after each failed bleed check interval.
 const int H2_BLEED_BLOOD_LOSS = 1;
 
-//Heal check DC to provide first aid to a dying charcater to stablize them.
-//Default value is 15.
+/// @brief This setting defines the difficulty class a player character
+///     must overcome to provide stabilizing first aid to a dying character.
 const int H2_FIRST_AID_DC = 15;
 
-//Heal check DC to provide long term care to an injured character.
-//Default value is 15.
+/// @brief This setting defines the difficulty class a player character
+///     must overcome to provide long-term care to a stabilized character.
 const int H2_LONG_TERM_CARE_DC = 15;

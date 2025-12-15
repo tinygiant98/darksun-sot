@@ -60,7 +60,7 @@ void h2_BeginPlayerBleeding(object oPC)
     int nCurrentHitPoints = GetCurrentHitPoints(oPC);
     SetPlayerInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
     
-    int nTimer = CreateTimer(oPC, BLEED_EVENT_ON_TIMER_EXPIRE, H2_BLEED_DELAY);
+    int nTimer = CreateTimer(oPC, BLEED_EVENT_ON_TIMER_EXPIRE, H2_BLEED_INTERVAL);
     SetLocalInt(oPC, H2_BLEED_TIMER_ID, nTimer);
     StartTimer(nTimer, FALSE);
 }
@@ -136,7 +136,7 @@ void h2_CheckForSelfStabilize(object oPC)
     string lastCheck = GetPlayerString(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
     float secondsSinceLastCheck = GetSystemTimeDifferenceIn(TIME_SECONDS, lastCheck);
 
-    if (nPlayerState == H2_PLAYER_STATE_DYING || secondsSinceLastCheck >= H2_STABLE_DELAY)
+    if (nPlayerState == H2_PLAYER_STATE_DYING || secondsSinceLastCheck >= H2_STABLE_INTERVAL)
     {
         if (d100() <= stabilizechance)
             h2_StabilizePlayer(oPC, TRUE);
