@@ -33,28 +33,39 @@ void OnLibraryLoad()
     RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "corpse_OnPlayerDeath", 4.0);
     RegisterEventScript(oPlugin, H2_EVENT_ON_PLAYER_LIVES,     "corpse_OnPlayerLives", 4.0);
 
+    int n;
+
     // --- Module Events ---
-    RegisterLibraryScript("corpse_OnClientEnter", 1);
-    RegisterLibraryScript("corpse_OnClientLeave", 2);
-    RegisterLibraryScript("corpse_OnPlayerDeath", 3);
-    RegisterLibraryScript("corpse_OnPlayerLives", 5);
+    RegisterLibraryScript("corpse_OnClientEnter", n++);
+    RegisterLibraryScript("corpse_OnClientLeave", n++);
+    RegisterLibraryScript("corpse_OnPlayerDeath", n++);
+    RegisterLibraryScript("corpse_OnPlayerLives", n++);
     
+    n = 100;
+
     // --- Tag-based Scripting ---
-    RegisterLibraryScript(H2_PC_CORPSE_ITEM,     4);
+    RegisterLibraryScript(H2_PC_CORPSE_ITEM, n++);
 }
+
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        // ----- Module Events -----
-        case 1:  corpse_OnClientEnter(); break;
-        case 2:  corpse_OnClientLeave(); break;
-        case 3:  corpse_OnPlayerDeath(); break;
-        case 5:  corpse_OnPlayerLives(); break;
-        
-        // ----- Tag-based Scripting -----
-        case 4:  corpse_pccorpseitem(); break;
-        default: CriticalError("Library function " + sScript + " not found");
-    }
+        case 0:
+        {
+            if      (nEntry == n++) corpse_OnClientEnter();
+            else if (nEntry == n++) corpse_OnClientLeave();
+            else if (nEntry == n++) corpse_OnPlayerDeath();
+            else if (nEntry == n++) corpse_OnPlayerLives();
+        } break;
+
+        case 100:
+        {
+            if      (nEntry == n++) corpse_pccorpseitem();
+        } break;
+
+        default: CriticalError("[" + __FILE__ + "]: Library function " + sScript + " not found; nEntry = " + IntToString(nEntry) + ")");
+    }       
 }
