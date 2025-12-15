@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
-//    File: corpse_l_plugin.nss
-//  System: PC Corpse (library)
+//    File: pw_p_corpse.nss
+//  System: PC Corpse (plugin)
 // -----------------------------------------------------------------------------
 // Description:
 //  Library functions for PW Subsystem
