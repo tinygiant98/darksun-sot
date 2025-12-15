@@ -9,7 +9,7 @@
 
 void OnLibraryLoad()
 {
-    if (!H2_USE_BLEED_SYSTEM)
+    if (!H2_BLEED_ENABLE_SYSTEM)
         return;
 
     if (!GetIfPluginExists("pw"))
@@ -24,7 +24,7 @@ void OnLibraryLoad()
     RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH,        "bleed_OnPlayerDeath",       4.0);
 
     // ----- Timer Events -----
-    RegisterEventScript(oPlugin, BLEED_EVENT_ON_TIMER_EXPIRE,         "bleed_OnTimerExpire",       4.0);
+    RegisterEventScript(oPlugin, H2_BLEED_EVENT_ON_TIMER_EXPIRE,         "bleed_OnTimerExpire",       8.0);
 
     int n;
 
@@ -37,7 +37,7 @@ void OnLibraryLoad()
     n = 100;
 
     // --- Tag-based Scripting ---
-    RegisterLibraryScript(H2_HEAL_WIDGET,              n++);
+    RegisterLibraryScript(H2_BLEED_HEAL_WIDGET,              n++);
 
     n = 200;
 
@@ -60,7 +60,7 @@ void OnLibraryScript(string sScript, int nEntry)
 
         case 100:
         {
-            if      (nEntry == n++) corpse_pccorpseitem();
+            if      (nEntry == n++) bleed_healwidget();
         } break;
 
         case 200:

@@ -4,22 +4,31 @@
 /// @brief  Bleed System (core)
 /// ----------------------------------------------------------------------------
 
-const string H2_BLEED_TIMER_SCRIPT = "h2_bleedtimer";
-const string H2_LAST_HIT_POINTS = "H2_LASTHITPOINTS";
-const string H2_BLEED_TIMER_ID = "H2_BLEEDTIMERID";
-const string H2_TIME_OF_LAST_BLEED_CHECK = "H2_TIME_OF_LAST_BLEED_CHECK";
-const string H2_LONG_TERM_CARE = "H2_LONG_TERM_CARE";
-const string H2_HEAL_WIDGET = "h2_healwidget";
-const string BLEED_ON_TIMER_EXPIRE = "bleed_OnTimerExpire";
-const string BLEED_EVENT_ON_TIMER_EXPIRE = "BLEED_EVENT_ON_TIMER_EXPIRE";
+// -----------------------------------------------------------------------------
+//                              Module Events
+// -----------------------------------------------------------------------------
+
+/// @brief H2_BLEED_EVENT_ON_TIMER_EXPIRE.  This event is triggered when a
+///     running bleed timer expires after the interval defined the bleed system
+///     configuration.
+/// @param OBJECT_SELF The dying player character whose bleed time has expired.
+/// @note Using a lower priority than the bleed systems OnTimerExpire event will
+///     allow this system to fully process bleed actions and set the player state
+///     before other event scripts are run.
 
 #include "util_i_data"
 #include "core_i_framework"
 #include "hcr_c_bleed"
 #include "hcr_i_core"
 
+const string H2_BLEED_LAST_HIT_POINTS = "H2_BLEED_LAST_HIT_POINTS";
+const string H2_BLEED_TIMER_ID = "H2_BLEED_TIMER_ID";
+const string H2_BLEED_TIME_OF_LAST_BLEED_CHECK = "H2_BLEED_TIME_OF_LAST_BLEED_CHECK";
+const string H2_BLEED_LONG_TERM_CARE = "H2_BLEED_LONG_TERM_CARE";
+const string H2_BLEED_EVENT_ON_TIMER_EXPIRE = "H2_BLEED_EVENT_ON_TIMER_EXPIRE";
+
 // -----------------------------------------------------------------------------
-//                              Function Prototypes
+//                        System Function Prototypes
 // -----------------------------------------------------------------------------
 
 /// @brief Creates and starts a timer to control a dying player's bleeding
@@ -52,15 +61,51 @@ void h2_CheckForSelfStabilize(object oPC);
 void h2_UseHealWidgetOnTarget(object oTarget);
 
 // -----------------------------------------------------------------------------
-//                             Function Definitions
+//                        System Function Definitions
 // -----------------------------------------------------------------------------
+
+/// @private Ensures the user-provided self-stabilization chance configuration
+///     value is within an acceptable range.
+int _GetSelfStabilizeChance(object oPC)
+{
+    return clamp(h2_GetBleedSelfStabilizeChance(oPC), 0, 100);
+}
+
+/// @private Ensures the user-provided self-recovery chance configuration
+///     value is within an acceptable range.
+int _GetSelfRecoveryChance(object oPC)
+{
+    return clamp(h2_GetBleedSelfRecoveryChance(oPC), 0, 100);
+}
+
+/// @private Ensure the user-provided bleed HP loss configuration value is
+///     at least 0HP.
+int _GetHPLoss(object oPC)
+{
+    return max(h2_GetBleedHPLoss(oPC), 0);
+}
+
+/// @private Ensure the user-provided difficulty class for first-aid checks
+///     is at least 0.
+int _GetFirstAidDC(object oPC, object oHealer)
+{
+    return max(h2_GetBleedFirstAidDC(oPC, oHealer), 0);
+}
+
+/// @private Ensure the user-provided difficulty class for long-term care checks
+///     is at least 0.
+int _GetLongTermCareDC(object oPC, object oHealer)
+{
+    return max(h2_GetBleedLongTermCareDC(oPC, oHealer), 0);
+}
+
 
 void h2_BeginPlayerBleeding(object oPC)
 {
     int nCurrentHitPoints = GetCurrentHitPoints(oPC);
-    SetPlayerInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
+    SetPlayerInt(oPC, H2_BLEED_LAST_HIT_POINTS, nCurrentHitPoints);
     
-    int nTimer = CreateTimer(oPC, BLEED_EVENT_ON_TIMER_EXPIRE, H2_BLEED_INTERVAL);
+    int nTimer = CreateTimer(oPC, H2_BLEED_EVENT_ON_TIMER_EXPIRE, h2_GetBleedCheckInterval(oPC));
     SetLocalInt(oPC, H2_BLEED_TIMER_ID, nTimer);
     StartTimer(nTimer, FALSE);
 }
@@ -75,7 +120,7 @@ void h2_MakePlayerFullyRecovered(object oPC)
     }
 
     SendMessageToPC(oPC, H2_TEXT_RECOVERED_FROM_DYING);
-    DeleteLocalString(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
+    DeleteLocalString(oPC, H2_BLEED_TIME_OF_LAST_BLEED_CHECK);
     SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
     //TODO: make monsters go hostile to PC again?
 }
@@ -84,7 +129,7 @@ void h2_StabilizePlayer(object oPC, int bNaturalHeal = FALSE)
 {
     int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
     int nCurrentHitPoints = GetCurrentHitPoints(oPC);
-    SetPlayerInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
+    SetPlayerInt(oPC, H2_BLEED_LAST_HIT_POINTS, nCurrentHitPoints);
     if (nPlayerState == H2_PLAYER_STATE_DYING)
     {
         SendMessageToPC(oPC, H2_TEXT_PLAYER_STABLIZED);
@@ -93,7 +138,7 @@ void h2_StabilizePlayer(object oPC, int bNaturalHeal = FALSE)
         else
             SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
         
-        SetPlayerString(oPC, H2_TIME_OF_LAST_BLEED_CHECK, GetSystemTime());
+        SetPlayerString(oPC, H2_BLEED_TIME_OF_LAST_BLEED_CHECK, GetSystemTime());
     }
     else if (bNaturalHeal)
         h2_MakePlayerFullyRecovered(oPC);
@@ -103,12 +148,10 @@ void h2_StabilizePlayer(object oPC, int bNaturalHeal = FALSE)
 
 void h2_DoBleedDamageToPC(object oPC)
 {
-    SetPlayerString(oPC, H2_TIME_OF_LAST_BLEED_CHECK, GetSystemTime());
-    int nCurrentHitPoints = GetCurrentHitPoints(oPC);
-    SetPlayerInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
-    int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
+    SetPlayerString(oPC, H2_BLEED_TIME_OF_LAST_BLEED_CHECK, GetSystemTime());
+    SetPlayerInt(oPC, H2_BLEED_LAST_HIT_POINTS, GetCurrentHitPoints(oPC));
     
-    if (nPlayerState == H2_PLAYER_STATE_RECOVERING)
+    if (GetPlayerInt(oPC, H2_PLAYER_STATE) == H2_PLAYER_STATE_RECOVERING)
         return;
 
     switch(d6())
@@ -122,23 +165,25 @@ void h2_DoBleedDamageToPC(object oPC)
     }
 
     SendMessageToPC(oPC, H2_TEXT_WOUNDS_BLEED);
-    effect eBloodloss = EffectDamage(H2_BLEED_BLOOD_LOSS, DAMAGE_TYPE_MAGICAL, DAMAGE_POWER_ENERGY);
+
+    effect eBloodloss = EffectDamage(_GetHPLoss(oPC), DAMAGE_TYPE_MAGICAL, DAMAGE_POWER_ENERGY);
     ApplyEffectToObject(DURATION_TYPE_INSTANT, eBloodloss, oPC);
 }
 
 void h2_CheckForSelfStabilize(object oPC)
 {
     int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
-    int stabilizechance = H2_SELF_STABILIZE_CHANCE;
+    int nStabilizeChance = _GetSelfStabilizeChance(oPC);
+    
     if (nPlayerState == H2_PLAYER_STATE_STABLE || nPlayerState == H2_PLAYER_STATE_RECOVERING)
-        stabilizechance = H2_SELF_RECOVERY_CHANCE;
+        nStabilizeChance = _GetSelfRecoveryChance(oPC);
 
-    string lastCheck = GetPlayerString(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
-    float secondsSinceLastCheck = GetSystemTimeDifferenceIn(TIME_SECONDS, lastCheck);
+    string sLastBleedCheck = GetPlayerString(oPC, H2_BLEED_TIME_OF_LAST_BLEED_CHECK);
+    float fSecondsSinceLastBleedCheck = GetSystemTimeDifferenceIn(TIME_SECONDS, sLastBleedCheck);
 
-    if (nPlayerState == H2_PLAYER_STATE_DYING || secondsSinceLastCheck >= H2_STABLE_INTERVAL)
+    if (nPlayerState == H2_PLAYER_STATE_DYING || fSecondsSinceLastBleedCheck >= h2_GetBleedStableInterval(oPC))
     {
-        if (d100() <= stabilizechance)
+        if (d100() <= nStabilizeChance)
             h2_StabilizePlayer(oPC, TRUE);
         else
             h2_DoBleedDamageToPC(oPC);
@@ -148,7 +193,6 @@ void h2_CheckForSelfStabilize(object oPC)
 void h2_UseHealWidgetOnTarget(object oTarget)
 {
     object oUser = GetItemActivator();
-    int rollResult;
     
     if (_GetIsPC(oTarget))
     {
@@ -157,6 +201,7 @@ void h2_UseHealWidgetOnTarget(object oTarget)
             SendMessageToPC(oUser, H2_TEXT_CANNOT_USE_ON_SELF);
             return;
         }
+
         int nPlayerState = GetPlayerInt(oTarget, H2_PLAYER_STATE);
         switch (nPlayerState)
         {
@@ -165,11 +210,10 @@ void h2_UseHealWidgetOnTarget(object oTarget)
                 break;
             case H2_PLAYER_STATE_DYING:
             case H2_PLAYER_STATE_STABLE:
-                rollResult = h2_SkillCheck(SKILL_HEAL, oUser);
-                if (rollResult >= H2_FIRST_AID_DC)
+                if (h2_SkillCheck(SKILL_HEAL, oUser) >= _GetFirstAidDC(oTarget, oUser))
                 {
                     SetPlayerInt(oTarget, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
-                    SendMessageToPC(oTarget,  H2_TEXT_PLAYER_STABLIZED);
+                    SendMessageToPC(oTarget, H2_TEXT_PLAYER_STABLIZED);
                     SendMessageToPC(oUser, H2_TEXT_FIRST_AID_SUCCESS);
                 }
                 else
@@ -184,9 +228,9 @@ void h2_UseHealWidgetOnTarget(object oTarget)
                     SendMessageToPC(oUser, H2_TEXT_DOES_NOT_NEED_AID);
                     return;
                 }
-                rollResult = h2_SkillCheck(SKILL_HEAL, oUser, 0);
-                if (rollResult >= H2_LONG_TERM_CARE_DC)
-                    SetLocalInt(oTarget, H2_LONG_TERM_CARE, 1);
+
+                if (h2_SkillCheck(SKILL_HEAL, oUser, 0) >= _GetLongTermCareDC(oTarget, oUser))
+                    SetLocalInt(oTarget, H2_BLEED_LONG_TERM_CARE, 1);
                     
                 SendMessageToPC(oUser, H2_TEXT_ATTEMPT_LONG_TERM_CARE);
                 SendMessageToPC(oTarget, H2_TEXT_RECEIVE_LONG_TERM_CARE);
@@ -201,78 +245,74 @@ void h2_UseHealWidgetOnTarget(object oTarget)
 //  EVENT MANAGEMENT
 // -----------------------------------------------------------------------------
 
+/// @todo get rid of this .... need to make changes in the framework engine here...
 #include "x2_inc_switches"
 
 // -----------------------------------------------------------------------------
-//                              Function Prototypes
+//                        Event Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< bleed_OnClientEnter >---
-// Library and event registered script for the module-level OnClientEnter
-//  event.  This function ensures each entering player has a Heal Widget in
-//  their inventory.
+/// @brief Ensure entering players have the required inventory items for using
+///     the bleed system.
 void bleed_OnClientEnter();
 
-// ---< bleed_OnPlayerDeath >---
-// Library and event registered script for the module-level OnPlayerDeath
-//  event.  This function starts the bleed functions if the player is not dead.
+/// @brief If a character dies, stop the bleed system timer and remove the
+///     any variables set by the bleed system.
 void bleed_OnPlayerDeath();
 
-// ---< bleed_OnPlayerRestStarted >---
-// Library and event registered script for the module-level OnPlayerRestStarted
-//  event.  This function sets the maximum amount of healing a PC can do.
+/// @brief Determines the maximum amount of healing a player can do after resting
+///    based on their current player state.
 void bleed_OnPlayerRestStarted();
 
-// ---< bleed_OnPlayerDying >---
-// Library and event registered script for the module-level OnPlayerDying
-//  event.  This function marks the PC's state and starts the bleed system.
+/// @brief Starts the bleeding process for a dying player character.
 void bleed_OnPlayerDying();
 
-// ---< bleed_healwidget >---
-// Library registered script for tag-based sripting for the healwidget item.
+/// @brief Tag-based scripting for the heal widget item.
 void bleed_healwidget();
 
-// ---< bleed_OnTimerExpire >---
-// Event registered script that runs when the bleed timer expires.  This
-//  function will apply additional damage, check for self-stabilization, or
-//  kill the PC, as required by the bleen system and custom settings.
-// Note: OnTimerExpire is not a framework event.
+/// @brief Perform bleed system interval checks to determine the next state of
+///    a dying player character.
 void bleed_OnTimerExpire();
 
 // -----------------------------------------------------------------------------
-//                             Function Definitions
+//                        Event Function Definitions
 // -----------------------------------------------------------------------------
 
-// ----- Module Events -----
+/// @private Clear bleed system variables.
+void bleed_ClearVariables(object oPC)
+{
+    int nTimerID = GetPlayerInt(oPC, H2_BLEED_TIMER_ID);
+    if (nTimerID)
+    {
+        DeletePlayerInt(oPC, H2_BLEED_TIMER_ID);
+        KillTimer(nTimerID);
+    }
+
+    DeletePlayerInt(oPC, H2_BLEED_LAST_HIT_POINTS);
+    DeletePlayerString(oPC, H2_BLEED_TIME_OF_LAST_BLEED_CHECK);
+    DeletePlayerInt(oPC, H2_BLEED_LONG_TERM_CARE);
+}
 
 void bleed_OnClientEnter()
 {
     object oPC = GetEnteringObject();
-    object oHealWidget = GetItemPossessedBy(oPC, H2_HEAL_WIDGET);
+    object oHealWidget = GetItemPossessedBy(oPC, H2_BLEED_HEAL_WIDGET);
     if (!GetIsObjectValid(oHealWidget))
-        CreateItemOnObject(H2_HEAL_WIDGET, oPC);
+        CreateItemOnObject(H2_BLEED_HEAL_WIDGET, oPC);
+}
+
+void bleed_OnPlayerDeath()
+{
+    bleed_ClearVariables(GetLastPlayerDied());
 }
 
 void bleed_OnPlayerRestStarted()
 {
     object oPC = GetLastPCRested();
-    if (GetPlayerInt(oPC, H2_LONG_TERM_CARE) && h2_GetPostRestHealAmount(oPC) > 0)
+    if (GetPlayerInt(oPC, H2_BLEED_LONG_TERM_CARE) && h2_GetPostRestHealAmount(oPC) > 0)
     {
-        DeletePlayerInt(oPC, H2_LONG_TERM_CARE);
-        int postRestHealAmt = h2_GetPostRestHealAmount(oPC) * 2;
-        h2_SetPostRestHealAmount(oPC, postRestHealAmt);
-    }
-}
-
-void bleed_OnPlayerDeath()
-{
-    object oPC = GetLastPlayerDied();
-    int timerID = GetPlayerInt(oPC, H2_BLEED_TIMER_ID);
-
-    if (timerID)
-    {
-        DeletePlayerInt(oPC, H2_BLEED_TIMER_ID);
-        KillTimer(timerID);
+        DeletePlayerInt(oPC, H2_BLEED_LONG_TERM_CARE);
+        h2_SetPostRestHealAmount(oPC, h2_GetPostRestHealAmount(oPC) * 2);
     }
 }
 
@@ -283,25 +323,12 @@ void bleed_OnPlayerDying()
         h2_BeginPlayerBleeding(oPC);
 }
 
-// ----- Tag-based Scripting -----
-
 void bleed_healwidget()
 {
     int nEvent = GetUserDefinedItemEventNumber();
-
-    // * This code runs when the Unique Power property of the item is used
-    // * Note that this event fires PCs only
-    if (nEvent ==  X2_ITEM_EVENT_ACTIVATE)
-    {
-        object oTarget = GetItemActivatedTarget();
-        if (GetObjectType(oTarget) != OBJECT_TYPE_CREATURE)
-            return;
-            
-        h2_UseHealWidgetOnTarget(oTarget);
-    }
+    if (nEvent == X2_ITEM_EVENT_ACTIVATE)
+        h2_UseHealWidgetOnTarget(GetItemActivatedTarget());
 }
-
-// ----- Timer Events -----
 
 void bleed_OnTimerExpire()
 {
@@ -310,10 +337,7 @@ void bleed_OnTimerExpire()
     if (nPlayerState != H2_PLAYER_STATE_DYING && nPlayerState != H2_PLAYER_STATE_STABLE &&
         nPlayerState != H2_PLAYER_STATE_RECOVERING)
     {
-        int nTimerID = GetLocalInt(oPC, H2_BLEED_TIMER_ID);
-        DeletePlayerInt(oPC, H2_BLEED_TIMER_ID);
-        DeletePlayerInt(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
-        KillTimer(nTimerID);
+        bleed_ClearVariables(oPC);
     }
     else
     {
@@ -324,7 +348,7 @@ void bleed_OnTimerExpire()
             return;
         }
 
-        int nLastHitPoints = GetPlayerInt(oPC, H2_LAST_HIT_POINTS);
+        int nLastHitPoints = GetPlayerInt(oPC, H2_BLEED_LAST_HIT_POINTS);
         if (nCurrHitPoints > nLastHitPoints)
         {
             h2_StabilizePlayer(oPC);

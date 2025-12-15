@@ -1,12 +1,12 @@
 /// ----------------------------------------------------------------------------
 /// @file   hcr_c_bleed.nss
 /// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
-/// @brief  Bleed System (configuration)
+/// @brief  Bleed System (configuration).
 /// ----------------------------------------------------------------------------
 
-/// @section Translatable Text.  The following text values will be displayed
-///     directly to the player.   These values can be modified or translated
-///     as needed.
+// -----------------------------------------------------------------------------
+//                           Translatable Text
+// -----------------------------------------------------------------------------
 
 const string H2_TEXT_RECOVERED_FROM_DYING = "You have become revived and are no longer in danger of bleeding to death.";
 const string H2_TEXT_PLAYER_STABLIZED = "Your wounds have stopped bleeding, and you are stable, but still unconcious.";
@@ -19,48 +19,99 @@ const string H2_TEXT_DOES_NOT_NEED_AID = "This person is not in need of any aid.
 const string H2_TEXT_ATTEMPT_LONG_TERM_CARE = "You have attempted to provide long-term care to this person.";
 const string H2_TEXT_RECEIVE_LONG_TERM_CARE = "An attempt to provide you with long-term care has been made.";
 
-/// @section Configuration.  The following values should be modified to suit
-///     the needs of the module.
+// -----------------------------------------------------------------------------
+//                         Configuration Settings
+// -----------------------------------------------------------------------------
 
 /// @brief This setting determines whether the HCR bleed system is loaded
 ///     during the module load process.
 ///     TRUE: Enable the HCR bleed system.
 ///     FALSE: Disable the HCR bleed system.
-const int H2_USE_BLEED_SYSTEM = TRUE;
+const int H2_BLEED_ENABLE_SYSTEM = TRUE;
 
-/// @brief This setting defines the interval between bleed checks.  Once
-///     initiated, the bleed system re-evaluate the player on this interval
-///     to determine the next player state.
-/// @note This value is seconds of real time, not game time.
-const float H2_BLEED_INTERVAL = 6.0;
+/// @brief This setting defines the resref of the heal widget that will be
+///     created in the player's inventory to allow them to attempt to heal
+///     other players.
+const string H2_BLEED_HEAL_WIDGET = "h2_healwidget";
 
-/// @brief This setting defines the interval between self-recovery checks.
-///     Sine self-recovery is a more unlikely option, this setting can be
-///     set to a longer interval than the bleed check interval to reduce
-///     the chances of self-recovery occurring by reducing the number of
-///     self-recovery checks performed.
-/// @note This value is seconds of real time, not game time.
-float H2_STABLE_INTERVAL = H2_BLEED_INTERVAL * 2.0;
+// -----------------------------------------------------------------------------
+//                         Configuration Functions
+// -----------------------------------------------------------------------------
 
-/// @brief This setting defines the change a player charater will self-
-///     stabilize and stop the bleeding process.
-/// @note This value is a percentage change is clamped from [0..100].
-const int H2_SELF_STABILIZE_CHANCE = 10;
+/// @brief This return value of this function defines the interval between
+///     bleed checks.  Once initiated, the bleed system re-evaluates the
+///     player on this interval to determine the next player state.
+/// @param oPC The player character object to get the bleed check interval for.
+/// @return The interval, in seconds of real time, between bleed checks.
+float h2_GetBleedCheckInterval(object oPC)
+{
+    return 6.0;
+}
 
-/// @brief This setting defines the change a player character will begin
-///     the recovery process after self-stabilizing.
-/// @note This value is a percentage change is clamped from [0..100].
-const int H2_SELF_RECOVERY_CHANCE = 10;
+/// @brief This return value of this function defines the interval between
+///     self-recovery checks.  Since self-recovery is an unlikely event,
+///     this setting can be set to a longer interval than the bleed check
+///     interval to reduce the chances of self-recovery occurring by
+///     reducing the number of self-recovery checks performed.
+/// @param oPC The player character object to get the self-recovery check
+///     interval for.
+/// @return The interval, in seconds of real time, between self-recovery checks.
+float h2_GetBleedStableInterval(object oPC)
+{
+    return h2_GetBleedCheckInterval(oPC) * 2.0;
+}
 
-/// @brief This setting defines how many HP a player character will lose
-///     if the system determines they are still bleeding.
-/// @note This HP amount will be lost after each failed bleed check interval.
-const int H2_BLEED_BLOOD_LOSS = 1;
+/// @brief The return value of this function defines the chance a player
+///     character will self-stabilize and stop the bleeding process.
+/// @param oPC The player character object to get the self-stabilization
+///     chance for.
+/// @return The chance that a player character will self-stabilize [0..100].
+/// @note This value will be internally clamped to [0..100].
+int h2_GetBleedSelfStabilizeChance(object oPC)
+{
+    return 10;
+}
 
-/// @brief This setting defines the difficulty class a player character
-///     must overcome to provide stabilizing first aid to a dying character.
-const int H2_FIRST_AID_DC = 15;
+/// @brief The return value of this function defines the chance a player
+///     character will begin the recovery process after self-stabilizing.
+/// @param oPC The player character object to get the self-recovery chance for.
+/// @return The chance that a player character will begin recovery [0..100].
+/// @note This value will be internally clamped to [0..100].
+int h2_GetBleedSelfRecoveryChance(object oPC)
+{
+    return 10;
+}
 
-/// @brief This setting defines the difficulty class a player character
-///     must overcome to provide long-term care to a stabilized character.
-const int H2_LONG_TERM_CARE_DC = 15;
+/// @brief The return value of this function defines the amount of hit points
+///     a player character will lose if they have failed a bleed check.
+/// @param oPC The player character object to get the bleed HP loss for.
+/// @note This value will be internally minimized to at least 0HP.
+int h2_GetBleedHPLoss(object oPC)
+{
+    return 1;
+}
+
+/// @brief The return value of this function defines the difficulty class
+///     a player character must overcome to provide first aid to a dying
+///     character.
+/// @param oPC The dying player character object.
+/// @param oHealer The player character object attempting to provide first aid.
+/// @return The difficulty class to overcome to provide first aid.
+/// @note This value will be internally minimized to at least DC 0.
+int h2_GetBleedFirstAidDC(object oPC, object oHealer)
+{
+    return 15;
+}
+
+/// @brief The return value of this function defines the difficulty class
+///     a player character must overcome to provide long-term care to
+///     a stabilized character.
+/// @param oPC The stabilized player character object.
+/// @param oHealer The player character object attempting to provide
+///     long-term care.
+/// @return The difficulty class to overcome to provide long-term care.
+/// @note This value will be internally minimized to at least DC 0.
+int h2_GetBleedLongTermCareDC(object oPC, object oHealer)
+{
+    return 15;
+}
