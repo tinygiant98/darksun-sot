@@ -1,17 +1,12 @@
-// -----------------------------------------------------------------------------
-//    File: hcr_c_bleed.nss
-//  System: Bleed Persistent World Subsystem (configuration)
-// -----------------------------------------------------------------------------
-// Description:
-//  Configuration values for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  Everything!  Set these values to work in your world!
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   hcr_c_bleed.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Bleed System (configuration)
+/// ----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-//  TRANSLATABLE TEXT
-// -----------------------------------------------------------------------------
+/// @section Translatable Text.  The following text values will be displayed
+///     directly to the player.   These values can be modified or translated
+///     as needed.
 
 const string H2_TEXT_RECOVERED_FROM_DYING = "You have become revived and are no longer in danger of bleeding to death.";
 const string H2_TEXT_PLAYER_STABLIZED = "Your wounds have stopped bleeding, and you are stable, but still unconcious.";
@@ -24,9 +19,8 @@ const string H2_TEXT_DOES_NOT_NEED_AID = "This person is not in need of any aid.
 const string H2_TEXT_ATTEMPT_LONG_TERM_CARE = "You have attempted to provide long-term care to this person.";
 const string H2_TEXT_RECEIVE_LONG_TERM_CARE = "An attempt to provide you with long-term care has been made.";
 
-// -----------------------------------------------------------------------------
-//  CONFIGURATION
-// -----------------------------------------------------------------------------
+/// @section Configuration.  The following values should be modified to suit
+///     the needs of the module.
 
 // Set this to false if you don't want to use bleed system.
 const int H2_USE_BLEED_SYSTEM = TRUE;

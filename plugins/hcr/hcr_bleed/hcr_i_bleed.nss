@@ -1,17 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: hcr_i_bleed.nss
-//  System: Bleed Persistent World Subsystem (library)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------
-//  CONSTANTS
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   hcr_i_bleed.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Bleed System (core)
+/// ----------------------------------------------------------------------------
 
 const string H2_BLEED_TIMER_SCRIPT = "h2_bleedtimer";
 const string H2_LAST_HIT_POINTS = "H2_LASTHITPOINTS";
@@ -22,12 +13,6 @@ const string H2_HEAL_WIDGET = "h2_healwidget";
 const string BLEED_ON_TIMER_EXPIRE = "bleed_OnTimerExpire";
 const string BLEED_EVENT_ON_TIMER_EXPIRE = "BLEED_EVENT_ON_TIMER_EXPIRE";
 
-
-
-// -----------------------------------------------------------------------------
-//  PRIMARY FUNCTIONS
-// -----------------------------------------------------------------------------
-
 #include "util_i_data"
 #include "core_i_framework"
 #include "hcr_c_bleed"
@@ -37,26 +22,33 @@ const string BLEED_EVENT_ON_TIMER_EXPIRE = "BLEED_EVENT_ON_TIMER_EXPIRE";
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-//Creates and starts a timer to track the bleeding of oPC.
+/// @brief Creates and starts a timer to control a dying player's bleeding
+///     process.
+/// @param oPC The player character object to start the bleeding process for.
 void h2_BeginPlayerBleeding(object oPC);
 
-//Makes the player oPC fully recover from a dying or stable state.
-//This brings oPC to 1 HP and sets their player state to H2_PLAYER_STATE_ALIVE.
+/// @brief Makes the player fully recover from a dying or stable state.
+/// @param oPC The player character object to make fully recovered.
+/// @note This brings oPC to 1 HP and sets their player state to H2_PLAYER_STATE_ALIVE.
 void h2_MakePlayerFullyRecovered(object oPC);
 
-//Sets oPC's player state to H2_PLAYER_STATE_STABLE if oPC's player state was H2_PLAYER_STATE_DYING
-//or makes oPC fully recovered if the oPC's player state was H2_PLAYER_STATE_STABLE
-//and bDoFullRecovery is TRUE.
+/// @brief Sets the player's state to H2_PLAYER_STATE_STABLE or makes them fully
+///     recovered if the player's state is H2_PLAYER_STATE_STABLE.
+/// @param oPC The player character object to stabilize or make fully recovered.
+/// @param bDoFullRecovery If TRUE, makes oPC fully recovered if they are stable.
 void h2_StabilizePlayer(object oPC, int bDoFullRecovery = FALSE);
 
-//Causes bleed damage to oPC.
+/// @brief Applies bleed damage to the player character.
+/// @param oPC The player character object to apply bleed damage to.
 void h2_DoBleedDamageToPC(object oPC);
 
-//Checks to see if oPC was able to stabilize on their own, if not
-//bleed damage is done to oPC.
+/// @brief Checks to see if the player character can self-stabilize; if not,
+///    applies bleed damage.
+/// @param oPC The player character object to check for self-stabilization.
 void h2_CheckForSelfStabilize(object oPC);
 
-//Handles when the healing skill widget is used on a target.
+/// @brief Handle application of the heal widget on a creature object.
+/// @param oTarget The target object the heal widget is being used on.
 void h2_UseHealWidgetOnTarget(object oTarget);
 
 // -----------------------------------------------------------------------------
@@ -68,9 +60,9 @@ void h2_BeginPlayerBleeding(object oPC)
     int nCurrentHitPoints = GetCurrentHitPoints(oPC);
     SetPlayerInt(oPC, H2_LAST_HIT_POINTS, nCurrentHitPoints);
     
-    int timerID = CreateTimer(oPC, BLEED_EVENT_ON_TIMER_EXPIRE, H2_BLEED_DELAY);
-    SetLocalInt(oPC, H2_BLEED_TIMER_ID, timerID);
-    StartTimer(timerID, FALSE);
+    int nTimer = CreateTimer(oPC, BLEED_EVENT_ON_TIMER_EXPIRE, H2_BLEED_DELAY);
+    SetLocalInt(oPC, H2_BLEED_TIMER_ID, nTimer);
+    StartTimer(nTimer, FALSE);
 }
 
 void h2_MakePlayerFullyRecovered(object oPC)
@@ -82,7 +74,7 @@ void h2_MakePlayerFullyRecovered(object oPC)
         ApplyEffectToObject(DURATION_TYPE_INSTANT, eHeal, oPC);
     }
 
-    SendMessageToPC(oPC,  H2_TEXT_RECOVERED_FROM_DYING);
+    SendMessageToPC(oPC, H2_TEXT_RECOVERED_FROM_DYING);
     DeleteLocalString(oPC, H2_TIME_OF_LAST_BLEED_CHECK);
     SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
     //TODO: make monsters go hostile to PC again?

@@ -1,17 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: hcr_p_bleed.nss
-//  System: Bleed Persistent World Subsystem (plugin)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
-
-// -----------------------------------------------------------------------------
-//   LIBRARY MANAGEMENT
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   hcr_p_bleed.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Bleed System (plugin)
+/// ----------------------------------------------------------------------------
 
 #include "util_i_library"
 #include "hcr_i_bleed"
@@ -35,34 +26,48 @@ void OnLibraryLoad()
     // ----- Timer Events -----
     RegisterEventScript(oPlugin, BLEED_EVENT_ON_TIMER_EXPIRE,         "bleed_OnTimerExpire",       4.0);
 
+    int n;
+
     // --- Module Events ---
-    RegisterLibraryScript("bleed_OnClientEnter",       1);
-    RegisterLibraryScript("bleed_OnPlayerDying",       2);
-    RegisterLibraryScript("bleed_OnPlayerRestStarted", 3);
-    RegisterLibraryScript("bleed_OnPlayerDeath",       6);
+    RegisterLibraryScript("bleed_OnClientEnter",       n++);
+    RegisterLibraryScript("bleed_OnPlayerDying",       n++);
+    RegisterLibraryScript("bleed_OnPlayerRestStarted", n++);
+    RegisterLibraryScript("bleed_OnPlayerDeath",       n++);
+
+    n = 100;
 
     // --- Tag-based Scripting ---
-    RegisterLibraryScript(H2_HEAL_WIDGET,              4);
+    RegisterLibraryScript(H2_HEAL_WIDGET,              n++);
+
+    n = 200;
 
     // --- Timer Events ---
-    RegisterLibraryScript("bleed_OnTimerExpire",       5);
+    RegisterLibraryScript("bleed_OnTimerExpire",       n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        // ----- Module Events -----
-        case 1:  bleed_OnClientEnter();       break;
-        case 2:  bleed_OnPlayerDying();       break;
-        case 3:  bleed_OnPlayerRestStarted(); break;
-        case 6:  bleed_OnPlayerDeath();       break;
-       
-        // ----- Tag-based Scripting -----
-        case 4:  bleed_healwidget();          break;
+        case 0:
+        {
+            if      (nEntry == n++) bleed_OnClientEnter();
+            else if (nEntry == n++) bleed_OnPlayerDying();
+            else if (nEntry == n++) bleed_OnPlayerRestStarted();
+            else if (nEntry == n++) bleed_OnPlayerDeath();
+        } break;
 
-        // ----- Timer Events -----
-        case 5:  bleed_OnTimerExpire();       break;
-        default: CriticalError("Library function " + sScript + " not found");
-    }
+        case 100:
+        {
+            if      (nEntry == n++) corpse_pccorpseitem();
+        } break;
+
+        case 200:
+        {
+            if      (nEntry == n++) bleed_OnTimerExpire();
+        } break;
+
+        default: CriticalError("[" + __FILE__ + "]: Library function " + sScript + " not found; nEntry = " + IntToString(nEntry) + ")");
+    }       
 }
