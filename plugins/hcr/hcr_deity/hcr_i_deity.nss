@@ -16,8 +16,8 @@
 // There are no constants associated with this system.
 
 #include "util_i_data"
-#include "pw_i_core"
-#include "pw_c_deity"
+#include "hcr_i_core"
+#include "hcr_c_deity"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes

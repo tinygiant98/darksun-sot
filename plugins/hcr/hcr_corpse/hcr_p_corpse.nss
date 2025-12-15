@@ -11,7 +11,7 @@
 
 #include "util_i_library"
 #include "core_i_framework"
-#include "pw_i_corpse"
+#include "hcr_i_corpse"
 
 // -----------------------------------------------------------------------------
 //                               Library Dispatch

@@ -10,8 +10,8 @@
 // -----------------------------------------------------------------------------
 
 #include "x2_inc_switches"
-#include "pw_c_corpse"
-#include "pw_i_core"
+#include "hcr_c_corpse"
+#include "hcr_i_core"
 #include "x0_i0_position"
 
 // -----------------------------------------------------------------------------

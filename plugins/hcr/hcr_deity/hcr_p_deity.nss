@@ -11,7 +11,7 @@
 
 #include "util_i_library"
 #include "core_i_framework"
-#include "pw_i_deity"
+#include "hcr_i_deity"
 
 // -----------------------------------------------------------------------------
 //                               Library Dispatch

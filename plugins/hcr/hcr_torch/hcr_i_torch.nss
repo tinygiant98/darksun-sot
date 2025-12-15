@@ -11,7 +11,7 @@
 
 #include "util_i_data"
 #include "util_i_time"
-#include "pw_c_torch"
+#include "hcr_c_torch"
 #include "pw_i_core"
 
 // -----------------------------------------------------------------------------

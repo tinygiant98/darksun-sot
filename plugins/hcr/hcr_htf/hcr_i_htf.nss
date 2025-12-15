@@ -10,7 +10,7 @@
 // -----------------------------------------------------------------------------
 
 #include "pw_i_core"
-#include "pw_c_htf"
+#include "hcr_c_htf"
 #include "util_i_color"
 #include "util_i_libraries"
 
