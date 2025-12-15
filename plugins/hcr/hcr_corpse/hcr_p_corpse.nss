@@ -47,7 +47,6 @@ void OnLibraryLoad()
     RegisterLibraryScript(H2_PC_CORPSE_ITEM, n++);
 }
 
-
 void OnLibraryScript(string sScript, int nEntry)
 {
     int n = nEntry / 100 * 100;
