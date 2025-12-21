@@ -1,13 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: pw_i_deity.nss
-//  System: Deity (core)
-// -----------------------------------------------------------------------------
-// Description:
-//  Core functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   hcr_i_deity.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Deity System (core).
+/// ----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
 //                                   Constants
@@ -45,8 +40,7 @@ void h2_DeityRez(object oPC)
 
     ApplyEffectToObject(DURATION_TYPE_INSTANT, eRes, oPC);
     ApplyEffectToObject(DURATION_TYPE_INSTANT, eHeal, oPC);
-    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
-    RunEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC);
+    pw_SetPlayerState(oPC, H2_PLAYER_STATE_ALIVE);
     SendMessageToPC(oPC, H2_TEXT_DEITY_REZZED);
     
     string deityRez = GetName(oPC) + "_" + GetPCPlayerName(oPC) + H2_TEXT_DM_DEITY_REZZED + GetDeity(oPC);
@@ -107,7 +101,7 @@ void deity_OnPlayerDeath()
     object oPC = GetLastPlayerDied();
 
     //if some other death subsystem set the player state back to alive before this one, no need to continue
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
+    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_DEAD)
         return;
 
     if (h2_CheckForDeityRez(oPC))

@@ -11,7 +11,7 @@
 /// @brief H2_BLEED_EVENT_ON_TIMER_EXPIRE.  This event is triggered when a
 ///     running bleed timer expires after the interval defined the bleed system
 ///     configuration.
-/// @param OBJECT_SELF The dying player character whose bleed time has expired.
+/// @param OBJECT_SELF The dying player character whose bleed timer has expired.
 /// @note Using a lower priority than the bleed systems OnTimerExpire event will
 ///     allow this system to fully process bleed actions and set the player state
 ///     before other event scripts are run.
@@ -61,7 +61,7 @@ void h2_CheckForSelfStabilize(object oPC);
 void h2_UseHealWidgetOnTarget(object oTarget);
 
 // -----------------------------------------------------------------------------
-//                        System Function Definitions
+//                        Private Function Definitions
 // -----------------------------------------------------------------------------
 
 /// @private Ensures the user-provided self-stabilization chance configuration
@@ -99,6 +99,9 @@ int _GetLongTermCareDC(object oPC, object oHealer)
     return max(h2_GetBleedLongTermCareDC(oPC, oHealer), 0);
 }
 
+// -----------------------------------------------------------------------------
+//                        System Function Definitions
+// -----------------------------------------------------------------------------
 
 void h2_BeginPlayerBleeding(object oPC)
 {
@@ -121,29 +124,31 @@ void h2_MakePlayerFullyRecovered(object oPC)
 
     SendMessageToPC(oPC, H2_TEXT_RECOVERED_FROM_DYING);
     DeleteLocalString(oPC, H2_BLEED_TIME_OF_LAST_BLEED_CHECK);
-    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
+    pw_SetPlayerState(oPC, H2_PLAYER_STATE_ALIVE);
+
+    /// @todo run event here, or should be run the OnPlayerLives event from pw_SetPlayerState()?
     //TODO: make monsters go hostile to PC again?
 }
 
 void h2_StabilizePlayer(object oPC, int bNaturalHeal = FALSE)
 {
-    int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
+    int nPlayerState = pw_GetPlayerState(oPC);
     int nCurrentHitPoints = GetCurrentHitPoints(oPC);
     SetPlayerInt(oPC, H2_BLEED_LAST_HIT_POINTS, nCurrentHitPoints);
     if (nPlayerState == H2_PLAYER_STATE_DYING)
     {
         SendMessageToPC(oPC, H2_TEXT_PLAYER_STABLIZED);
         if (bNaturalHeal)
-            SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_STABLE);
+            pw_SetPlayerState(oPC, H2_PLAYER_STATE_STABLE);
         else
-            SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
+            pw_SetPlayerState(oPC, H2_PLAYER_STATE_RECOVERING);
         
         SetPlayerString(oPC, H2_BLEED_TIME_OF_LAST_BLEED_CHECK, GetSystemTime());
     }
     else if (bNaturalHeal)
         h2_MakePlayerFullyRecovered(oPC);
     else
-        SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_RECOVERING);
+        pw_SetPlayerState(oPC, H2_PLAYER_STATE_RECOVERING);
 }
 
 void h2_DoBleedDamageToPC(object oPC)
@@ -151,7 +156,7 @@ void h2_DoBleedDamageToPC(object oPC)
     SetPlayerString(oPC, H2_BLEED_TIME_OF_LAST_BLEED_CHECK, GetSystemTime());
     SetPlayerInt(oPC, H2_BLEED_LAST_HIT_POINTS, GetCurrentHitPoints(oPC));
     
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) == H2_PLAYER_STATE_RECOVERING)
+    if (pw_GetPlayerState(oPC) == H2_PLAYER_STATE_RECOVERING)
         return;
 
     switch(d6())
@@ -172,7 +177,7 @@ void h2_DoBleedDamageToPC(object oPC)
 
 void h2_CheckForSelfStabilize(object oPC)
 {
-    int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
+    int nPlayerState = pw_GetPlayerState(oPC);
     int nStabilizeChance = _GetSelfStabilizeChance(oPC);
     
     if (nPlayerState == H2_PLAYER_STATE_STABLE || nPlayerState == H2_PLAYER_STATE_RECOVERING)
@@ -319,7 +324,7 @@ void bleed_OnPlayerRestStarted()
 void bleed_OnPlayerDying()
 {
     object oPC = GetLastPlayerDying();
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) == H2_PLAYER_STATE_DYING)
+    if (pw_GetPlayerState(oPC) == H2_PLAYER_STATE_DYING)
         h2_BeginPlayerBleeding(oPC);
 }
 
@@ -333,7 +338,7 @@ void bleed_healwidget()
 void bleed_OnTimerExpire()
 {
     object oPC = OBJECT_SELF;
-    int nPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
+    int nPlayerState = pw_GetPlayerState(oPC);
     if (nPlayerState != H2_PLAYER_STATE_DYING && nPlayerState != H2_PLAYER_STATE_STABLE &&
         nPlayerState != H2_PLAYER_STATE_RECOVERING)
     {
@@ -359,7 +364,7 @@ void bleed_OnTimerExpire()
             h2_CheckForSelfStabilize(oPC);
         else
         {
-            SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_DEAD);
+            pw_SetPlayerState(oPC, H2_PLAYER_STATE_DEAD);
             ApplyEffectToObject(DURATION_TYPE_INSTANT, EffectDeath(), oPC);
         }
     }

@@ -1,13 +1,13 @@
-// -----------------------------------------------------------------------------
-//    File: pw_i_corpse.nss
-//  System: PC Corpse (core)
-// -----------------------------------------------------------------------------
-// Description:
-//  Primary functions for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  Nothing!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   hcr_i_corpse.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Corpse System (core).
+/// ----------------------------------------------------------------------------
+
+/// @todo get rid of x2_inc_switch
+/// @todo maybe get rid of x0_i0_position?
+///     These scripts over overridable by user-provided scripts, so they may
+///     created unintended consequences if used in the corpse system.
 
 #include "x2_inc_switches"
 #include "hcr_c_corpse"
@@ -18,10 +18,7 @@
 //                                   Constants
 // -----------------------------------------------------------------------------
 
-// ----- Items -----
-const string H2_PC_CORPSE_ITEM = "h2_pccorpseitem";
-const string H2_DEATH_CORPSE = "h2_deathcorpse";
-const string H2_DEATH_CORPSE2 = "h2_deathcorpse2";
+/// @todo Move all these variables to a single json object?  Easier to delete/manage?
 
 // ----- Variables -----
 const string H2_WP_DEATH_CORPSE = "H2_PLAYERCORPSE";
@@ -33,54 +30,57 @@ const string H2_CORPSE_DC = "H2_CORPSE_DC";
 const string H2_LAST_DROP_LOCATION = "H2_LAST_DROP_LOCATION";
 const string H2_CORPSE_TOKEN = "H2_CORPSE_TOKEN";
 
-
-
 // -----------------------------------------------------------------------------
-//                              Function Prototypes
+//                        System Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ---< h2_PickUpPlayerCorpse >---
-// This handles moving the pc corpse copy and cleaning up the death corpse 
-//  container whenever oCorpseToken is picked up by a PC.
+/// @brief Move a dead character's corpse copy and clean up the death corpse
+///     container whenever oCorpseToken is picked up by a PC.
+/// @param oCorpseToken The corpse token item being picked up.
 void h2_PickUpPlayerCorpse(object oCorpseToken);
 
-// ---< h2_DropPlayerCorpse >---
-// This handles moving the pc corpse copy and creating the death corpse container
-//  whenever oCorpseToken is dropped by a PC.
+/// @brief Move a dead character's corpse copy and create the death corpse
+///     container whenever oCorpseToken is dropped by a PC.
+/// @param oCorpseToken The corpse token item being dropped.
 void h2_DropPlayerCorpse(object oCorpseToken);
 
-// ---< h2_CreatePlayerCorpse >---
-// This handles the creation of the pc corpse copy of oPC, creation of the death
-//  corpse container and the token item used to move the corpse copy around by
-//  other PCs when the oPC dies.
+/// @brief Handles the creation of the corpse copy of oPC, creation of the death
+///     corpse container, and the token item used to move the corpse copy around by
+///     other players when a character dies.
+/// @param oPC The player character that has died.
 void h2_CreatePlayerCorpse(object oPC);
 
-// ---< h2_CorpseTokenActivatedOnNPC >---
-//Handles when the corpse token is activated and targeted on an NPC.
+/// @brief Handle raising or ressurrection of a player character when a corpse
+///     token is activated on an NPC target.
 void h2_CorpseTokenActivatedOnNPC();
 
-// ---< h2_XPLostForRessurection >---
-// Returns the amount of XP that should be lost based on the level of the
-//  raised PC.
-int h2_XPLostForRessurection(object oRaisedPC);
+/// @brief Returns the amount of XP that should be lost based on the level of the
+///     character being raised or ressurected.
+/// @param oPC The player character being raised or ressurected.
+int h2_XPLostForRessurection(object oPC);
 
-// ---< h2_GoldCostForRessurection >---
-// Returns the smount of GP that should be lost based on the level of the
-//  raised PC.
-int h2_GoldCostForRessurection(object oCaster, int spellID);
+/// @brief Returns the smount of GP that should be lost based on the level of the
+///     raised PC.
+/// @param oCaster The character casting the raise or ressurection spell.
+/// @param nSpellID The spell being cast (SPELL_RAISE_DEAD or SPELL_RESURRECTION).
+int h2_GoldCostForRessurection(object oCaster, int nSpellID);
 
-// ---< h2_RaiseSpellCastOnCorpseToken >---
-// Handles all functions required when a player or DM casts a raise spell
-//  on a dead PC's corpse token.
-void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID);
+/// @brief Handles all functions required when a player or DM casts a raise spell
+///     on a dead player's corpse token.
+/// @param nSpellID The spell being cast (SPELL_RAISE_DEAD or SPELL_RESURRECTION).
+/// @param oToken (Optional) The corpse token item being targeted by the spell.  If
+///     not proviced, the spell target object will be used.
+void h2_RaiseSpellCastOnCorpseToken(int nSpellID, object oToken = OBJECT_INVALID);
 
-// ---< h2_PerformOffLineRessurectionLogin >---
-// Sets up all variables for the PC so that the next time the PC logs in,
-//  he will be resurrected as if he'd be logged in when it happened.
-void h2_PerformOffLineRessurectionLogin(object oPC, location ressLoc);
+/// @brief Sets variables required for a logged out player to be raised or
+///     resurrected on their next login, simluating that the player had been
+///     logged in when the raise or ressurection occurred.
+/// @param oPC The player character being raised or ressurected.
+/// @param l The location where the player will be placed on their next login.
+void h2_PerformOffLineRessurectionLogin(object oPC, location l);
 
 // -----------------------------------------------------------------------------
-//                             Function Definitions
+//                        Private Function Definitions
 // -----------------------------------------------------------------------------
 
 void h2_PickUpPlayerCorpse(object oCorpseToken)
@@ -151,45 +151,49 @@ void h2_CorpseTokenActivatedOnNPC()
     object oPC = GetItemActivator();
     object oItem = GetItemActivated();
     object oTarget = GetItemActivatedTarget();
+    
     if (GetObjectType(oTarget) == OBJECT_TYPE_CREATURE)
     {
         SetLocalObject(oTarget, H2_PCCORPSE_ITEM_ACTIVATOR, oPC);
         SetLocalObject(oTarget, H2_PCCORPSE_ITEM_ACTIVATED, oItem);
+
+        /// @todo change this to a framework event.
         SignalEvent(oTarget, EventUserDefined(H2_PCCORPSE_ITEM_ACTIVATED_EVENT_NUMBER));
     }
 }
 
-int h2_XPLostForRessurection(object oRaisedPC)
+int h2_XPLostForRessurection(object oPC)
 {
     int xplevel = 0;
-    int i;
 
-    for (i = 1; i < GetHitDice(oRaisedPC); i++)
+    int i; for (i = 1; i < GetHitDice(oPC); i++)
     {
         xplevel = xplevel + 1000 * (i - 1);
     }
 
     xplevel = xplevel + 500 * (i - 1);
-    return GetXP(oRaisedPC) - xplevel;
+    return GetXP(oPC) - xplevel;
 }
 
-int h2_GoldCostForRessurection(object oCaster, int spellID)
+int h2_GoldCostForRessurection(object oCaster, int nSpellID)
 {
-    if (spellID == SPELL_RAISE_DEAD)
+    if (nSpellID == SPELL_RAISE_DEAD)
     {
         if (GetGold(oCaster) < H2_GOLD_COST_FOR_RAISE_DEAD)
             return 0;
         return H2_GOLD_COST_FOR_RAISE_DEAD;
     }
-    else
+    else if (nSpellID == SPELL_RESURRECTION)
     {
         if (GetGold(oCaster) < H2_GOLD_COST_FOR_RESSURECTION)
             return 0;
         return H2_GOLD_COST_FOR_RESSURECTION;
     }
+
+    return -1;
 }
 
-void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
+void h2_RaiseSpellCastOnCorpseToken(int nSpellID, object oToken = OBJECT_INVALID)
 {
     if (!GetIsObjectValid(oToken))
         oToken = GetSpellTargetObject();
@@ -201,12 +205,12 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
     
     if (!_GetIsDM(oCaster))
     {
-        if (H2_ALLOW_CORPSE_RESS_BY_PLAYERS == FALSE && _GetIsPC(oPC))
+        if (!H2_CORPSE_ALLOW_PLAYER_RESSURECTION && _GetIsPC(oPC))
             return;
 
         if (H2_REQUIRE_GOLD_FOR_RESS && _GetIsPC(oCaster))
         {
-            int goldCost = h2_GoldCostForRessurection(oCaster, spellID);
+            int goldCost = h2_GoldCostForRessurection(oCaster, nSpellID);
             if (goldCost <= 0)
             {
                 SendMessageToPC(oCaster, H2_TEXT_NOT_ENOUGH_GOLD);
@@ -216,7 +220,7 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
                 TakeGoldFromCreature(goldCost, oCaster, TRUE);
         }
 
-        if (spellID == SPELL_RAISE_DEAD)
+        if (nSpellID == SPELL_RAISE_DEAD)
         {
             int cHP = GetCurrentHitPoints(oPC);
             if (cHP > GetHitDice(oPC))
@@ -230,6 +234,7 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
         
         if (H2_APPLY_XP_LOSS_FOR_RESS)
         {
+            /// @todo pretty sure you can give -xp.  Likely have to use SetXP.
             int lostXP = h2_XPLostForRessurection(oPC);
             GiveXPToCreature(oPC, -lostXP);
         }
@@ -252,8 +257,7 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
     if (GetIsObjectValid(oPC) && _GetIsPC(oPC))
     {
         SendMessageToPC(oPC, H2_TEXT_YOU_HAVE_BEEN_RESSURECTED);
-        SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
-        RunEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC);
+        pw_SetPlayerState(oPC, H2_PLAYER_STATE_ALIVE);
         AssignCommand(oPC, JumpToLocation(castLoc));
         sMessage += GetName(oPC) + "_" + GetPCPlayerName(oPC);
     }
@@ -274,15 +278,15 @@ void h2_RaiseSpellCastOnCorpseToken(int spellID, object oToken = OBJECT_INVALID)
 }
 
 // TODO change unqiueid to uuid?
-void h2_PerformOffLineRessurectionLogin(object oPC, location ressLoc)
+void h2_PerformOffLineRessurectionLogin(object oPC, location l)
 {
     // TODO
     /*
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     DeleteDatabaseVariable(uniquePCID + H2_RESS_LOCATION);
-    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
+    pw_SetPlayerState(oPC, H2_PLAYER_STATE_ALIVE);
     SendMessageToPC(oPC, H2_TEXT_YOU_HAVE_BEEN_RESSURECTED);
-    DelayCommand(H2_CLIENT_ENTER_JUMP_DELAY, AssignCommand(oPC, JumpToLocation(ressLoc)));
+    DelayCommand(H2_CLIENT_ENTER_JUMP_DELAY, AssignCommand(oPC, JumpToLocation(l)));
     if (H2_APPLY_XP_LOSS_FOR_RESS && !GetDatabaseInt(uniquePCID + H2_RESS_BY_DM))
     {
         int lostXP = h2_XPLostForRessurection(oPC);
@@ -297,42 +301,32 @@ void h2_PerformOffLineRessurectionLogin(object oPC, location ressLoc)
 }
 
 // -----------------------------------------------------------------------------
-//                              Function Prototypes
+//                        Event Function Prototypes
 // -----------------------------------------------------------------------------
 
-// ----- Module Events -----
-
-// ---< corpse_OnClientEnter >---
-// This function is library and event registered on the module-level
-//  OnClientEnter event.  This function ensures a PC is resurrected if
-//  their corpse item was resurrected while logged out and ensure they
-//  do not have corpse items in their inventory
+/// @brief Check if the entering player has a pending offline ressurection
+///     and perform it.  Also ensure the player does not have any corpse
+///     items in their inventory.
 void corpse_OnClientEnter();
 
-// ---< corpse_OnClientLeave >---
-// This function is library and event registered on the module-level
-//  OnClientLeave event.  This function ensures a player does not log
-//  out with a corpse item in their inventory.
+/// @brief Prevent leaving players from keeping corpse items in their
+///     inventory while offline.  Any corpse items found are dropped
+///     at the leaving player's last location.
 void corpse_OnClientLeave();
 
-// ---< corpse_OnPlayerDeath >---
-// This function is library and event registered on the module-level
-//  OnPlayerDeath event.  This function creates the PC corpse upon
-//  player death.
+/// @brief Create the player corpse system elements when a player dies.
 void corpse_OnPlayerDeath();
 
-// ----- Tag-based Scripting -----
+/// @brief Event handler for when a player is resurrected.  Cleans up any
+///     remaining corpse system elements for the resurrected player.
+void corpse_OnPlayerLives();
 
-// ---< corpse_pccorpseitem >---
-// This function is library registered as a tag-based scripting function and
-//  handles all actions required for use of the PC corpse item.
+/// @brief Tag-based scripting function for the PC corpse item.
 void corpse_pccorpseitem();
 
 // -----------------------------------------------------------------------------
-//                             Function Definitions
+//                        Event Function Definitions
 // -----------------------------------------------------------------------------
-
-// ----- Module Events -----
 
 void corpse_OnClientEnter()
 {
@@ -376,7 +370,7 @@ void corpse_OnPlayerDeath()
     object oPC = GetLastPlayerDied();
     object oArea = GetArea(oPC);
 
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
+    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_DEAD)
         return;
 
     if (GetLocalInt(oArea, H2_DO_NOT_CREATE_CORPSE_IN_AREA))
@@ -451,10 +445,10 @@ void corpse_pccorpseitem()
     }
     else if (nEvent == X2_ITEM_EVENT_SPELLCAST_AT)
     {
-        int spellID = GetSpellId();
-        if (spellID == SPELL_RAISE_DEAD || spellID == SPELL_RESURRECTION)
+        int nSpellID = GetSpellId();
+        if (nSpellID == SPELL_RAISE_DEAD || nSpellID == SPELL_RESURRECTION)
         {
-            h2_RaiseSpellCastOnCorpseToken(spellID);
+            h2_RaiseSpellCastOnCorpseToken(nSpellID);
             //Now abort the original spell script since the above handled it.
             SetExecutedScriptReturnValue(X2_EXECUTE_SCRIPT_END);
         }

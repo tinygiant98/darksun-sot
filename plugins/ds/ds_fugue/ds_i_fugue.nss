@@ -68,7 +68,7 @@ void ds_fug_OnPlayerDeath()
 {
     object oPC = GetLastPlayerDied();
 
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
+    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_DEAD)
         return;  //PC ain't dead.  Return.
 
     // Generate a Random Number for Now

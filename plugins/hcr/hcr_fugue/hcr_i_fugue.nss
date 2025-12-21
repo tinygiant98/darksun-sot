@@ -79,7 +79,7 @@ void fugue_OnClientEnter()
     // TODO
     /*
     object oPC = GetEnteringObject();
-    int playerstate = GetPlayerInt(oPC, H2_PLAYER_STATE);
+    int playerstate = pw_GetPlayerState(oPC);
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     location ressLoc = GetDatabaseLocation(uniquePCID + H2_RESS_LOCATION);
     if (GetTag(GetArea(oPC)) != H2_FUGUE_PLANE && playerstate == H2_PLAYER_STATE_DEAD && !h2_GetIsLocationValid(ressLoc))
@@ -91,7 +91,7 @@ void fugue_OnPlayerDeath()
 {
     object oPC = GetLastPlayerDied();
 
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
+    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_DEAD)
         return;  //<-- Use core-framework cancellation function?
 
     if (GetTag(GetArea(oPC)) == H2_FUGUE_PLANE)
@@ -122,9 +122,7 @@ void fugue_OnPlayerExit()  // TODO is this for the area exit?
 {
     object oPC = GetExitingObject();
     DeletePlayerInt(oPC, H2_LOGIN_DEATH);
-    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
-    //DelayCommand(0.0, DelayEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC));
-    RunEvent(H2_EVENT_ON_PLAYER_LIVES, OBJECT_INVALID, oPC);
+    pw_SetPlayerState(oPC, H2_PLAYER_STATE_ALIVE);
 }
 
 void fugue_OnPlayerChat()

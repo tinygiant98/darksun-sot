@@ -1,20 +1,18 @@
-// -----------------------------------------------------------------------------
-//    File: pw_c_deity.nss
-//  System: Deity Resurrection (configuration)
-// -----------------------------------------------------------------------------
-// Description:
-//  Configuration File for PW Subsystem.
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  Set the variables below as directed in the comments for each variable.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   hcr_c_deity.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Deity System (configuration).
+/// ----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
-//                                   Variables
+//                         Configuration Settings
 // -----------------------------------------------------------------------------
 
-// Set this to false if you don't want to use the deity system.
-const int H2_USE_DEITY_SYSTEM = TRUE;
+/// @brief This setting determines whether the HCR deity system is loaded
+///     during the module load process.
+///     TRUE: Enable the HCR deity system.
+///     FALSE: Disable the HCR deity system.
+const int H2_DEITY_ENABLE_SYSTEM = TRUE;
 
 // This is the base percentage change a PC will be resurrected by their deity.
 //  Value range is 0.0-100.0

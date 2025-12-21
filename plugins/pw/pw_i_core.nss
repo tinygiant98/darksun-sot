@@ -13,8 +13,8 @@
 // -----------------------------------------------------------------------------
 
 #include "x3_inc_string"
-#include "ds_c_pw"
-#include "ds_t_pw"
+#include "pw_c_core"
+#include "pw_t_core"
 
 #include "core_i_framework"
 #include "util_i_data"
@@ -22,6 +22,13 @@
 #include "util_i_time"
 
 #include "dlg_i_dialogs"
+
+const int H2_PLAYER_STATE_ALIVE = 0;
+const int H2_PLAYER_STATE_DYING = 1;
+const int H2_PLAYER_STATE_DEAD = 2;
+const int H2_PLAYER_STATE_STABLE = 3;
+const int H2_PLAYER_STATE_RECOVERING = 4;
+const int H2_PLAYER_STATE_RETIRED = 5;
 
 //Returns the number of seconds elapsed since the server was started.
 int h2_GetSecondsSinceServerStart();
@@ -241,6 +248,248 @@ void h2_AddRestMenuItem(object oPC, string sMenuText, string sActionScript = H2_
 //It should be called from rest event finished script hook-ins.
 void h2_LimitPostRestHeal(object oPC, int postRestHealAmt);
 
+const string PW_KEY_CDKEY = "cdKey";
+const string PW_KEY_PLAYERNAME = "playerName";
+const string PW_KEY_CHARACTERNAME = "characterName";
+
+sqlquery pw_PrepareQuery(string s)
+{
+    return SqlPrepareQueryCampaign("My_DB", s);
+}
+
+void pw_CreateDataTables()
+{
+    string s = r"
+        CREATE TABLE IF NOT EXISTS player_data (
+            uuid STRING NOT NULL,
+            data STRING NOT NULL
+        );
+    ";
+
+    SqlStep(pw_PrepareQuery(s));
+}
+
+/// @todo stuff to save in player data:
+///     cd key
+///     player name
+///     character name
+///     class data
+///     spell data
+///     feat data
+///     
+
+-- NWN PERSISTENT WORLD DATABASE SCHEMA (2025)
+-- Optimized for SQLite with JSON1/JSONB support
+PRAGMA foreign_keys = ON;
+
+--------------------------------------------------------------------------------
+-- 1. CORE PLAYER & IDENTITY TRACKING
+--------------------------------------------------------------------------------
+
+CREATE TABLE players (
+    player_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_name TEXT NOT NULL UNIQUE,
+    first_seen_timestamp TEXT DEFAULT (datetime('now')),
+    deleted_at TEXT DEFAULT NULL
+);
+
+CREATE TABLE ip_addresses (
+    ip_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_id INTEGER NOT NULL,
+    ip_address TEXT NOT NULL,
+    first_seen_timestamp TEXT DEFAULT (datetime('now')),
+    deleted_at TEXT DEFAULT NULL,
+    FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE cd_keys (
+    cd_key_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_id INTEGER NOT NULL,
+    cd_key_hash TEXT NOT NULL,
+    first_seen_timestamp TEXT DEFAULT (datetime('now')),
+    deleted_at TEXT DEFAULT NULL,
+    FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+--------------------------------------------------------------------------------
+-- 2. CHARACTER & WORLD STATE
+--------------------------------------------------------------------------------
+
+CREATE TABLE characters (
+    character_uuid TEXT PRIMARY KEY, -- Use NWNX Unique ID or Public CD Key + Name hash
+    player_id INTEGER NOT NULL,
+    cd_key_id INTEGER NOT NULL,
+    character_name TEXT NOT NULL,
+    
+    -- JSONB for position (x,y,z, area_tag, facing)
+    position_jsonb BLOB DEFAULT (jsonb('{"area":"","x":0.0,"y":0.0,"z":0.0,"f":0.0}')),
+    
+    -- Store NWN-specific data: { "deity": "Helm", "subrace": "Aasimar", "alignment": "LG" }
+    nwn_data_jsonb BLOB DEFAULT (jsonb('{}')),
+    
+    deleted_at TEXT DEFAULT NULL,
+    FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (cd_key_id) REFERENCES cd_keys (cd_key_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+--------------------------------------------------------------------------------
+-- 3. THE "TRACK EVERYTHING" SYSTEM (JSONB)
+--------------------------------------------------------------------------------
+
+-- Player-level metrics (Account-wide)
+CREATE TABLE player_achievements (
+    player_id INTEGER PRIMARY KEY,
+    -- Tracks: { "login_streak": 3, "total_playtime": 5000, "all_time_kills": 10000 }
+    metrics_jsonb BLOB DEFAULT (jsonb('{"login_streak":0}')),
+    
+    -- VIRTUAL COLUMN: Extracted from JSON for instant leaderboard indexing
+    current_streak INTEGER AS (json_extract(metrics_jsonb, '$.login_streak')) VIRTUAL,
+    
+    last_login_date TEXT,
+    FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE
+);
+
+-- Character-level metrics (The Nitty Gritty)
+CREATE TABLE character_stats (
+    character_uuid TEXT PRIMARY KEY,
+    -- Tracks EVERYTHING: { "kills": {"undead": 50, "dragon": 1}, "items": {"sold": 100, "found": 500}, "social": {"npcs_met": []} }
+    metrics_jsonb BLOB DEFAULT (jsonb('{"kills":{},"items":{"sold":0,"found":0,"gold":0},"exploration":{"areas":[]},"social":{"npcs":[]}}')),
+    
+    -- VIRTUAL COLUMN: Instant "Top Gold Earners" sorting
+    lifetime_gold INTEGER AS (json_extract(metrics_jsonb, '$.items.gold')) VIRTUAL,
+    
+    last_updated TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (character_uuid) REFERENCES characters (character_uuid) ON DELETE CASCADE
+);
+
+-- Atomic Event Log (Exploration & Decisions)
+CREATE TABLE character_events (
+    event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    character_uuid TEXT NOT NULL,
+    event_type TEXT NOT NULL, -- 'AREA_VISITED', 'QUEST_DECISION', 'NPC_MET'
+    event_value TEXT NOT NULL, -- 'tag_crypt_01', 'saved_the_town', 'king_theobald'
+    timestamp TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (character_uuid) REFERENCES characters (character_uuid) ON DELETE CASCADE
+);
+
+--------------------------------------------------------------------------------
+-- 4. ADMINISTRATION (BANS)
+--------------------------------------------------------------------------------
+
+CREATE TABLE bans (
+    ban_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ban_target_type TEXT NOT NULL CHECK(ban_target_type IN ('player', 'ip', 'cdkey')),
+    ban_value TEXT NOT NULL,
+    reason TEXT,
+    banned_at TEXT DEFAULT (datetime('now')),
+    expires_at TEXT DEFAULT NULL, -- NULL = Permanent
+    is_active INTEGER DEFAULT 1
+);
+
+--------------------------------------------------------------------------------
+-- 5. AUTOMATION TRIGGERS
+--------------------------------------------------------------------------------
+
+-- Trigger: Initialize Stat tables when a character is created
+CREATE TRIGGER trigger_init_character_stats
+AFTER INSERT ON characters
+BEGIN
+    INSERT INTO character_stats (character_uuid) VALUES (NEW.character_uuid);
+END;
+
+-- Trigger: Cascading Soft-Delete (Player -> Characters/IPs/Keys)
+CREATE TRIGGER trigger_soft_delete_player
+AFTER UPDATE OF deleted_at ON players
+FOR EACH ROW WHEN NEW.deleted_at IS NOT NULL
+BEGIN
+    UPDATE characters SET deleted_at = NEW.deleted_at WHERE player_id = OLD.player_id;
+    UPDATE ip_addresses SET deleted_at = NEW.deleted_at WHERE player_id = OLD.player_id;
+    UPDATE cd_keys SET deleted_at = NEW.deleted_at WHERE player_id = OLD.player_id;
+END;
+
+-- Trigger: Auto-update the last_updated timestamp on stats change
+CREATE TRIGGER trigger_update_stat_timestamp
+AFTER UPDATE ON character_stats
+BEGIN
+    UPDATE character_stats SET last_updated = datetime('now') WHERE character_uuid = OLD.character_uuid;
+END;
+
+--------------------------------------------------------------------------------
+-- 6. PERFORMANCE INDEXES
+--------------------------------------------------------------------------------
+
+CREATE INDEX idx_ban_lookup ON bans(ban_value, is_active);
+CREATE INDEX idx_player_streak ON player_achievements(current_streak DESC);
+CREATE INDEX idx_char_gold_leaderboard ON character_stats(lifetime_gold DESC);
+CREATE INDEX idx_event_lookup ON character_events(character_uuid, event_type);
+CREATE INDEX idx_char_lookup ON characters(player_id) WHERE deleted_at IS NULL;
+
+
+void pw_SetPlayerData(object oPC, string sKey, json jValue)
+{
+    if (!GetIsObjectValid(oPC))
+        return;
+
+    if (sKey == "" || jValue == JsonNull())
+        return;
+
+    string s = r"
+        INSERT INTO your_table (uuid, data) 
+        VALUES (:uuid, json_object(:key, :value))
+        ON CONFLICT(uuid) 
+        DO UPDATE SET data = json_set(data, '$.' || :key, :value);
+    ";
+
+    sqlquery q = pw_PrepareQuery(s);
+    SqlBindString(q, ":uuid", h2_GetUniquePCID(oPC));
+    SqlBindString(q, ":key", sKey);
+    SqlBindJson(q, ":value", jValue);
+
+    SqlStep(q);
+}
+
+json pw_GetPlayerData(object oPC, string sKey)
+{
+    if (!GetIsObjectValid(oPC))
+        return JsonNull();
+
+    if (sKey == "")
+        return JsonNull();
+
+    string s = r"
+        SELECT data -> ('$.' || :key) AS result
+        FROM your_table
+        WHERE uuid = :uuid;
+    ";
+
+    sqlquery q = pw_PrepareQuery(s);
+    SqlBindString(q, ":uuid", h2_GetUniquePCID(oPC));
+    SqlBindString(q, ":key", sKey);
+
+    return SqlStep(q) ? SqlGelJson(q, 0) : JsonNull();
+}
+
+void pw_DeletePlayerData(object oPC, string sKey)
+{
+    if (!GetIsObjectValid(oPC))
+        return;
+
+    if (sKey == "")
+        return;
+
+    string s = r"
+        UPDATE your_table
+        SET data = json_remove(data, '$.' || :key)
+        WHERE uuid = :uuid;
+    ";
+
+    sqlquery q = pw_PrepareQuery(s);
+    SqlBindString(q, ":uuid", h2_GetUniquePCID(oPC));
+    SqlBindString(q, ":key", sKey);
+
+    SqlStep(q);
+}
+
 //This function saves the server start time before it is modified by any other functions.  It is called
 //  on module load before any other functions.  Calling this function after the server time has been
 //  modified by any other function will result in erroreous results for any calculation that uses
@@ -257,10 +506,11 @@ string h2_GetServerEpoch()
 
 string h2_GetTimeSinceServerStart()
 {
-    string sTime = GetModuleString(H2_SERVER_START_TIME);
-    return GetSystemTimeDifference(sTime);
+    //string sTime = GetModuleString(H2_SERVER_START_TIME);
+    return GetSystemTimeDifference(h2_GetServerEpoch());
 }
 
+/// @todo THere's probably better methods than this nowadays.  Get something better.
 int h2_GetIsLocationValid(location loc)
 {
     object oArea = GetAreaFromLocation(loc);
@@ -272,16 +522,16 @@ int h2_GetIsLocationValid(location loc)
     return TRUE;
 }
 
-void h2_MoveEquippedItem(object oPossessor, int invSlot, object oReceivingObject =  OBJECT_INVALID)
+void h2_MoveEquippedItem(object oPossessor, int nSlot, object oReceiver = OBJECT_INVALID)
 {
     if (!GetIsObjectValid(oPossessor))
         return;
 
-    object oItem = GetItemInSlot(invSlot, oPossessor);
+    object oItem = GetItemInSlot(nSlot, oPossessor);
     if (GetIsObjectValid(oItem))
     {
-        if (GetIsObjectValid(oReceivingObject) && !GetItemCursedFlag(oItem))
-            CopyItem(oItem, oReceivingObject, TRUE);
+        if (GetIsObjectValid(oReceiver) && !GetItemCursedFlag(oItem))
+            CopyItem(oItem, oReceiver, TRUE);
 
         if (!GetItemCursedFlag(oItem))
             DestroyObject(oItem);
@@ -333,23 +583,6 @@ void h2_MoveEquippedItems(object oPossessor, object oReceivingObject = OBJECT_IN
 
     while (i <= 13)
         h2_MoveEquippedItem(oPossessor, i++, oReceivingObject);
-
-    /*
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_ARMS, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_ARROWS, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_BELT, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_BOLTS, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_BOOTS, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_BULLETS, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_CHEST, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_CLOAK, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_HEAD, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_LEFTHAND, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_LEFTRING, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_NECK, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_RIGHTHAND, oReceivingObject);
-    h2_MoveEquippedItem(oPossessor, INVENTORY_SLOT_RIGHTRING, oReceivingObject);
-    */
 }
 
 void h2_DestroyNonDroppableItemsInInventory(object oPossessor)
@@ -929,6 +1162,7 @@ void h2_SavePCAvailableFeats(object oPC)
 }
 */
 
+/// @todo use the linecount from spells.2da instead of 550 here?
 void h2_SavePCAvailableSpells(object oPC)
 {
     if (!GetIsObjectValid(oPC))
@@ -1169,6 +1403,9 @@ void h2_SetPlayerID(object oPC)
 
 void h2_RegisterPC(object oPC)
 {
+    
+    
+    
     // TODO
     /*
     int registeredCharCount = GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
@@ -1180,7 +1417,34 @@ void h2_RegisterPC(object oPC)
 
     // Run an event for character registration
     */
-    RunEvent(MODULE_EVENT_ON_CHARACTER_REGISTRATION, oPC);
+    RunEvent(PW_EVENT_ON_CHARACTER_REGISTRATION, oPC);
+}
+
+/// @todo
+///     move to util_i_data or something?
+string util_GetFilenameFromMacro(string sFile)
+{
+    return GetStringLeft(sFile, GetStringLength(sFile) - 4);
+}
+
+int pw_SetPlayerState(object oPC, int nState)
+{
+    string sFile = util_GetFilenameFromMacro(__FILE__);
+    if (GetConstantName("H2_PLAYER_STATE", JsonInt(nState), FALSE, sFile) != "")
+    {
+        SetPlayerInt(oPC, H2_PLAYER_STATE, nState);
+        if (nState == H2_PLAYER_STATE_ALIVE)
+            RunEvent(H2_ON_PLAYER_LIVES, oPC, oPC);
+            
+        return nState;
+    }
+    else
+        return -1;
+}
+
+int pw_GetPlayerState(object oPC)
+{
+    return GetPlayerInt(oPC, H2_PLAYER_STATE);
 }
 
 void h2_InitializePC(object oPC)
@@ -1188,7 +1452,7 @@ void h2_InitializePC(object oPC)
     SetPlotFlag(oPC, FALSE);
     SetImmortal(oPC, FALSE);
 
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_ALIVE)
+    if (h2_GetPlayerState(oPC) != H2_PLAYER_STATE_ALIVE)
     {
         SetPlayerInt(oPC, H2_LOGIN_DEATH, TRUE);
         h2_MovePossessorInventory(oPC, TRUE);
@@ -1224,6 +1488,9 @@ void h2_InitializePC(object oPC)
             eff = GetNextEffect(oPC);
         }
     }
+
+    /// @todo instead of all this can we extract the json for this
+    ///     part and do something with that?
 
     if (spelltrack != "")
     {
@@ -1261,11 +1528,13 @@ void h2_StripOnFirstLogin(object oPC)
     }
 }
 
+/// @todo Need convenience functions for rosters and other containers
 int h2_MaximumPlayersReached()
 {
     return (H2_MAXIMUM_PLAYERS > 0 && CountObjectList(GetModule(), PLAYER_ROSTER) >= H2_MAXIMUM_PLAYERS);
 }
 
+/// @todo can we do this with json?  yes, see pw_SetPlayerData()
 void h2_SavePersistentPCData(object oPC)
 {
     int hp = GetCurrentHitPoints(oPC);
@@ -1285,6 +1554,7 @@ void h2_SavePersistentPCData(object oPC)
     SetModuleString(uniquePCID + H2_FEAT_TRACK_USES, featuses);
 }
 
+/// @todo do these go into the rest plugin?
 int h2_GetAllowRest(object oPC)
 {
     return GetPlayerInt(oPC, H2_ALLOW_REST);

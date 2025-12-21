@@ -184,7 +184,7 @@ void h2_DoHungerFortitudeCheck(object oPC)
 
 void h2_PerformHungerThirstCheck(object oPC, float fCustomThirstDecrement = -1.0, float fCustomHungerDecrement = -1.0)
 {
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) == H2_PLAYER_STATE_DEAD)
+    if (pw_GetPlayerState(oPC) == H2_PLAYER_STATE_DEAD)
     {
         DeletePlayerFloat(oPC, H2_HT_CURR_ALCOHOL);
         int timerID = GetLocalInt(oPC, H2_HT_DRUNK_TIMERID);
@@ -559,7 +559,7 @@ void h2_PerformFatigueCheck(object oPC, float fCustomFatigueDecrement = -1.0)
         return;
 
     if (_GetIsPC(oPC))
-        if (GetPlayerInt(oPC, H2_PLAYER_STATE) == H2_PLAYER_STATE_DEAD)
+        if (pw_GetPlayerState(oPC) == H2_PLAYER_STATE_DEAD)
             return;
 
     float fatigueDrop = (fCustomFatigueDecrement >= 0.0) ? fCustomFatigueDecrement : h2_GetFatigueDecrement();

@@ -130,7 +130,7 @@ void pw_OnClientEnter()
         return;
     }
 
-    int iPlayerState = GetPlayerInt(oPC, H2_PLAYER_STATE);
+    int iPlayerState = pw_GetPlayerState(oPC);
     if (!bIsDM && iPlayerState == H2_PLAYER_STATE_RETIRED)
     {
         SetLocalInt(oPC, LOGIN_BOOT, TRUE);
@@ -178,15 +178,15 @@ void pw_OnClientLeave()
 void pw_OnPlayerDying()
 {
     object oPC = GetLastPlayerDying();
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
-        SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_DYING);
+    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_DEAD)
+        pw_SetPlayerState(oPC, H2_PLAYER_STATE_DYING);
 }
 
 void pw_OnPlayerDeath()
 {
     object oPC = GetLastPlayerDied();
     SetPlayerLocation(oPC, H2_LOCATION_LAST_DIED, GetLocation(oPC));
-    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_DEAD);
+    pw_SetPlayerState(oPC, H2_PLAYER_STATE_DEAD);
     h2_RemoveEffects(oPC);
     string deathLog = GetName(oPC) + "_" + GetPCPlayerName(oPC) + H2_TEXT_LOG_PLAYER_HAS_DIED;
     deathLog += GetName(GetLastHostileActor(oPC));
@@ -200,8 +200,7 @@ void pw_OnPlayerDeath()
 void pw_OnPlayerReSpawn()
 {
     object oPC = GetLastRespawnButtonPresser();
-    SetPlayerInt(oPC, H2_PLAYER_STATE, H2_PLAYER_STATE_ALIVE);
-    RunEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC);
+    pw_SetPlayerState(oPC, H2_PLAYER_STATE_ALIVE);
 }
 
 void pw_OnPlayerLevelUp()

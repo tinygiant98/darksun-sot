@@ -1,13 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: pw_l_deity.nss
-//  System: Deity Resurrection Persistent World Subsystem (library)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   hcr_l_deity.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Deity System (library).
+/// ----------------------------------------------------------------------------
 
 #include "util_i_library"
 #include "core_i_framework"
@@ -19,7 +14,7 @@
 
 void OnLibraryLoad()
 {
-    if (!H2_USE_DEITY_SYSTEM)
+    if (!H2_DEITY_ENABLE_SYSTEM)
         return;
 
     if (!GetIfPluginExists("pw"))

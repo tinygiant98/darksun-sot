@@ -153,12 +153,7 @@ const string H2_REGISTERED = "H2_REGISTERED";
 
 const string H2_PLAYER_COUNT = "H2_PLAYER_COUNT";
 const string H2_PLAYER_STATE = "H2_PLAYERSTATE";
-const int H2_PLAYER_STATE_ALIVE = 0;
-const int H2_PLAYER_STATE_DYING = 1;
-const int H2_PLAYER_STATE_DEAD = 2;
-const int H2_PLAYER_STATE_STABLE = 3;
-const int H2_PLAYER_STATE_RECOVERING = 4;
-const int H2_PLAYER_STATE_RETIRED = 5;
+
 
 const string H2_CONVERSATION_RESREF = "ConversationResRef";
 const string H2_PLAYER_DATA_ITEM = "util_playerdata";
@@ -211,6 +206,6 @@ const string H2_EPOCH = "H2_EPOCH";
 
 const string H2_EVENT_ON_PLAYER_LIVES = "OnPlayerLives";
 
-const string MODULE_EVENT_ON_CHARACTER_REGISTRATION = "OnCharacterRegistration";
+const string PW_EVENT_ON_CHARACTER_REGISTRATION = "OnCharacterRegistration";
 
 const string PC_IP_ADDRESS = "PC_IP_ADDRESS";

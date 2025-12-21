@@ -1,13 +1,8 @@
-// -----------------------------------------------------------------------------
-//    File: pw_p_corpse.nss
-//  System: PC Corpse (plugin)
-// -----------------------------------------------------------------------------
-// Description:
-//  Library functions for PW Subsystem
-// -----------------------------------------------------------------------------
-// Builder Use:
-//  None!  Leave me alone.
-// -----------------------------------------------------------------------------
+/// ----------------------------------------------------------------------------
+/// @file   hcr_l_corpse.nss
+/// @author Ed Burke (tinygiant98) <af.hog.pilot@gmail.com>
+/// @brief  Corpse System (library).
+/// ----------------------------------------------------------------------------
 
 #include "util_i_library"
 #include "core_i_framework"
@@ -19,7 +14,7 @@
 
 void OnLibraryLoad()
 {
-    if (!H2_USE_CORPSE_SYSTEM)
+    if (!H2_CORPSE_ENABLE_SYSTEM)
         return;
 
     if (!GetIfPluginExists("pw"))
@@ -27,23 +22,18 @@ void OnLibraryLoad()
 
     object oPlugin = GetPlugin("pw");
 
-    // --- Module Events ---
     RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "corpse_OnClientEnter", 4.0);
     RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_LEAVE, "corpse_OnClientLeave", 4.0);
     RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH, "corpse_OnPlayerDeath", 4.0);
     RegisterEventScript(oPlugin, H2_EVENT_ON_PLAYER_LIVES,     "corpse_OnPlayerLives", 4.0);
 
     int n;
-
-    // --- Module Events ---
     RegisterLibraryScript("corpse_OnClientEnter", n++);
     RegisterLibraryScript("corpse_OnClientLeave", n++);
     RegisterLibraryScript("corpse_OnPlayerDeath", n++);
     RegisterLibraryScript("corpse_OnPlayerLives", n++);
     
     n = 100;
-
-    // --- Tag-based Scripting ---
     RegisterLibraryScript(H2_PC_CORPSE_ITEM, n++);
 }
 

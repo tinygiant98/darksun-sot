@@ -74,7 +74,7 @@ void loot_OnPlaceableClose();
 void loot_OnPlayerDying()
 {
     object oPC = GetLastPlayerDying();
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DYING)
+    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_DYING)
         return;
 
     object oLootBag = h2_CreateLootBag(oPC);
@@ -87,7 +87,7 @@ void loot_OnPlayerDeath()
     if (GetPlayerInt(oPC, H2_LOGIN_DEATH))
         return;
 
-    if (GetPlayerInt(oPC, H2_PLAYER_STATE) != H2_PLAYER_STATE_DEAD)
+    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_DEAD)
         return;
 
     object oLootBag = h2_CreateLootBag(oPC);
