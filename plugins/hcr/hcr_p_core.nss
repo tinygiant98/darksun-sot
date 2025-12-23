@@ -13,9 +13,9 @@
 
 void OnLibraryLoad()
 {
-    if (!GetIfPluginExists("pw"))
+    if (!GetIfPluginExists("hcr"))
     {
-        object oPlugin = CreatePlugin("pw");
+        object oPlugin = CreatePlugin("hcr");
         SetName(oPlugin, "[Plugin] HCR2 :: Core");
         SetDescription(oPlugin,
             "This plugin controls basic functions of the HCR2-base persistent world system and " +
