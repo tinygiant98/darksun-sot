@@ -61,6 +61,8 @@ void pw_SavePCLocation_OnTimerExpire();
 /// @private 
 void pw_OnModuleLoad()
 {
+    pw_CreateTables();
+
     CreateVariablesTable(MODULE);
 
     h2_SaveServerEpoch();

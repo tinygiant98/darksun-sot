@@ -79,3 +79,5 @@ const int H2_USE_DEFAULT_BIOWARE_EVENTS = TRUE;
 //  event occurs, set this to TRUE.  If you don't care or don't plan on adding additiona options, set this 
 //  to FALSE.
 const int H2_USE_REST_DIALOG = FALSE;
+
+const string PW_CAMPAIGN_DB_NAME = "darksun_sot";

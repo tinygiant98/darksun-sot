@@ -15,6 +15,7 @@
 #include "x3_inc_string"
 #include "pw_c_core"
 #include "pw_t_core"
+#include "pw_i_sql"
 
 #include "core_i_framework"
 #include "util_i_data"
@@ -252,178 +253,236 @@ const string PW_KEY_CDKEY = "cdKey";
 const string PW_KEY_PLAYERNAME = "playerName";
 const string PW_KEY_CHARACTERNAME = "characterName";
 
-sqlquery pw_PrepareQuery(string s)
+void pw_CreateTables()
 {
-    return SqlPrepareQueryCampaign("My_DB", s);
-}
+    /// @brief The following tables are persistent and reside in the campaign/on-disk
+    ///     persistent database.
 
-void pw_CreateDataTables()
-{
+    pw_BeginTransaction();
+
+    /// @note This is unlikely to be used, but in case we want to fully remove a player
+    ///     from the database, this will allow cascading deletes.
+    pw_ExecuteCampaignQuery("PRAGMA foreign_keys = ON;");
+
+    /// @note Many of these tables have a `data` jsonb BLOB.  This is intended to carry
+    ///     structured json data or, potentially, new data we did not plan for.  This
+    ///     methodology prevents having to ALTER TABLE the definition and deal with
+    ///     versioning issues.
+
+    /// @note The `player` table holds the basic information for the player (not characters).
+    ///     `player` table entries are never deleted, only set to inactive (or `is_deleted` = 1).
+    ///     The metrics plugin will handle updating the `last_seen` entry when a player logs
+    ///     into the server, regardless of the player character they choose to use.
     string s = r"
-        CREATE TABLE IF NOT EXISTS player_data (
-            uuid STRING NOT NULL,
-            data STRING NOT NULL
+        CREATE TABLE IF NOT EXISTS player (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            player_id TEXT UNIQUE NOT NULL COLLATE NOCASE, 
+            first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+            last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+            is_deleted INTEGER DEFAULT 0,
+            data BLOB NOT NULL DEFAULT jsonb('{}') CHECK (json_valid(data, 8))
         );
     ";
+    pw_ExecuteCampaignQuery(s);
 
-    SqlStep(pw_PrepareQuery(s));
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_player_player_id ON player(player_id);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    /// @note The `player_ip` table holds the IP addresses used by players to connect to the server.
+    ///     Players are not limited to a specific number of IPs and players are never banned
+    ///     because they use a different IP.  However, data contained in this table could potentially
+    ///     be used to identify exploitation attempts.
+    s = r"
+        CREATE TABLE IF NOT EXISTS player_ip (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            player_id INTEGER NOT NULL,
+            ip TEXT NOT NULL,
+            first_used DATETIME DEFAULT CURRENT_TIMESTAMP,
+            last_used DATETIME DEFAULT CURRENT_TIMESTAMP,
+            data BLOB NOT NULL DEFAULT jsonb('{}') CHECK (json_valid(data, 8)),
+            UNIQUE(player_id, ip),
+            FOREIGN KEY (player_id) REFERENCES player(id) 
+                ON DELETE CASCADE 
+                ON UPDATE CASCADE
+        );
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_player_ip_ip ON player_ip(ip);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_player_ip_player_id ON player_ip(player_id);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    /// @note The `player_cdkey` table holds public cdkeys used by players.  Players are not limited to
+    ///     a specific number of cdkeys and are never banned because of multiple registed cdkeys, however,
+    ///     data in this table could be used to identify exploitation attempts, such as multi-boxing.
+    s = r"
+        CREATE TABLE IF NOT EXISTS player_cdkey (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            player_id INTEGER NOT NULL,
+            cdkey TEXT NOT NULL,
+            first_used DATETIME DEFAULT CURRENT_TIMESTAMP,
+            last_used DATETIME DEFAULT CURRENT_TIMESTAMP,
+            data BLOB NOT NULL DEFAULT jsonb('{}') CHECK (json_valid(data, 8)),
+            UNIQUE(player_id, cdkey),
+            FOREIGN KEY (player_id) REFERENCES player(id) 
+                ON DELETE CASCADE 
+                ON UPDATE CASCADE
+        );
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_player_cdkey_cdkey ON player_cdkey(cdkey);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_player_cdkey_player_id ON player_cdkey(player_id);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    /// @note The `player_bans` table holds all temporary and permanent player bans, whether based on
+    ///     player name, cdkey, ip address or any other key identifier.  Temporary bans that contain
+    ///     an expiry will automatically timeout without manual updates.  Only one permanent ban
+    ///     may be active at a time based on the target_type and target_value.
+    s = r"
+        CREATE TABLE IF NOT EXISTS player_bans (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            player_id INTEGER, 
+            target_value TEXT NOT NULL COLLATE NOCASE, 
+            target_type TEXT NOT NULL COLLATE NOCASE, 
+            reason TEXT,
+            banned_by TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            expires_at DATETIME,
+            is_active INTEGER DEFAULT 1,
+            data BLOB NOT NULL DEFAULT jsonb('{}') CHECK (json_valid(data, 8))
+        );
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_player_bans_lookup 
+        ON player_bans(target_value, target_type, is_active);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_player_bans_player_id 
+        ON player_bans(player_id) WHERE player_id IS NOT NULL;
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_player_bans_expiry 
+        ON player_bans(expires_at) WHERE expires_at IS NOT NULL;
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_prevent_duplicate_active_bans 
+        ON player_bans(target_value, target_type) 
+        WHERE is_active = 1;
+    ";
+
+    s = r"
+        DROP VIEW IF EXISTS active_player_bans;
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE VIEW IF NOT EXISTS active_player_bans AS
+        SELECT * FROM player_bans
+        WHERE is_active = 1 
+          AND (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    /// @note The `character` table contains all basic metadata for every character registered
+    ///     to the server, whether they are active, dead, have been "deleted" by the user or
+    ///     otherwise.  Character data is never fully deleted from the system, but `is_deleted`
+    ///     can be set to 1 to prevent the character being used.
+    s = r"
+        CREATE TABLE character (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            character_id TEXT UNIQUE NOT NULL, -- Added UUID column
+            player_id INTEGER NOT NULL,
+            name TEXT NOT NULL COLLATE NOCASE,
+            first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+            last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+            is_deleted INTEGER DEFAULT 0,
+            data BLOB NOT NULL DEFAULT jsonb('{}') CHECK (json_valid(data, 8)),
+            FOREIGN KEY (player_id) REFERENCES player(id) 
+                ON DELETE CASCADE 
+                ON UPDATE CASCADE
+        );
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_character_character_id ON character(character_id);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_character_name ON character(name);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_character_player_id ON character(player_id);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_character_last_seen ON character(last_seen);
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_character_not_deleted ON character(is_deleted) WHERE is_deleted = 0;
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_active_character_name
+        ON character(player_id, name)
+        WHERE is_deleted = 0;
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE VIEW IF NOT EXISTS active_characters AS
+        SELECT 
+            p.name AS account_name,
+            c.id AS character_id,
+            c.name AS character_name,
+            c.last_seen
+        FROM character c
+        JOIN player p ON c.player_id = p.id
+        WHERE c.is_deleted = 0;
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    s = r"
+        CREATE VIEW IF NOT EXISTS player_character_counts AS
+        SELECT 
+            p.name AS account_name,
+            COUNT(c.id) AS active_character_count
+        FROM player p
+        LEFT JOIN character c ON p.id = c.player_id AND c.is_deleted = 0
+        GROUP BY p.id;
+    ";
+    pw_ExecuteCampaignQuery(s);
 }
-
-/// @todo stuff to save in player data:
-///     cd key
-///     player name
-///     character name
-///     class data
-///     spell data
-///     feat data
-///     
-
--- NWN PERSISTENT WORLD DATABASE SCHEMA (2025)
--- Optimized for SQLite with JSON1/JSONB support
-PRAGMA foreign_keys = ON;
-
---------------------------------------------------------------------------------
--- 1. CORE PLAYER & IDENTITY TRACKING
---------------------------------------------------------------------------------
-
-CREATE TABLE players (
-    player_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    player_name TEXT NOT NULL UNIQUE,
-    first_seen_timestamp TEXT DEFAULT (datetime('now')),
-    deleted_at TEXT DEFAULT NULL
-);
-
-CREATE TABLE ip_addresses (
-    ip_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    player_id INTEGER NOT NULL,
-    ip_address TEXT NOT NULL,
-    first_seen_timestamp TEXT DEFAULT (datetime('now')),
-    deleted_at TEXT DEFAULT NULL,
-    FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE TABLE cd_keys (
-    cd_key_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    player_id INTEGER NOT NULL,
-    cd_key_hash TEXT NOT NULL,
-    first_seen_timestamp TEXT DEFAULT (datetime('now')),
-    deleted_at TEXT DEFAULT NULL,
-    FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
---------------------------------------------------------------------------------
--- 2. CHARACTER & WORLD STATE
---------------------------------------------------------------------------------
-
-CREATE TABLE characters (
-    character_uuid TEXT PRIMARY KEY, -- Use NWNX Unique ID or Public CD Key + Name hash
-    player_id INTEGER NOT NULL,
-    cd_key_id INTEGER NOT NULL,
-    character_name TEXT NOT NULL,
-    
-    -- JSONB for position (x,y,z, area_tag, facing)
-    position_jsonb BLOB DEFAULT (jsonb('{"area":"","x":0.0,"y":0.0,"z":0.0,"f":0.0}')),
-    
-    -- Store NWN-specific data: { "deity": "Helm", "subrace": "Aasimar", "alignment": "LG" }
-    nwn_data_jsonb BLOB DEFAULT (jsonb('{}')),
-    
-    deleted_at TEXT DEFAULT NULL,
-    FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (cd_key_id) REFERENCES cd_keys (cd_key_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
---------------------------------------------------------------------------------
--- 3. THE "TRACK EVERYTHING" SYSTEM (JSONB)
---------------------------------------------------------------------------------
-
--- Player-level metrics (Account-wide)
-CREATE TABLE player_achievements (
-    player_id INTEGER PRIMARY KEY,
-    -- Tracks: { "login_streak": 3, "total_playtime": 5000, "all_time_kills": 10000 }
-    metrics_jsonb BLOB DEFAULT (jsonb('{"login_streak":0}')),
-    
-    -- VIRTUAL COLUMN: Extracted from JSON for instant leaderboard indexing
-    current_streak INTEGER AS (json_extract(metrics_jsonb, '$.login_streak')) VIRTUAL,
-    
-    last_login_date TEXT,
-    FOREIGN KEY (player_id) REFERENCES players (player_id) ON DELETE CASCADE
-);
-
--- Character-level metrics (The Nitty Gritty)
-CREATE TABLE character_stats (
-    character_uuid TEXT PRIMARY KEY,
-    -- Tracks EVERYTHING: { "kills": {"undead": 50, "dragon": 1}, "items": {"sold": 100, "found": 500}, "social": {"npcs_met": []} }
-    metrics_jsonb BLOB DEFAULT (jsonb('{"kills":{},"items":{"sold":0,"found":0,"gold":0},"exploration":{"areas":[]},"social":{"npcs":[]}}')),
-    
-    -- VIRTUAL COLUMN: Instant "Top Gold Earners" sorting
-    lifetime_gold INTEGER AS (json_extract(metrics_jsonb, '$.items.gold')) VIRTUAL,
-    
-    last_updated TEXT DEFAULT (datetime('now')),
-    FOREIGN KEY (character_uuid) REFERENCES characters (character_uuid) ON DELETE CASCADE
-);
-
--- Atomic Event Log (Exploration & Decisions)
-CREATE TABLE character_events (
-    event_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    character_uuid TEXT NOT NULL,
-    event_type TEXT NOT NULL, -- 'AREA_VISITED', 'QUEST_DECISION', 'NPC_MET'
-    event_value TEXT NOT NULL, -- 'tag_crypt_01', 'saved_the_town', 'king_theobald'
-    timestamp TEXT DEFAULT (datetime('now')),
-    FOREIGN KEY (character_uuid) REFERENCES characters (character_uuid) ON DELETE CASCADE
-);
-
---------------------------------------------------------------------------------
--- 4. ADMINISTRATION (BANS)
---------------------------------------------------------------------------------
-
-CREATE TABLE bans (
-    ban_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ban_target_type TEXT NOT NULL CHECK(ban_target_type IN ('player', 'ip', 'cdkey')),
-    ban_value TEXT NOT NULL,
-    reason TEXT,
-    banned_at TEXT DEFAULT (datetime('now')),
-    expires_at TEXT DEFAULT NULL, -- NULL = Permanent
-    is_active INTEGER DEFAULT 1
-);
-
---------------------------------------------------------------------------------
--- 5. AUTOMATION TRIGGERS
---------------------------------------------------------------------------------
-
--- Trigger: Initialize Stat tables when a character is created
-CREATE TRIGGER trigger_init_character_stats
-AFTER INSERT ON characters
-BEGIN
-    INSERT INTO character_stats (character_uuid) VALUES (NEW.character_uuid);
-END;
-
--- Trigger: Cascading Soft-Delete (Player -> Characters/IPs/Keys)
-CREATE TRIGGER trigger_soft_delete_player
-AFTER UPDATE OF deleted_at ON players
-FOR EACH ROW WHEN NEW.deleted_at IS NOT NULL
-BEGIN
-    UPDATE characters SET deleted_at = NEW.deleted_at WHERE player_id = OLD.player_id;
-    UPDATE ip_addresses SET deleted_at = NEW.deleted_at WHERE player_id = OLD.player_id;
-    UPDATE cd_keys SET deleted_at = NEW.deleted_at WHERE player_id = OLD.player_id;
-END;
-
--- Trigger: Auto-update the last_updated timestamp on stats change
-CREATE TRIGGER trigger_update_stat_timestamp
-AFTER UPDATE ON character_stats
-BEGIN
-    UPDATE character_stats SET last_updated = datetime('now') WHERE character_uuid = OLD.character_uuid;
-END;
-
---------------------------------------------------------------------------------
--- 6. PERFORMANCE INDEXES
---------------------------------------------------------------------------------
-
-CREATE INDEX idx_ban_lookup ON bans(ban_value, is_active);
-CREATE INDEX idx_player_streak ON player_achievements(current_streak DESC);
-CREATE INDEX idx_char_gold_leaderboard ON character_stats(lifetime_gold DESC);
-CREATE INDEX idx_event_lookup ON character_events(character_uuid, event_type);
-CREATE INDEX idx_char_lookup ON characters(player_id) WHERE deleted_at IS NULL;
-
 
 void pw_SetPlayerData(object oPC, string sKey, json jValue)
 {
