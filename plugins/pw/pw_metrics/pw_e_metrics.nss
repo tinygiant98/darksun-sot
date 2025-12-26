@@ -7,6 +7,10 @@
 #include "pw_c_metrics"
 #include "pw_i_metrics"
 
+#include "chat_i_main"
+
+#include "core_i_framework"
+
 // -----------------------------------------------------------------------------
 //                        Event Function Prototypes
 // -----------------------------------------------------------------------------
@@ -36,16 +40,12 @@ void metrics_OnModuleLoad()
     ///     module's volatile sqlite database.
     metrics_CreateTables();
 
-    /// @note There are several module-wide metrics schema that we will use to
-    ///     track overall player, character and server metrics.  Ensure these
-    ///     are registered.
-    metrics_RegisterSchemas();
+    /// @note Metrics syncs occur on a specified interval.
+    metrics_StartSyncTimer();
 }
 
 void metrics_OnClientEnter()
 {
-    /// @todo ensure eventman drops this event if the entering object is not a pc!
-
     object oPC = GetEnteringObject();
 
 }
@@ -76,7 +76,23 @@ void metrics_OnPlayerRestFinished()
 
 }
 
+void metrics_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+
+    if (HasChatOption(oPC, "testSync"))
+        metrics_PowerOnSelfTest();
+}
+
 void metrics_Sync_OnTimerExpire()
 {
-    metrics_SyncModuleBuffer(METRICS_SYNC_CHUNK_SIZE);
+    Notice("Metrics Sync Timer Expired.  Syncing metrics data...");
+
+
+    metrics_SyncBuffer(METRICS_SYNC_CHUNK_SIZE);
+}
+
+void metrics_OnModulePOST()
+{
+    metrics_PowerOnSelfTest();
 }
