@@ -752,11 +752,26 @@ json metrics_GetMetricByRegisteredSchema(string sType, string sTarget, string sS
 ///     of the metrics system and ensure it is working correctly.  This include testing direction
 ///     metric insertion, buffer flush, and metric retrieval by all methods.
 /// @note This function should be called during the module's OnModulePOST, or similar, event.
-void metrics_PowerOnSelfTest()
+void metrics_POST()
 {
     Debug("==================================================================");
     Debug("  METRICS SYSTEM POWER-ON SELF-TEST (POST) INITIATED");
     Debug("==================================================================");
+
+    // -------------------------------------------------------------------------
+    // 0. Environment Check
+    // -------------------------------------------------------------------------
+    // If the system is currently processing metrics (buffer not empty), we skip
+    // the test to prevent interference with live data and to ensure a clean
+    // test environment.
+    if (SqlStep(pw_PrepareModuleQuery("SELECT 1 FROM metrics_buffer LIMIT 1")))
+    {
+        Debug("[POST] ABORTING: Metrics buffer contains pending data. Please ensure the buffer is empty before running POST.");
+        return;
+    }
+
+    // Stop the sync timer to prevent automatic flushing during the test
+    metrics_StopSyncTimer();
 
     // -------------------------------------------------------------------------
     // 1. Setup Fake Data
@@ -825,9 +840,10 @@ void metrics_PowerOnSelfTest()
     metrics_RegisterSchema(sSource, "schema_server", jSchemaS);
 
     // -------------------------------------------------------------------------
-    // 3. Submit Metrics (Direct & Buffered)
+    // 3. Phase 1: Direct Submission Tests
     // -------------------------------------------------------------------------
-    Debug("[POST] Submitting metrics...");
+    Debug("[POST] Phase 1: Direct Submission Tests...");
+    int nErrors;
 
     // Player: Direct Submit (Initial: 10, 5)
     json jDataP1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
@@ -837,13 +853,39 @@ void metrics_PowerOnSelfTest()
     json jDataP2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 10 } } } ");
     metrics_SubmitPlayerMetric(sPlayerID, sSource, "schema_player", jDataP2);
 
-    // Player: Buffered Submit (Update: +5, MAX 20) -> Expect: 20, 20
-    json jDataP3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 20 } } } ");
-    metrics_BufferPlayerMetric(sPlayerID, sSource, "schema_player", jDataP3);
+    // Verify Player Direct
+    json jRes = metrics_GetPlayerMetricByPath(sPlayerID, "$.test_root.val1");
+    if (JsonGetInt(jRes) != 15) { Debug("[FAIL] Phase 1 Player val1: Expected 15, got " + JsonDump(jRes)); nErrors++; }
+    
+    jRes = metrics_GetPlayerMetricByPath(sPlayerID, "$.test_root.nested.val2");
+    if (JsonGetInt(jRes) != 10) { Debug("[FAIL] Phase 1 Player val2: Expected 10, got " + JsonDump(jRes)); nErrors++; }
 
     // Character: Direct Submit (Initial: 10, 5)
     json jDataC1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
     metrics_SubmitCharacterMetric(sCharID, sSource, "schema_char", jDataC1);
+
+    // Verify Character Direct
+    jRes = metrics_GetCharacterMetricByPath(sCharID, "$.test_root.val1");
+    if (JsonGetInt(jRes) != 10) { Debug("[FAIL] Phase 1 Character val1: Expected 10, got " + JsonDump(jRes)); nErrors++; }
+
+    // Server: Direct Submit (Initial: 10, 5)
+    json jDataS1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
+    metrics_SubmitServerMetric(sSource, "schema_server", jDataS1);
+
+    // Verify Server Direct
+    jRes = metrics_GetServerMetricByPath("$.test_root.val1");
+    if (JsonGetInt(jRes) != 10) { Debug("[FAIL] Phase 1 Server val1: Expected 10, got " + JsonDump(jRes)); nErrors++; }
+
+    if (nErrors == 0) Debug("[PASS] Phase 1: Direct Submission Tests Passed");
+
+    // -------------------------------------------------------------------------
+    // 4. Phase 2: Buffered Submission Tests
+    // -------------------------------------------------------------------------
+    Debug("[POST] Phase 2: Buffered Submission Tests...");
+
+    // Player: Buffered Submit (Update: +5, MAX 20) -> Expect: 20, 20
+    json jDataP3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 20 } } } ");
+    metrics_BufferPlayerMetric(sPlayerID, sSource, "schema_player", jDataP3);
 
     // Character: Buffered Submit (Update: +5, MIN 2) -> Expect: 15, 2
     json jDataC2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 2 } } } ");
@@ -852,10 +894,6 @@ void metrics_PowerOnSelfTest()
     // Character: Buffered Submit (Update: +5, MIN 8) -> Expect: 20, 2
     json jDataC3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 8 } } } ");
     metrics_BufferCharacterMetric(sCharID, sSource, "schema_char", jDataC3);
-
-    // Server: Direct Submit (Initial: 10, 5)
-    json jDataS1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
-    metrics_SubmitServerMetric(sSource, "schema_server", jDataS1);
 
     // Server: Buffered Submit (Update: +5, KEEP 99) -> Expect: 15, 5 (KEEP keeps existing 5)
     json jDataS2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 99 } } } ");
@@ -868,12 +906,8 @@ void metrics_PowerOnSelfTest()
     Debug("[POST] Flushing buffer...");
     metrics_FlushBuffer();
 
-    // -------------------------------------------------------------------------
-    // 4. Verify Results (Retrieval)
-    // -------------------------------------------------------------------------
-    Debug("[POST] Verifying results...");
-    int nErrors = 0;
-    json jRes;
+    // Verify Results (Retrieval)
+    Debug("[POST] Verifying Phase 2 results...");
 
     // Test 1: GetPlayerMetricByPath (Expect 20)
     jRes = metrics_GetPlayerMetricByPath(sPlayerID, "$.test_root.val1");
@@ -941,6 +975,9 @@ void metrics_PowerOnSelfTest()
     SqlBindString(q, "@source", sSource);
     SqlStep(q);
     Debug("[PASS] Schemas Cleaned");
+
+    // Restart the sync timer
+    metrics_StartSyncTimer();
 
     Debug("==================================================================");
     if (nErrors > 0)

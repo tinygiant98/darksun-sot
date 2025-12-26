@@ -48,10 +48,31 @@ void metrics_OnClientEnter()
 {
     object oPC = GetEnteringObject();
 
+    /// If timer isn't running, run it!
+
 }
 
 void metrics_OnClientLeave()
 {
+    /// If no players remaining, flush the entire sync buffer (since there's no other
+    ///     processing going on), then stop the timer.
+
+    /// Q: Will GetFirstPC() return a valid object because the player logging out is
+    ///     still "present"?  If so, ignore that, maybe if GetFirstPC() == oLeavingObject, and
+    ///     no other characters are available.
+
+    object oExiting = GetExitingObject();
+    object oPC = GetFirstPC();
+
+    while (GetIsObjectValid(oPC))
+    {
+        if (oPC != oExiting)
+            return;
+
+        oPC = GetNextPC();
+    }
+
+    int nBuffer =
 
 }
 
@@ -81,7 +102,7 @@ void metrics_OnPlayerChat()
     object oPC = GetPCChatSpeaker();
 
     if (HasChatOption(oPC, "testSync"))
-        metrics_PowerOnSelfTest();
+        metrics_POST();
 }
 
 void metrics_Sync_OnTimerExpire()
@@ -94,5 +115,5 @@ void metrics_Sync_OnTimerExpire()
 
 void metrics_OnModulePOST()
 {
-    metrics_PowerOnSelfTest();
+    metrics_POST();
 }
