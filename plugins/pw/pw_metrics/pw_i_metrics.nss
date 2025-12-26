@@ -231,7 +231,7 @@ void metrics_CreateTables()
     ///     held by the in-memory module database.
     s = r"
         CREATE TABLE IF NOT EXISTS metrics_character (
-            character_id INTEGER PRIMARY KEY COLLATE NOCASE,
+            character_id TEXT PRIMARY KEY COLLATE NOCASE,
             data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
             last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (character_id) REFERENCES character(character_id)
@@ -363,8 +363,8 @@ void metrics_SetSyncTimerInterval(float fInterval = METRICS_SYNC_INTERVAL)
 ///         ]
 ///     }
 /// @warning This function should not be called directly without extensive knowledge of
-///     how metrics group objects are constructed.  Instead, route through caller
-///     functions that build the requried metrics group:
+///     how metrics group objects are constructed as it has no validity checks.
+///     Instead, route through caller functions that build the requried metrics group:
 ///         metrics_FlushBuffer()
 ///         metrics_SubmitMetric()
 void metrics_MergeGroup(json jGroup)
@@ -374,8 +374,7 @@ void metrics_MergeGroup(json jGroup)
     string sSchema = JsonGetString(JsonObjectGet(jGroup, "schema"));
     json jMetrics = JsonObjectGet(jGroup, "metrics");
 
-    json jSubstitute = JsonObject();
-    jSubstitute = JsonObjectSet(jSubstitute, "metrics_table", JsonString("metrics_" + sType));
+    json jSubstitute = JsonObjectSet(JsonObject(), "metrics_table", JsonString("metrics_" + sType));
     jSubstitute = JsonObjectSet(jSubstitute, "metrics_pk", JsonString(sType + "_id"));
 
     if (sType == METRICS_TYPE_SERVER)
@@ -564,6 +563,393 @@ void metrics_SubmitMetric(string sType, string sTarget, string sSource, string s
     metrics_MergeGroup(jGroup);
 }
 
+/// @private Submits a metrics data point to the buffer for eventual syncing.
+/// @param sType Metrics type: METRICS_TYPE_*.
+/// @param sTarget Unique ID of the target (player_id, character_id, 1)
+/// @param sSource Name of the source registering the metric.
+/// @param sSchema Name of the metric merge schema.
+/// @param jData Metrics data.
+/// @note User should generally use a convenience function and refrain from calling
+///     this function directly to prevent potentially errors when routing metrics to
+///     the desired target.
+void metrics_BufferMetric(string sType, string sTarget, string sSource, string sSchema, json jData)
+{
+    string s = r"
+        INSERT INTO metrics_buffer (type, target, source, schema, data)
+        VALUES (@type, @target, @source, @schema, jsonb(@data));
+    ";
+    
+    sqlquery q = pw_PrepareModuleQuery(s);    
+    SqlBindString(q, "@type", sType);
+    SqlBindString(q, "@target", sTarget);
+    SqlBindString(q, "@source", sSource);
+    SqlBindString(q, "@schema", sSchema);
+    SqlBindJson(q, "@data", jData);
+    
+    SqlStep(q);
+}
+
+/// @private Retrieve a metric by sqlite path.
+/// @param sType Metrics type: METRICS_TYPE_*.
+/// @param sTarget Unique ID of the target (player_id, character_id, 1)
+/// @param sPath SQLite path to the desired metric.
+/// @note sPath should be in the form $.path.to.key, but this function will
+///     handle missing leading $ or $.
+json metrics_GetMetricByPath(string sType, string sTarget, string sPath)
+{
+    if (sPath == "")
+        sPath = "$";
+    else if (GetStringLeft(sPath, 1) != "$")
+    {
+        if (GetStringLeft(sPath, 1) == "." || GetStringLeft(sPath, 1) == "[")
+            sPath = "$" + sPath;
+        else
+            sPath = "$." + sPath;
+    }
+
+    json jSubstitute = JsonObjectSet(JsonObject(), "metrics_table", JsonString("metrics_" + sType));
+    jSubstitute = JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
+
+    if (sType == METRICS_TYPE_SERVER)
+        sTarget = "1";
+
+    string s = r"
+        SELECT json(jsonb_extract(data, @path)) 
+        FROM $metrics_table WHERE $target_id = @target;
+    ";
+    s = SubstituteStrings(s, jSubstitute);
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@path", sPath);
+    SqlBindString(q, "@target", sTarget);
+
+    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
+}
+
+/// @private Retrieve a metric by json pointer.
+/// @param sType Metrics type: METRICS_TYPE_*.
+/// @param sTarget Unique ID of the target (player_id, character_id, 1)
+/// @param sPointer Json pointer to the desired metric.
+/// @note sPointer should be in the form /pointer/to/key, but this function
+///     will handling missing leading /.
+json metrics_GetMetricByPointer(string sType, string sTarget, string sPointer)
+{
+    if (sPointer == "")
+        sPointer = "$";
+
+    string sPath = SubstituteSubStrings(sPointer, "/", ".");
+    return metrics_GetMetricByPath(sType, sTarget, sPath);
+}
+
+/// @private Retrieve a metric by key.
+/// @param sType Metrics type: METRICS_TYPE_*.
+/// @param sTarget Unique ID of the target (player_id, character_id, 1)
+/// @param sKey Key of the desired metric.
+/// @param sHint Optional hint to assist in locating the desired metric. This
+///     hint should be any portion of the path to the desired key.
+json metrics_GetMetricByKey(string sType, string sTarget, string sKey, string sHint = "")
+{
+    if (sKey == "")
+        return JsonNull();
+
+    json jSubstitute = JsonObjectSet(JsonObject(), "metrics_table", JsonString("metrics_" + sType));
+    jSubstitute = JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
+
+    if (sType == METRICS_TYPE_SERVER)
+        sTarget = "1";
+
+    string s = r"
+        SELECT json(jsonb_extract(data, fullkey)) 
+        FROM $metrics_table, json_tree($metrics_table.data) 
+        WHERE $target_id = @target 
+            AND key = @key 
+            AND fullkey LIKE @hint
+        LIMIT 1;
+    ";
+    s = SubstituteStrings(s, jSubstitute);
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@target", sTarget);
+    SqlBindString(q, "@key", sKey);
+    SqlBindString(q, "@hint", "%" + sHint + "%");
+
+    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
+}
+
+/// @private Retrieve a metric by schema.
+/// @param sType Metrics type: METRICS_TYPE_*.
+/// @param sTarget Unique ID of the target (player_id, character_id, 1)
+/// @param jSchema Metrics schema object.
+json metrics_GetMetricBySchema(string sType, string sTarget, json jSchema)
+{
+    if (JsonGetType(jSchema) != JSONT_TYPE_OBJECT)
+        return JsonNull();
+
+    json jSubstitute = JsonObjectSet(JsonObject(), "metrics_table", JsonString("metrics_" + sType));
+    jSubstitute = JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
+
+    if (sType == METRICS_TYPE_SERVER)
+        sTarget = "1";
+
+    string s = r"
+        WITH RECURSIVE
+            target_data AS (
+                SELECT data 
+                FROM $metrics_table 
+                WHERE $target_id = @target
+            ),
+            updates AS (
+                SELECT 
+                    tree.fullkey AS path,
+                    jsonb_extract(td.data, tree.fullkey) AS new_val,
+                    ROW_NUMBER() OVER (ORDER BY tree.fullkey) AS seq
+                FROM json_tree(jsonb(@schema)) tree
+                JOIN target_data td
+                WHERE tree.atom IS NOT NULL 
+                  AND jsonb_extract(td.data, tree.fullkey) IS NOT NULL
+            ),
+            apply_updates(current_data, next_seq) AS (
+                SELECT jsonb(@schema), 1
+                UNION ALL
+                SELECT 
+                    jsonb_set(a.current_data, u.path, u.new_val),
+                    a.next_seq + 1
+                FROM apply_updates a
+                JOIN updates u ON a.next_seq = u.seq
+            )
+        SELECT json(current_data)
+        FROM apply_updates
+        ORDER BY next_seq DESC
+        LIMIT 1;
+    ";
+    s = SubstituteStrings(s, jSubstitute);
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@target", sTarget);
+    SqlBindJson(q, "@schema", jSchema);
+
+    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
+}
+
+/// @private Retrieve a metric by registered schema.
+/// @param sType Metrics type: METRICS_TYPE_*.
+/// @param sTarget Unique ID of the target (player_id, character_id, 1)
+/// @param sSource Source of the registered schema.
+/// @param sSchema Name of the registered schema.
+json metrics_GetMetricByRegisteredSchema(string sType, string sTarget, string sSource, string sSchema)
+{
+    string s = r"
+        SELECT json(data) 
+        FROM metrics_schema 
+        WHERE source = @source
+            AND name = @name;
+    ";
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@source", sSource);
+    SqlBindString(q, "@name", sSchema);
+
+    return SqlStep(q) ? metrics_GetMetricBySchema(sType, sTarget, SqlGetJson(q, 0)) : JsonNull();
+}
+
+/// @private POST for the metrics system.  This function will run through the major functionality
+///     of the metrics system and ensure it is working correctly.  This include testing direction
+///     metric insertion, buffer flush, and metric retrieval by all methods.
+/// @note This function should be called during the module's OnModulePOST, or similar, event.
+void metrics_PowerOnSelfTest()
+{
+    Debug("==================================================================");
+    Debug("  METRICS SYSTEM POWER-ON SELF-TEST (POST) INITIATED");
+    Debug("==================================================================");
+
+    // -------------------------------------------------------------------------
+    // 1. Setup Fake Data
+    // -------------------------------------------------------------------------
+    string sPlayerID = "metrics_test_player";
+    string sCharID = "metrics_test_character";
+    string sSource = "metrics_test";
+
+    Debug("[POST] Creating temporary player and character data...");
+    
+    // Insert Fake Player
+    string s = r"
+        INSERT INTO player (player_id) VALUES (@player_id)
+        ON CONFLICT(player_id) DO NOTHING;
+    ";
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@player_id", sPlayerID);
+    SqlStep(q);
+
+    // Insert Fake Character
+    s = r"
+        INSERT INTO character (character_id, player_id) VALUES (@char_id, @player_id)
+        ON CONFLICT(character_id) DO NOTHING;
+    ";
+    q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@char_id", sCharID);
+    SqlBindString(q, "@player_id", sPlayerID);
+    SqlStep(q);
+
+    // -------------------------------------------------------------------------
+    // 2. Register Schemas
+    // -------------------------------------------------------------------------
+    Debug("[POST] Registering test schemas...");
+
+    // Player Schema: ADD for val1, MAX for val2
+    json jSchemaP = JsonParse(r"
+        {
+            ""test_root"": {
+                ""val1"": ""ADD"",
+                ""nested"": { ""val2"": ""MAX"" }
+            }
+        }
+    ");
+    metrics_RegisterSchema(sSource, "schema_player", jSchemaP);
+
+    // Character Schema: ADD for val1, MIN for val2
+    json jSchemaC = JsonParse(r"
+        {
+            ""test_root"": {
+                ""val1"": ""ADD"",
+                ""nested"": { ""val2"": ""MIN"" }
+            }
+        }
+    ");
+    metrics_RegisterSchema(sSource, "schema_char", jSchemaC);
+
+    // Server Schema: ADD for val1, KEEP for val2
+    json jSchemaS = JsonParse(r"
+        {
+            ""test_root"": {
+                ""val1"": ""ADD"",
+                ""nested"": { ""val2"": ""KEEP"" }
+            }
+        }
+    ");
+    metrics_RegisterSchema(sSource, "schema_server", jSchemaS);
+
+    // -------------------------------------------------------------------------
+    // 3. Submit Metrics (Direct & Buffered)
+    // -------------------------------------------------------------------------
+    Debug("[POST] Submitting metrics...");
+
+    // Player: Direct Submit (Initial: 10, 5)
+    json jDataP1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
+    metrics_SubmitPlayerMetric(sPlayerID, sSource, "schema_player", jDataP1);
+
+    // Player: Direct Submit (Update: +5, MAX 10) -> Expect: 15, 10
+    json jDataP2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 10 } } } ");
+    metrics_SubmitPlayerMetric(sPlayerID, sSource, "schema_player", jDataP2);
+
+    // Player: Buffered Submit (Update: +5, MAX 20) -> Expect: 20, 20
+    json jDataP3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 20 } } } ");
+    metrics_BufferPlayerMetric(sPlayerID, sSource, "schema_player", jDataP3);
+
+    // Character: Direct Submit (Initial: 10, 5)
+    json jDataC1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
+    metrics_SubmitCharacterMetric(sCharID, sSource, "schema_char", jDataC1);
+
+    // Character: Buffered Submit (Update: +5, MIN 2) -> Expect: 15, 2
+    json jDataC2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 2 } } } ");
+    metrics_BufferCharacterMetric(sCharID, sSource, "schema_char", jDataC2);
+
+    // Character: Buffered Submit (Update: +5, MIN 8) -> Expect: 20, 2
+    json jDataC3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 8 } } } ");
+    metrics_BufferCharacterMetric(sCharID, sSource, "schema_char", jDataC3);
+
+    // Server: Direct Submit (Initial: 10, 5)
+    json jDataS1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
+    metrics_SubmitServerMetric(sSource, "schema_server", jDataS1);
+
+    // Server: Buffered Submit (Update: +5, KEEP 99) -> Expect: 15, 5 (KEEP keeps existing 5)
+    json jDataS2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 99 } } } ");
+    metrics_BufferServerMetric(sSource, "schema_server", jDataS2);
+
+    // Server: Buffered Submit (Update: +5, KEEP 100) -> Expect: 20, 5
+    json jDataS3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 100 } } } ");
+    metrics_BufferServerMetric(sSource, "schema_server", jDataS3);
+
+    Debug("[POST] Flushing buffer...");
+    metrics_FlushBuffer();
+
+    // -------------------------------------------------------------------------
+    // 4. Verify Results (Retrieval)
+    // -------------------------------------------------------------------------
+    Debug("[POST] Verifying results...");
+    int nErrors = 0;
+    json jRes;
+
+    // Test 1: GetPlayerMetricByPath (Expect 20)
+    jRes = metrics_GetPlayerMetricByPath(sPlayerID, "$.test_root.val1");
+    if (JsonGetInt(jRes) != 20) { Debug("[FAIL] Player ByPath: Expected 20, got " + JsonDump(jRes)); nErrors++; }
+    else Debug("[PASS] Player ByPath");
+
+    // Test 2: GetCharacterMetricByPointer (Expect 2)
+    jRes = metrics_GetCharacterMetricByPointer(sCharID, "/test_root/nested/val2");
+    if (JsonGetInt(jRes) != 2) { Debug("[FAIL] Character ByPointer: Expected 2, got " + JsonDump(jRes)); nErrors++; }
+    else Debug("[PASS] Character ByPointer");
+
+    // Test 3: GetServerMetricByKey (Expect 20) - Searching for 'val1' in 'test_root'
+    jRes = metrics_GetServerMetricByKey("val1", "test_root");
+    if (JsonGetInt(jRes) != 20) { Debug("[FAIL] Server ByKey: Expected 20, got " + JsonDump(jRes)); nErrors++; }
+    else Debug("[PASS] Server ByKey");
+
+    // Test 4: GetPlayerMetricBySchema
+    // We ask for the structure, expect it filled with data
+    json jQuerySchema = JsonParse(r" { ""test_root"": { ""nested"": { ""val2"": null } } } ");
+    jRes = metrics_GetPlayerMetricBySchema(sPlayerID, jQuerySchema);
+    int nVal = JsonGetInt(JsonObjectGet(JsonObjectGet(JsonObjectGet(jRes, "test_root"), "nested"), "val2"));
+    if (nVal != 20) { Debug("[FAIL] Player BySchema: Expected 20, got " + IntToString(nVal)); nErrors++; }
+    else Debug("[PASS] Player BySchema");
+
+    // Test 5: GetCharacterMetricByRegisteredSchema
+    // Should return flat object with all keys
+    jRes = metrics_GetCharacterMetricByRegisteredSchema(sCharID, sSource, "schema_char");
+    // The registered schema is flat, so the result should be flat keys like "$.test_root.val1"
+    int nVal1 = JsonGetInt(JsonObjectGet(jRes, "$.test_root.val1"));
+    if (nVal1 != 20) { Debug("[FAIL] Character ByRegisteredSchema: Expected 20, got " + IntToString(nVal1)); nErrors++; }
+    else Debug("[PASS] Character ByRegisteredSchema");
+
+    // -------------------------------------------------------------------------
+    // 5. Cleanup & Cascading Delete Check
+    // -------------------------------------------------------------------------
+    Debug("[POST] Cleaning up...");
+
+    // Delete Player (Should cascade to Character and Metrics)
+    s = "DELETE FROM player WHERE player_id = @player_id";
+    q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@player_id", sPlayerID);
+    SqlStep(q);
+
+    // Verify Deletion
+    s = "SELECT COUNT(*) FROM metrics_player WHERE player_id = @player_id";
+    q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@player_id", sPlayerID);
+    if (SqlStep(q) && SqlGetInt(q, 0) > 0) { Debug("[FAIL] Cascading delete failed for Player Metrics"); nErrors++; }
+    else Debug("[PASS] Player Metrics Deleted");
+
+    s = "SELECT COUNT(*) FROM metrics_character WHERE character_id = @char_id";
+    q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@char_id", sCharID);
+    if (SqlStep(q) && SqlGetInt(q, 0) > 0) { Debug("[FAIL] Cascading delete failed for Character Metrics"); nErrors++; }
+    else Debug("[PASS] Character Metrics Deleted");
+
+    // Clean Server Data (Remove test_root key)
+    s = "UPDATE metrics_server SET data = jsonb_remove(data, '$.test_root') WHERE server_id = 1";
+    pw_ExecuteCampaignQuery(s);
+    Debug("[PASS] Server Data Cleaned");
+
+    // Clean Schemas
+    s = "DELETE FROM metrics_schema WHERE source = @source";
+    q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@source", sSource);
+    SqlStep(q);
+    Debug("[PASS] Schemas Cleaned");
+
+    Debug("==================================================================");
+    if (nErrors > 0)
+        Debug("  POST COMPLETED WITH " + IntToString(nErrors) + " ERRORS");
+    else
+        Debug("  POST COMPLETED SUCCESSFULLY");
+    Debug("==================================================================");
+}
+
 // -----------------------------------------------------------------------------
 //                              Function Definitions
 // -----------------------------------------------------------------------------
@@ -636,32 +1022,6 @@ void metrics_SubmitServerMetric(string sSource, string sSchema, json jData)
     metrics_SubmitMetric(METRICS_TYPE_SERVER, "1", sSource, sSchema, jData);
 }
 
-/// @private Submits a metrics data point to the buffer for eventual syncing.
-/// @param sType Metrics type: METRICS_TYPE_*.
-/// @param sTarget Unique ID of the target (player_id, character_id, 1)
-/// @param sSource Name of the source registering the metric.
-/// @param sSchema Name of the metric merge schema.
-/// @param jData Metrics data.
-/// @note User should generally use a convenience function and refrain from calling
-///     this function directly to prevent potentially errors when routing metrics to
-///     the desired target.
-void metrics_BufferMetric(string sType, string sTarget, string sSource, string sSchema, json jData)
-{
-    string s = r"
-        INSERT INTO metrics_buffer (type, target, source, schema, data)
-        VALUES (@type, @target, @source, @schema, jsonb(@data));
-    ";
-    
-    sqlquery q = pw_PrepareModuleQuery(s);    
-    SqlBindString(q, "@type", sType);
-    SqlBindString(q, "@target", sTarget);
-    SqlBindString(q, "@source", sSource);
-    SqlBindString(q, "@schema", sSchema);
-    SqlBindJson(q, "@data", jData);
-    
-    SqlStep(q);
-}
-
 /// @brief Convenience function for buffering player-focused metrics.
 /// @param sTarget player_id of the target player.
 /// @param sSource Source of the metric schema.
@@ -689,229 +1049,6 @@ void metrics_BufferCharacterMetric(string sTarget, string sSource, string sSchem
 void metrics_BufferServerMetric(string sSource, string sSchema, json jData)
 {
     metrics_BufferMetric(METRICS_TYPE_SERVER, "1", sSource, sSchema, jData);
-}
-
-void metrics_PowerOnSelfTest()
-{
-    /// @note First, we need a very basic schema to add metrics against.  This
-    ///     test schema will have a single key, "test", which will ADD incoming
-    ///     value to the existing value.  We do this as a standard json object
-    ///     to make it easier for humans to create and read, but the registration
-    ///     query will flatten it for faster use during sync operations.
-
-    /// @note This registration does not need to be removed after the test as
-    ///     each insertion with the same plugin/name will overwrite the previous
-    ///     insertion.  BUT, we should probably delete it anyway just to keep the
-    ///     tables clean and ensure there are no attack avenues we weren't
-    ///     thinking of.
-
-    Debug("Registering temporary metrics schema for testing");
-    json jSchema = JsonParse(r"
-        {
-            ""test"": ""ADD""
-        }
-    ");
-    metrics_RegisterSchema("metrics", "test", jSchema);
-
-    /// @note Next, we need to create a generic test metric object to log.  We'll
-    ///     be adding this metric multiple times to confirm the sync is working as
-    ///     expected.
-
-    Debug("Creating test metric object");
-    json jMetric = JsonParse(r"
-        {
-            ""test"": 1
-        }
-    ");
-
-    /// @note We need a fake player we can use to log these metrics against.  This
-    ///     player data will be deleted at the conclusion of this test.
-    Debug("Creating temporary player for testing");
-    string s = r"
-        INSERT INTO player (player_id)
-        VALUES ('metrics_test_player')
-    ;";
-    pw_ExecuteCampaignQuery(s);
-
-    /// @note We'll need some metadata to ensure this is working correctly.
-    string sType = METRICS_TYPE_PLAYER;
-    string sTarget = "metrics_test_player";
-    string sSource = "metrics";
-    string sSchema = "test";
-
-    Debug("Logging test metrics data");
-    int n; for (; n < 10; n++)
-        metrics_BufferMetric(sType, sTarget, sSource, sSchema, jMetric);
-
-    /// @note Let's see if we've inserted those record correctly by counting how
-    ///     many records are in the buffer.
-    s = r"
-        SELECT COUNT(*) FROM metrics_buffer;
-    ";
-    sqlquery q = pw_PrepareModuleQuery(s);
-    if (SqlStep(q))
-    {
-        int nCount = SqlGetInt(q, 0);
-        Debug("Found " + IntToString(nCount) + " records in the metrics buffer.");
-    }
-
-    /// @note We should now have the metrics we need in the buffer tables, time
-    ///     to sync them.
-    metrics_FlushBuffer();
-
-    /// @note The test is complete.  We need to remove test data
-
-    //Debug("Removing temporary player data");
-    //s = r"
-    //    DELETE FROM player WHERE player_id = 'metrics_test_player';
-    //";
-    //pw_ExecuteCampaignQuery(s);
-
-    s = r"
-        SELECT json(data) FROM metrics_player WHERE player_id = 'metrics_test_player';
-    ";
-    q = pw_PrepareCampaignQuery(s);
-    if (SqlStep(q))
-    {
-        json jData = SqlGetJson(q, 0);
-        Debug("Retrieved metrics data for test player: " + JsonDump(jData,4));
-    }
-
-    Debug("Removing temporary metrics schema");
-    s = r"
-        DELETE FROM metrics_schema 
-        WHERE plugin = 'metrics' AND name = 'test';
-    ";
-    pw_ExecuteCampaignQuery(s);
-
-    Debug("Clearing metrics buffer");
-    s = r"
-        DELETE FROM metrics_buffer;
-    ";
-    pw_ExecuteModuleQuery(s);
-}
-
-json metrics_GetMetricByPath(string sType, string sTarget, string sPath)
-{
-    if (GetStringLeft(sPath, 1) != "$")
-    {
-        if (GetStringLeft(sPath, 1) == "." || GetStringLeft(sPath, 1) == "[")
-            sPath = "$" + sPath;
-        else
-            sPath = "$." + sPath;
-    }
-
-    json jSubstitute = JsonObject();
-    jSubstitute = JsonObjectSet(jSubstitute, "metrics_table", JsonString("metrics_" + sType));
-    jSubstitute = JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
-
-    if (sType == METRICS_TYPE_SERVER)
-        sTarget = "1";
-
-    string s = r"
-        SELECT json(jsonb_extract(data, @path)) 
-        FROM $metrics_table WHERE $target_id = @target;
-    ";
-    s = SubstituteStrings(s, jSubstitute);
-    sqlquery q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@path", sPath);
-    SqlBindString(q, "@target", sTarget);
-
-    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
-}
-
-json metrics_GetMetricByPointer(string sType, string sTarget, string sPointer)
-{
-    string sPath = SubstituteSubStrings(sPointer, "/", ".");
-    return metrics_GetMetricByPath(sType, sTarget, sPath);
-}
-
-json metrics_GetMetricByKey(string sType, string sTarget, string sKey, string sHint = "")
-{
-    json jSubstitute = JsonObject();
-    jSubstitute = JsonObjectSet(jSubstitute, "metrics_table", JsonString("metrics_" + sType));
-    jSubstitute = JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
-
-    if (sType == METRICS_TYPE_SERVER)
-        sTarget = "1";
-
-    string s = r"
-        SELECT json(jsonb_extract(data, fullkey)) 
-        FROM $metrics_table, json_tree($metrics_table.data) 
-        WHERE $target_id = @target 
-            AND key = @key 
-            AND fullkey LIKE @hint
-        LIMIT 1;
-    ";
-    s = SubstituteStrings(s, jSubstitute);
-    sqlquery q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@target", sTarget);
-    SqlBindString(q, "@key", sKey);
-    SqlBindString(q, "@hint", "%" + sHint + "%");
-
-    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
-}
-
-json metrics_GetMetricBySchema(string sType, string sTarget, json jSchema)
-{
-    json jSubstitute = JsonObject();
-    jSubstitute = JsonObjectSet(jSubstitute, "metrics_table", JsonString("metrics_" + sType));
-    jSubstitute = JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
-
-    if (sType == METRICS_TYPE_SERVER)
-        sTarget = "1";
-
-    string s = r"
-        WITH RECURSIVE
-            target_data AS (
-                SELECT data 
-                FROM $metrics_table 
-                WHERE $target_id = @target
-            ),
-            updates AS (
-                SELECT 
-                    tree.fullkey AS path,
-                    jsonb_extract(td.data, tree.fullkey) AS new_val,
-                    ROW_NUMBER() OVER (ORDER BY tree.fullkey) AS seq
-                FROM json_tree(jsonb(@schema)) tree
-                JOIN target_data td
-                WHERE tree.atom IS NOT NULL 
-                  AND jsonb_extract(td.data, tree.fullkey) IS NOT NULL
-            ),
-            apply_updates(current_data, next_seq) AS (
-                SELECT jsonb(@schema), 1
-                UNION ALL
-                SELECT 
-                    jsonb_set(a.current_data, u.path, u.new_val),
-                    a.next_seq + 1
-                FROM apply_updates a
-                JOIN updates u ON a.next_seq = u.seq
-            )
-        SELECT json(current_data)
-        FROM apply_updates
-        ORDER BY next_seq DESC
-        LIMIT 1;
-    ";
-    s = SubstituteStrings(s, jSubstitute);
-    sqlquery q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@target", sTarget);
-    SqlBindJson(q, "@schema", jSchema);
-
-    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
-}
-
-json metrics_GetMetricByRegisteredSchema(string sType, string sTarget, string sSource, string sSchema)
-{
-    string s = r"
-        SELECT json(data) 
-        FROM metrics_schema 
-        WHERE source = @source AND name = @name;
-    ";
-    sqlquery q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@source", sSource);
-    SqlBindString(q, "@name", sSchema);
-
-    return SqlStep(q) ? metrics_GetMetricBySchema(sType, sTarget, SqlGetJson(q, 0)) : JsonNull();
 }
 
 json metrics_GetPlayerMetricByPath(string sTarget, string sPath)
