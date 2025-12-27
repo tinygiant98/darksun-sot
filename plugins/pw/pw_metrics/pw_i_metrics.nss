@@ -20,6 +20,10 @@
 /// 2.1) Rename this file to util_i_metrics.
 /// 3) Modify the queries to reference a generic query function, probably in util_c_metrics.
 
+// -----------------------------------------------------------------------------
+//                              System Constants
+// -----------------------------------------------------------------------------
+
 /// @note METRICS_TYPE_* constants are provided to help with accuracy in determining the
 ///     target type for metrics object.
 const string METRICS_TYPE_PLAYER = "player";
@@ -45,6 +49,11 @@ const string METRICS_FLUSH_TIMER_ID = "METRICS_FLUSH_TIMER_ID";
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
+
+/// @private Called only during module startup from the metrics source.  Ensures all
+///     metrics-tracking tables are created in the on-disk campaign database and
+///     creates the in-memory module database table used for buffering metrics data.
+void metrics_CreateTables();
 
 /// @brief Register a metrics schema to the metrics source.  Registering a metrics
 ///     schema allows a source to provide metrics to the metrics database and define
@@ -229,116 +238,6 @@ json metrics_GetServerMetricByRegisteredSchema(string sSource, string sSchema);
 // -----------------------------------------------------------------------------
 //                          Private Function Definitions
 // -----------------------------------------------------------------------------
-
-/// @private Called only during module startup from the metrics source.  Ensures all
-///     metrics-tracking tables are created in the on-disk campaign database and
-///     creates the in-memory module database table used for buffering metrics data.
-void metrics_CreateTables()
-{
-    /// @brief The following tables are persistent and reside in the campaign/on-disk
-    ///     persistent database.  All metrics tables are namespaced with `metrics_`.
-
-    pw_BeginTransaction();
-
-    /// @note This is unlikely to be used, but in case we want to fully remove a player
-    ///     from the database, this will allow cascading deletes.
-    pw_ExecuteCampaignQuery("PRAGMA foreign_keys = ON;");
-
-    /// @note Many of these tables have a `data` jsonb BLOB.  This is intended to carry
-    ///     structured json data or, potentially, new data we did not plan for.  This
-    ///     methodology prevents having to ALTER TABLE the definition and deal with
-    ///     versioning issues.
-
-    /// @note The `metrics_player` table holds all player metrics, which can be
-    ///     defined by various plugins.  These metrics are not pre-defined.  All
-    ///     metrics are held in jsonb BLOBs and are synced from similar tables
-    ///     held by the in-memory module database.
-    string s = r"
-        CREATE TABLE IF NOT EXISTS metrics_player (
-            player_id TEXT PRIMARY KEY COLLATE NOCASE,
-            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
-            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (player_id) REFERENCES player(player_id)
-                ON DELETE CASCADE
-        );
-    ";
-    pw_ExecuteCampaignQuery(s);
-
-    /// @note The `metrics_character` table holds all character metrics, which can be
-    ///     defined by various plugins.  These metrics are not pre-defined.  All
-    ///     metrics are held in jsonb BLOBs and are synced from similar tables
-    ///     held by the in-memory module database.
-    s = r"
-        CREATE TABLE IF NOT EXISTS metrics_character (
-            character_id TEXT PRIMARY KEY COLLATE NOCASE,
-            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
-            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (character_id) REFERENCES character(character_id)
-                ON DELETE CASCADE
-        );
-    ";
-    pw_ExecuteCampaignQuery(s);
-
-    /// @note The `metrics_server` table holds all server metrics, which can be
-    ///     defined by various plugins.  These metrics are not pre-defined.  All
-    ///     metrics are held in jsonb BLOBs and are synced from similar tables
-    ///     held by the in-memory module database.
-    s = r"
-        CREATE TABLE IF NOT EXISTS metrics_server (
-            server_id INTEGER PRIMARY KEY CHECK (server_id = 1),
-            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
-            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-    ";
-    pw_ExecuteCampaignQuery(s);
-
-    /// @note The `metrics_schema` table holds all defined metrics schema provided by
-    ///     any metrics provider.  This allows plugins to define their own metrics,
-    ///     define metrics behaviors, and allow seamless syncing with previously-
-    ///     existing metrics without having to build the sync architecture within each
-    ///     source.
-    /// @note Sources will be required to register their metric schema with the metrics
-    ///     schema manager to ensure their sync behavior can be controlled reliably.
-
-    s = r"
-        CREATE TABLE IF NOT EXISTS metrics_schema (
-            source TEXT NOT NULL COLLATE NOCASE,
-            name TEXT NOT NULL COLLATE NOCASE,
-            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
-            PRIMARY KEY (source, name) ON CONFLICT REPLACE
-        ) WITHOUT ROWID;
-    ";
-    pw_ExecuteCampaignQuery(s);
-    pw_CommitTransaction();
-
-    /// @brief The following tables are temporary and reside in the module/in-memory
-    ///     database.  They are used as a high-speed buffer and synced to the
-    ///     matching table in the campaign/on-disk database.
-
-    pw_BeginTransaction(GetModule());
-
-    /// @note The `metrics_buffer` table holds temporary metrics data for all players,
-    ///     characters and the server, identified by the `type` column.  Periodically,
-    ///     this table will be sync'd with the on-disk tables defined above and the
-    ///     temporary records deleted.
-    s = r"
-        CREATE TABLE IF NOT EXISTS metrics_buffer (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            type TEXT NOT NULL COLLATE NOCASE,
-            target TEXT NOT NULL COLLATE NOCASE,
-            source TEXT NOT NULL COLLATE NOCASE,
-            schema TEXT NOT NULL COLLATE NOCASE,
-            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4))
-        );
-    ";
-    pw_ExecuteModuleQuery(s);
-
-    s = r"
-        CREATE INDEX IF NOT EXISTS idx_metrics_buffer_queue ON metrics_buffer(id ASC);
-    ";
-    pw_ExecuteModuleQuery(s);
-    pw_CommitTransaction(GetModule());
-}
 
 /// @private Start the metrics flush timer.  Expiration of this timer will start the buffer
 ///     flush process.
@@ -597,12 +496,12 @@ void metrics_FlushBuffer(int nChunk = 500)
             DELETE FROM metrics_buffer 
             WHERE id IN (
                 SELECT m.value ->> '$.id'
-                FROM json_each(jsonb(@metrics)) AS grp,
+                FROM json_each(jsonb(@buffer)) AS grp,
                     json_each(grp.value ->> '$.metrics') AS m
             );
         ";
         q = pw_PrepareModuleQuery(s);
-        SqlBindJson(q, "@metrics", jBuffer);
+        SqlBindJson(q, "@buffer", jBuffer);
         SqlStep(q);
     }
 }
@@ -911,7 +810,7 @@ void metrics_POST()
     // If the system is currently processing metrics (buffer not empty), we skip
     // the test to prevent interference with live data and to ensure a clean
     // test environment.
-    if (SqlStep(pw_PrepareModuleQuery("SELECT 1 FROM metrics_buffer LIMIT 1")))
+    if (metrics_GetBufferSize() > 0)
     {
         Debug("[POST] ABORTING: Metrics buffer contains pending data. Please ensure the buffer is empty before running POST.");
         return;
@@ -1137,6 +1036,113 @@ void metrics_POST()
 // -----------------------------------------------------------------------------
 //                              Function Definitions
 // -----------------------------------------------------------------------------
+
+void metrics_CreateTables()
+{
+    /// @brief The following tables are persistent and reside in the campaign/on-disk
+    ///     persistent database.  All metrics tables are namespaced with `metrics_`.
+
+    pw_BeginTransaction();
+
+    /// @note This is unlikely to be used, but in case we want to fully remove a player
+    ///     from the database, this will allow cascading deletes.
+    pw_ExecuteCampaignQuery("PRAGMA foreign_keys = ON;");
+
+    /// @note Many of these tables have a `data` jsonb BLOB.  This is intended to carry
+    ///     structured json data or, potentially, new data we did not plan for.  This
+    ///     methodology prevents having to ALTER TABLE the definition and deal with
+    ///     versioning issues.
+
+    /// @note The `metrics_player` table holds all player metrics, which can be
+    ///     defined by various plugins.  These metrics are not pre-defined.  All
+    ///     metrics are held in jsonb BLOBs and are synced from similar tables
+    ///     held by the in-memory module database.
+    string s = r"
+        CREATE TABLE IF NOT EXISTS metrics_player (
+            player_id TEXT PRIMARY KEY COLLATE NOCASE,
+            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
+            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (player_id) REFERENCES player(player_id)
+                ON DELETE CASCADE
+        );
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    /// @note The `metrics_character` table holds all character metrics, which can be
+    ///     defined by various plugins.  These metrics are not pre-defined.  All
+    ///     metrics are held in jsonb BLOBs and are synced from similar tables
+    ///     held by the in-memory module database.
+    s = r"
+        CREATE TABLE IF NOT EXISTS metrics_character (
+            character_id TEXT PRIMARY KEY COLLATE NOCASE,
+            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
+            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (character_id) REFERENCES character(character_id)
+                ON DELETE CASCADE
+        );
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    /// @note The `metrics_server` table holds all server metrics, which can be
+    ///     defined by various plugins.  These metrics are not pre-defined.  All
+    ///     metrics are held in jsonb BLOBs and are synced from similar tables
+    ///     held by the in-memory module database.
+    s = r"
+        CREATE TABLE IF NOT EXISTS metrics_server (
+            server_id INTEGER PRIMARY KEY CHECK (server_id = 1),
+            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
+            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    /// @note The `metrics_schema` table holds all defined metrics schema provided by
+    ///     any metrics provider.  This allows plugins to define their own metrics,
+    ///     define metrics behaviors, and allow seamless syncing with previously-
+    ///     existing metrics without having to build the sync architecture within each
+    ///     source.
+    /// @note Sources will be required to register their metric schema with the metrics
+    ///     schema manager to ensure their sync behavior can be controlled reliably.
+
+    s = r"
+        CREATE TABLE IF NOT EXISTS metrics_schema (
+            source TEXT NOT NULL COLLATE NOCASE,
+            name TEXT NOT NULL COLLATE NOCASE,
+            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
+            PRIMARY KEY (source, name) ON CONFLICT REPLACE
+        ) WITHOUT ROWID;
+    ";
+    pw_ExecuteCampaignQuery(s);
+    pw_CommitTransaction();
+
+    /// @brief The following tables are temporary and reside in the module/in-memory
+    ///     database.  They are used as a high-speed buffer and synced to the
+    ///     matching table in the campaign/on-disk database.
+
+    pw_BeginTransaction(GetModule());
+
+    /// @note The `metrics_buffer` table holds temporary metrics data for all players,
+    ///     characters and the server, identified by the `type` column.  Periodically,
+    ///     this table will be sync'd with the on-disk tables defined above and the
+    ///     temporary records deleted.
+    s = r"
+        CREATE TABLE IF NOT EXISTS metrics_buffer (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT NOT NULL COLLATE NOCASE,
+            target TEXT NOT NULL COLLATE NOCASE,
+            source TEXT NOT NULL COLLATE NOCASE,
+            schema TEXT NOT NULL COLLATE NOCASE,
+            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4))
+        );
+    ";
+    pw_ExecuteModuleQuery(s);
+
+    s = r"
+        CREATE INDEX IF NOT EXISTS idx_metrics_buffer_queue ON metrics_buffer(id ASC);
+    ";
+    pw_ExecuteModuleQuery(s);
+    pw_CommitTransaction(GetModule());
+}
 
 void metrics_RegisterSchema(string sSource, string sName, json jData)
 {
