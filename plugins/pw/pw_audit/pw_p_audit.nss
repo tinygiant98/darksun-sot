@@ -25,17 +25,20 @@ void OnLibraryLoad()
         //    "This plugin controls audit collection and reporting.");
         SetDebugPrefix(HexColorString("[AUDIT]", COLOR_CRIMSON));
 
-        RegisterEventScript(oPlugin, MODULE_EVENT_ON_MODULE_LOAD,           "audit_OnModuleLoad",          9.0);
-        RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,          "audit_OnClientEnter",         9.0);
-        RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_LEAVE,          "audit_OnClientLeave",         10.0);
-        RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_REST_FINISHED,  "audit_OnPlayerRestFinished",  10.0);
+        RegisterEventScript(oPlugin, MODULE_EVENT_ON_MODULE_LOAD,          "audit_OnModuleLoad",         9.0);
+        RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,         "audit_OnClientEnter",        9.0);
+        RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_LEAVE,         "audit_OnClientLeave",        10.0);
+        RegisterEventScript(oPlugin, "MODULE_EVENT_ON_MODULE_POST",        "audit_OnModulePOST",         9.0);
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!audit",               "audit_OnPlayerChat",         10.0);
 
-        RegisterEventScript(oPlugin, "AUDIT_EVENT_SYNC_ON_TIMER_EXPIRE", "audit_Flush_OnTimerExpire", 10.0);
+        RegisterEventScript(oPlugin, AUDIT_EVENT_FLUSH_ON_TIMER_EXPIRE,    "audit_Flush_OnTimerExpire",  10.0);
+        
         int n;
-        RegisterLibraryScript("audit_OnModuleLoad",          n++);
-        RegisterLibraryScript("audit_OnClientEnter",         n++);
-        RegisterLibraryScript("audit_OnClientLeave",         n++);
-        RegisterLibraryScript("audit_OnPlayerRestFinished",  n++);
+        RegisterLibraryScript("audit_OnModuleLoad",  n++);
+        RegisterLibraryScript("audit_OnClientEnter", n++);
+        RegisterLibraryScript("audit_OnClientLeave", n++);
+        RegisterLibraryScript("audit_OnModulePOST",  n++);
+        RegisterLibraryScript("audit_OnPlayerChat",  n++);
 
         n = 100;
         RegisterLibraryScript("audit_Flush_OnTimerExpire", n++);
@@ -56,6 +59,8 @@ void OnLibraryScript(string sScript, int nEntry)
             if      (nEntry == n++) audit_OnModuleLoad();
             else if (nEntry == n++) audit_OnClientEnter();
             else if (nEntry == n++) audit_OnClientLeave();
+            else if (nEntry == n++) audit_OnModulePOST();
+            else if (nEntry == n++) audit_OnPlayerChat();
         } break;
 
         case 100:

@@ -8,6 +8,7 @@
 #include "pw_i_sql"
 #include "util_i_strings"
 #include "util_i_debug"
+#include "util_i_unittest"
 
 #include "core_i_framework"
 
@@ -147,8 +148,7 @@ int audit_IsFlushTimerValid()
 
 int audit_GetBufferSize()
 {
-    string s = "SELECT COUNT(*) FROM audit_buffer";
-    sqlquery q = pw_PrepareModuleQuery(s);
+    sqlquery q = pw_PrepareModuleQuery("SELECT COUNT(*) FROM audit_buffer");
     return SqlStep(q) ? SqlGetInt(q, 0) : 0;
 }
 
@@ -194,20 +194,27 @@ void audit_FlushBuffer(int nChunk = AUDIT_FLUSH_CHUNK_SIZE)
         ";
         sqlquery q = pw_PrepareCampaignQuery(s);
         SqlBindJson(q, "@buffer", jBuffer);
-        
-        if (SqlStep(q))
-        {
-            string s = r"
-                DELETE FROM audit_buffer 
-                WHERE id IN (
-                    SELECT jsonb_extract(value, '$.id') FROM json_each(@buffer)
-                );
-            ";
-            sqlquery q = pw_PrepareModuleQuery(s);
-            SqlBindJson(q, "@buffer", jBuffer);
-            SqlStep(q);
-        }
+        SqlStep(q);
+
+        Debug(__FUNCTION__ + ": Running DELETE query");
+
+        s = r"
+            DELETE FROM audit_buffer 
+            WHERE id IN (
+                SELECT jsonb_extract(value, '$.id') FROM json_each(@buffer)
+            );
+        ";
+        q = pw_PrepareModuleQuery(s);
+        SqlBindJson(q, "@buffer", jBuffer);
+        SqlStep(q);
     }
+    else if (JsonGetType(jBuffer) != JSON_TYPE_ARRAY)
+        Debug(__FUNCTION__ + ": jBuffer is not a valid json object");
+    else
+        Debug("" + __FUNCTION__ + ": No records found in buffer");
+
+    if (audit_GetBufferSize() == 0)
+        audit_StopFlushTimer();
 }
 
 /// @private Determine if the passed sType is valid based on its inclusion in
@@ -251,7 +258,11 @@ void audit_InsertRecord(string sType, json jData)
 
     sqlquery q;
     if (sType == AUDIT_TYPE_BUFFER)
+    {
         q = pw_PrepareModuleQuery(s);
+        if (!audit_IsFlushTimerValid())
+            audit_StartFlushTimer();
+    }
     else if (sType == AUDIT_TYPE_TRAIL)
         q = pw_PrepareCampaignQuery(s);
     else
@@ -266,107 +277,189 @@ void audit_InsertRecord(string sType, json jData)
 
 void audit_POST()
 {
-    Debug("==================================================================");
-    Debug("  AUDIT SYSTEM POWER-ON SELF-TEST (POST) INITIATED");
-    Debug("==================================================================");
+    DescribeTestSuite("Audit System POST");
+    
+    int bTimerRunning = audit_IsFlushTimerValid();
 
-    // 0. Environment Check
-    if (audit_GetBufferSize() > 0)
+    /// @test Environment preparation
     {
-        Debug("[POST] ABORTING: Audit buffer contains pending data.");
-        return;
-    }
+        int t = Timer();
 
-    audit_StopFlushTimer();
+        /// @test Test 1: Check if audit_buffer table is empty.
+        /// @note e1 = expected buffer record size
+        int e1 = 0, r1;
+
+        int t1 = Timer(); r1 = audit_GetBufferSize(); t1 = Timer(t1);
+
+        /// @test Test 2: Check if audit flush timer is running.  If it is running,
+        ///     note it and stop the timer for the duration of the POST.
+        /// @note e2 = time running status
+        int e2 = FALSE, r2;
+
+        int t2 = Timer();
+        {
+            if (bTimerRunning)
+            {
+                audit_StopFlushTimer();
+                r2 = audit_IsFlushTimerValid();
+            }
+            else
+                r2 = bTimerRunning;
+        } t2 = Timer(t2);
+        t = Timer(t);
+
+        int b, b1, b2;
+        b = (b1 = r1 == e1) &
+            (b2 = r2 == e2);
+
+        if (!AssertGroup("Environment Preparation", b))
+        {
+            if (!Assert("Audit Buffer Empty", b1))
+                DescribeTestParameters("", _i(e1), _i(r1));
+            DescribeTestTime(t1);
+
+            if (!Assert("Audit Flush Timer Not Running", b2))
+                DescribeTestParameters("", _i(e2), _i(r2));
+            DescribeTestTime(t2);
+        } DescribeGroupTime(t); Outdent();
+    }
 
     string sSource = "audit_test_source";
     string sEventType = "AUDIT_TEST_EVENT";
-    int nErrors = 0;
 
-    // 1. Phase 1: Direct Submission
-    Debug("[POST] Phase 1: Direct Submission Tests...");
-    
-    json jData = JsonObject();
-    jData = JsonObjectSet(jData, "event_type", JsonString(sEventType));
+    json jData = JsonObjectSet(JsonObject(), "event_type", JsonString(sEventType));
     jData = JsonObjectSet(jData, "source", JsonString(sSource));
-    jData = JsonObjectSet(jData, "test_id", JsonInt(1));
 
-    audit_SubmitRecord(jData);
+    /// @test Direct submission
+    {
+         /// @note e1 = expected record count in audit_trail after submission
+        int e1 = 1, r1;
 
-    // Verify
-    string s = "SELECT COUNT(*) FROM audit_trail WHERE jsonb_extract(data, '$.source') = @source AND jsonb_extract(data, '$.test_id') = 1";
-    sqlquery q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@source", sSource);
-    if (!SqlStep(q) || SqlGetInt(q, 0) != 1)
-    {
-        Debug("[FAIL] Phase 1: Direct submission failed to find record.");
-        nErrors++;
-    }
-    else
-    {
-        Debug("[PASS] Phase 1: Direct submission successful.");
-    }
+        jData = JsonObjectSet(jData, "test_id", JsonInt(1));
 
-    // 2. Phase 2: Buffered Submission
-    Debug("[POST] Phase 2: Buffered Submission Tests...");
-    
-    jData = JsonObjectSet(jData, "test_id", JsonInt(2));
-    audit_BufferRecord(jData);
+        /// @test Test 1: Submit audit records directly to audit_trail.
+        int t = Timer(); audit_SubmitRecord(jData); t = Timer(t);
 
-    // Verify in Buffer
-    s = "SELECT COUNT(*) FROM audit_buffer WHERE jsonb_extract(data, '$.source') = @source AND jsonb_extract(data, '$.test_id') = 2";
-    q = pw_PrepareModuleQuery(s);
-    SqlBindString(q, "@source", sSource);
-    if (!SqlStep(q) || SqlGetInt(q, 0) != 1)
-    {
-        Debug("[FAIL] Phase 2: Buffered submission failed to find record in buffer.");
-        nErrors++;
-    }
-    else
-    {
-        Debug("[PASS] Phase 2: Buffered submission found in buffer.");
+        string s = r"
+            SELECT COUNT(*)
+            FROM audit_trail
+            WHERE jsonb_extract(data, '$.source') = @source
+                AND jsonb_extract(data, '$.test_id') = 1
+        ";
+        sqlquery q = pw_PrepareCampaignQuery(s);
+        SqlBindString(q, "@source", sSource);
+        if (SqlStep(q))
+            r1 = SqlGetInt(q, 0);
+
+        if (!Assert("Direct Submission Test", r1 == e1))
+            DescribeTestParameters("", _i(e1), _i(r1));
+        DescribeTestTime(t);
     }
 
-    // Flush
-    Debug("[POST] Flushing buffer...");
-    audit_FlushBuffer();
-
-    // Verify in Trail
-    s = "SELECT COUNT(*) FROM audit_trail WHERE jsonb_extract(data, '$.source') = @source AND jsonb_extract(data, '$.test_id') = 2";
-    q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@source", sSource);
-    if (!SqlStep(q) || SqlGetInt(q, 0) != 1)
+    /// @test Buffered submission
     {
-        Debug("[FAIL] Phase 2: Flush failed to move record to trail.");
-        nErrors++;
+        /// @test Test 1: Check audit_trail for record submitted via buffer flush.
+        /// @note e1 = expected record count in audit_trail after flush
+        int e1 = 1, r1;
+
+        jData = JsonObjectSet(jData, "test_id", JsonInt(2));
+        
+        int t = Timer();
+
+        /// @test Test 1: Submit audir record to audit_buffer.
+        int t1 = Timer(); audit_BufferRecord(jData); t1 = Timer(t1);
+
+        string s = r"
+            SELECT COUNT(*)
+            FROM audit_buffer
+            WHERE jsonb_extract(data, '$.source') = @source
+                AND jsonb_extract(data, '$.test_id') = 2
+        ";
+        sqlquery q = pw_PrepareModuleQuery(s);
+        SqlBindString(q, "@source", sSource);
+        if (SqlStep(q))
+            r1 = SqlGetInt(q, 0);
+
+        /// @test Test 2: Check audit_buffer is empty after flush.
+        /// @note e2 = expected record count in audit_buffer after flush
+        int e2 = 0, r2;
+
+        int t2 = Timer();
+        {
+            audit_FlushBuffer();
+            r2 = audit_GetBufferSize();
+        } t2 = Timer(t2);
+        t = Timer(t);
+
+        int b, b1, b2;
+        b = (b1 = r1 == e1) &
+            (b2 = r2 == e2);
+
+        if (!AssertGroup("Buffered Submission Testing", b))
+        {
+            if (!Assert("Buffered Submission Test", b1))
+                DescribeTestParameters("", _i(e1), _i(r1));
+            DescribeTestTime(t1);
+
+            if (!Assert("Buffer Empty After Flush", b2))
+                DescribeTestParameters("", _i(e2), _i(r2));
+            DescribeTestTime(t2);
+        } DescribeGroupTime(t); Outdent();
     }
-    else
+
+    /// @test Environment restoration
     {
-        Debug("[PASS] Phase 2: Flush successful.");
+        /// @test Test 1: Delete all test records from audit_trail.
+        /// @note e1 = expected records deleted from audit_trail.
+        int e1 = 2, r1;
+
+        int t = Timer();
+        int t1 = Timer();
+
+        string s = r"
+            DELETE FROM audit_trail
+            WHERE jsonb_extract(data, '$.source') = @source
+            RETURNING id;
+        ";
+        sqlquery q = pw_PrepareCampaignQuery(s);
+        SqlBindString(q, "@source", sSource);
+
+        while (SqlStep(q))
+        {
+            r1++;
+            Notice("Deleted audit_trail record ID: " + _i(SqlGetInt(q, 0)));
+        }
+
+        t1 = Timer(t1);
+
+        /// @test Test 2: Restore audit flush timer to previous state.
+        /// @note e2 = timer running status
+        int e2 = bTimerRunning, r2;
+
+        int t2 = Timer();
+        {
+            if (bTimerRunning && !audit_IsFlushTimerValid())
+                audit_StartFlushTimer();
+            
+            r2 = audit_IsFlushTimerValid();
+        } t2 = Timer(t2);
+        t = Timer(t);
+
+        int b, b1, b2;
+        b = (b1 = r1 == e1) &
+            (b2 = r2 == e2);
+
+        if (!AssertGroup("Environment Restoration", b))
+        {
+            if (!Assert("Audit Records Deleted", b1))
+                DescribeTestParameters("", _i(e1), _i(r1));
+            DescribeTestTime(t1);
+
+            if (!Assert("Audit Flush Timer Restored", b2))
+                DescribeTestParameters("", _i(e2), _i(r2));
+            DescribeTestTime(t2);
+        } DescribeGroupTime(t); Outdent();
     }
-
-    // Verify Buffer Empty
-    if (audit_GetBufferSize() > 0)
-    {
-        Debug("[FAIL] Phase 2: Buffer not empty after flush.");
-        nErrors++;
-    }
-
-    // 3. Cleanup
-    Debug("[POST] Cleaning up...");
-    s = "DELETE FROM audit_trail WHERE jsonb_extract(data, '$.source') = @source";
-    q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@source", sSource);
-    SqlStep(q);
-
-    audit_StartFlushTimer();
-
-    Debug("==================================================================");
-    if (nErrors > 0)
-        Debug("  POST COMPLETED WITH " + IntToString(nErrors) + " ERRORS");
-    else
-        Debug("  POST COMPLETED SUCCESSFULLY");
-    Debug("==================================================================");
 }
 
 // -----------------------------------------------------------------------------
@@ -463,7 +556,8 @@ void audit_CreateTables()
 
 json audit_CreateData(string sEventType, object oActor, object oTarget = OBJECT_INVALID, string sSource = "")
 {
-
+    /// @todo need convenience functions to allow users to instantly retrieve a minimally-acceptable
+    ///     json object containing the data required for every structured logging event.
 
     return JsonNull();
 }
@@ -520,7 +614,11 @@ void audit_UnregisterSchema(string sSource, string sName)
         return;
     }
 
-    string s = "DELETE FROM audit_schema WHERE source = @source AND name = @name";
+    string s = r"
+        DELETE FROM audit_schema
+        WHERE source = @source
+            AND name = @name
+    ";
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@source", sSource);
     SqlBindString(q, "@name", sName);
@@ -529,7 +627,11 @@ void audit_UnregisterSchema(string sSource, string sName)
 
 json audit_ViewSchemas(string sSource)
 {
-    string s = "SELECT json_group_array(name) FROM audit_schema WHERE source = @source";
+    string s = r"
+        SELECT json_group_array(name)
+        FROM audit_schema
+            WHERE source = @source
+    ";
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@source", sSource);
     
@@ -538,7 +640,12 @@ json audit_ViewSchemas(string sSource)
 
 json audit_ViewSchema(string sSource, string sName)
 {
-    string s = "SELECT json(data) FROM audit_schema WHERE source = @source AND name = @name";
+    string s = r"
+        SELECT json(data)
+        FROM audit_schema
+        WHERE source = @source
+            AND name = @name
+    ";
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@source", sSource);
     SqlBindString(q, "@name", sName);

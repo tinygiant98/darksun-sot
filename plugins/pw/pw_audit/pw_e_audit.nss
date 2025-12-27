@@ -5,6 +5,7 @@
 /// ----------------------------------------------------------------------------
 
 #include "pw_i_audit"
+#include "chat_i_main"
 
 // -----------------------------------------------------------------------------
 //                        Event Function Prototypes
@@ -14,7 +15,6 @@
 //                        Event Function Definitions
 // -----------------------------------------------------------------------------
 
-/// @private
 void audit_OnModuleLoad()
 {
     /// @note Ensure all required metrics tables exist, both on disk and in the
@@ -65,4 +65,17 @@ void audit_OnClientLeave()
 void audit_Flush_OnTimerExpire()
 {
     audit_FlushBuffer(AUDIT_FLUSH_CHUNK_SIZE);
+}
+
+void audit_OnModulePOST()
+{
+    audit_POST();
+}
+
+void audit_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+
+    if (HasChatOption(oPC, "test"))
+        audit_POST();
 }
