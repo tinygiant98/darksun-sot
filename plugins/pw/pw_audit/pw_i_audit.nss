@@ -95,55 +95,59 @@ void audit_BufferRecord(json jData);
 //                          Private Function Definitions
 // -----------------------------------------------------------------------------
 
-/// @private Start the audit flush timer.  Expiration of this timer will start the buffer
-///     flush process.
-/// @param fInterval Time, in seconds, between timer expirations.
-void audit_StartFlushTimer(float fInterval = AUDIT_FLUSH_INTERVAL)
+/// @private Debugging function for audit system.
+/// @param sFunction Name of the function generating the debug message.
+/// @param sMessage Debug message.
+void audit_Debug(string sFunction, string sMessage)
 {
-    int nTimerID = CreateEventTimer(GetModule(), AUDIT_EVENT_FLUSH_ON_TIMER_EXPIRE, fInterval);
-    SetLocalInt(GetModule(), AUDIT_FLUSH_TIMER_ID, nTimerID);
-    StartTimer(nTimerID, FALSE);
-
-    string s = "Audit flush timer started:";
-    s+= "\n  Interval: " + FormatFloat(fInterval, "%!f") + " seconds";
-    s+= "\n  TimerID: " + IntToString(nTimerID);
-
-    Debug(s);
-}
-
-/// @private Stop and delete the audit flush timer.
-/// @param nTimerID ID of the audit flush timer.  If not provided, the function will
-///     attempt to discover the timer ID.
-void audit_StopFlushTimer(int nTimerID = -1)
-{
-    if (nTimerID < 0)
-        nTimerID = GetLocalInt(GetModule(), AUDIT_FLUSH_TIMER_ID);
-    
-    if (nTimerID > 0)
-    {
-        KillTimer(nTimerID);
-        DeleteLocalInt(GetModule(), AUDIT_FLUSH_TIMER_ID);
-
-        string s = "Audit flush timer stopped:";
-        s+= "\n  TimerID: " + IntToString(nTimerID);
-
-        Debug(s);
-    }
-}
-
-/// @private Stop and delete the current audit flush timer, then create a new timer
-///     with the specific interval.
-/// @param fInterval Time, in seconds, between timer expirations.
-void audit_SetFlushTimerInterval(float fInterval = AUDIT_FLUSH_INTERVAL)
-{
-    audit_StopFlushTimer();
-    audit_StartFlushTimer(fInterval);
+    sFunction = HexColorString("[" + sFunction + "]", COLOR_BLUE_LIGHT);
+    Debug(sFunction + " " + sMessage);
 }
 
 /// @private Determine if the audit flush timer is valid (running).
 int audit_IsFlushTimerValid()
 {
     return GetIsTimerValid(GetLocalInt(GetModule(), AUDIT_FLUSH_TIMER_ID));
+}
+
+/// @private Delete the current audit flush timer.
+/// @param nTimerID ID of the audit flush timer, if known.
+void audit_DeleteFlushTimer(int nTimerID = -1)
+{
+    if (nTimerID < 0)
+        nTimerID = GetLocalInt(GetModule(), AUDIT_FLUSH_TIMER_ID);
+
+    if (nTimerID > 0)
+    {
+        KillTimer(nTimerID);
+        DeleteLocalInt(GetModule(), AUDIT_FLUSH_TIMER_ID);
+
+        audit_Debug(__FUNCTION__, "Audit flush timer deleted");
+    }
+}
+
+/// @private Create the audit flush timer.
+/// @param fInterval Time, in seconds, between timer expirations.
+void audit_CreateFlushTimer(float fInterval = AUDIT_FLUSH_INTERVAL)
+{
+    int nTimerID = CreateEventTimer(GetModule(), AUDIT_EVENT_FLUSH_ON_TIMER_EXPIRE, fInterval);
+
+    if (audit_IsFlushTimerValid())
+        audit_DeleteFlushTimer(nTimerID);
+
+    SetLocalInt(GetModule(), AUDIT_FLUSH_TIMER_ID, nTimerID);
+    StartTimer(nTimerID, FALSE);
+
+    audit_Debug(__FUNCTION__, "Audit flush timer created :: Interval = " + FormatFloat(fInterval, "%!f") + "s");
+}
+
+/// @private Delete the current audit flush timer, then create a new timer
+///     with the specified interval.
+/// @param fInterval Time, in seconds, between timer expirations.
+void audit_SetFlushTimerInterval(float fInterval = AUDIT_FLUSH_INTERVAL)
+{
+    audit_DeleteFlushTimer();
+    audit_CreateFlushTimer(fInterval);
 }
 
 int audit_GetBufferSize()
@@ -182,7 +186,8 @@ void audit_FlushBuffer(int nChunk = AUDIT_FLUSH_CHUNK_SIZE)
     ///     and holds no more than `nChunk` records.  These records will be flushed to
     ///     the persistent `audit_*` tables.
 
-    Debug("Flushing audit records from module buffer: " + IntToString(JsonGetLength(jBuffer)) + " records found");
+    int nRecords = JsonGetLength(jBuffer);
+    audit_Debug(__FUNCTION__, "Flushing audit records - " + IntToString(nRecords) + " record" + (nRecords == 1 ? "" : "s") + " found");
 
     if (JsonGetType(jBuffer) == JSON_TYPE_ARRAY && JsonGetLength(jBuffer) > 0)
     {
@@ -196,8 +201,6 @@ void audit_FlushBuffer(int nChunk = AUDIT_FLUSH_CHUNK_SIZE)
         SqlBindJson(q, "@buffer", jBuffer);
         SqlStep(q);
 
-        Debug(__FUNCTION__ + ": Running DELETE query");
-
         s = r"
             DELETE FROM audit_buffer 
             WHERE id IN (
@@ -209,12 +212,10 @@ void audit_FlushBuffer(int nChunk = AUDIT_FLUSH_CHUNK_SIZE)
         SqlStep(q);
     }
     else if (JsonGetType(jBuffer) != JSON_TYPE_ARRAY)
-        Debug(__FUNCTION__ + ": jBuffer is not a valid json object");
-    else
-        Debug("" + __FUNCTION__ + ": No records found in buffer");
+        audit_Debug(__FUNCTION__, "jBuffer is not a valid json object");
 
     if (audit_GetBufferSize() == 0)
-        audit_StopFlushTimer();
+        audit_DeleteFlushTimer();
 }
 
 /// @private Determine if the passed sType is valid based on its inclusion in
@@ -224,7 +225,7 @@ int audit_IsTypeValid(string sType)
 {
     if (JsonGetType(JsonFind(jAuditTypes, JsonString(sType))) == JSON_TYPE_NULL)
     {
-        Debug(__FUNCTION__ + ": Invalid audit type '" + sType + "'");
+        audit_Debug(__FUNCTION__, "Invalid audit type '" + sType + "'");
         return FALSE;
     }
 
@@ -242,7 +243,7 @@ void audit_InsertRecord(string sType, json jData)
 
     if (JsonGetType(jData) != JSON_TYPE_OBJECT)
     {
-        Debug(__FUNCTION__ + ": jData must be a valid json object.");
+        audit_Debug(__FUNCTION__, "jData must be a valid json object.");
         return;
     }
 
@@ -261,13 +262,13 @@ void audit_InsertRecord(string sType, json jData)
     {
         q = pw_PrepareModuleQuery(s);
         if (!audit_IsFlushTimerValid())
-            audit_StartFlushTimer();
+            audit_CreateFlushTimer();
     }
     else if (sType == AUDIT_TYPE_TRAIL)
         q = pw_PrepareCampaignQuery(s);
     else
     {
-        Debug(__FUNCTION__ + ": Invalid audit target '" + sType + "'");
+        audit_Debug(__FUNCTION__, "Invalid audit target '" + sType + "'");
         return;
     }
 
@@ -288,8 +289,14 @@ void audit_POST()
         /// @test Test 1: Check if audit_buffer table is empty.
         /// @note e1 = expected buffer record size
         int e1 = 0, r1;
-
         int t1 = Timer(); r1 = audit_GetBufferSize(); t1 = Timer(t1);
+
+        if (r1 > 0)
+        {
+            audit_Debug(__FUNCTION__, "Flushing " + _i(r1) + " records");
+            audit_FlushBuffer(r1);
+            r1 = audit_GetBufferSize();
+        }
 
         /// @test Test 2: Check if audit flush timer is running.  If it is running,
         ///     note it and stop the timer for the duration of the POST.
@@ -300,7 +307,7 @@ void audit_POST()
         {
             if (bTimerRunning)
             {
-                audit_StopFlushTimer();
+                audit_DeleteFlushTimer();
                 r2 = audit_IsFlushTimerValid();
             }
             else
@@ -358,15 +365,13 @@ void audit_POST()
 
     /// @test Buffered submission
     {
-        /// @test Test 1: Check audit_trail for record submitted via buffer flush.
-        /// @note e1 = expected record count in audit_trail after flush
-        int e1 = 1, r1;
-
         jData = JsonObjectSet(jData, "test_id", JsonInt(2));
         
         int t = Timer();
 
-        /// @test Test 1: Submit audir record to audit_buffer.
+        /// @test Test 1: Check audit_trail for record submitted via buffer flush.
+        /// @note e1 = expected record count in audit_trail after flush
+        int e1 = 1, r1;
         int t1 = Timer(); audit_BufferRecord(jData); t1 = Timer(t1);
 
         string s = r"
@@ -380,20 +385,33 @@ void audit_POST()
         if (SqlStep(q))
             r1 = SqlGetInt(q, 0);
 
-        /// @test Test 2: Check audit_buffer is empty after flush.
-        /// @note e2 = expected record count in audit_buffer after flush
-        int e2 = 0, r2;
+        /// @test Test 2: Check audit buffer timer has started.
+        /// @note e2 = expceted timer status
+        int e2 = TRUE, r2;
+        int t2 = Timer(); r2 = audit_IsFlushTimerValid(); t2 = Timer(t2);
 
-        int t2 = Timer();
+        /// @test Test 3: Check audit_buffer is empty after flush.
+        /// @note e3 = expected record count in audit_buffer after flush
+        int e3 = 0, r3;
+
+        int t3 = Timer();
         {
             audit_FlushBuffer();
-            r2 = audit_GetBufferSize();
-        } t2 = Timer(t2);
+            r3 = audit_GetBufferSize();
+        } t3 = Timer(t3);
+
+        /// @test Test 4: Check audit buffer timer stopped.
+        /// @note e4 = expected timer status
+        int e4 = FALSE, r4;
+        int t4 = Timer(); r4 = audit_IsFlushTimerValid(); t4 = Timer(t4);
+
         t = Timer(t);
 
         int b, b1, b2;
         b = (b1 = r1 == e1) &
-            (b2 = r2 == e2);
+            (b2 = r2 == e2) &
+            (b2 = r3 == e3) &
+            (b2 = r4 == e4);
 
         if (!AssertGroup("Buffered Submission Testing", b))
         {
@@ -401,9 +419,17 @@ void audit_POST()
                 DescribeTestParameters("", _i(e1), _i(r1));
             DescribeTestTime(t1);
 
-            if (!Assert("Buffer Empty After Flush", b2))
+            if (!Assert("Audit Flush Timer Started", b2))
                 DescribeTestParameters("", _i(e2), _i(r2));
             DescribeTestTime(t2);
+
+            if (!Assert("Buffer Empty After Flush", b2))
+                DescribeTestParameters("", _i(e3), _i(r3));
+            DescribeTestTime(t3);
+
+            if (!Assert("Audit Flush Timer Stopped", b2))
+                DescribeTestParameters("", _i(e4), _i(r4));
+            DescribeTestTime(t4);
         } DescribeGroupTime(t); Outdent();
     }
 
@@ -425,10 +451,7 @@ void audit_POST()
         SqlBindString(q, "@source", sSource);
 
         while (SqlStep(q))
-        {
             r1++;
-            Notice("Deleted audit_trail record ID: " + _i(SqlGetInt(q, 0)));
-        }
 
         t1 = Timer(t1);
 
@@ -439,7 +462,7 @@ void audit_POST()
         int t2 = Timer();
         {
             if (bTimerRunning && !audit_IsFlushTimerValid())
-                audit_StartFlushTimer();
+                audit_CreateFlushTimer();
             
             r2 = audit_IsFlushTimerValid();
         } t2 = Timer(t2);
@@ -564,7 +587,7 @@ json audit_CreateData(string sEventType, object oActor, object oTarget = OBJECT_
 
 void audit_RegisterSchema(string sSource, string sName, json jData)
 {
-    Debug("Attempting to register audit schema: " + sSource + "." + sName);
+    audit_Debug(__FUNCTION__, "Attempting to register audit schema: " + sSource + "." + sName);
     
     if (sSource == "" || sName == "")
     {

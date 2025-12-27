@@ -24,12 +24,7 @@ void audit_OnModuleLoad()
 
 void audit_OnClientEnter()
 {
-    object oPC = GetEnteringObject();
 
-    /// @note No need to run the sync timer when there are no players in the
-    ///     module.
-    if (!audit_IsFlushTimerValid())
-        audit_StartFlushTimer();
 }
 
 void audit_OnClientLeave()
@@ -58,8 +53,6 @@ void audit_OnClientLeave()
         Debug("[AUDIT] No players remaining in module. Flushing " + IntToString(nBuffer) + " audit records from buffer to persistent storage.");
         audit_FlushBuffer(nBuffer);
     }
-
-    audit_StopFlushTimer();
 }
 
 void audit_Flush_OnTimerExpire()
