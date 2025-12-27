@@ -39,17 +39,16 @@ void metrics_OnModuleLoad()
     /// @note Ensure all required metrics tables exist, both on disk and in the
     ///     module's volatile sqlite database.
     metrics_CreateTables();
-
-    /// @note Metrics syncs occur on a specified interval.
-    metrics_StartSyncTimer();
 }
 
 void metrics_OnClientEnter()
 {
     object oPC = GetEnteringObject();
 
-    /// If timer isn't running, run it!
-
+    /// @note No need to run the sync timer when there are no players in the
+    ///     module.
+    if (!metrics_IsFlushTimerValid())
+        metrics_StartFlushTimer();
 }
 
 void metrics_OnClientLeave()
@@ -72,29 +71,11 @@ void metrics_OnClientLeave()
         oPC = GetNextPC();
     }
 
-    int nBuffer =
+    int nBuffer = metrics_GetBufferSize();
+    if (nBuffer > 0)
+        metrics_FlushBuffer(nBuffer);
 
-}
-
-
-void metrics_OnPlayerDeath()
-{
-
-}
-
-void metrics_OnPlayerReSpawn()
-{
-
-}
-
-void metrics_OnPlayerLevelUp()
-{
-
-}
-
-void metrics_OnPlayerRestFinished()
-{
-
+    metrics_StopFlushTimer();
 }
 
 void metrics_OnPlayerChat()
@@ -105,12 +86,12 @@ void metrics_OnPlayerChat()
         metrics_POST();
 }
 
-void metrics_Sync_OnTimerExpire()
+void metrics_Flush_OnTimerExpire()
 {
     Notice("Metrics Sync Timer Expired.  Syncing metrics data...");
 
 
-    metrics_SyncBuffer(METRICS_SYNC_CHUNK_SIZE);
+    metrics_FlushBuffer(METRICS_FLUSH_CHUNK_SIZE);
 }
 
 void metrics_OnModulePOST()

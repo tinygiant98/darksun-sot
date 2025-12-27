@@ -8,16 +8,39 @@
 #include "pw_c_metrics"
 #include "util_i_strings"
 #include "util_i_debug"
-#include "util_i_strings"
 
 #include "core_i_framework"
 
+/// @todo To make this into a valid utility and genericize it, we'd need to do the following
+/// 1) Modify the timer to use util_i_timers instead of core_i_framework
+/// 1.1) Add a config function to do let the builder do someting when the timer expires.
+/// 2) Modify the queries to be able to reference whatever non-metrics tables were already
+///     in use by the module.  This could be difficult!  No idea what type of system they
+///     are using and whether fks and such are used.
+/// 2.1) Rename this file to util_i_metrics.
+/// 3) Modify the queries to reference a generic query function, probably in util_c_metrics.
+
+/// @note METRICS_TYPE_* constants are provided to help with accuracy in determining the
+///     target type for metrics object.
 const string METRICS_TYPE_PLAYER = "player";
 const string METRICS_TYPE_CHARACTER = "character";
 const string METRICS_TYPE_SERVER = "server";
 
-const string METRICS_EVENT_SYNC_ON_TIMER_EXPIRE = "METRICS_EVENT_SYNC_ON_TIMER_EXPIRE";
-const string METRICS_SYNC_TIMER_ID = "METRICS_SYNC_TIMER_ID";
+/// @note jMetricTypes is a json object composed of the string values of each of the
+///     METRICS_TYPE_* values.  The purpose of this object is to make future expansion
+///     easier by allowing quick error checking for appropriate values of sType.
+/// @warning If a METRICS_TYPE_* is added, ensure its string value is added to
+///     jMetricsTypes.
+json jMetricsTypes = JsonParse(r"
+    [
+        ""player"",
+        ""character"",
+        ""server""
+    ]
+");
+
+const string METRICS_EVENT_FLUSH_ON_TIMER_EXPIRE = "METRICS_EVENT_FLUSH_ON_TIMER_EXPIRE";
+const string METRICS_FLUSH_TIMER_ID = "METRICS_FLUSH_TIMER_ID";
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
@@ -37,6 +60,22 @@ const string METRICS_SYNC_TIMER_ID = "METRICS_SYNC_TIMER_ID";
 ///     ensure unique keys are used.  Namespaces, such as <source_*> work well in
 ///     these cases.
 void metrics_RegisterSchema(string sSource, string sName, json jData);
+
+/// @brief Unregister (delete) a metrics schema.
+/// @param sSource Source of the registered schema.
+/// @param sName Name of the registered schema.
+void metrics_UnregisterSchema(string sSource, string sName);
+
+/// @brief Retrieve a list of schema names registered by a source.
+/// @param sSource Source of the registered schemas.
+/// @return A json array of strings containing the names of registered schemas.
+json metrics_ViewSchemas(string sSource);
+
+/// @brief Retrieve the definition of a specific registered schema.
+/// @param sSource Source of the registered schema.
+/// @param sName Name of the registered schema.
+/// @return The schema definition object.
+json metrics_ViewSchema(string sSource, string sName);
 
 /// @brief Convenience function for submitting player-focused metrics.
 /// @param sTarget player_id of the target player.
@@ -301,49 +340,62 @@ void metrics_CreateTables()
     pw_CommitTransaction(GetModule());
 }
 
-/// @private Start the metrics sync timer.  Expiration of this timer will start the buffer
+/// @private Start the metrics flush timer.  Expiration of this timer will start the buffer
 ///     flush process.
 /// @param fInterval Time, in seconds, between timer expirations.
-void metrics_StartSyncTimer(float fInterval = METRICS_SYNC_INTERVAL)
+void metrics_StartFlushTimer(float fInterval = METRICS_FLUSH_INTERVAL)
 {
-    int nTimerID = CreateEventTimer(GetModule(), METRICS_EVENT_SYNC_ON_TIMER_EXPIRE, fInterval);
-    SetLocalInt(GetModule(), METRICS_SYNC_TIMER_ID, nTimerID);
+    int nTimerID = CreateEventTimer(GetModule(), METRICS_EVENT_FLUSH_ON_TIMER_EXPIRE, fInterval);
+    SetLocalInt(GetModule(), METRICS_FLUSH_TIMER_ID, nTimerID);
     StartTimer(nTimerID, FALSE);
 
-    string s = "Metrics sync timer started:";
+    string s = "Metrics flush timer started:";
     s+= "\n  Interval: " + FormatFloat(fInterval, "%!f") + " seconds";
     s+= "\n  TimerID: " + IntToString(nTimerID);
 
     Debug(s);
 }
 
-/// @private Stop and delete the metrics sync timer.
-/// @param nTimerID ID of the metrics sync timer.  If not provided, the function will
+/// @private Stop and delete the metrics flush timer.
+/// @param nTimerID ID of the metrics flush timer.  If not provided, the function will
 ///     attempt to discover the timer ID.
-void metrics_StopSyncTimer(int nTimerID = -1)
+void metrics_StopFlushTimer(int nTimerID = -1)
 {
     if (nTimerID < 0)
-        nTimerID = GetLocalInt(GetModule(), METRICS_SYNC_TIMER_ID);
+        nTimerID = GetLocalInt(GetModule(), METRICS_FLUSH_TIMER_ID);
     
     if (nTimerID > 0)
     {
         KillTimer(nTimerID);
-        DeleteLocalInt(GetModule(), METRICS_SYNC_TIMER_ID);
+        DeleteLocalInt(GetModule(), METRICS_FLUSH_TIMER_ID);
 
-        string s = "Metric sync timer stopped:";
+        string s = "Metrics flush timer stopped:";
         s+= "\n  TimerID: " + IntToString(nTimerID);
 
         Debug(s);
     }
 }
 
-/// @private Stop and delete the current metrics sync timer, then create a new timer
+/// @private Stop and delete the current metrics flush timer, then create a new timer
 ///     with the specific interval.
 /// @param fInterval Time, in seconds, between timer expirations.
-void metrics_SetSyncTimerInterval(float fInterval = METRICS_SYNC_INTERVAL)
+void metrics_SetFlushTimerInterval(float fInterval = METRICS_FLUSH_INTERVAL)
 {
-    metrics_StopSyncTimer();
-    metrics_StartSyncTimer(fInterval);
+    metrics_StopFlushTimer();
+    metrics_StartFlushTimer(fInterval);
+}
+
+/// @private Determine if the metrics flush timer is valid (running).
+int metrics_IsFlushTimerValid()
+{
+    return GetIsTimerValid(GetLocalInt(GetModule(), METRICS_FLUSH_TIMER_ID));
+}
+
+int metrics_GetBufferSize()
+{
+    string s = "SELECT COUNT(*) FROM metrics_buffer";
+    sqlquery q = pw_PrepareModuleQuery(s);
+    return SqlStep(q) ? SqlGetInt(q, 0) : 0;
 }
 
 /// @private Merge a metrics group into the appropriate metrics tables for persistent
@@ -364,7 +416,7 @@ void metrics_SetSyncTimerInterval(float fInterval = METRICS_SYNC_INTERVAL)
 ///     }
 /// @warning This function should not be called directly without extensive knowledge of
 ///     how metrics group objects are constructed as it has no validity checks.
-///     Instead, route through caller functions that build the requried metrics group:
+///     Instead, route through caller functions that build the required metrics group:
 ///         metrics_FlushBuffer()
 ///         metrics_SubmitMetric()
 void metrics_MergeGroup(json jGroup)
@@ -431,12 +483,26 @@ void metrics_MergeGroup(json jGroup)
                         CASE u.op
                             WHEN 'ADD' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) + u.new_val
                             WHEN 'SUB' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) - u.new_val
+                            WHEN 'MUL' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) * u.new_val
+                            WHEN 'DIV' THEN CASE WHEN u.new_val != 0 THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) / u.new_val ELSE 0 END
+                            WHEN 'MOD' THEN CASE WHEN u.new_val != 0 THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) % u.new_val ELSE 0 END
                             WHEN 'MAX' THEN MAX(COALESCE(jsonb_extract(a.current_data, u.path), 0), u.new_val)
                             WHEN 'MIN' THEN MIN(COALESCE(jsonb_extract(a.current_data, u.path), 0), u.new_val)
                             WHEN 'KEEP' THEN COALESCE(jsonb_extract(a.current_data, u.path), u.new_val)
+                            WHEN 'REPLACE' THEN u.new_val
                             WHEN 'BIT_OR' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) | u.new_val
+                            WHEN 'BIT_AND' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) & u.new_val
+                            WHEN 'BIT_XOR' THEN (COALESCE(jsonb_extract(a.current_data, u.path), 0) | u.new_val) - (COALESCE(jsonb_extract(a.current_data, u.path), 0) & u.new_val)
+                            WHEN 'BIT_CLEAR' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) & ~u.new_val
                             WHEN 'NON_ZERO' THEN CASE WHEN u.new_val != 0 THEN u.new_val ELSE jsonb_extract(a.current_data, u.path) END
-                            WHEN 'APPEND' THEN jsonb_insert(COALESCE(jsonb_extract(a.current_data, u.path), jsonb('[]')), '$[#]', u.new_val)
+                            WHEN 'CONCAT' THEN COALESCE(jsonb_extract(a.current_data, u.path), '') || u.new_val
+                            WHEN 'APPEND' THEN jsonb_insert(COALESCE(jsonb_extract(a.current_data, u.path), jsonb_array()), '$[#]', u.new_val)
+                            WHEN 'PREPEND' THEN jsonb_insert(COALESCE(jsonb_extract(a.current_data, u.path), jsonb_array()), '$[0]', u.new_val)
+                            WHEN 'MERGE' THEN json_patch(COALESCE(jsonb_extract(a.current_data, u.path), jsonb_object()), u.new_val)
+                            WHEN 'TOGGLE' THEN CASE WHEN COALESCE(jsonb_extract(a.current_data, u.path), 0) = 0 THEN 1 ELSE 0 END
+                            WHEN 'MIN_NZ' THEN CASE WHEN COALESCE(jsonb_extract(a.current_data, u.path), 0) = 0 THEN u.new_val ELSE MIN(jsonb_extract(a.current_data, u.path), u.new_val) END
+                            WHEN 'ROUND' THEN ROUND(COALESCE(jsonb_extract(a.current_data, u.path), 0), u.new_val)
+                            WHEN 'TIMESTAMP' THEN CAST(STRFTIME('%s', 'now') AS INTEGER)
                             ELSE u.new_val
                         END
                     ),
@@ -522,7 +588,7 @@ void metrics_FlushBuffer(int nChunk = 500)
     if (JsonGetType(jBuffer) == JSON_TYPE_ARRAY && JsonGetLength(jBuffer) > 0)
     {
         int n; for (; n < JsonGetLength(jBuffer); n++)
-            metrics_MergeGroup(JsonArrayGet(jBuffer, n))
+            metrics_MergeGroup(JsonArrayGet(jBuffer, n));
 
         /// @note All metrics syncing is complete.  Because the records are sourced from
         ///     the module's buffer, the flushed records need to be deleted from the buffer
@@ -541,6 +607,56 @@ void metrics_FlushBuffer(int nChunk = 500)
     }
 }
 
+/// @private Determine if the passed sType is valid based on its inclusion in
+///     jMetricsTypes.
+/// @param sType Metrics type: METRICS_TYPE_*.
+int metrics_IsTypeValid(string sType)
+{
+    if (JsonGetType(JsonFind(jMetricsTypes, JsonString(sType))) == JSON_TYPE_NULL)
+    {
+        Debug(__FUNCTION__ + ": Invalid metrics type '" + sType + "'");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+/// @private Determine if the passed sTarget is valid for the given sType.  If sType
+///     is invalid, sTarget is automatically invalid.
+/// @param sType Metrics type: METRICS_TYPE_*.
+/// @param sTarget Unique ID of the target (player_id, character_id, 1).
+int metrics_IsTargetValid(string sType, string sTarget)
+{   
+    if (!metrics_IsTypeValid(sType))
+        return FALSE;
+
+    if (sType == METRICS_TYPE_SERVER)
+        return sTarget == "1";
+    else
+    {
+        string sTable = sType;
+
+        string s = "SELECT 1 FROM " + sTable + " WHERE " + sType + "_id = @target";
+        sqlquery q = pw_PrepareCampaignQuery(s);
+        SqlBindString(q, "@target", sTarget);
+        if (!SqlStep(q))
+        {
+            Debug(__FUNCTION__ + ": Target '" + sTarget + "' not found in table '" + sTable + "'");
+            return FALSE;
+        }
+        else
+            return TRUE;
+    }
+}
+
+/// @private Build common sqlite statement substitutions object.
+/// @param sType Metrics type: METRICS_TYPE_*.
+json metrics_GetSubstitutions(string sType)
+{
+    json jSubstitute = JsonObjectSet(JsonObject(), "metrics_table", JsonString("metrics_" + sType));
+    return JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
+}
+
 /// @private Allows submission of a single record directly into the persistent `metrics_*`
 ///     tables.  It should be rare to require immediate metrics insertion into the persistent
 ///     tables as this is a much heavier opertion that using the buffer flushing process.
@@ -551,6 +667,21 @@ void metrics_FlushBuffer(int nChunk = 500)
 /// @param jData Metrics data.
 void metrics_SubmitMetric(string sType, string sTarget, string sSource, string sSchema, json jData)
 {
+    if (!metrics_IsTargetValid(sType, sTarget))
+        return;
+
+    if (sSource == "" || sSchema == "")
+    {
+        Debug(__FUNCTION__ + ": sSource and sSchema must not be empty.");
+        return;
+    }
+
+    if (JsonGetType(jData) != JSON_TYPE_OBJECT)
+    {
+        Debug(__FUNCTION__ + ": jData must be a valid json object.");
+        return;
+    }
+
     json jGroup = JsonObjectSet(JsonObject(), "type", JsonString(sType));
     jGroup = JsonObjectSet(jGroup, "source", JsonString(sSource));
     jGroup = JsonObjectSet(jGroup, "schema", JsonString(sSchema));
@@ -574,6 +705,21 @@ void metrics_SubmitMetric(string sType, string sTarget, string sSource, string s
 ///     the desired target.
 void metrics_BufferMetric(string sType, string sTarget, string sSource, string sSchema, json jData)
 {
+    if (!metrics_IsTargetValid(sType, sTarget))
+        return;
+
+    if (sSource == "" || sSchema == "")
+    {
+        Debug(__FUNCTION__ + ": sSource and sSchema must not be empty.");
+        return;
+    }
+
+    if (JsonGetType(jData) != JSON_TYPE_OBJECT)
+    {
+        Debug(__FUNCTION__ + ": jData must be a valid json object.");
+        return;
+    }
+
     string s = r"
         INSERT INTO metrics_buffer (type, target, source, schema, data)
         VALUES (@type, @target, @source, @schema, jsonb(@data));
@@ -593,10 +739,13 @@ void metrics_BufferMetric(string sType, string sTarget, string sSource, string s
 /// @param sType Metrics type: METRICS_TYPE_*.
 /// @param sTarget Unique ID of the target (player_id, character_id, 1)
 /// @param sPath SQLite path to the desired metric.
-/// @note sPath should be in the form $.path.to.key, but this function will
-///     handle missing leading $ or $.
+/// @note sPath should be in the form `$.path.to.key`, but this function will
+///     handle missing leading `$` or `$.`.
 json metrics_GetMetricByPath(string sType, string sTarget, string sPath)
 {
+    if (!metrics_IsTargetValid(sType, sTarget))
+        return JsonNull();
+
     if (sPath == "")
         sPath = "$";
     else if (GetStringLeft(sPath, 1) != "$")
@@ -607,17 +756,12 @@ json metrics_GetMetricByPath(string sType, string sTarget, string sPath)
             sPath = "$." + sPath;
     }
 
-    json jSubstitute = JsonObjectSet(JsonObject(), "metrics_table", JsonString("metrics_" + sType));
-    jSubstitute = JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
-
-    if (sType == METRICS_TYPE_SERVER)
-        sTarget = "1";
-
     string s = r"
         SELECT json(jsonb_extract(data, @path)) 
-        FROM $metrics_table WHERE $target_id = @target;
+        FROM $metrics_table
+        WHERE $target_id = @target;
     ";
-    s = SubstituteStrings(s, jSubstitute);
+    s = SubstituteStrings(s, metrics_GetSubstitutions(sType));
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@path", sPath);
     SqlBindString(q, "@target", sTarget);
@@ -629,8 +773,8 @@ json metrics_GetMetricByPath(string sType, string sTarget, string sPath)
 /// @param sType Metrics type: METRICS_TYPE_*.
 /// @param sTarget Unique ID of the target (player_id, character_id, 1)
 /// @param sPointer Json pointer to the desired metric.
-/// @note sPointer should be in the form /pointer/to/key, but this function
-///     will handling missing leading /.
+/// @note sPointer should be in the form `/pointer/to/key`, but this function
+///     will handling missing leading `/`.
 json metrics_GetMetricByPointer(string sType, string sTarget, string sPointer)
 {
     if (sPointer == "")
@@ -648,14 +792,11 @@ json metrics_GetMetricByPointer(string sType, string sTarget, string sPointer)
 ///     hint should be any portion of the path to the desired key.
 json metrics_GetMetricByKey(string sType, string sTarget, string sKey, string sHint = "")
 {
-    if (sKey == "")
+    if (!metrics_IsTargetValid(sType, sTarget))
         return JsonNull();
 
-    json jSubstitute = JsonObjectSet(JsonObject(), "metrics_table", JsonString("metrics_" + sType));
-    jSubstitute = JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
-
-    if (sType == METRICS_TYPE_SERVER)
-        sTarget = "1";
+    if (sKey == "")
+        return JsonNull();
 
     string s = r"
         SELECT json(jsonb_extract(data, fullkey)) 
@@ -665,7 +806,7 @@ json metrics_GetMetricByKey(string sType, string sTarget, string sKey, string sH
             AND fullkey LIKE @hint
         LIMIT 1;
     ";
-    s = SubstituteStrings(s, jSubstitute);
+    s = SubstituteStrings(s, metrics_GetSubstitutions(sType));
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@target", sTarget);
     SqlBindString(q, "@key", sKey);
@@ -680,14 +821,11 @@ json metrics_GetMetricByKey(string sType, string sTarget, string sKey, string sH
 /// @param jSchema Metrics schema object.
 json metrics_GetMetricBySchema(string sType, string sTarget, json jSchema)
 {
-    if (JsonGetType(jSchema) != JSONT_TYPE_OBJECT)
+    if (!metrics_IsTargetValid(sType, sTarget))
         return JsonNull();
 
-    json jSubstitute = JsonObjectSet(JsonObject(), "metrics_table", JsonString("metrics_" + sType));
-    jSubstitute = JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
-
-    if (sType == METRICS_TYPE_SERVER)
-        sTarget = "1";
+    if (JsonGetType(jSchema) != JSON_TYPE_OBJECT)
+        return JsonNull();
 
     string s = r"
         WITH RECURSIVE
@@ -720,7 +858,7 @@ json metrics_GetMetricBySchema(string sType, string sTarget, json jSchema)
         ORDER BY next_seq DESC
         LIMIT 1;
     ";
-    s = SubstituteStrings(s, jSubstitute);
+    s = SubstituteStrings(s, metrics_GetSubstitutions(sType));
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@target", sTarget);
     SqlBindJson(q, "@schema", jSchema);
@@ -735,6 +873,15 @@ json metrics_GetMetricBySchema(string sType, string sTarget, json jSchema)
 /// @param sSchema Name of the registered schema.
 json metrics_GetMetricByRegisteredSchema(string sType, string sTarget, string sSource, string sSchema)
 {
+    if (!metrics_IsTargetValid(sType, sTarget))
+        return JsonNull();
+
+    if (sSource == "" || sSchema == "")
+    {
+        Debug(__FUNCTION__ + ": sSource and sSchema must not be empty.");
+        return JsonNull();
+    }
+
     string s = r"
         SELECT json(data) 
         FROM metrics_schema 
@@ -770,8 +917,8 @@ void metrics_POST()
         return;
     }
 
-    // Stop the sync timer to prevent automatic flushing during the test
-    metrics_StopSyncTimer();
+    // Stop the flush timer to prevent automatic flushing during the test
+    metrics_StopFlushTimer();
 
     // -------------------------------------------------------------------------
     // 1. Setup Fake Data
@@ -976,8 +1123,8 @@ void metrics_POST()
     SqlStep(q);
     Debug("[PASS] Schemas Cleaned");
 
-    // Restart the sync timer
-    metrics_StartSyncTimer();
+    // Restart the flush timer
+    metrics_StartFlushTimer();
 
     Debug("==================================================================");
     if (nErrors > 0)
@@ -1030,59 +1177,68 @@ void metrics_RegisterSchema(string sSource, string sName, json jData)
     SqlStep(q);
 }
 
-/// @brief Convenience function for submitting player-focused metrics.
-/// @param sTarget player_id of the target player.
-/// @param sSource Source of the metric schema.
-/// @param sSchema Name of the metric schema.
-/// @param jData Metrics data.
+void metrics_UnregisterSchema(string sSource, string sName)
+{
+    if (sSource == "" || sName == "")
+        return;
+
+    string s = "DELETE FROM metrics_schema WHERE source = @source AND name = @name";
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@source", sSource);
+    SqlBindString(q, "@name", sName);
+    SqlStep(q);
+}
+
+json metrics_ViewSchemas(string sSource)
+{
+    if (sSource == "")
+        return JsonArray();
+
+    string s = "SELECT json_group_array(name) FROM metrics_schema WHERE source = @source";
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@source", sSource);
+    
+    return SqlStep(q) ? SqlGetJson(q, 0) : JsonArray();
+}
+
+json metrics_ViewSchema(string sSource, string sName)
+{
+    if (sSource == "" || sName == "")
+        return JsonNull();
+
+    string s = "SELECT json(data) FROM metrics_schema WHERE source = @source AND name = @name";
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@source", sSource);
+    SqlBindString(q, "@name", sName);
+    
+    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
+}
+
 void metrics_SubmitPlayerMetric(string sTarget, string sSource, string sSchema, json jData)
 {
     metrics_SubmitMetric(METRICS_TYPE_PLAYER, sTarget, sSource, sSchema, jData);
 }
 
-/// @brief Convenience function for submitting character-focused metrics.
-/// @param sTarget character_id of the target character.
-/// @param sSource Source of the metric schema.
-/// @param sSchema Name of the metric schema.
-/// @param jData Metrics data.
 void metrics_SubmitCharacterMetric(string sTarget, string sSource, string sSchema, json jData)
 {
     metrics_SubmitMetric(METRICS_TYPE_CHARACTER, sTarget, sSource, sSchema, jData);
 }
 
-/// @brief Convenience function for submitting server-focused metrics.
-/// @param sSource Source of the metric schema.
-/// @param sSchema Name of the metric schema.
-/// @param jData Metrics data.
 void metrics_SubmitServerMetric(string sSource, string sSchema, json jData)
 {
     metrics_SubmitMetric(METRICS_TYPE_SERVER, "1", sSource, sSchema, jData);
 }
 
-/// @brief Convenience function for buffering player-focused metrics.
-/// @param sTarget player_id of the target player.
-/// @param sSource Source of the metric schema.
-/// @param sSchema Name of the metric schema.
-/// @param jData Metrics data.
 void metrics_BufferPlayerMetric(string sTarget, string sSource, string sSchema, json jData)
 {
     metrics_BufferMetric(METRICS_TYPE_PLAYER, sTarget, sSource, sSchema, jData);
 }
 
-/// @brief Convenience function for buffering character-focused metrics.
-/// @param sTarget character_id of the target character.
-/// @param sSource Source of the metric schema.
-/// @param sSchema Name of the metric schema.
-/// @param jData Metrics data.
 void metrics_BufferCharacterMetric(string sTarget, string sSource, string sSchema, json jData)
 {
     metrics_BufferMetric(METRICS_TYPE_CHARACTER, sTarget, sSource, sSchema, jData);
 }
 
-/// @brief Convenience function for buffering server-focused metrics.
-/// @param sSource Source of the metric schema.
-/// @param sSchema Name of the metric schema.
-/// @param jData Metrics data.
 void metrics_BufferServerMetric(string sSource, string sSchema, json jData)
 {
     metrics_BufferMetric(METRICS_TYPE_SERVER, "1", sSource, sSchema, jData);
@@ -1100,7 +1256,7 @@ json metrics_GetCharacterMetricByPath(string sTarget, string sPath)
 
 json metrics_GetServerMetricByPath(string sPath)
 {
-    return metrics_GetMetricByPath(METRICS_TYPE_SERVER, "", sPath);
+    return metrics_GetMetricByPath(METRICS_TYPE_SERVER, "1", sPath);
 }
 
 json metrics_GetPlayerMetricByPointer(string sTarget, string sPointer)
@@ -1115,7 +1271,7 @@ json metrics_GetCharacterMetricByPointer(string sTarget, string sPointer)
 
 json metrics_GetServerMetricByPointer(string sPointer)
 {
-    return metrics_GetMetricByPointer(METRICS_TYPE_SERVER, "", sPointer);
+    return metrics_GetMetricByPointer(METRICS_TYPE_SERVER, "1", sPointer);
 }
 
 json metrics_GetPlayerMetricByKey(string sTarget, string sKey, string sHint = "")
@@ -1130,7 +1286,7 @@ json metrics_GetCharacterMetricByKey(string sTarget, string sKey, string sHint =
 
 json metrics_GetServerMetricByKey(string sKey, string sHint = "")
 {
-    return metrics_GetMetricByKey(METRICS_TYPE_SERVER, "", sKey, sHint);
+    return metrics_GetMetricByKey(METRICS_TYPE_SERVER, "1", sKey, sHint);
 }
 
 json metrics_GetPlayerMetricBySchema(string sTarget, json jSchema)
@@ -1145,7 +1301,7 @@ json metrics_GetCharacterMetricBySchema(string sTarget, json jSchema)
 
 json metrics_GetServerMetricBySchema(json jSchema)
 {
-    return metrics_GetMetricBySchema(METRICS_TYPE_SERVER, "", jSchema);
+    return metrics_GetMetricBySchema(METRICS_TYPE_SERVER, "1", jSchema);
 }
 
 json metrics_GetPlayerMetricByRegisteredSchema(string sTarget, string sSource, string sSchema)
@@ -1160,5 +1316,5 @@ json metrics_GetCharacterMetricByRegisteredSchema(string sTarget, string sSource
 
 json metrics_GetServerMetricByRegisteredSchema(string sSource, string sSchema)
 {
-    return metrics_GetMetricByRegisteredSchema(METRICS_TYPE_SERVER, "", sSource, sSchema);
+    return metrics_GetMetricByRegisteredSchema(METRICS_TYPE_SERVER, "1", sSource, sSchema);
 }
