@@ -8,6 +8,7 @@
 #include "pw_c_metrics"
 #include "util_i_strings"
 #include "util_i_debug"
+#include "util_i_unittest"
 
 #include "core_i_framework"
 
@@ -50,7 +51,7 @@ const string METRICS_FLUSH_TIMER_ID = "METRICS_FLUSH_TIMER_ID";
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
 
-/// @private Called only during module startup from the metrics source.  Ensures all
+/// @brief Called only during module startup from the metrics source.  Ensures all
 ///     metrics-tracking tables are created in the on-disk campaign database and
 ///     creates the in-memory module database table used for buffering metrics data.
 void metrics_CreateTables();
@@ -239,26 +240,25 @@ json metrics_GetServerMetricByRegisteredSchema(string sSource, string sSchema);
 //                          Private Function Definitions
 // -----------------------------------------------------------------------------
 
-/// @private Start the metrics flush timer.  Expiration of this timer will start the buffer
-///     flush process.
-/// @param fInterval Time, in seconds, between timer expirations.
-void metrics_StartFlushTimer(float fInterval = METRICS_FLUSH_INTERVAL)
+/// @private Debugging function for metrics system.
+/// @param sFunction Name of the function generating the debug message.
+/// @param sMessage Debug message.
+void metrics_Debug(string sFunction, string sMessage)
 {
-    int nTimerID = CreateEventTimer(GetModule(), METRICS_EVENT_FLUSH_ON_TIMER_EXPIRE, fInterval);
-    SetLocalInt(GetModule(), METRICS_FLUSH_TIMER_ID, nTimerID);
-    StartTimer(nTimerID, FALSE);
+    sFunction = HexColorString("[" + sFunction + "]", COLOR_BLUE_LIGHT);
+    Debug(sFunction + " " + sMessage);
+}
 
-    string s = "Metrics flush timer started:";
-    s+= "\n  Interval: " + FormatFloat(fInterval, "%!f") + " seconds";
-    s+= "\n  TimerID: " + IntToString(nTimerID);
-
-    Debug(s);
+/// @private Determine if the metrics flush timer is valid (running).
+int metrics_IsFlushTimerValid()
+{
+    return GetIsTimerValid(GetLocalInt(GetModule(), METRICS_FLUSH_TIMER_ID));
 }
 
 /// @private Stop and delete the metrics flush timer.
 /// @param nTimerID ID of the metrics flush timer.  If not provided, the function will
 ///     attempt to discover the timer ID.
-void metrics_StopFlushTimer(int nTimerID = -1)
+void metrics_DeleteFlushTimer(int nTimerID = -1)
 {
     if (nTimerID < 0)
         nTimerID = GetLocalInt(GetModule(), METRICS_FLUSH_TIMER_ID);
@@ -268,11 +268,23 @@ void metrics_StopFlushTimer(int nTimerID = -1)
         KillTimer(nTimerID);
         DeleteLocalInt(GetModule(), METRICS_FLUSH_TIMER_ID);
 
-        string s = "Metrics flush timer stopped:";
-        s+= "\n  TimerID: " + IntToString(nTimerID);
-
-        Debug(s);
+        metrics_Debug(__FUNCTION__, "Metrics flush timer deleted");
     }
+}
+
+/// @private Create the metrics flush timer.
+/// @param fInterval Time, in seconds, between timer expirations.
+void metrics_CreateFlushTimer(float fInterval = METRICS_FLUSH_INTERVAL)
+{
+    int nTimerID = CreateEventTimer(GetModule(), METRICS_EVENT_FLUSH_ON_TIMER_EXPIRE, fInterval);
+    
+    if (metrics_IsFlushTimerValid())
+        metrics_DeleteFlushTimer();
+    
+    SetLocalInt(GetModule(), METRICS_FLUSH_TIMER_ID, nTimerID);
+    StartTimer(nTimerID, FALSE);
+
+    metrics_Debug(__FUNCTION__, "Metrics flush timer created :: Interval = " + FormatFloat(fInterval, "%!f") + "s");
 }
 
 /// @private Stop and delete the current metrics flush timer, then create a new timer
@@ -280,14 +292,8 @@ void metrics_StopFlushTimer(int nTimerID = -1)
 /// @param fInterval Time, in seconds, between timer expirations.
 void metrics_SetFlushTimerInterval(float fInterval = METRICS_FLUSH_INTERVAL)
 {
-    metrics_StopFlushTimer();
-    metrics_StartFlushTimer(fInterval);
-}
-
-/// @private Determine if the metrics flush timer is valid (running).
-int metrics_IsFlushTimerValid()
-{
-    return GetIsTimerValid(GetLocalInt(GetModule(), METRICS_FLUSH_TIMER_ID));
+    metrics_DeleteFlushTimer();
+    metrics_CreateFlushTimer(fInterval);
 }
 
 int metrics_GetBufferSize()
@@ -482,12 +488,16 @@ void metrics_FlushBuffer(int nChunk = 500)
     ///     and holds no more than `nChunk` records.  These records will be flushed to
     ///     the persistent `metrics_*` tables.
 
-    Debug("Flushing metrics from module buffer: " + IntToString(JsonGetLength(jBuffer)) + " groups found");
+    metrics_Debug(__FUNCTION__, "Flushing metrics from module buffer: " + IntToString(JsonGetLength(jBuffer)) + " groups found");
 
     if (JsonGetType(jBuffer) == JSON_TYPE_ARRAY && JsonGetLength(jBuffer) > 0)
     {
+        pw_BeginTransaction();
+
         int n; for (; n < JsonGetLength(jBuffer); n++)
             metrics_MergeGroup(JsonArrayGet(jBuffer, n));
+
+        pw_CommitTransaction();
 
         /// @note All metrics syncing is complete.  Because the records are sourced from
         ///     the module's buffer, the flushed records need to be deleted from the buffer
@@ -504,6 +514,9 @@ void metrics_FlushBuffer(int nChunk = 500)
         SqlBindJson(q, "@buffer", jBuffer);
         SqlStep(q);
     }
+
+    if (metrics_GetBufferSize() == 0)
+        metrics_DeleteFlushTimer();
 }
 
 /// @private Determine if the passed sType is valid based on its inclusion in
@@ -513,7 +526,7 @@ int metrics_IsTypeValid(string sType)
 {
     if (JsonGetType(JsonFind(jMetricsTypes, JsonString(sType))) == JSON_TYPE_NULL)
     {
-        Debug(__FUNCTION__ + ": Invalid metrics type '" + sType + "'");
+        metrics_Debug(__FUNCTION__, "Invalid metrics type '" + sType + "'");
         return FALSE;
     }
 
@@ -540,7 +553,7 @@ int metrics_IsTargetValid(string sType, string sTarget)
         SqlBindString(q, "@target", sTarget);
         if (!SqlStep(q))
         {
-            Debug(__FUNCTION__ + ": Target '" + sTarget + "' not found in table '" + sTable + "'");
+            metrics_Debug(__FUNCTION__, "Target '" + sTarget + "' not found in table '" + sTable + "'");
             return FALSE;
         }
         else
@@ -571,13 +584,13 @@ void metrics_SubmitMetric(string sType, string sTarget, string sSource, string s
 
     if (sSource == "" || sSchema == "")
     {
-        Debug(__FUNCTION__ + ": sSource and sSchema must not be empty.");
+        metrics_Debug(__FUNCTION__, "sSource and sSchema must not be empty.");
         return;
     }
 
     if (JsonGetType(jData) != JSON_TYPE_OBJECT)
     {
-        Debug(__FUNCTION__ + ": jData must be a valid json object.");
+        metrics_Debug(__FUNCTION__, "jData must be a valid json object.");
         return;
     }
 
@@ -609,13 +622,13 @@ void metrics_BufferMetric(string sType, string sTarget, string sSource, string s
 
     if (sSource == "" || sSchema == "")
     {
-        Debug(__FUNCTION__ + ": sSource and sSchema must not be empty.");
+        metrics_Debug(__FUNCTION__, "sSource and sSchema must not be empty.");
         return;
     }
 
     if (JsonGetType(jData) != JSON_TYPE_OBJECT)
     {
-        Debug(__FUNCTION__ + ": jData must be a valid json object.");
+        metrics_Debug(__FUNCTION__, "jData must be a valid json object.");
         return;
     }
 
@@ -632,6 +645,9 @@ void metrics_BufferMetric(string sType, string sTarget, string sSource, string s
     SqlBindJson(q, "@data", jData);
     
     SqlStep(q);
+
+    if (!metrics_IsFlushTimerValid())
+        metrics_CreateFlushTimer();
 }
 
 /// @private Retrieve a metric by sqlite path.
@@ -777,7 +793,7 @@ json metrics_GetMetricByRegisteredSchema(string sType, string sTarget, string sS
 
     if (sSource == "" || sSchema == "")
     {
-        Debug(__FUNCTION__ + ": sSource and sSchema must not be empty.");
+        metrics_Debug(__FUNCTION__, "sSource and sSchema must not be empty.");
         return JsonNull();
     }
 
@@ -800,237 +816,464 @@ json metrics_GetMetricByRegisteredSchema(string sType, string sTarget, string sS
 /// @note This function should be called during the module's OnModulePOST, or similar, event.
 void metrics_POST()
 {
-    Debug("==================================================================");
-    Debug("  METRICS SYSTEM POWER-ON SELF-TEST (POST) INITIATED");
-    Debug("==================================================================");
+    DescribeTestSuite("Metrics System POST");
 
-    // -------------------------------------------------------------------------
-    // 0. Environment Check
-    // -------------------------------------------------------------------------
-    // If the system is currently processing metrics (buffer not empty), we skip
-    // the test to prevent interference with live data and to ensure a clean
-    // test environment.
-    if (metrics_GetBufferSize() > 0)
+    int bTimerRunning = metrics_IsFlushTimerValid();
+
+    /// @test 1: Environment preparation.
     {
-        Debug("[POST] ABORTING: Metrics buffer contains pending data. Please ensure the buffer is empty before running POST.");
-        return;
+        int t = Timer();
+
+        /// @test Test 1: Check if metrics_buffer table is empty.
+        /// @note e1 = expected buffer record size
+        int e1 = 0, r1;
+        int t1 = Timer(); r1 = metrics_GetBufferSize(); t1 = Timer(t1);
+
+        if (r1 > 0)
+        {
+            metrics_Debug(__FUNCTION__, "Flushing " + _i(r1) + " records");
+            metrics_FlushBuffer(r1);
+            r1 = metrics_GetBufferSize();
+        }
+
+        /// @test Test 2: Check if metrics flush timer is running.  If it is running,
+        ///     note it and stop the timer for the duration of the POST.
+        /// @note e2 = time running status
+        int e2 = FALSE, r2;
+
+        int t2 = Timer();
+        {
+            if (bTimerRunning)
+            {
+                metrics_DeleteFlushTimer();
+                r2 = metrics_IsFlushTimerValid();
+            }
+            else
+                r2 = bTimerRunning;
+        } t2 = Timer(t2);
+        t = Timer(t);
+
+        int b, b1, b2;
+        b = (b1 = r1 == e1) &
+            (b2 = r2 == e2);
+
+        if (!AssertGroup("Environment Preparation", b))
+        {
+            if (!Assert("Metrics Buffer Empty", b1))
+                DescribeTestParameters("", _i(e1), _i(r1));
+            DescribeTestTime(t1);
+
+            if (!Assert("Metrics Flush Timer Not Running", b2))
+                DescribeTestParameters("", _i(e2), _i(r2));
+            DescribeTestTime(t2);
+        } DescribeGroupTime(t); Outdent();
     }
 
-    // Stop the flush timer to prevent automatic flushing during the test
-    metrics_StopFlushTimer();
-
-    // -------------------------------------------------------------------------
-    // 1. Setup Fake Data
-    // -------------------------------------------------------------------------
     string sPlayerID = "metrics_test_player";
     string sCharID = "metrics_test_character";
     string sSource = "metrics_test";
 
-    Debug("[POST] Creating temporary player and character data...");
-    
-    // Insert Fake Player
-    string s = r"
-        INSERT INTO player (player_id) VALUES (@player_id)
-        ON CONFLICT(player_id) DO NOTHING;
-    ";
-    sqlquery q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@player_id", sPlayerID);
-    SqlStep(q);
+    /// @test 2: Setup fake data.
+    {
+        int t = Timer();
 
-    // Insert Fake Character
-    s = r"
-        INSERT INTO character (character_id, player_id) VALUES (@char_id, @player_id)
-        ON CONFLICT(character_id) DO NOTHING;
-    ";
-    q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@char_id", sCharID);
-    SqlBindString(q, "@player_id", sPlayerID);
-    SqlStep(q);
+        /// @test Test 1: Insert fake player.
+        /// @note e1 = expected player record count
+        int e1 = 1, r1;
 
-    // -------------------------------------------------------------------------
-    // 2. Register Schemas
-    // -------------------------------------------------------------------------
-    Debug("[POST] Registering test schemas...");
-
-    // Player Schema: ADD for val1, MAX for val2
-    json jSchemaP = JsonParse(r"
+        int t1 = Timer();
         {
-            ""test_root"": {
-                ""val1"": ""ADD"",
-                ""nested"": { ""val2"": ""MAX"" }
-            }
-        }
-    ");
-    metrics_RegisterSchema(sSource, "schema_player", jSchemaP);
+            string s = r"
+                INSERT INTO player (player_id)
+                VALUES (@player_id)
+                ON CONFLICT(player_id) DO NOTHING;
+            ";
+            sqlquery q = pw_PrepareCampaignQuery(s);
+            SqlBindString(q, "@player_id", sPlayerID);
+            SqlStep(q);
 
-    // Character Schema: ADD for val1, MIN for val2
-    json jSchemaC = JsonParse(r"
+            s = "SELECT COUNT(*) FROM player WHERE player_id = @player_id";
+            q = pw_PrepareCampaignQuery(s);
+            SqlBindString(q, "@player_id", sPlayerID);
+            if (SqlStep(q))
+                r1 = SqlGetInt(q, 0);
+        } t1 = Timer(t1);
+
+        /// @test Test 2: Insert fake character.
+        /// @note e2 = expected character record count
+        int e2 = 1, r2;
+
+        int t2 = Timer();
         {
-            ""test_root"": {
-                ""val1"": ""ADD"",
-                ""nested"": { ""val2"": ""MIN"" }
-            }
-        }
-    ");
-    metrics_RegisterSchema(sSource, "schema_char", jSchemaC);
+            string s = r"
+                INSERT INTO character (character_id, player_id)
+                VALUES (@char_id, @player_id)
+                ON CONFLICT(character_id) DO NOTHING;
+            ";
+            sqlquery q = pw_PrepareCampaignQuery(s);
+            SqlBindString(q, "@char_id", sCharID);
+            SqlBindString(q, "@player_id", sPlayerID);
+            SqlStep(q);
 
-    // Server Schema: ADD for val1, KEEP for val2
-    json jSchemaS = JsonParse(r"
+            s = r"
+                SELECT COUNT(*)
+                FROM character
+                WHERE character_id = @char_id
+            ";
+            q = pw_PrepareCampaignQuery(s);
+            SqlBindString(q, "@char_id", sCharID);
+            if (SqlStep(q))
+                r2 = SqlGetInt(q, 0);
+        } t2 = Timer(t2);
+
+        t = Timer(t);
+
+        int b, b1, b2;
+        b = (b1 = r1 == e1) &
+            (b2 = r2 == e2);
+
+        if (!AssertGroup("Setup Fake Data", b))
         {
-            ""test_root"": {
-                ""val1"": ""ADD"",
-                ""nested"": { ""val2"": ""KEEP"" }
-            }
-        }
-    ");
-    metrics_RegisterSchema(sSource, "schema_server", jSchemaS);
+            if (!Assert("Fake Player Inserted", b1))
+                DescribeTestParameters("", _i(e1), _i(r1));
+            DescribeTestTime(t1);
 
-    // -------------------------------------------------------------------------
-    // 3. Phase 1: Direct Submission Tests
-    // -------------------------------------------------------------------------
-    Debug("[POST] Phase 1: Direct Submission Tests...");
-    int nErrors;
+            if (!Assert("Fake Character Inserted", b2))
+                DescribeTestParameters("", _i(e2), _i(r2));
+            DescribeTestTime(t2);
+        } DescribeGroupTime(t); Outdent();
+    }
 
-    // Player: Direct Submit (Initial: 10, 5)
-    json jDataP1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
-    metrics_SubmitPlayerMetric(sPlayerID, sSource, "schema_player", jDataP1);
+    /// @test 3: Register schemas.
+    {
+        int t = Timer();
 
-    // Player: Direct Submit (Update: +5, MAX 10) -> Expect: 15, 10
-    json jDataP2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 10 } } } ");
-    metrics_SubmitPlayerMetric(sPlayerID, sSource, "schema_player", jDataP2);
+        /// @test Test 1: Register player, character, and server schemas.
+        /// @note e1 = expected schema count
+        int e1 = 3, r1;
 
-    // Verify Player Direct
-    json jRes = metrics_GetPlayerMetricByPath(sPlayerID, "$.test_root.val1");
-    if (JsonGetInt(jRes) != 15) { Debug("[FAIL] Phase 1 Player val1: Expected 15, got " + JsonDump(jRes)); nErrors++; }
-    
-    jRes = metrics_GetPlayerMetricByPath(sPlayerID, "$.test_root.nested.val2");
-    if (JsonGetInt(jRes) != 10) { Debug("[FAIL] Phase 1 Player val2: Expected 10, got " + JsonDump(jRes)); nErrors++; }
+        int t1 = Timer();
+        {
+            // Player Schema: ADD for val1, MAX for val2
+            json jSchemaP = JsonParse(r"
+                {
+                    ""test_root"": {
+                        ""val1"": ""ADD"",
+                        ""nested"": { ""val2"": ""MAX"" }
+                    }
+                }
+            ");
+            metrics_RegisterSchema(sSource, "schema_player", jSchemaP);
 
-    // Character: Direct Submit (Initial: 10, 5)
-    json jDataC1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
-    metrics_SubmitCharacterMetric(sCharID, sSource, "schema_char", jDataC1);
+            // Character Schema: ADD for val1, MIN for val2
+            json jSchemaC = JsonParse(r"
+                {
+                    ""test_root"": {
+                        ""val1"": ""ADD"",
+                        ""nested"": { ""val2"": ""MIN"" }
+                    }
+                }
+            ");
+            metrics_RegisterSchema(sSource, "schema_char", jSchemaC);
 
-    // Verify Character Direct
-    jRes = metrics_GetCharacterMetricByPath(sCharID, "$.test_root.val1");
-    if (JsonGetInt(jRes) != 10) { Debug("[FAIL] Phase 1 Character val1: Expected 10, got " + JsonDump(jRes)); nErrors++; }
+            // Server Schema: ADD for val1, KEEP for val2
+            json jSchemaS = JsonParse(r"
+                {
+                    ""test_root"": {
+                        ""val1"": ""ADD"",
+                        ""nested"": { ""val2"": ""KEEP"" }
+                    }
+                }
+            ");
+            metrics_RegisterSchema(sSource, "schema_server", jSchemaS);
 
-    // Server: Direct Submit (Initial: 10, 5)
-    json jDataS1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
-    metrics_SubmitServerMetric(sSource, "schema_server", jDataS1);
+            string s = r"
+                SELECT COUNT(*)
+                FROM metrics_schema
+                WHERE source = @source
+            ";
+            sqlquery q = pw_PrepareCampaignQuery(s);
+            SqlBindString(q, "@source", sSource);
+            if (SqlStep(q))
+                r1 = SqlGetInt(q, 0);
+        } t1 = Timer(t1);
+        t = Timer(t);
 
-    // Verify Server Direct
-    jRes = metrics_GetServerMetricByPath("$.test_root.val1");
-    if (JsonGetInt(jRes) != 10) { Debug("[FAIL] Phase 1 Server val1: Expected 10, got " + JsonDump(jRes)); nErrors++; }
+        if (!AssertGroup("Register Schemas", r1 == e1))
+        {
+            if (!Assert("Schemas Registered", r1 == e1))
+                DescribeTestParameters("", _i(e1), _i(r1));
+            DescribeTestTime(t1);
+        } DescribeGroupTime(t); Outdent();
+    }
 
-    if (nErrors == 0) Debug("[PASS] Phase 1: Direct Submission Tests Passed");
+    /// @test 4: Direct submission tests.
+    {
+        int t = Timer();
 
-    // -------------------------------------------------------------------------
-    // 4. Phase 2: Buffered Submission Tests
-    // -------------------------------------------------------------------------
-    Debug("[POST] Phase 2: Buffered Submission Tests...");
+        /// @test Test 1: Player direct submission.
+        /// @note e1 = expected player val1
+        /// @note e2 = expected player val2
+        int e1 = 15, r1;
+        int e2 = 10, r2;
+        int t1 = Timer();
+        {
+            // Player: Direct Submit (Initial: 10, 5)
+            json jDataP1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
+            metrics_SubmitPlayerMetric(sPlayerID, sSource, "schema_player", jDataP1);
 
-    // Player: Buffered Submit (Update: +5, MAX 20) -> Expect: 20, 20
-    json jDataP3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 20 } } } ");
-    metrics_BufferPlayerMetric(sPlayerID, sSource, "schema_player", jDataP3);
+            // Player: Direct Submit (Update: +5, MAX 10) -> Expect: 15, 10
+            json jDataP2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 10 } } } ");
+            metrics_SubmitPlayerMetric(sPlayerID, sSource, "schema_player", jDataP2);
 
-    // Character: Buffered Submit (Update: +5, MIN 2) -> Expect: 15, 2
-    json jDataC2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 2 } } } ");
-    metrics_BufferCharacterMetric(sCharID, sSource, "schema_char", jDataC2);
+            json jRes = metrics_GetPlayerMetricByPath(sPlayerID, "$.test_root.val1");
+            r1 = JsonGetInt(jRes);
+            
+            jRes = metrics_GetPlayerMetricByPath(sPlayerID, "$.test_root.nested.val2");
+            r2 = JsonGetInt(jRes);
+        } t1 = Timer(t1);
 
-    // Character: Buffered Submit (Update: +5, MIN 8) -> Expect: 20, 2
-    json jDataC3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 8 } } } ");
-    metrics_BufferCharacterMetric(sCharID, sSource, "schema_char", jDataC3);
+        /// @test Test 2: Character direct submission.
+        /// @note e3 = expected character val1
+        int e3 = 10, r3;
+        int t3 = Timer();
+        {
+            // Character: Direct Submit (Initial: 10, 5)
+            json jDataC1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
+            metrics_SubmitCharacterMetric(sCharID, sSource, "schema_char", jDataC1);
 
-    // Server: Buffered Submit (Update: +5, KEEP 99) -> Expect: 15, 5 (KEEP keeps existing 5)
-    json jDataS2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 99 } } } ");
-    metrics_BufferServerMetric(sSource, "schema_server", jDataS2);
+            json jRes = metrics_GetCharacterMetricByPath(sCharID, "$.test_root.val1");
+            r3 = JsonGetInt(jRes);
+        } t3 = Timer(t3);
 
-    // Server: Buffered Submit (Update: +5, KEEP 100) -> Expect: 20, 5
-    json jDataS3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 100 } } } ");
-    metrics_BufferServerMetric(sSource, "schema_server", jDataS3);
+        /// @test Test 3: Server direct submission.
+        /// @note e4 = expected server val1
+        int e4 = 10, r4;
+        int t4 = Timer();
+        {
+            // Server: Direct Submit (Initial: 10, 5)
+            json jDataS1 = JsonParse(r" { ""test_root"": { ""val1"": 10, ""nested"": { ""val2"": 5 } } } ");
+            metrics_SubmitServerMetric(sSource, "schema_server", jDataS1);
 
-    Debug("[POST] Flushing buffer...");
-    metrics_FlushBuffer();
+            json jRes = metrics_GetServerMetricByPath("$.test_root.val1");
+            r4 = JsonGetInt(jRes);
+        } t4 = Timer(t4);
+        t = Timer(t);
 
-    // Verify Results (Retrieval)
-    Debug("[POST] Verifying Phase 2 results...");
+        int b, b1, b2, b3;
+        b = (b1 = (r1 == e1) & (r2 == e2)) &
+            (b2 = r3 == e3) &
+            (b3 = r4 == e4);
 
-    // Test 1: GetPlayerMetricByPath (Expect 20)
-    jRes = metrics_GetPlayerMetricByPath(sPlayerID, "$.test_root.val1");
-    if (JsonGetInt(jRes) != 20) { Debug("[FAIL] Player ByPath: Expected 20, got " + JsonDump(jRes)); nErrors++; }
-    else Debug("[PASS] Player ByPath");
+        if (!AssertGroup("Direct Submission Tests", b))
+        {
+            if (!Assert("Player Direct Submission", b1))
+                DescribeTestParameters("", _i(e1) + "/" + _i(e2), _i(r1) + "/" + _i(r2));
+            DescribeTestTime(t1);
 
-    // Test 2: GetCharacterMetricByPointer (Expect 2)
-    jRes = metrics_GetCharacterMetricByPointer(sCharID, "/test_root/nested/val2");
-    if (JsonGetInt(jRes) != 2) { Debug("[FAIL] Character ByPointer: Expected 2, got " + JsonDump(jRes)); nErrors++; }
-    else Debug("[PASS] Character ByPointer");
+            if (!Assert("Character Direct Submission", b2))
+                DescribeTestParameters("", _i(e3), _i(r3));
+            DescribeTestTime(t3);
 
-    // Test 3: GetServerMetricByKey (Expect 20) - Searching for 'val1' in 'test_root'
-    jRes = metrics_GetServerMetricByKey("val1", "test_root");
-    if (JsonGetInt(jRes) != 20) { Debug("[FAIL] Server ByKey: Expected 20, got " + JsonDump(jRes)); nErrors++; }
-    else Debug("[PASS] Server ByKey");
+            if (!Assert("Server Direct Submission", b3))
+                DescribeTestParameters("", _i(e4), _i(r4));
+            DescribeTestTime(t4);
+        } DescribeGroupTime(t); Outdent();
+    }
 
-    // Test 4: GetPlayerMetricBySchema
-    // We ask for the structure, expect it filled with data
-    json jQuerySchema = JsonParse(r" { ""test_root"": { ""nested"": { ""val2"": null } } } ");
-    jRes = metrics_GetPlayerMetricBySchema(sPlayerID, jQuerySchema);
-    int nVal = JsonGetInt(JsonObjectGet(JsonObjectGet(JsonObjectGet(jRes, "test_root"), "nested"), "val2"));
-    if (nVal != 20) { Debug("[FAIL] Player BySchema: Expected 20, got " + IntToString(nVal)); nErrors++; }
-    else Debug("[PASS] Player BySchema");
+    /// @test 5: Buffered submission tests.
+    {
+        int t = Timer();
 
-    // Test 5: GetCharacterMetricByRegisteredSchema
-    // Should return flat object with all keys
-    jRes = metrics_GetCharacterMetricByRegisteredSchema(sCharID, sSource, "schema_char");
-    // The registered schema is flat, so the result should be flat keys like "$.test_root.val1"
-    int nVal1 = JsonGetInt(JsonObjectGet(jRes, "$.test_root.val1"));
-    if (nVal1 != 20) { Debug("[FAIL] Character ByRegisteredSchema: Expected 20, got " + IntToString(nVal1)); nErrors++; }
-    else Debug("[PASS] Character ByRegisteredSchema");
+        /// @test Test 1: Buffered submission and flush.
+        int t1 = Timer();
+        {
+            // Player: Buffered Submit (Update: +5, MAX 20) -> Expect: 20, 20
+            json jDataP3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 20 } } } ");
+            metrics_BufferPlayerMetric(sPlayerID, sSource, "schema_player", jDataP3);
 
-    // -------------------------------------------------------------------------
-    // 5. Cleanup & Cascading Delete Check
-    // -------------------------------------------------------------------------
-    Debug("[POST] Cleaning up...");
+            // Character: Buffered Submit (Update: +5, MIN 2) -> Expect: 15, 2
+            json jDataC2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 2 } } } ");
+            metrics_BufferCharacterMetric(sCharID, sSource, "schema_char", jDataC2);
 
-    // Delete Player (Should cascade to Character and Metrics)
-    s = "DELETE FROM player WHERE player_id = @player_id";
-    q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@player_id", sPlayerID);
-    SqlStep(q);
+            // Character: Buffered Submit (Update: +5, MIN 8) -> Expect: 20, 2
+            json jDataC3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 8 } } } ");
+            metrics_BufferCharacterMetric(sCharID, sSource, "schema_char", jDataC3);
 
-    // Verify Deletion
-    s = "SELECT COUNT(*) FROM metrics_player WHERE player_id = @player_id";
-    q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@player_id", sPlayerID);
-    if (SqlStep(q) && SqlGetInt(q, 0) > 0) { Debug("[FAIL] Cascading delete failed for Player Metrics"); nErrors++; }
-    else Debug("[PASS] Player Metrics Deleted");
+            // Server: Buffered Submit (Update: +5, KEEP 99) -> Expect: 15, 5 (KEEP keeps existing 5)
+            json jDataS2 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 99 } } } ");
+            metrics_BufferServerMetric(sSource, "schema_server", jDataS2);
 
-    s = "SELECT COUNT(*) FROM metrics_character WHERE character_id = @char_id";
-    q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@char_id", sCharID);
-    if (SqlStep(q) && SqlGetInt(q, 0) > 0) { Debug("[FAIL] Cascading delete failed for Character Metrics"); nErrors++; }
-    else Debug("[PASS] Character Metrics Deleted");
+            // Server: Buffered Submit (Update: +5, KEEP 100) -> Expect: 20, 5
+            json jDataS3 = JsonParse(r" { ""test_root"": { ""val1"": 5, ""nested"": { ""val2"": 100 } } } ");
+            metrics_BufferServerMetric(sSource, "schema_server", jDataS3);
 
-    // Clean Server Data (Remove test_root key)
-    s = "UPDATE metrics_server SET data = jsonb_remove(data, '$.test_root') WHERE server_id = 1";
-    pw_ExecuteCampaignQuery(s);
-    Debug("[PASS] Server Data Cleaned");
+            metrics_FlushBuffer();
+        } t1 = Timer(t1);
 
-    // Clean Schemas
-    s = "DELETE FROM metrics_schema WHERE source = @source";
-    q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, "@source", sSource);
-    SqlStep(q);
-    Debug("[PASS] Schemas Cleaned");
+        /// @test Test 2: Verify results.
+        /// @note e1 = expected player val1
+        int e1 = 20, r1;
+
+        /// @note e2 = expected character val2
+        int e2 = 2, r2;
+
+        /// @note e3 = expected server val1
+        int e3 = 20, r3;
+
+        /// @note e4 = expected player val2 (via schema)
+        int e4 = 20, r4;
+
+        /// @note e5 = expected character val1 (via registered schema)
+        int e5 = 20, r5;
+
+        int t2 = Timer();
+        {
+            // Test 1: GetPlayerMetricByPath (Expect 20)
+            json jRes = metrics_GetPlayerMetricByPath(sPlayerID, "$.test_root.val1");
+            r1 = JsonGetInt(jRes);
+
+            // Test 2: GetCharacterMetricByPointer (Expect 2)
+            jRes = metrics_GetCharacterMetricByPointer(sCharID, "/test_root/nested/val2");
+            r2 = JsonGetInt(jRes);
+
+            // Test 3: GetServerMetricByKey (Expect 20) - Searching for 'val1' in 'test_root'
+            jRes = metrics_GetServerMetricByKey("val1", "test_root");
+            r3 = JsonGetInt(jRes);
+
+            // Test 4: GetPlayerMetricBySchema
+            json jQuerySchema = JsonParse(r" { ""test_root"": { ""nested"": { ""val2"": null } } } ");
+            jRes = metrics_GetPlayerMetricBySchema(sPlayerID, jQuerySchema);
+            r4 = JsonGetInt(JsonObjectGet(JsonObjectGet(JsonObjectGet(jRes, "test_root"), "nested"), "val2"));
+
+            // Test 5: GetCharacterMetricByRegisteredSchema
+            jRes = metrics_GetCharacterMetricByRegisteredSchema(sCharID, sSource, "schema_char");
+            r5 = JsonGetInt(JsonObjectGet(jRes, "$.test_root.val1"));
+        } t2 = Timer(t2);
+        t = Timer(t);
+
+        int b, b1, b2, b3, b4, b5;
+        b = (b1 = r1 == e1) &
+            (b2 = r2 == e2) &
+            (b3 = r3 == e3) &
+            (b4 = r4 == e4) &
+            (b5 = r5 == e5);
+
+        if (!AssertGroup("Buffered Submission Tests", b))
+        {
+            if (!Assert("Player ByPath", b1))
+                DescribeTestParameters("", _i(e1), _i(r1));
+            
+            if (!Assert("Character ByPointer", b2))
+                DescribeTestParameters("", _i(e2), _i(r2));
+            
+            if (!Assert("Server ByKey", b3))
+                DescribeTestParameters("", _i(e3), _i(r3));
+            
+            if (!Assert("Player BySchema", b4))
+                DescribeTestParameters("", _i(e4), _i(r4));
+            
+            if (!Assert("Character ByRegisteredSchema", b5))
+                DescribeTestParameters("", _i(e5), _i(r5));
+            
+            DescribeTestTime(t2);
+        } DescribeGroupTime(t); Outdent();
+    }
+
+    /// @test 6: Cleanup and cascading delete check.
+    {
+        int t = Timer();
+
+        /// @test Test 1: Delete player and check cascading delete.
+        /// @note e1 = expected player metrics count
+        int e1 = 0, r1;
+
+        /// @note e2 = expected character metrics count
+        int e2 = 0, r2;
+
+        int t1 = Timer();
+        {
+            string s = "DELETE FROM player WHERE player_id = @player_id";
+            sqlquery q = pw_PrepareCampaignQuery(s);
+            SqlBindString(q, "@player_id", sPlayerID);
+            SqlStep(q);
+
+            s = "SELECT COUNT(*) FROM metrics_player WHERE player_id = @player_id";
+            q = pw_PrepareCampaignQuery(s);
+            SqlBindString(q, "@player_id", sPlayerID);
+            if (SqlStep(q))
+                r1 = SqlGetInt(q, 0);
+
+            s = "SELECT COUNT(*) FROM metrics_character WHERE character_id = @char_id";
+            q = pw_PrepareCampaignQuery(s);
+            SqlBindString(q, "@char_id", sCharID);
+            if (SqlStep(q))
+                r2 = SqlGetInt(q, 0);
+        } t1 = Timer(t1);
+
+        /// @test Test 2: Clean server data.
+        /// @note e3 = expected server data cleaned
+        int e3 = 0, r3;
+
+        int t2 = Timer();
+        {
+            string s = "UPDATE metrics_server SET data = jsonb_remove(data, '$.test_root') WHERE server_id = 1";
+            pw_ExecuteCampaignQuery(s);
+            
+            // Verify clean
+            json jRes = metrics_GetServerMetricByPath("$.test_root");
+            if (JsonGetType(jRes) == JSON_TYPE_NULL)
+                r3 = 0;
+            else
+                r3 = 1;
+        } t2 = Timer(t2);
+
+        /// @test Test 3: Unregister schemas.
+        /// @note e4 = expected schema count
+        int e4 = 0, r4;
+
+        int t3 = Timer();
+        {
+            metrics_UnregisterSchema(sSource, "schema_player");
+            metrics_UnregisterSchema(sSource, "schema_char");
+            metrics_UnregisterSchema(sSource, "schema_server");
+
+            string s = "SELECT COUNT(*) FROM metrics_schema WHERE source = @source";
+            sqlquery q = pw_PrepareCampaignQuery(s);
+            SqlBindString(q, "@source", sSource);
+            if (SqlStep(q))
+                r4 = SqlGetInt(q, 0);
+        } t3 = Timer(t3);
+        t = Timer(t);
+
+        int b, b1, b2, b3, b4;
+        b = (b1 = r1 == e1) &
+            (b2 = r2 == e2) &
+            (b3 = r3 == e3) &
+            (b4 = r4 == e4);
+
+        if (!AssertGroup("Cleanup & Cascading Delete", b))
+        {
+            if (!Assert("Player Metrics Deleted", b1))
+                DescribeTestParameters("", _i(e1), _i(r1));
+            
+            if (!Assert("Character Metrics Deleted", b2))
+                DescribeTestParameters("", _i(e2), _i(r2));
+            DescribeTestTime(t1);
+
+            if (!Assert("Server Data Cleaned", b3))
+                DescribeTestParameters("", _i(e3), _i(r3));
+            DescribeTestTime(t2);
+
+            if (!Assert("Schemas Unregistered", b4))
+                DescribeTestParameters("", _i(e4), _i(r4));
+            DescribeTestTime(t3);
+        } DescribeGroupTime(t); Outdent();
+    }
 
     // Restart the flush timer
-    metrics_StartFlushTimer();
-
-    Debug("==================================================================");
-    if (nErrors > 0)
-        Debug("  POST COMPLETED WITH " + IntToString(nErrors) + " ERRORS");
-    else
-        Debug("  POST COMPLETED SUCCESSFULLY");
-    Debug("==================================================================");
+    if (bTimerRunning && !metrics_IsFlushTimerValid())
+        metrics_CreateFlushTimer();
 }
 
 // -----------------------------------------------------------------------------
@@ -1146,7 +1389,7 @@ void metrics_CreateTables()
 
 void metrics_RegisterSchema(string sSource, string sName, json jData)
 {
-    Debug("Attempting to register metrics schema: " + sSource + "." + sName);
+    metrics_Debug(__FUNCTION__, "Attempting to register metrics schema: " + sSource + "." + sName);
     
     if (sSource == "" || sName == "")
     {

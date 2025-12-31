@@ -29,23 +29,11 @@ void metrics_OnModuleLoad()
 
 void metrics_OnClientEnter()
 {
-    object oPC = GetEnteringObject();
 
-    /// @note No need to run the sync timer when there are no players in the
-    ///     module.
-    if (!metrics_IsFlushTimerValid())
-        metrics_StartFlushTimer();
 }
 
 void metrics_OnClientLeave()
 {
-    /// If no players remaining, flush the entire sync buffer (since there's no other
-    ///     processing going on), then stop the timer.
-
-    /// Q: Will GetFirstPC() return a valid object because the player logging out is
-    ///     still "present"?  If so, ignore that, maybe if GetFirstPC() == oLeavingObject, and
-    ///     no other characters are available.
-
     object oExiting = GetExitingObject();
     object oPC = GetFirstPC();
 
@@ -60,8 +48,6 @@ void metrics_OnClientLeave()
     int nBuffer = metrics_GetBufferSize();
     if (nBuffer > 0)
         metrics_FlushBuffer(nBuffer);
-
-    metrics_StopFlushTimer();
 }
 
 void metrics_OnPlayerChat()

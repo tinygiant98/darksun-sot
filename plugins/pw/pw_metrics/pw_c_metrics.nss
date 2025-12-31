@@ -17,7 +17,7 @@ const int METRICS_ENABLE_SYSTEM = TRUE;
 /// @brief This setting determines the time, in real-world seconds, between
 ///     automatic syncs of metrics data from the module's volatile sqlite
 ///     database to the persistent on-disk database.
-const float METRICS_FLUSH_INTERVAL = 10f;
+const float METRICS_FLUSH_INTERVAL = 60f;
 
 /// @brief This setting determines the chunk size, in number of metrics records,
 ///     that will be synced from the module's volatile sqlite database to the
