@@ -71,4 +71,13 @@ void audit_OnPlayerChat()
 
     if (HasChatOption(oPC, "test"))
         audit_POST();
+    else if (HasChatOption(oPC, "actor"))
+    {
+        json j = audit_GetObjectData(oPC);
+        Debug("[AUDIT] Actor Data: \n" + JsonDump(j, 4));
+
+        j = audit_GetObjectData(GetFirstObjectInArea(GetArea(oPC)));
+        Debug("[AUDIT] Area Data: \n" + JsonDump(j, 4));
+    }
+
 }

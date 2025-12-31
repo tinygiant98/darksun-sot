@@ -40,35 +40,41 @@ const string AUDIT_FLUSH_TIMER_ID = "AUDIT_FLUSH_TIMER_ID";
 //                       Public Function Prototypes
 // -----------------------------------------------------------------------------
 
+/// @brief Called only during module startup from the audit source.  Ensures all
+///     audit records tables are created in the on-disk campaign database and
+///     creates the in-memory module database table used for buffering audit data.
 void audit_CreateTables();
 
-/// @brief Create a standard audit data object with the minimum required fields.
-/// @param sEventType The high-level category or specific code for the event.
-/// @param oActor The entity performing the action.
-/// @param oTarget The entity being acted upon.
-/// @param sSource The system or plugin originating the audit.
-/// @returns A JSON object containing the base audit data.
-json audit_CreateData(string sEventType, object oActor, object oTarget = OBJECT_INVALID, string sSource = "");
+/// @brief Gather logging data for game objects.  Used internally to gather `actor` data
+///     but accessible by users to collect appropriate data for targets and other game
+///     objects as required.
+/// @param o Object to gather logging data for.
+json audit_GetObjectData(object o);
 
-/// @brief Register a metrics schema to the metrics source.  Registering a metrics
-///     schema allows a source to provide metrics to the metrics database and define
-///     how those metrics are integrated during syncing operations.
-/// @param sSource The name of the source providing the metrics schema.
-/// @param sName The name of the metrics schema.
-/// @param jData The metrics schema object.
-/// @warning If a metrics schema is registered using a source/name combination that
-///     already exists, the existing metrics schema will be replaced with the schema
+/// @brief Create a standard audit data object with the minimum required fields.
+/// @todo descriptions for all these have been changed!  Fix...
+/// @returns A JSON object containing the base audit data.
+json audit_GetMinimalRecord(string sSource, string sEvent, object oActor, json jDetail = JSON_NULL);
+
+/// @brief Register an audit schema to the audit source.  Registering an audit
+///     schema allows a source to provide audit records to the audit database and define
+///     how those audit records are integrated during syncing operations.
+/// @param sSource The name of the source providing the audit schema.
+/// @param sName The name of the audit schema.
+/// @param jData The audit schema object.
+/// @warning If a audit schema is registered using a source/name combination that
+///     already exists, the existing audit schema will be replaced with the schema
 ///     contained in jData.
 /// @note When creating source-defined schema, if custom data is being tracked that
 ///     will never be accessed by other sources and may be deleted at some point,
 ///     ensure unique keys are used.  Namespaces, such as <source_*> work well in
 ///     these cases.
-void audit_RegisterSchema(string sSource, string sName, json jData);
+void audit_RegisterSchema(string sSource, string sEvent, json jData);
 
-/// @brief Unregister (delete) a metrics schema.
+/// @brief Unregister (delete) an audit schema.
 /// @param sSource Source of the registered schema.
 /// @param sName Name of the registered schema.
-void audit_UnregisterSchema(string sSource, string sName);
+void audit_UnregisterSchema(string sSource, string sEvent);
 
 /// @brief Retrieve a list of schema names registered by a source.
 /// @param sSource Source of the registered schemas.
@@ -77,9 +83,9 @@ json audit_ViewSchemas(string sSource);
 
 /// @brief Retrieve the definition of a specific registered schema.
 /// @param sSource Source of the registered schema.
-/// @param sName Name of the registered schema.
+/// @param sEvent Name of the registered schema.
 /// @return The schema definition object.
-json audit_ViewSchema(string sSource, string sName);
+json audit_ViewSchema(string sSource, string sEvent);
 
 /// @brief Allows submission of a single record directly into the persistent `audit_trail`
 ///     table.  It should be rare to require immediate audit insertion into the persistent
@@ -133,7 +139,7 @@ void audit_CreateFlushTimer(float fInterval = AUDIT_FLUSH_INTERVAL)
     int nTimerID = CreateEventTimer(GetModule(), AUDIT_EVENT_FLUSH_ON_TIMER_EXPIRE, fInterval);
 
     if (audit_IsFlushTimerValid())
-        audit_DeleteFlushTimer(nTimerID);
+        audit_DeleteFlushTimer();
 
     SetLocalInt(GetModule(), AUDIT_FLUSH_TIMER_ID, nTimerID);
     StartTimer(nTimerID, FALSE);
@@ -276,13 +282,75 @@ void audit_InsertRecord(string sType, json jData)
     SqlStep(q);
 }
 
+/// @private Add a location's position data to a json object.
+/// @param l Location to extract position from.
+/// @param jLocation JSON object to add position data to.
+/// @warning Only for use within the audit system. Do not call from an
+///     external source.
+void audit_AddPositionToJson(location l, json jLocation)
+{
+    json jPosition = JsonObject();
+    {
+        vector vPosition = GetPositionFromLocation(l);
+        JsonObjectSetInplace(jPosition, "x", JsonFloat(vPosition.x));
+        JsonObjectSetInplace(jPosition, "y", JsonFloat(vPosition.y));
+        JsonObjectSetInplace(jPosition, "z", JsonFloat(vPosition.z));
+    }
+
+    JsonObjectSetInplace(jLocation, "position", jPosition);
+}
+
+/// @private Add an object's location data to a json object.
+/// @param o Object whose location is to be converted.
+/// @param jData JSON object to add location data to.
+/// @warning Only for use within the audit system. Do not call from an
+///     external source.
+void audit_AddLocationToJson(object o, json jData)
+{
+    json jLocation = JsonObject();
+    {
+        location l = GetLocation(o);
+        JsonObjectSetInplace(jLocation, "area", JsonString(GetTag(GetAreaFromLocation(l))));
+        JsonObjectSetInplace(jLocation, "facing", JsonFloat(GetFacingFromLocation(l)));
+        
+        audit_AddPositionToJson(l, jLocation);
+    }
+
+    JsonObjectSetInplace(jData, "location", jLocation);
+}
+
+/// @private Convert an object's type into a human-readable string for inclusion
+///     in an audit record's object data.
+/// @param o Object to convert type for.
+string audit_ObjectTypeToString(object o)
+{
+    switch (GetObjectType(o))
+    {
+        case OBJECT_TYPE_CREATURE:       return "creature";
+        case OBJECT_TYPE_ITEM:           return "item";
+        case OBJECT_TYPE_TRIGGER:        return "trigger";
+        case OBJECT_TYPE_DOOR:           return "door";
+        case OBJECT_TYPE_AREA_OF_EFFECT: return "area_of_effect";
+        case OBJECT_TYPE_WAYPOINT:       return "waypoint";
+        case OBJECT_TYPE_PLACEABLE:      return "placeable";
+        case OBJECT_TYPE_STORE:          return "store";
+        case OBJECT_TYPE_ENCOUNTER:      return "encounter";
+        case OBJECT_TYPE_TILE:           return "tile";
+        default:                         return "invalid";
+    }
+
+    return "invalid";
+}
+
+/// @private Perform unit tests for the entire audit record system including tests for
+///     direct submission, buffer submission, buffer sync and buffer timer.
 void audit_POST()
 {
     DescribeTestSuite("Audit System POST");
     
     int bTimerRunning = audit_IsFlushTimerValid();
 
-    /// @test Environment preparation
+    /// @test Environment Preparation
     {
         int t = Timer();
 
@@ -337,7 +405,7 @@ void audit_POST()
     json jData = JsonObjectSet(JsonObject(), "event_type", JsonString(sEventType));
     jData = JsonObjectSet(jData, "source", JsonString(sSource));
 
-    /// @test Direct submission
+    /// @test Direct Submission
     {
          /// @note e1 = expected record count in audit_trail after submission
         int e1 = 1, r1;
@@ -363,7 +431,7 @@ void audit_POST()
         DescribeTestTime(t);
     }
 
-    /// @test Buffered submission
+    /// @test Buffered Submission
     {
         jData = JsonObjectSet(jData, "test_id", JsonInt(2));
         
@@ -433,7 +501,7 @@ void audit_POST()
         } DescribeGroupTime(t); Outdent();
     }
 
-    /// @test Environment restoration
+    /// @test Environment Restoration
     {
         /// @test Test 1: Delete all test records from audit_trail.
         /// @note e1 = expected records deleted from audit_trail.
@@ -505,8 +573,8 @@ void audit_CreateTables()
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
             event_type TEXT GENERATED ALWAYS AS (jsonb_extract(data, '$.event_type')) VIRTUAL,
-            actor_id INTEGER GENERATED ALWAYS AS (jsonb_extract(data, '$.actor_id')) VIRTUAL,
-            target_id INTEGER GENERATED ALWAYS AS (jsonb_extract(data, '$.target_id')) VIRTUAL,
+            actor_id TEXT GENERATED ALWAYS AS (jsonb_extract(data, '$.actor_id')) VIRTUAL,
+            target_id TEXT GENERATED ALWAYS AS (jsonb_extract(data, '$.target_id')) VIRTUAL,
             created_at INTEGER GENERATED ALWAYS AS (jsonb_extract(data, '$.created_at')) VIRTUAL
         );
     ";
@@ -534,19 +602,19 @@ void audit_CreateTables()
     ";
     pw_ExecuteCampaignQuery(s);
 
-    /// @note The `audit_schema` table holds all defined metrics schema provided by
-    ///     any metrics provider.  This allows plugins to define their own metrics,
-    ///     define metrics behaviors, and allow seamless syncing with previously-
-    ///     existing metrics without having to build the sync architecture within each
+    /// @note The `audit_schema` table holds all defined audita schema provided by
+    ///     any audit provider.  This allows plugins to define their own audit,
+    ///     define audit behaviors, and allow seamless syncing with previously-
+    ///     existing audit without having to build the sync architecture within each
     ///     source.
-    /// @note Sources will be required to register their metric schema with the metrics
+    /// @note Sources will be required to register their audit schema with the audit
     ///     schema manager to ensure their sync behavior can be controlled reliably.
     s = r"
         CREATE TABLE IF NOT EXISTS audit_schema (
             source TEXT NOT NULL COLLATE NOCASE,
-            name TEXT NOT NULL COLLATE NOCASE,
+            event TEXT NOT NULL COLLATE NOCASE,
             data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
-            PRIMARY KEY (source, name) ON CONFLICT REPLACE
+            PRIMARY KEY (source, event) ON CONFLICT REPLACE
         ) WITHOUT ROWID;
     ";
     pw_ExecuteCampaignQuery(s);
@@ -577,24 +645,174 @@ void audit_CreateTables()
     pw_CommitTransaction(GetModule());
 }
 
-json audit_CreateData(string sEventType, object oActor, object oTarget = OBJECT_INVALID, string sSource = "")
+json audit_GetObjectData(object o)
 {
-    /// @todo need convenience functions to allow users to instantly retrieve a minimally-acceptable
-    ///     json object containing the data required for every structured logging event.
+    if (o == GetModule())
+        /// @note Module object
+        return JsonParse(r"
+            {
+                ""type"": ""module""
+            }
+        ");
+    else if (GetIsPC(o))
+    {
+        /// @note All player character objects, including dungeon masters.
+        json jData = JsonObject();
+        JsonObjectSetInplace(jData, "type", JsonString("player"));
+        JsonObjectSetInplace(jData, "player_id", JsonString(GetPCPlayerName(o)));
+        JsonObjectSetInplace(jData, "character_name", JsonString(GetName(o)));
+        JsonObjectSetInplace(jData, "character_id", JsonString(GetObjectUUID(o)));
+        JsonObjectSetInplace(jData, "cd_key", JsonString(GetPCPublicCDKey(o)));
+        JsonObjectSetInplace(jData, "ip_address", JsonString(GetPCIPAddress(o)));
+        JsonObjectSetInplace(jData, "is_dm", JsonBool(GetIsDM(o)));
+        audit_AddLocationToJson(o, jData);
+        
+        return jData;
+    }
+    else if (GetIsObjectValid(o))
+    {
+        /// @note All valid/existing non-player charcter game objects.
+        /// @todo Create a conversion function to change object_type to a human-
+        ///     readable object type.  Don't use constants ... too heavy.
+        json jData = JsonObject();
+        JsonObjectSetInplace(jData, "type", JsonString("object"));
+        JsonObjectSetInplace(jData, "object_type", JsonString(audit_ObjectTypeToString(o)));
+        JsonObjectSetInplace(jData, "object_tag", JsonString(GetTag(o)));
+        JsonObjectSetInplace(jData, "object_resref", JsonString(GetResRef(o)));
+        audit_AddLocationToJson(o, jData);
+        
+        return jData;
+    }
+    else
+        /// @note This case will be reached only if the object is not a player and is
+        ///     invalid.  This case should never be reached and if found in an audit
+        ///     record should be cause for concern.  This means either:
+        ///         1) Invalid objects are being referenced in audit records
+        ///         2) The scripter responsible for creating the record is lazy
+        ///         3) Bad data was injected into the system on accident or by a bad actor
+        /// @note Consider throwing an error or other alert if this case is returned.
+        return JsonParse(r"
+            {
+                ""type"": ""unknown"",
+                ""reason"": ""invalid object""
+            }
+        ");
+}
+
+json audit_GetMinimalRecord(string sSource, string sEvent, object oActor, json jDetail = JSON_NULL)
+{
+    /// @todo modify all this logic to not get a minimal record for modification, but to
+    ///     instead create the final record for submission.
+
+    /// @todo let's build convenience functions for each of the types of events that
+    ///     will return a well-form details section.  This query will be for building the
+    ///     final record to prevent users from modifying the final form before submission,
+    ///     thus ensuring we always have the minimal data within each record.
+
+    string s = r"
+        WITH RECURSIVE
+        -- 1. Fetch schemas as before
+        schemas AS (
+            SELECT 
+                (SELECT data FROM audit_schema WHERE source = 'system' AND event = 'minimal_record') as skeleton,
+                (SELECT data FROM audit_schema WHERE source = :source AND event = :event) as event_schema
+        ),
+        -- 2. Parallel timeline for modifiers
+        timeline(type, idx, val, skeleton, event_schema) AS (
+            SELECT 'EVENT', -1, datetime('now'), s.skeleton, s.event_schema FROM schemas s
+            UNION ALL
+            SELECT 'SKELETON', -1, datetime('now'), s.skeleton, s.event_schema FROM schemas s
+            UNION ALL
+            SELECT t.type, m.id, datetime(t.val, m.value), t.skeleton, t.event_schema
+            FROM timeline t
+            JOIN json_each(
+                CASE WHEN t.type = 'EVENT' 
+                    THEN json_extract(t.event_schema, '$.expiry_modifier') 
+                    ELSE json_extract(t.skeleton, '$.expiry_modifier') 
+                END
+            ) m ON m.id = t.idx + 1
+        ),
+        -- 3. Consolidate results
+        candidates AS (
+            SELECT 
+                skeleton, event_schema,
+                json_extract(event_schema, '$.expiry') as e_abs,
+                json_extract(skeleton, '$.expiry') as s_abs,
+                (SELECT val FROM timeline WHERE type = 'EVENT' ORDER BY idx DESC LIMIT 1) as e_mod_final,
+                (SELECT val FROM timeline WHERE type = 'SKELETON' ORDER BY idx DESC LIMIT 1) as s_mod_final
+            FROM timeline LIMIT 1
+        )
+        -- 4. Final Winner Logic with Variable Keywords
+        SELECT 
+            jsonb_patch(
+                jsonb_patch(jsonb(skeleton), jsonb(event_schema)),
+                jsonb_object(
+                    'source', :source,
+                    'event', :event,
+                    'timestamp', NULL,
+                    'expiry', CASE 
+                        -- Priority 1: Event Absolute (Check against dynamic variable list)
+                        WHEN EXISTS (SELECT 1 FROM json_each(:perm_keywords) WHERE value = e_abs) THEN NULL
+                        WHEN datetime(e_abs, '+0 seconds') IS e_abs AND datetime(e_abs) > datetime('now') THEN datetime(e_abs)
+                        
+                        -- Priority 2 & 3: Modifiers (Future-validated)
+                        WHEN e_mod_final > datetime('now') THEN e_mod_final
+                        WHEN s_mod_final > datetime('now') THEN s_mod_final
+                        
+                        -- Priority 4: Skeleton Absolute (Lowest priority)
+                        WHEN EXISTS (SELECT 1 FROM json_each(:perm_keywords) WHERE value = s_abs) THEN NULL
+                        WHEN datetime(s_abs, '+0 seconds') IS s_abs AND datetime(s_abs) > datetime('now') THEN datetime(s_abs)
+                        
+                        -- Default Fallback (Using variable)
+                        ELSE datetime('now', :default_modifier)
+                    END
+                )
+            ) AS final_default_object
+        FROM candidates;
+    ";
+
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, ":source", sSource);
+    SqlBindString(q, ":event", sEvent);
+    SqlBindString(q, ":default_modifier", AUDIT_EXPIRY_DEFAULT_MODIFIER);
+    SqlBindJson(q, ":perm_keywords", AUDIT_EXPIRY_PERMANENT_KEYWORDS);
+
+    if (SqlStep(q))
+    {
+        json jRecord = SqlGetJson(q, 0);
+        return JsonObjectSet(jRecord, "actor", audit_GetObjectData(oActor));
+    }
 
     return JsonNull();
 }
 
-void audit_RegisterSchema(string sSource, string sName, json jData)
+/// @todo Need to do schema validation here to ensure it's all valid against my primary structured logging schema.
+/// sSource should be the plugin/system where  the schema is sourced. Cannot be empty.
+///     sEvent should be the logging event the schema is assigned to.  This event name will be included as the
+///     `event` key in the structured log record.  It cannot be empty.
+///  jData should be the json object that will be checked against the standard schema
+///  *Can* contain:
+///     source
+///     event
+///     expiry (date/modifiers)
+///  *Must* contain:
+///     details object
+/// Each record will also contain a timestamp and actor, but those will be provided at the time of logging, not
+///     during schema registration.
+/// Here we'll check jdata against two schema, the first will be the overall, with a details section, in case the
+///     user wants to specify source, event, expiry and other options, along with details.  The second will
+///     the schema against just a details section, in case they want to use defaults and only provide the details
+///     section of the schema.
+void audit_RegisterSchema(string sSource, string sEvent, json jData)
 {
-    audit_Debug(__FUNCTION__, "Attempting to register audit schema: " + sSource + "." + sName);
+    audit_Debug(__FUNCTION__, "Attempting to register audit schema: " + sSource + "." + sEvent);
     
-    if (sSource == "" || sName == "")
+    if (sSource == "" || sEvent == "")
     {
         string s = "Invalid source or schema name found during audit schema registration";
         s+= "\n  Error Source: " + __FILE__ + " (" + __FUNCTION__ + ")";
         s+= "\n  Audit Source: " + (sSource == "" ? "<empty>" : sSource);
-        s+= "\n  Audit Schema: " + (sName == "" ? "<empty>" : sName);
+        s+= "\n  Audit Event: " + (sEvent == "" ? "<empty>" : sEvent);
 
         Error(s);
         return;
@@ -602,7 +820,7 @@ void audit_RegisterSchema(string sSource, string sName, json jData)
 
     if (JsonGetType(jData) != JSON_TYPE_OBJECT)
     {
-        string s = "Invalid schema data object type found during metrics schema registration";
+        string s = "Invalid schema data object type found during audit schema registration";
         s+= "\n  Error Source: " + __FILE__ + " (" + __FUNCTION__ + ")";
 
         Error(s);
@@ -610,28 +828,28 @@ void audit_RegisterSchema(string sSource, string sName, json jData)
     }
 
     string s = r"
-        INSERT INTO audit_schema (source, name, data)
-        SELECT @source, @name, 
+        INSERT INTO audit_schema (source, event, data)
+        SELECT @source, @event, 
             (SELECT jsonb_group_object(fullkey, value) 
              FROM json_tree(jsonb(@data)) 
              WHERE atom IS NOT NULL);
     ";
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@source", sSource);
-    SqlBindString(q, "@name", sName);
+    SqlBindString(q, "@name", sEvent);
     SqlBindJson(q, "@data", jData);
 
     SqlStep(q);
 }
 
-void audit_UnregisterSchema(string sSource, string sName)
+void audit_UnregisterSchema(string sSource, string sEvent)
 {
-    if (sSource == "" || sName == "")
+    if (sSource == "" || sEvent == "")
     {
         string s = "Invalid source or schema name found during audit schema unregistration";
         s+= "\n  Error Source: " + __FILE__ + " (" + __FUNCTION__ + ")";
         s+= "\n  Audit Source: " + (sSource == "" ? "<empty>" : sSource);
-        s+= "\n  Audit Schema: " + (sName == "" ? "<empty>" : sName);
+        s+= "\n  Audit Event: " + (sEvent == "" ? "<empty>" : sEvent);
 
         Error(s);
         return;
@@ -640,11 +858,11 @@ void audit_UnregisterSchema(string sSource, string sName)
     string s = r"
         DELETE FROM audit_schema
         WHERE source = @source
-            AND name = @name
+            AND event = @event
     ";
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@source", sSource);
-    SqlBindString(q, "@name", sName);
+    SqlBindString(q, "@event", sEvent);
     SqlStep(q);
 }
 
@@ -661,18 +879,17 @@ json audit_ViewSchemas(string sSource)
     return SqlStep(q) ? SqlGetJson(q, 0) : JsonArray();
 }
 
-json audit_ViewSchema(string sSource, string sName)
+json audit_ViewSchema(string sSource, string sEvent)
 {
     string s = r"
         SELECT json(data)
         FROM audit_schema
         WHERE source = @source
-            AND name = @name
+            AND event = @event
     ";
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@source", sSource);
-    SqlBindString(q, "@name", sName);
-
+    SqlBindString(q, "@event", sEvent);
     return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
 }
 
