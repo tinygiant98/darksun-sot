@@ -16,6 +16,8 @@
 #include "ds_c_pw"
 #include "ds_t_pw"
 
+#include "pw_i_core"
+
 #include "core_i_framework"
 #include "util_i_data"
 #include "util_i_override"
@@ -1148,8 +1150,7 @@ void h2_RegisterPC(object oPC)
 
     // Run an event for character registration
     */
-    RunEvent(const string PW_EVENT_ON_CHARACTER_REGISTRATION = "OnCharacterRegistration";
-, oPC);
+    RunEvent("OnCharacterRegistration", oPC);
 }
 
 void h2_InitializePC(object oPC)

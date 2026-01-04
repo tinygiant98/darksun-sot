@@ -17,7 +17,9 @@
 
 /// eventman is for really big picture stuff that affects multiple systems, like
 ///     always checking that OnClientEnter is a PC, etc.
-/// Maybe on module heartbeat, if there are no players, do nothing!
+/// Maybe on module heartbeat, if there are no players, do nothing and cancel the
+///     event, stuff like that.  It should be a method to save resources and
+///     prevent unnecessary scripts from running.
 
 void eventman_OnModuleLoad()
 {

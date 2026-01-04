@@ -11,6 +11,7 @@
 
 #include "util_i_debug" 
 #include "util_i_csvlists"    
+#include "core_i_framework"
 
 // -----------------------------------------------------------------------------
 //                              Function Prototypes

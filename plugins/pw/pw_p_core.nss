@@ -21,7 +21,6 @@ void OnLibraryLoad()
         SetDescription(oPlugin,
             "This plugin controls basic functions of the persistent world system.");
         SetDebugPrefix(HexColorString("[PW]", COLOR_BLUE_SLATE_MEDIUM));
-        LoadLibrariesByPattern("pw_l_*");
 
         RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,          "pw_OnClientEnter",         10.0);
         RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_LEAVE,          "pw_OnClientLeave",         10.0);
@@ -56,6 +55,8 @@ void OnLibraryLoad()
         n = 100;
         RegisterLibraryScript("pw_SavePCLocation_OnTimerExpire", n++);
         RegisterLibraryScript("pw_ExportPCs_OnTimerExpire",      n++);
+
+        LoadLibrariesByPattern("pw_p_*");
     }
 }
 

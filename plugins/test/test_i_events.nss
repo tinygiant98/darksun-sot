@@ -18,6 +18,9 @@
 #include "core_c_config"
 #include "util_i_time"
 
+#include "pw_i_metrics"
+#include "pw_i_core"
+
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
@@ -33,11 +36,125 @@ void test_OnClientEnter()
     if (!GetIsPC(oPC))
         return;
 
+    pw_CreateTables();
+
     object oItem = GetItemPossessedBy(oPC, "util_playerdata");
     if (!GetIsObjectValid(oItem))
         CreateItemOnObject("util_playerdata", oPC);
 
     SetEventScript(oPC, EVENT_SCRIPT_CREATURE_ON_HEARTBEAT, "hook_player07");
+}
+
+void test_OnPlayerChat()
+{
+    object oPC = GetPCChatSpeaker();
+
+    if (HasChatOption(oPC, "metrics"))
+    {
+        if (HasChatOption(oPC, "tables"))
+        {
+            pw_CreateTables();
+
+            string s = r"
+                INSERT INTO player (player_id) 
+                VALUES ('unique_player_001');
+            ";
+            pw_ExecuteCampaignQuery(s);
+
+            s = r"
+                SELECT 
+                    player_id, 
+                    json(data) AS readable_json
+                FROM player
+                WHERE player_id = 'unique_player_001';
+            ";
+            sqlquery q = pw_PrepareCampaignQuery(s);
+            if (SqlStep(q)) Notice("Found it! ->" + JsonDump(SqlGetJson(q, 1)));
+            else Notice("Did not find it!");
+
+            return;
+
+            s = r"
+                UPDATE player 
+                SET data = jsonb('{""health"": 100, ""mana"": 50}') 
+                WHERE player_id = 'unique_player_001';
+            ";
+            pw_ExecuteCampaignQuery(s);
+
+            return;
+
+            s = r"
+                UPDATE player 
+                SET data = jsonb_insert(data, '$.test_item', 'test_value')
+                WHERE player_id = 'unique_player_001';
+            ";
+            pw_ExecuteCampaignQuery(s);
+
+
+        }
+        else if (HasChatOption(oPC, "valid"))
+        {
+            string s = "SELECT json_valid(x'0100');";
+            sqlquery q = SqlPrepareQueryObject(GetModule(), s);
+
+
+
+            //string s = "SELECT json_valid(jsonb(:json_text), 4);";
+            //sqlquery q = SqlPrepareQueryObject(GetModule(), s);
+            //SqlBindString(q, ":json_text", "{}");
+
+
+            //string s = "SELECT json_valid('{}', 6);";
+            //qlquery q = SqlPrepareQueryObject(GetModule(), s);
+            if (SqlStep(q))
+                SendChatResult("Metrics: JSON valid -> " + IntToString(SqlGetInt(q, 0)), oPC);
+            else
+            {
+                SendChatResult("Metrics: SQL Step failed", oPC, CHAT_FLAG_ERROR);
+                string sError = SqlGetError(q);
+                SendChatResult("Metrics: SQL Error -> " + sError, oPC, CHAT_FLAG_ERROR);
+            }
+        }
+        else
+        {
+
+            json jSchema = JsonParse(r"
+                {
+                ""combat"": {
+                        ""kills"": {
+                            ""total"": ""ADD"",
+                            ""race"": {
+                                ""*"": ""ADD""
+                            }
+                        }
+                    }
+
+                }
+            ");
+
+            metrics_RegisterSchema("pw", "test_metrics", jSchema);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+    else if (HasChatOption(oPC, "hc"))
+    {
+        ExecuteScript("cm_hcmode_onoff", oPC);
+    }
 }
 
 void test_script_OnPlayerChat()

@@ -22,7 +22,10 @@ void OnLibraryLoad()
         return;
 
     if (!GetIfPluginExists("pw"))
+    {
+        AwaitPlugin(__FILE__);
         return;
+    }
 
     object oPlugin = GetPlugin("pw");
 

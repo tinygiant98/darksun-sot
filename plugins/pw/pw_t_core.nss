@@ -153,12 +153,6 @@ const string H2_REGISTERED = "H2_REGISTERED";
 
 const string H2_PLAYER_COUNT = "H2_PLAYER_COUNT";
 const string H2_PLAYER_STATE = "H2_PLAYERSTATE";
-const int H2_PLAYER_STATE_ALIVE = 0;
-const int H2_PLAYER_STATE_DYING = 1;
-const int H2_PLAYER_STATE_DEAD = 2;
-const int H2_PLAYER_STATE_STABLE = 3;
-const int H2_PLAYER_STATE_RECOVERING = 4;
-const int H2_PLAYER_STATE_RETIRED = 5;
 
 const string H2_CONVERSATION_RESREF = "ConversationResRef";
 const string H2_PLAYER_DATA_ITEM = "util_playerdata";

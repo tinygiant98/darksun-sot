@@ -19,7 +19,7 @@
 #include "util_i_variables"
 #include "util_i_lists"
 
-//const string IS_DEVELOPER = "IS_DEVELOPER";
+const string IS_DEVELOPER = "IS_DEVELOPER";
 
 object MODULE = GetModule();
 

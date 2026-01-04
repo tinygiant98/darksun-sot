@@ -8,7 +8,7 @@
 // -----------------------------------------------------------------------------
 // Builder Use:
 // Generally, builders should not change anything within this
-//  script.  It is not desined to be modified, but consumed by other systems,
+//  script.  It is not designed to be modified, but consumed by other systems,
 //  including pw subsystems.
 // -----------------------------------------------------------------------------
 
@@ -21,6 +21,7 @@
 #include "util_i_data"
 #include "util_i_override"
 #include "util_i_time"
+#include "util_i_constants"
 
 #include "dlg_i_dialogs"
 
@@ -258,7 +259,7 @@ void pw_CreateTables()
     /// @brief The following tables are persistent and reside in the campaign/on-disk
     ///     persistent database.
 
-    pw_BeginTransaction();
+    //pw_BeginTransaction();
 
     /// @note This is unlikely to be used, but in case we want to fully remove a player
     ///     from the database, this will allow cascading deletes.
@@ -276,11 +277,11 @@ void pw_CreateTables()
     string s = r"
         CREATE TABLE IF NOT EXISTS player (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            player_id TEXT UNIQUE NOT NULL COLLATE NOCASE, 
+            player_id TEXT UNIQUE NOT NULL COLLATE NOCASE,
             first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
             is_deleted INTEGER DEFAULT 0,
-            data BLOB NOT NULL DEFAULT jsonb('{}') CHECK (json_valid(data, 8))
+            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4))
         );
     ";
     pw_ExecuteCampaignQuery(s);
@@ -301,9 +302,9 @@ void pw_CreateTables()
             ip TEXT NOT NULL,
             first_used DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_used DATETIME DEFAULT CURRENT_TIMESTAMP,
-            data BLOB NOT NULL DEFAULT jsonb('{}') CHECK (json_valid(data, 8)),
+            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
             UNIQUE(player_id, ip),
-            FOREIGN KEY (player_id) REFERENCES player(id) 
+            FOREIGN KEY (player_id) REFERENCES player(id)
                 ON DELETE CASCADE 
                 ON UPDATE CASCADE
         );
@@ -330,9 +331,9 @@ void pw_CreateTables()
             cdkey TEXT NOT NULL,
             first_used DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_used DATETIME DEFAULT CURRENT_TIMESTAMP,
-            data BLOB NOT NULL DEFAULT jsonb('{}') CHECK (json_valid(data, 8)),
+            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
             UNIQUE(player_id, cdkey),
-            FOREIGN KEY (player_id) REFERENCES player(id) 
+            FOREIGN KEY (player_id) REFERENCES player(id)
                 ON DELETE CASCADE 
                 ON UPDATE CASCADE
         );
@@ -356,15 +357,15 @@ void pw_CreateTables()
     s = r"
         CREATE TABLE IF NOT EXISTS player_bans (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            player_id INTEGER, 
-            target_value TEXT NOT NULL COLLATE NOCASE, 
-            target_type TEXT NOT NULL COLLATE NOCASE, 
+            player_id INTEGER,
+            target_value TEXT NOT NULL COLLATE NOCASE,
+            target_type TEXT NOT NULL COLLATE NOCASE,
             reason TEXT,
             banned_by TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             expires_at DATETIME,
             is_active INTEGER DEFAULT 1,
-            data BLOB NOT NULL DEFAULT jsonb('{}') CHECK (json_valid(data, 8))
+            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4))
         );
     ";
     pw_ExecuteCampaignQuery(s);
@@ -411,16 +412,16 @@ void pw_CreateTables()
     ///     otherwise.  Character data is never fully deleted from the system, but `is_deleted`
     ///     can be set to 1 to prevent the character being used.
     s = r"
-        CREATE TABLE character (
+        CREATE TABLE IF NOT EXISTS character (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            character_id TEXT UNIQUE NOT NULL, -- Added UUID column
+            character_id TEXT UNIQUE NOT NULL,
             player_id INTEGER NOT NULL,
             name TEXT NOT NULL COLLATE NOCASE,
             first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
             is_deleted INTEGER DEFAULT 0,
-            data BLOB NOT NULL DEFAULT jsonb('{}') CHECK (json_valid(data, 8)),
-            FOREIGN KEY (player_id) REFERENCES player(id) 
+            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
+            FOREIGN KEY (player_id) REFERENCES player(id)
                 ON DELETE CASCADE 
                 ON UPDATE CASCADE
         );
@@ -482,6 +483,9 @@ void pw_CreateTables()
         GROUP BY p.id;
     ";
     pw_ExecuteCampaignQuery(s);
+    //pw_CommitTransaction();
+
+    Notice("pw_CreateTables: Table Creation Complete.");
 }
 
 void pw_SetPlayerData(object oPC, string sKey, json jValue)
@@ -500,7 +504,7 @@ void pw_SetPlayerData(object oPC, string sKey, json jValue)
     ";
 
     sqlquery q = pw_PrepareQuery(s);
-    SqlBindString(q, ":uuid", h2_GetUniquePCID(oPC));
+    SqlBindString(q, ":uuid", GetObjectUUID(oPC));
     SqlBindString(q, ":key", sKey);
     SqlBindJson(q, ":value", jValue);
 
@@ -522,10 +526,10 @@ json pw_GetPlayerData(object oPC, string sKey)
     ";
 
     sqlquery q = pw_PrepareQuery(s);
-    SqlBindString(q, ":uuid", h2_GetUniquePCID(oPC));
+    SqlBindString(q, ":uuid", GetObjectUUID(oPC));
     SqlBindString(q, ":key", sKey);
 
-    return SqlStep(q) ? SqlGelJson(q, 0) : JsonNull();
+    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
 }
 
 void pw_DeletePlayerData(object oPC, string sKey)
@@ -543,7 +547,7 @@ void pw_DeletePlayerData(object oPC, string sKey)
     ";
 
     sqlquery q = pw_PrepareQuery(s);
-    SqlBindString(q, ":uuid", h2_GetUniquePCID(oPC));
+    SqlBindString(q, ":uuid", GetObjectUUID(oPC));
     SqlBindString(q, ":key", sKey);
 
     SqlStep(q);
@@ -1488,12 +1492,12 @@ string util_GetFilenameFromMacro(string sFile)
 
 int pw_SetPlayerState(object oPC, int nState)
 {
-    string sFile = util_GetFilenameFromMacro(__FILE__);
+    string sFile = util_GetFilenameFromMacro("pw_i_core.nss");
     if (GetConstantName("H2_PLAYER_STATE", JsonInt(nState), FALSE, sFile) != "")
     {
         SetPlayerInt(oPC, H2_PLAYER_STATE, nState);
         if (nState == H2_PLAYER_STATE_ALIVE)
-            RunEvent(H2_ON_PLAYER_LIVES, oPC, oPC);
+            RunEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC);
             
         return nState;
     }
@@ -1511,7 +1515,7 @@ void h2_InitializePC(object oPC)
     SetPlotFlag(oPC, FALSE);
     SetImmortal(oPC, FALSE);
 
-    if (h2_GetPlayerState(oPC) != H2_PLAYER_STATE_ALIVE)
+    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_ALIVE)
     {
         SetPlayerInt(oPC, H2_LOGIN_DEATH, TRUE);
         h2_MovePossessorInventory(oPC, TRUE);

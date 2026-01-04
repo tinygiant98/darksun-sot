@@ -117,7 +117,7 @@ const int INITIALIZATION_DEBUG_LEVEL = DEBUG_LEVEL_DEBUG;
 /// - `[abc]`: match any of a, b, or c
 /// - `[a-z]`: match any character from a-z
 /// Other text is matched literally, so using exact script names is okay.
-const string INSTALLED_LIBRARIES = "*_p_*";
+const string INSTALLED_LIBRARIES = "*_p_core,*_l_plugin";
 
 /// This is a comma-separated list of plugins that should be activated when the
 /// Core Framework is initialized.  If this list is empty, all plugins discovered

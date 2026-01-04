@@ -19,15 +19,19 @@ As a volunteer project, we fully expect that any person that works on this proje
 
     ```
 
-    Yep, there's nothing there.  That's bad.  Here's an example of good prototyping and documentation.  This is a simple procedures, so not much is required.  For more complicated procedures, you either need more documentation, or you need to break the procedure up.
+    Yep, there's nothing there.  That's bad.  Here's an example of good prototyping and documentation.  This is a simple procedure, but some additional information is needed so the scripter can use it effectively.  For more complicated procedures, you either need more documentation, or you need to break the procedure up.
 
     ``` cpp
-    // ---< ActivatePlugin >---
-    // ---< core_i_framework >---
-    // Runs oPlugin's OnPluginActivate script and sets its status to ON. Returns
-    // whether the activation was successful. If bForce is TRUE, will activate the
-    // plugin even if its status is already ON.
-    int ActivatePlugin(object oPlugin, int bForce = FALSE);
+    /// @brief Return whether a string matches a glob pattern.
+    /// @param sString The string to check.
+    /// @param sPattern A glob pattern. Supported syntax:
+    ///     - `*`: match zero or more characters
+    ///     - `?`: match a single character
+    ///     - `[abc]`: match any of a, b, or c
+    ///     - `[a-z]`: match any character from a-z
+    ///     - other text is matched literally
+    /// @returns TRUE if sString matches sPattern; FALSE otherwise.
+    int GetMatchesPattern(string sString, string sPattern);
     ```
 
 * All functions will contain debugging and logging messages, as required, to aid in future changes/debugging and to inform the module ownership, DMs and players (as appropriate) what is going on.  We have several tools to accomplish this easily.  See [debug messaging](#debug-messaging) and [module communication](#module-communication).  Here's an example of the debug messaging available in the module:
@@ -58,6 +62,8 @@ As a volunteer project, we fully expect that any person that works on this proje
 
 ## Data Management System
 
+***This section to be re-written*** Ignore for now.
+
 Saving variables and determining who a player is are two of the most common functions in nwscript.  To that end, we're provided alias functions for them to prevent overloading the Module and PC objects, and to quickly determine the identify of a PC.  Just about every script in the module should have an include reference to `util_i_data`.  This script itself includes [`util_i_debug`](../framework/src/utils/util_i_debug.nss) and [`dsutil_i_comms`](../utilities/dsutil_i_comms), so including `util_i_data` should provide you with a great portion of the functionality to set variables, determine identities, provide debug information and send messages around the module.
 
 Here are the basic functions it provides:
@@ -78,7 +84,6 @@ The entire module rests on the core framework developed, maintained and continuo
 ***Note:  No pull requests will be accepted that involve modification to any file in the `framework` submodule.***
 
 * [Math](#math-functions)
-    * [DS Math](#ds-math-functions)
 * [Lists](#list-functions)
 * [Datapoints](#datapoint-functions)
 * [Debugging](#debug-functions)
@@ -89,10 +94,6 @@ The entire module rests on the core framework developed, maintained and continuo
 #### Math Functions
 
 [`util_i_math`](../framework/src/utils/util_i_math) provides access to some useful basic math functions such as mod, min, max, clamps, etc.  None of these require detailed explanation.  Open up the file and take a look at what's available.
-
-###### DS Math Functions
-
-[`dsutil_i_math`](../utilities/dsutil_i_math) is a supplement to the framework's `util_i_math` and provides a rounding function for floats.
 
 #### List Functions
 
@@ -119,8 +120,8 @@ Another utility, `util_i_color`, provides function for coloring various strings 
 The author has included his own [library documentation](../framework/docs/libraries.md) to help in understanding how the library system works.  The library system allows the framework's [event management system](#event-management) to do what it does so well.  The gist of the system, however, is that you expose the functions you wish to be public through the library and pointers to those functions are stored in varlists on various datapoints in the module.  When any of those functions is called from any part of the module, the library system is able to find the function and run it, without the scripter/builder having to know which library it's in.  This does not mean you can call a function from another script directly without an `#include` reference, but it does mean that you can run an event script (such as `OnAreaExit`) that resides in the HCR2 fugue system from any and all areas without having to point the event directly to the script.
 
 Here are some notes from our implementation of the library system:
-* All scripts associated with a library, if written correctly, become part of one large script at compile time.  This is the primary reason each our libraries has only six different scripts in them (configuration, text, constants, events, main, and plugin/library).
-* Bioware override scripts can be housed in any library and don't need to have the same name as the script they're overriding, only the event name passed through the library does.  Here's an example of a library exposure that override Bioware's nw_s2_animalcom:
+* All scripts associated with a library, if written correctly, become part of one large script at compile time.
+* Bioware override scripts can be housed in any library and don't need to have the same name as the script they're overriding, only the event name passed through the library does.  Here's an example of a library exposure that overrides Bioware's `nw_s2_animalcom`:
 
     ``` cpp
     void OnLibraryLoad()
@@ -240,7 +241,7 @@ That's it!  If all of the above conditions are satisfied, the encounters will ha
 
 We are using a zz-dialog based system modified for use under the framework by Michael Sinclair (squattingmonk).  The system works very much like the event management system, except the events are various events that happen during conversations, such as a PC selecting a node or a new page being displayed.  Currently, there are only two conversations in the module: `dlg_convzoom` and `dlg_conv`.  All conversations will be set to one or the other.  `dlg_convzoom` zooms in on the NPC the PC is having the conversation with, `dlg_conv` does not.  The scripted conversation to be used is set as a variable on the object.  The string variable's name is `*Dialog` and should be set to the name of the conversation.
 
-To Be Continued...
+**All conversations will be scripted.**  There will be no traditionally-built toolset-based conversations.  This adds a small level of complexity to the conversation system and might require that you work with a scripter to get it implemented, but will make conversation maintenance much easier in the long run.
 
 ## Dungeon Master Friendly Initiative
 

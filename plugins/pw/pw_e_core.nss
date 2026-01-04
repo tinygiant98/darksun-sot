@@ -5,9 +5,11 @@
 /// ----------------------------------------------------------------------------
 
 #include "x2_inc_switches"
-#include "pw_i_core"
 #include "core_i_constants"
 #include "core_c_config"
+#include "pw_i_core"
+
+#include "util_i_variables"
 
 // -----------------------------------------------------------------------------
 //                        Event Function Prototypes
@@ -63,7 +65,7 @@ void pw_OnModuleLoad()
 {
     pw_CreateTables();
 
-    CreateVariablesTable(MODULE);
+    CreateVariableTable(MODULE);
 
     h2_SaveServerEpoch();
     h2_RestoreSavedCalendar();
@@ -83,14 +85,14 @@ void pw_OnModuleHeartbeat()
 void pw_OnClientEnter()
 {
     object oPC = GetEnteringObject();
-    CreateVariablesTable(oPC);
+    CreateVariableTable(oPC);
 
-    if (!pw_AssignRole(oPC))
-    {
-        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-        SetEventState(EVENT_STATE_DENIED);
-        return;
-    }
+//    if (!pw_AssignRole(oPC))
+//    {
+//        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+//        SetEventState(EVENT_STATE_DENIED);
+//        return;
+//    }
 
     int bIsDM = _GetIsDM(oPC);
 
@@ -101,62 +103,62 @@ void pw_OnClientEnter()
         return;
     }
 
-    /// @todo move banning to a separate table specific to bans by key, ip address or player name
-    string sBannedByCDKey = GetDatabaseString(H2_BANNED_PREFIX + GetPCPublicCDKey(oPC));
-    string sBannedByIPAddress = GetDatabaseString(H2_BANNED_PREFIX + GetPCIPAddress(oPC));
+//    /// @todo move banning to a separate table specific to bans by key, ip address or player name
+//    string sBannedByCDKey = GetDatabaseString(H2_BANNED_PREFIX + GetPCPublicCDKey(oPC));
+//    string sBannedByIPAddress = GetDatabaseString(H2_BANNED_PREFIX + GetPCIPAddress(oPC));
     
-    if (sBannedByCDKey != "" || sBannedByIPAddress != "")
-    {
-        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-        h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
-        return;
-    }
-
-    if (!bIsDM && h2_MaximumPlayersReached())
-    {
-        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-        h2_BootPlayer(oPC, H2_TEXT_SERVER_IS_FULL, 10.0);
-        return;
-    }
-
-    if (!bIsDM && GetLocalInt(MODULE, H2_MODULE_LOCKED))
-    {
-        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-        h2_BootPlayer(oPC, H2_TEXT_MODULE_LOCKED, 10.0);
-        return;
-    }
-
-    if (!bIsDM && pw_GetPlayerState(oPC) == H2_PLAYER_STATE_RETIRED)
-    {
-        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-        h2_BootPlayer(oPC, H2_TEXT_RETIRED_PC_BOOT, 10.0);
-        return;
-    }
-
-    if (!bIsDM && H2_REGISTERED_CHARACTERS_ALLOWED > 0 && !GetPlayerInt(oPC, H2_REGISTERED))
-    {
-        int registeredCharCount = GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
-        if (registeredCharCount >= H2_REGISTERED_CHARACTERS_ALLOWED)
-        {
-            SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-            h2_BootPlayer(oPC, H2_TEXT_TOO_MANY_CHARS_BOOT, 10.0);
-            return;
-        }
-    }
-    
-    SetPlayerString(oPC, H2_PC_PLAYER_NAME, GetPCPlayerName(oPC));
-    SetPlayerString(oPC, H2_PC_CD_KEY, GetPCPublicCDKey(oPC));
-
-    if (!bIsDM)
-    {
-        h2_SetPlayerID(oPC);
-        h2_InitializePC(oPC);
-    }
-
-    /// @todo move this message to a separate function
-    string sTime = FormatSystemTime("h:mmtt on dddd, MMMM d, yyyy", GetSystemTime());
-    string sMessage = "Today is " + sTime;
-    SendMessageToPC(oPC, sMessage);
+//    if (sBannedByCDKey != "" || sBannedByIPAddress != "")
+//    {
+//        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+//        h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
+//        return;
+//    }
+//
+//    if (!bIsDM && h2_MaximumPlayersReached())
+//    {
+//        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+//        h2_BootPlayer(oPC, H2_TEXT_SERVER_IS_FULL, 10.0);
+//        return;
+//    }
+//
+//    if (!bIsDM && GetLocalInt(MODULE, H2_MODULE_LOCKED))
+//    {
+//        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+//        h2_BootPlayer(oPC, H2_TEXT_MODULE_LOCKED, 10.0);
+//        return;
+//    }
+//
+//    if (!bIsDM && pw_GetPlayerState(oPC) == H2_PLAYER_STATE_RETIRED)
+//    {
+//        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+//        h2_BootPlayer(oPC, H2_TEXT_RETIRED_PC_BOOT, 10.0);
+//        return;
+//    }
+//
+//    if (!bIsDM && H2_REGISTERED_CHARACTERS_ALLOWED > 0 && !GetPlayerInt(oPC, H2_REGISTERED))
+//    {
+//        int registeredCharCount = GetDatabaseInt(GetPCPlayerName(oPC) + H2_REGISTERED_CHAR_SUFFIX);
+//        if (registeredCharCount >= H2_REGISTERED_CHARACTERS_ALLOWED)
+//        {
+//            SetLocalInt(oPC, LOGIN_BOOT, TRUE);
+//            h2_BootPlayer(oPC, H2_TEXT_TOO_MANY_CHARS_BOOT, 10.0);
+//            return;
+//        }
+//    }
+//    
+//    SetPlayerString(oPC, H2_PC_PLAYER_NAME, GetPCPlayerName(oPC));
+//    SetPlayerString(oPC, H2_PC_CD_KEY, GetPCPublicCDKey(oPC));
+//
+//    if (!bIsDM)
+//    {
+//        h2_SetPlayerID(oPC);
+//        h2_InitializePC(oPC);
+//    }
+//
+//    /// @todo move this message to a separate function
+//    string sTime = FormatSystemTime("h:mmtt on dddd, MMMM d, yyyy", GetSystemTime());
+//    string sMessage = "Today is " + sTime;
+//    SendMessageToPC(oPC, sMessage);
 }
 
 void pw_OnClientLeave()

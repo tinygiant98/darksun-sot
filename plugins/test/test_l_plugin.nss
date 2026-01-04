@@ -103,90 +103,55 @@ void OnLibraryLoad()
         SetName(oPlugin, "[Plugin] System :: Module Testing System");
         SetDescription(oPlugin,
             "This plugin provides functionality for testing various module systems.");
-        LoadLibraries("test_l_dialog");
+        //LoadLibraries("test_l_dialog");
     
         RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "test_OnClientEnter", 10.0);
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!convo", "test_convo_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!go", "test_go_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!get", "test_get_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!stake", "test_stake_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!items", "test_items_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!level", "test_level_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!identify", "test_identify_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!unlock", "test_unlock_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!libraries", "test_libraries_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!time", "test_time_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!var", "test_var_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!script", "test_script_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!debug", "test_debug_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!destroy", "test_destroy_OnPlayerChat");
-        RegisterEventScript(oPlugin, CHAT_PREFIX + "!run", "test_run_OnPlayerChat");
-
-        RegisterEventScript(oPlugin, "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "nwnx_WalkTest");
-        RegisterEventScript(oPlugin, "NWNX_ON_INPUT_KEYBOARD_BEFORE", "nwnx_KeyboardTest");
+        RegisterEventScript(oPlugin, CHAT_PREFIX + "!test", "test_OnPlayerChat");
+        //RegisterEventScript(oPlugin, "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "nwnx_WalkTest");
+        //RegisterEventScript(oPlugin, "NWNX_ON_INPUT_KEYBOARD_BEFORE", "nwnx_KeyboardTest");
 
         RegisterEventScript(oPlugin, PLAYER_EVENT_ON_HEARTBEAT, "test_pc_OnPlayerHeartbeat", 10.0);
+
+        int n;
+        RegisterLibraryScript("test_OnClientEnter", n++);
+        RegisterLibraryScript("test_OnPlayerChat", n++);
+
+        n = 100;
+        RegisterLibraryScript("nwnx_WalkTest", n++);
+        RegisterLibraryScript("nwnx_KeyboardTest", n++);
+        RegisterLibraryScript("test_pc_OnPlayerHeartbeat", n++);
+        RegisterLibraryScript("test_pc_CheckMovementRate", n++);
+        // Tag-based Scripting
+
+        n = 200;
+        RegisterLibraryScript("util_playerdata", n++);
     }
-
-    RegisterLibraryScript("test_OnClientEnter", 0);
-    RegisterLibraryScript("test_convo_OnPlayerChat", 1);
-    RegisterLibraryScript("test_go_OnPlayerChat", 2);
-    RegisterLibraryScript("test_get_OnPlayerChat", 3);
-    RegisterLibraryScript("test_stake_OnPlayerChat", 4);
-    RegisterLibraryScript("test_level_OnPlayerChat", 5);
-    RegisterLibraryScript("test_items_OnPlayerChat", 6);
-    RegisterLibraryScript("test_identify_OnPlayerChat", 7);
-    RegisterLibraryScript("test_unlock_OnPlayerChat", 8);
-    RegisterLibraryScript("test_libraries_OnPlayerChat", 9);
-    RegisterLibraryScript("test_time_OnPlayerChat", 10);
-    RegisterLibraryScript("test_var_OnPlayerChat", 11);
-    RegisterLibraryScript("test_script_OnPlayerChat", 12);
-    RegisterLibraryScript("test_debug_OnPlayerChat", 13);
-    RegisterLibraryScript("test_destroy_OnPlayerChat", 14);
-    RegisterLibraryScript("test_run_OnPlayerChat", 15);
-
-    RegisterLibraryScript("nwnx_WalkTest", 100);
-    RegisterLibraryScript("nwnx_KeyboardTest", 101);
-
-    RegisterLibraryScript("test_pc_OnPlayerHeartbeat", 102);
-    RegisterLibraryScript("test_pc_CheckMovementRate", 103);
-
-    // Tag-based Scripting
-    RegisterLibraryScript("util_playerdata", 30);
-
 }
 
 void OnLibraryScript(string sScript, int nEntry)
 {
-    object oPC = GetEventTriggeredBy();
-    object oArea = GetArea(oPC);
-
-    switch (nEntry)
+    int n = nEntry / 100 * 100;
+    switch (n)
     {
-        case 0:  test_OnClientEnter(); break;
-        case 1:  test_convo_OnPlayerChat(); break;
-        case 2:  test_go_OnPlayerChat(); break;
-        case 3:  test_get_OnPlayerChat(); break;
-        case 4:  test_stake_OnPlayerChat(); break;
-        case 5:  test_level_OnPlayerChat(); break;
-        case 6:  test_items_OnPlayerChat(); break;
-        case 7:  test_identify_OnPlayerChat(); break;
-        case 8:  test_unlock_OnPlayerChat(); break;
-        case 9:  test_libraries_OnPlayerChat(); break;
-        case 10: test_time_OnPlayerChat(); break;
-        case 11: test_var_OnPlayerChat(); break;
-        case 12: test_script_OnPlayerChat(); break;
-        case 13: test_debug_OnPlayerChat(); break;
-        case 14: test_destroy_OnPlayerChat(); break;
-        case 15: test_run_OnPlayerChat(); break;
+        case 0:
+        {
+            if      (nEntry == n++) test_OnClientEnter();
+            else if (nEntry == n++) test_OnPlayerChat();
+        } break;
 
-        case 100: nwnx_WalkTest(); break;
-        case 101: nwnx_KeyboardTest(); break;
-        case 102: test_pc_OnPlayerHeartbeat(); break;
-        case 103: test_pc_CheckMovementRate(); break;
+        case 100:
+        {
+            if      (nEntry == n++) nwnx_WalkTest();
+            else if (nEntry == n++) nwnx_KeyboardTest();
+            else if (nEntry == n++) test_pc_OnPlayerHeartbeat();
+            else if (nEntry == n++) test_pc_CheckMovementRate();
+        } break;
 
-        case 30: test_PlayerDataItem(); break;
+        case 200:
+        {
+            if      (nEntry == n++) test_PlayerDataItem();
+        } break;
 
-        default: CriticalError("Library function " + sScript + " not found");
+        default: CriticalError("[" + __FILE__ + "]: Library function " + sScript + " not found; nEntry = " + IntToString(nEntry) + ")");
     }
 }

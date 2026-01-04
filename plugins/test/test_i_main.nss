@@ -17,6 +17,8 @@
 #include "util_i_libraries"
 #include "core_i_framework"
 
+#include "chat_i_main"
+
 const int TYPE_INTEGER = 1;
 const int TYPE_FLOAT = 2;
 const int TYPE_STRING = 3;
@@ -34,95 +36,95 @@ void ReloadLibraries(string sLibraries)
 
 string GetVariable(object oPC, object oTarget, string sOverride = "")
 {
-    int nInternal = (sOverride == "" ? FALSE : TRUE);
-    int i, n, nFound, nCount = (!nInternal ? CountChatArguments(oPC) : 1);
-    string s, sVarName, sType, sResult, sTitle = (GetIsPC(oPC) ? GetName(oTarget) : GetTag(oTarget));
-    string sKeys, sValues;
-    float f;
-    location l;
-    vector v;
-    object o;    
-
-    for (n = 0; n < nCount; n++)
-    {
-        sVarName = (!nInternal ? GetChatArgument(oPC, n) : sOverride);
-
-        i = GetLocalInt(oTarget, sVarName);
-        if (i)
-        {
-            if (HasChatOption(oPC, "bool,b,boolean"))
-                sResult = i ? "TRUE" : "FALSE";
-            else
-                sResult = IntToString(i);
-
-            sKeys = AddListItem(sKeys, "Integer");
-            sValues = AddListItem(sValues, sResult);
-        }
-
-        s = GetLocalString(oTarget, sVarName);
-        if (s != "")
-        {
-            sResult = s;
-            sKeys = AddListItem(sKeys, "String");
-            sValues = AddListItem(sValues, sResult);
-        }
-
-        f = GetLocalFloat(oTarget, sVarName);
-        if (f != 0.0)
-        {
-            sResult = FloatToString(f, 0);
-            sKeys = AddListItem(sKeys, "Float");
-            sValues = AddListItem(sValues, sResult);
-        }
-
-        o = GetLocalObject(oTarget, sVarName);
-        if (GetIsObjectValid(o))
-        {
-            sResult = "{tag} " + GetTag(o) + " {Name} " + GetName(o);
-            sKeys = AddListItem(sKeys, "Object");
-            sValues = AddListItem(sValues, sResult);
-        }
-
-        l = GetLocalLocation(oTarget, sVarName);
-        if (GetAreaFromLocation(l) != OBJECT_INVALID)
-        {
-            sType = "Location";
-            vector v = GetPositionFromLocation(l);
-            sResult = "{area} " + GetTag(GetAreaFromLocation(l)) + " " +
-                      "{position} [" + FloatToString(v.x, 0, 2) + "  " +
-                                        FloatToString(v.y, 0, 2) + "  " +
-                                        FloatToString(v.z, 0, 2) + "] " +
-                      "{facing} " + FloatToString(GetFacingFromLocation(l), 0, 2);
-
-            sKeys = AddListItem(sKeys, "Location");
-            sValues = AddListItem(sKeys, sResult);
-        }
-/*
-        v = GetLocalVector(oTarget, sVarName);
-        if (v != Vector())
-        {
-            sResult = "[" + FloatToString(v.x, 0, 2) + "  " +
-                            FloatToString(v.y, 0, 2) + "  " +
-                            FloatToString(v.z, 0, 2) + "]";
-            sKeys = AddListItem(sKeys, "Vector");
-            sValues = AddListItem(sValues, sResult);
-        }
-*/
-
-        if (nCount = CountList(sKeys))
-        {
-            if (nInternal && nCount > 0)
-                return sKeys;
-
-            for (n = 0; n < nCount; n++)
-                SendChatResult(GetListItem(sKeys, n) + " " + sVarName + " on " + sTitle + " -> " + GetListItem(sValues, n), oPC);
-        }
-        else if (!nInternal)
-            SendChatResult("Variable " + sVarName + " not found on " + sTitle + " (or is default value)", oPC, CHAT_FLAG_ERROR);
-
-        sKeys = "";
-        sValues = "";
-    }
+//    int nInternal = (sOverride == "" ? FALSE : TRUE);
+//    int i, n, nFound, nCount = (!nInternal ? CountChatArguments(oPC) : 1);
+//    string s, sVarName, sType, sResult, sTitle = (GetIsPC(oPC) ? GetName(oTarget) : GetTag(oTarget));
+//    string sKeys, sValues;
+//    float f;
+//    location l;
+//    vector v;
+//    object o;    
+//
+//    for (n = 0; n < nCount; n++)
+//    {
+//        sVarName = (!nInternal ? GetChatArgument(oPC, n) : sOverride);
+//
+//        i = GetLocalInt(oTarget, sVarName);
+//        if (i)
+//        {
+//            if (HasChatOption(oPC, "bool,b,boolean"))
+//                sResult = i ? "TRUE" : "FALSE";
+//            else
+//                sResult = IntToString(i);
+//
+//            sKeys = AddListItem(sKeys, "Integer");
+//            sValues = AddListItem(sValues, sResult);
+//        }
+//
+//        s = GetLocalString(oTarget, sVarName);
+//        if (s != "")
+//        {
+//            sResult = s;
+//            sKeys = AddListItem(sKeys, "String");
+//            sValues = AddListItem(sValues, sResult);
+//        }
+//
+//        f = GetLocalFloat(oTarget, sVarName);
+//        if (f != 0.0)
+//        {
+//            sResult = FloatToString(f, 0);
+//            sKeys = AddListItem(sKeys, "Float");
+//            sValues = AddListItem(sValues, sResult);
+//        }
+//
+//        o = GetLocalObject(oTarget, sVarName);
+//        if (GetIsObjectValid(o))
+//        {
+//            sResult = "{tag} " + GetTag(o) + " {Name} " + GetName(o);
+//            sKeys = AddListItem(sKeys, "Object");
+//            sValues = AddListItem(sValues, sResult);
+//        }
+//
+//        l = GetLocalLocation(oTarget, sVarName);
+//        if (GetAreaFromLocation(l) != OBJECT_INVALID)
+//        {
+//            sType = "Location";
+//            vector v = GetPositionFromLocation(l);
+//            sResult = "{area} " + GetTag(GetAreaFromLocation(l)) + " " +
+//                      "{position} [" + FloatToString(v.x, 0, 2) + "  " +
+//                                        FloatToString(v.y, 0, 2) + "  " +
+//                                        FloatToString(v.z, 0, 2) + "] " +
+//                      "{facing} " + FloatToString(GetFacingFromLocation(l), 0, 2);
+//
+//            sKeys = AddListItem(sKeys, "Location");
+//            sValues = AddListItem(sKeys, sResult);
+//        }
+///*
+//        v = GetLocalVector(oTarget, sVarName);
+//        if (v != Vector())
+//        {
+//            sResult = "[" + FloatToString(v.x, 0, 2) + "  " +
+//                            FloatToString(v.y, 0, 2) + "  " +
+//                            FloatToString(v.z, 0, 2) + "]";
+//            sKeys = AddListItem(sKeys, "Vector");
+//            sValues = AddListItem(sValues, sResult);
+//        }
+//*/
+//
+//        if (nCount = CountList(sKeys))
+//        {
+//            if (nInternal && nCount > 0)
+//                return sKeys;
+//
+//            for (n = 0; n < nCount; n++)
+//                SendChatResult(GetListItem(sKeys, n) + " " + sVarName + " on " + sTitle + " -> " + GetListItem(sValues, n), oPC);
+//        }
+//        else if (!nInternal)
+//            SendChatResult("Variable " + sVarName + " not found on " + sTitle + " (or is default value)", oPC, CHAT_FLAG_ERROR);
+//
+//        sKeys = "";
+//        sValues = "";
+//    }
 
     return "";
 }
