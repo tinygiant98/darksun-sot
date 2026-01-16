@@ -21,6 +21,8 @@
 #include "pw_i_metrics"
 #include "pw_i_core"
 
+#include "nwnx_schema"
+
 // -----------------------------------------------------------------------------
 //                              Function Prototypes
 // -----------------------------------------------------------------------------
@@ -134,27 +136,187 @@ void test_OnPlayerChat()
 
             metrics_RegisterSchema("pw", "test_metrics", jSchema);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
     else if (HasChatOption(oPC, "hc"))
     {
         ExecuteScript("cm_hcmode_onoff", oPC);
     }
+    else if (HasChatOption(oPC, "schema"))
+    {
+        Notice("Attempting to run schema plugin validation test...");
+
+        json jSchema = JsonParse(r"
+            {
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""urn:ds_sot:test_schema"",
+                ""title"": ""TestSchema"",
+                ""type"": ""object"",
+                ""properties"": {
+                    ""testId"": { ""type"": ""integer"", ""minimum"": 1 },
+                    ""testName"": { ""type"": ""string"", ""minLength"": 3 }
+                },
+                ""required"": [""testId"", ""testName""]
+            }
+        ");
+
+        Notice("Validate the following schema against metaschema draft 2020-12");
+        Notice(JsonDump(jSchema, 4));
+
+        int t = Timer();
+        json jResult = NWNX_Schema_ValidateSchema(jSchema);
+        t = Timer(t);
+        
+        Notice("Schema validation result: " + JsonDump(jResult));
+        Notice("Validation took " + FloatToString(t/1000000f) + "s.");
+
+        jSchema = JsonParse(r"
+            {
+                ""$id"":""urn:ds_sot:test_schema"",
+                ""$schema"":""https://json-schema.org/draft/2020-12/schema"",
+                ""properties"":{
+                    ""testId"":{
+                        ""minimum"": ""one"",
+                        ""type"":""integer""
+                    },
+                    ""testName"":{
+                        ""minLength"": -5,
+                        ""type"":""string""
+                    }
+                },
+                ""required"":[
+                    ""testId"",
+                    ""testName""
+                ],
+                ""title"":""TestSchema"",
+                ""type"":""object""
+            }
+        ");
+        jResult = NWNX_Schema_ValidateSchema(jSchema);
+        Notice("Schema validation result (expected failure): " + JsonDump(jResult, 4));
+
+//        jSchema = JsonParse(r"
+//            {
+//                ""$schema"": ""json-schema.org"",
+//                ""$id"": ""urn:nwn:player_character"",
+//                ""title"": ""PlayerCharacter"",
+//                ""type"": ""object"",
+//                ""properties"": {
+//                    ""name"": { 
+//                        ""type"": ""string"", 
+//                        ""minLength"": 3, 
+//                        ""maxLength"": 20,
+//                        ""errorMessage"": {
+//                            ""minLength"": ""Name '${0}' is too short; it must be at least 3 characters."",
+//                            ""maxLength"": ""Name is too long; it cannot exceed 20 characters.""
+//                        }
+//                    },
+//                    ""level"": { 
+//                        ""type"": ""integer"", 
+//                        ""minimum"": 1, 
+//                        ""maximum"": 40,
+//                        ""errorMessage"": {
+//                            ""type"": ""Level must be a whole number."",
+//                            ""minimum"": ""Level ${0} is too low; the minimum is 1."",
+//                            ""maximum"": ""Level ${0} is too high; the level cap is 40.""
+//                        }
+//                    },
+//                    ""alignment"": { 
+//                        ""type"": ""string"", 
+//                        ""enum"": [""Lawful"", ""Neutral"", ""Chaotic""],
+//                        ""errorMessage"": ""Alignment must be Lawful, Neutral, or Chaotic.""
+//                    }
+//                },
+//                ""required"": [""name"", ""level""],
+//                ""errorMessage"": {
+//                    ""required"": {
+//                        ""name"": ""Please provide a character name."",
+//                        ""level"": ""You must specify a character level.""
+//                    }
+//                }
+//            }
+//        ");
+
+        jSchema = JsonParse(r"
+            {
+                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+                ""$id"": ""urn:nwn:player_character"",
+                ""title"": ""PlayerCharacter"",
+                ""type"": ""object"",
+                ""properties"": {
+                    ""name"": { 
+                        ""type"": ""string"", 
+                        ""minLength"": 3, 
+                        ""maxLength"": 20 
+                    },
+                    ""level"": { 
+                        ""type"": ""integer"", 
+                        ""minimum"": 1, 
+                        ""maximum"": 40 
+                    },
+                    ""alignment"": { 
+                        ""type"": ""string"", 
+                        ""enum"": [""Lawful"", ""Neutral"", ""Chaotic""] 
+                    }
+                },
+                ""required"": [""name"", ""level""]
+            }
+        ");
+        jResult = NWNX_Schema_ValidateSchema(jSchema);
+        Notice("Schema validation result: " + JsonDump(jResult, 4));
+        NWNX_Schema_RegisterSchema(jSchema, TRUE);
+
+        json jInstance = JsonParse(r"
+            {
+                ""name"": ""Elminster"",
+                ""level"": 35,
+                ""alignment"": ""Neutral""
+            }
+        ");
+        jResult = NWNX_Schema_ValidateInstanceByID(jInstance, "urn:nwn:player_character");
+        Notice("Instance validation result: " + JsonDump(jResult, 4));
+
+        jInstance = JsonParse(r"
+            {
+                ""level"": 0,
+                ""alignment"": ""Lawful""
+            }
+        ");
+//        jInstance = JsonParse(r"
+//            {
+//                ""name"": ""Al"",
+//                ""level"": 99,
+//                ""alignment"": ""Chaotic Evil""
+//            }
+//        ");
+
+        jResult = NWNX_Schema_ValidateInstanceByID(jInstance, "urn:nwn:player_character");
+        Notice("Instance validation result (expected failure): " + JsonDump(jResult, 4));
+
+
+
+    }
+    else if (HasChatOption(oPC, "nui"))
+    {
+        NWNX_Schema_RemoveSchema("urn:nwn:nui_master_schema:v1.0");
+
+        json j = JsonParse(ResManGetFileContents("nui_schema", RESTYPE_TXT));
+        NWNX_Schema_RegisterSchema(j, TRUE);
+
+
+        string s = "SELECT definition FROM nui_forms WHERE form = 'demo';";
+        sqlquery q = SqlPrepareQueryCampaign("nui_form_data", s);
+        if (SqlStep(q))
+        {
+            json jInstance = SqlGetJson(q, 0);
+
+            int t = Timer();
+            json jResult = NWNX_Schema_ValidateInstanceByID(jInstance, "urn:nwn:nui_master_schema:v1.0");
+            t = Timer(t);
+            Notice("NUI Form validation result: " + JsonDump(jResult, 4));
+            Notice("Validation took " + FloatToString(t/1000000.0) + "s.");
+        }
+    }
+
 }
 
 void test_script_OnPlayerChat()

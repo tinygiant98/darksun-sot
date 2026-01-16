@@ -14,9 +14,13 @@
 #include "core_i_framework"
 #include "test_i_events"
 
+#include "nui_i_main"
+
 #include "nwnx_events"
 #include "nwnx_creature"
 #include "nwnx_player"
+
+#include "nwnx_schema"
 
 void nwnx_WalkTest()
 {
@@ -88,6 +92,11 @@ void test_pc_CheckMovementRate()
 
 }
 
+void test_OnModuleLoad()
+{
+    NUI();
+}
+
 // -----------------------------------------------------------------------------
 //                               Library Dispatch
 // -----------------------------------------------------------------------------
@@ -105,6 +114,7 @@ void OnLibraryLoad()
             "This plugin provides functionality for testing various module systems.");
         //LoadLibraries("test_l_dialog");
     
+        RegisterEventScript(oPlugin, MODULE_EVENT_ON_MODULE_LOAD, "test_OnModuleLoad", 10.0);
         RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER, "test_OnClientEnter", 10.0);
         RegisterEventScript(oPlugin, CHAT_PREFIX + "!test", "test_OnPlayerChat");
         //RegisterEventScript(oPlugin, "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "nwnx_WalkTest");
@@ -115,6 +125,7 @@ void OnLibraryLoad()
         int n;
         RegisterLibraryScript("test_OnClientEnter", n++);
         RegisterLibraryScript("test_OnPlayerChat", n++);
+        RegisterLibraryScript("test_OnModuleLoad", n++);
 
         n = 100;
         RegisterLibraryScript("nwnx_WalkTest", n++);
@@ -137,6 +148,7 @@ void OnLibraryScript(string sScript, int nEntry)
         {
             if      (nEntry == n++) test_OnClientEnter();
             else if (nEntry == n++) test_OnPlayerChat();
+            else if (nEntry == n++) test_OnModuleLoad();
         } break;
 
         case 100:
