@@ -102,6 +102,13 @@ const int PERCEPTION_DEBUG_LEVEL = DEBUG_LEVEL_ERROR;
 /// DEFAULT_DEBUG_LEVEL
 const int INITIALIZATION_DEBUG_LEVEL = DEBUG_LEVEL_DEBUG;
 
+/// This is the level of debug messages to generate when the debug message will
+/// be sent to the game's logfile.  Debug messages that qualify at this
+/// debug level will be sent to the game's log, regardless of the debug level
+/// set on a specific object or DEFAULT_DEBUG_LEVEL above.  If DEBUG_LOG_FILE
+/// is not included in DEBUG_LOGGING above, this value will be ignored.
+const int LOGFILE_DEBUG_LEVEL = DEFAULT_DEBUG_LEVEL;
+
 // -----------------------------------------------------------------------------
 //                         Library and Plugin Management
 // -----------------------------------------------------------------------------
@@ -117,7 +124,7 @@ const int INITIALIZATION_DEBUG_LEVEL = DEBUG_LEVEL_DEBUG;
 /// - `[abc]`: match any of a, b, or c
 /// - `[a-z]`: match any character from a-z
 /// Other text is matched literally, so using exact script names is okay.
-const string INSTALLED_LIBRARIES = "*_p_core,*_l_plugin";
+const string INSTALLED_LIBRARIES = "*_p_*,*_l_plugin";
 
 /// This is a comma-separated list of plugins that should be activated when the
 /// Core Framework is initialized.  If this list is empty, all plugins discovered
