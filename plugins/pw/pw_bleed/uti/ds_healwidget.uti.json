@@ -135,10 +135,10 @@
   },
   "Tag": {
     "type": "cexostring",
-    "value": "h2_healwidget"
+    "value": "ds_healwidget"
   },
   "TemplateResRef": {
     "type": "resref",
-    "value": "h2_healwidget"
+    "value": "ds_healwidget"
   }
 }

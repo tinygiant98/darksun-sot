@@ -5,11 +5,11 @@
 /// ----------------------------------------------------------------------------
 
 #include "util_i_library"
-#include "hcr_i_bleed"
+#include "pw_i_bleed"
 
 void OnLibraryLoad()
 {
-    if (!H2_BLEED_ENABLE_SYSTEM)
+    if (!BLEED_SYSTEM_ENABLED)
         return;
 
     if (!GetIfPluginExists("pw"))
@@ -17,32 +17,24 @@ void OnLibraryLoad()
 
     object oPlugin = GetPlugin("pw");
 
-    // ----- Module Events -----
     RegisterEventScript(oPlugin, MODULE_EVENT_ON_CLIENT_ENTER,        "bleed_OnClientEnter",       4.0);
     RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DYING,        "bleed_OnPlayerDying",       4.0);
     RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_REST_STARTED, "bleed_OnPlayerRestStarted", 4.0);
     RegisterEventScript(oPlugin, MODULE_EVENT_ON_PLAYER_DEATH,        "bleed_OnPlayerDeath",       4.0);
 
-    // ----- Timer Events -----
-    RegisterEventScript(oPlugin, H2_BLEED_EVENT_ON_TIMER_EXPIRE,         "bleed_OnTimerExpire",       8.0);
+    RegisterEventScript(oPlugin, BLEED_EVENT_ON_TIMER_EXPIRE,         "bleed_OnTimerExpire",       8.0);
 
     int n;
-
-    // --- Module Events ---
     RegisterLibraryScript("bleed_OnClientEnter",       n++);
     RegisterLibraryScript("bleed_OnPlayerDying",       n++);
     RegisterLibraryScript("bleed_OnPlayerRestStarted", n++);
     RegisterLibraryScript("bleed_OnPlayerDeath",       n++);
 
     n = 100;
-
-    // --- Tag-based Scripting ---
-    RegisterLibraryScript(H2_BLEED_HEAL_WIDGET,              n++);
+    RegisterLibraryScript(BLEED_HEAL_WIDGET_RESREF, n++);
 
     n = 200;
-
-    // --- Timer Events ---
-    RegisterLibraryScript("bleed_OnTimerExpire",       n++);
+    RegisterLibraryScript("bleed_OnTimerExpire", n++);
 }
 
 void OnLibraryScript(string sScript, int nEntry)
