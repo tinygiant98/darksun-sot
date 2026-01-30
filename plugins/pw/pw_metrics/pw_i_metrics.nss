@@ -9,6 +9,8 @@
 #include "util_i_strings"
 #include "util_i_debug"
 #include "util_i_unittest"
+#include "util_i_argstack"
+#include "nwnx_schema"
 
 #include "core_i_framework"
 
@@ -61,7 +63,7 @@ void metrics_CreateTables();
 ///     how those metrics are integrated during syncing operations.
 /// @param sSource The name of the source providing the metrics schema.
 /// @param sName The name of the metrics schema.
-/// @param jData The metrics schema object.
+/// @param jSchema The metrics schema object.
 /// @warning If a metrics schema is registered using a source/name combination that
 ///     already exists, the existing metrics schema will be replaced with the schema
 ///     contained in jData.
@@ -69,7 +71,7 @@ void metrics_CreateTables();
 ///     will never be accessed by other sources and may be deleted at some point,
 ///     ensure unique keys are used.  Namespaces, such as <source_*> work well in
 ///     these cases.
-void metrics_RegisterSchema(string sSource, string sName, json jData);
+void metrics_RegisterSchema(string sSource, string sName, json jSchema);
 
 /// @brief Unregister (delete) a metrics schema.
 /// @param sSource Source of the registered schema.
@@ -240,7 +242,7 @@ json metrics_GetServerMetricByRegisteredSchema(string sSource, string sSchema);
 //                          Private Function Definitions
 // -----------------------------------------------------------------------------
 
-/// @private Debugging function for metrics system.
+/// @private Primary debugging function for metrics system.
 /// @param sFunction Name of the function generating the debug message.
 /// @param sMessage Debug message.
 void metrics_Debug(string sFunction, string sMessage)
@@ -248,6 +250,18 @@ void metrics_Debug(string sFunction, string sMessage)
     sFunction = HexColorString("[" + sFunction + "]", COLOR_BLUE_LIGHT);
     Debug(sFunction + " " + sMessage);
 }
+
+void metrics_Success(string sFunction, string sMessage)
+{
+    sMessage = HexColorString(sMessage, COLOR_GREEN_LIGHT);
+    metrics_Debug(sFunction, sMessage);
+}
+
+void metrics_Fail(string sFunction, string sMessage)
+{
+    sMessage = HexColorString(sMessage, COLOR_RED_LIGHT);
+    metrics_Debug(sFunction, sMessage);}
+
 
 /// @private Determine if the metrics flush timer is valid (running).
 int metrics_IsFlushTimerValid()
@@ -309,12 +323,13 @@ int metrics_GetBufferSize()
 ///     {
 ///         "type": "player|character|server",
 ///         "source": "<schema_source>",
-///         "schema": "<schema_name",
+///         "schema": "<schema_name>",
 ///         "metrics": [
 ///             {
-///                 "id": "<group_id",
 ///                 "target": "<target_id>",
-///                 "metrics_key": "metrics_value"
+///                 "data": {
+///                     ...
+///                 }
 ///             },
 ///             ...
 ///         ]
@@ -324,6 +339,8 @@ int metrics_GetBufferSize()
 ///     Instead, route through caller functions that build the required metrics group:
 ///         metrics_FlushBuffer()
 ///         metrics_SubmitMetric()
+/// @warning @warning Absolutely do not modify the query contained in this function if
+///     you do not fully understand every part of it.
 void metrics_MergeGroup(json jGroup)
 {
     string sType = JsonGetString(JsonObjectGet(jGroup, "type"));
@@ -355,18 +372,23 @@ void metrics_MergeGroup(json jGroup)
                     jsonb(value -> '$.data') AS metric_data
                 FROM json_each(jsonb(@metrics))
             ),
+            schema_tree AS (
+                SELECT fullkey AS path, atom AS op
+                FROM metrics_schema ms, json_tree(ms.metrics_schema)
+                WHERE ms.source = @source AND ms.name = @schema AND atom IS NOT NULL
+            ),
+            data_tree AS (
+                SELECT b.batch_idx, b.target_id, jt.fullkey AS path, jt.atom AS new_val
+                FROM batch_inputs b, json_tree(b.metric_data) jt
+                WHERE jt.atom IS NOT NULL
+            ),
             updates AS (
                 SELECT 
-                    b.batch_idx,
-                    b.target_id,
-                    tree.fullkey as path,
-                    jsonb_extract(ms.data, '$.""' || tree.fullkey || '""') as op,
-                    tree.value as new_val,
-                    ROW_NUMBER() OVER (PARTITION BY b.target_id ORDER BY b.batch_idx, tree.fullkey) AS seq
-                FROM batch_inputs b
-                JOIN json_tree(b.metric_data) tree ON tree.atom IS NOT NULL
-                JOIN metrics_schema ms ON ms.source = @source AND ms.name = @schema
-                WHERE jsonb_extract(ms.data, '$.""' || tree.fullkey || '""') IS NOT NULL
+                    d.batch_idx, d.target_id, d.path, s.op, d.new_val,
+                    ROW_NUMBER() OVER (PARTITION BY d.target_id ORDER BY d.batch_idx, d.path) AS seq
+                FROM data_tree d
+                JOIN schema_tree s ON d.path = s.path
+                WHERE s.op IS NOT NULL
             ),
             initial_state AS (
                 SELECT 
@@ -391,24 +413,41 @@ void metrics_MergeGroup(json jGroup)
                             WHEN 'MUL' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) * u.new_val
                             WHEN 'DIV' THEN CASE WHEN u.new_val != 0 THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) / u.new_val ELSE 0 END
                             WHEN 'MOD' THEN CASE WHEN u.new_val != 0 THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) % u.new_val ELSE 0 END
-                            WHEN 'MAX' THEN MAX(COALESCE(jsonb_extract(a.current_data, u.path), 0), u.new_val)
-                            WHEN 'MIN' THEN MIN(COALESCE(jsonb_extract(a.current_data, u.path), 0), u.new_val)
+                            WHEN 'MAX' THEN MAX(COALESCE(jsonb_extract(a.current_data, u.path), u.new_val), u.new_val)
+                            WHEN 'MIN' THEN MIN(COALESCE(jsonb_extract(a.current_data, u.path), u.new_val), u.new_val)
                             WHEN 'KEEP' THEN COALESCE(jsonb_extract(a.current_data, u.path), u.new_val)
+                            WHEN 'INCREMENT' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) + 1
+                            WHEN 'DECREMENT' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) - 1
                             WHEN 'REPLACE' THEN u.new_val
+                            WHEN 'AVG' THEN
+                                CASE
+                                    WHEN jsonb_extract(a.current_data, u.path) IS NULL THEN
+                                        jsonb_object('sum', u.new_val, 'count', 1, 'value', u.new_val)
+                                    ELSE
+                                        jsonb_set(
+                                            jsonb_set(
+                                                jsonb_set(
+                                                    jsonb_extract(a.current_data, u.path),
+                                                    '$.sum',
+                                                    COALESCE(jsonb_extract(a.current_data, u.path || '.sum'), 0) + u.new_val
+                                                ),
+                                                '$.count',
+                                                COALESCE(jsonb_extract(a.current_data, u.path || '.count'), 0) + 1
+                                            ),
+                                            '$.value',
+                                            (COALESCE(jsonb_extract(a.current_data, u.path || '.sum'), 0) + u.new_val) / (COALESCE(jsonb_extract(a.current_data, u.path || '.count'), 0) + 1)
+                                        )
+                                END
                             WHEN 'BIT_OR' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) | u.new_val
                             WHEN 'BIT_AND' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) & u.new_val
-                            WHEN 'BIT_XOR' THEN (COALESCE(jsonb_extract(a.current_data, u.path), 0) | u.new_val) - (COALESCE(jsonb_extract(a.current_data, u.path), 0) & u.new_val)
-                            WHEN 'BIT_CLEAR' THEN COALESCE(jsonb_extract(a.current_data, u.path), 0) & ~u.new_val
                             WHEN 'NON_ZERO' THEN CASE WHEN u.new_val != 0 THEN u.new_val ELSE jsonb_extract(a.current_data, u.path) END
                             WHEN 'CONCAT' THEN COALESCE(jsonb_extract(a.current_data, u.path), '') || u.new_val
                             WHEN 'APPEND' THEN jsonb_insert(COALESCE(jsonb_extract(a.current_data, u.path), jsonb_array()), '$[#]', u.new_val)
-                            WHEN 'PREPEND' THEN jsonb_insert(COALESCE(jsonb_extract(a.current_data, u.path), jsonb_array()), '$[0]', u.new_val)
                             WHEN 'MERGE' THEN json_patch(COALESCE(jsonb_extract(a.current_data, u.path), jsonb_object()), u.new_val)
                             WHEN 'TOGGLE' THEN CASE WHEN COALESCE(jsonb_extract(a.current_data, u.path), 0) = 0 THEN 1 ELSE 0 END
                             WHEN 'MIN_NZ' THEN CASE WHEN COALESCE(jsonb_extract(a.current_data, u.path), 0) = 0 THEN u.new_val ELSE MIN(jsonb_extract(a.current_data, u.path), u.new_val) END
                             WHEN 'ROUND' THEN ROUND(COALESCE(jsonb_extract(a.current_data, u.path), 0), u.new_val)
-                            WHEN 'TIMESTAMP' THEN CAST(STRFTIME('%s', 'now') AS INTEGER)
-                            ELSE u.new_val
+                            ELSE jsonb_extract(a.current_data, u.path)
                         END
                     ),
                     a.next_seq + 1
@@ -433,6 +472,7 @@ void metrics_MergeGroup(json jGroup)
             data = excluded.data,
             last_updated = excluded.last_updated;
     ";
+
     s = SubstituteStrings(s, jSubstitute);
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindJson(q, "@metrics", jMetrics);
@@ -450,9 +490,9 @@ void metrics_FlushBuffer(int nChunk = 500)
     ///     have to use nwscript as a bridge between databases.  We do this by
     ///     retrieving all the records of interest as a json array, then pushing
     ///     that json array into the campaign db sync query as a variable.  Since
-    ///     SqlGetJson() doesn't understand jsonb, we have to parse it to json first,
-    ///     which is a bit of a bottleneck, but it's the only non-binary operation
-    ///     in the system.
+    ///     SqlGetJson() doesn't understand jsonb, records have to be parsed to json
+    ///     first, which is a bit of a bottleneck, but it's the only non-binary
+    ///     operation in the system.
     string s = r"
         WITH global_batch AS (
             SELECT id, type, target, source, schema, data
@@ -569,6 +609,39 @@ json metrics_GetSubstitutions(string sType)
     return JsonObjectSet(jSubstitute, "target_id", JsonString(sType + "_id"));
 }
 
+/// @private Validate a metrics instance against its validation schema
+/// @param jInstance Metrics instance.
+/// @param sSource Schema source.
+/// @param sName Schema name.
+int metrics_ValidateInstance(json jInstance, string sSource, string sName)
+{
+    string s = r"
+        SELECT
+        CASE
+            WHEN json_type(validation_schema, '$.$id') IS NOT NULL THEN json_extract(validation_schema, '$.$id')
+            ELSE validation_schema
+        END
+        FROM metrics_schema
+        WHERE source = @source AND name = @name;
+    ";
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@source", sSource);
+    SqlBindString(q, "@name", sName);
+    if (!SqlStep(q))
+    {
+        metrics_Debug(__FUNCTION__, "No registered schema found for source '" + sSource + "' and schema '" + sName + "'");
+        return FALSE;
+    }
+
+    json jResult = SqlGetJson(q, 0);
+    if (JsonGetType(jResult) == JSON_TYPE_STRING)
+        return JsonObjectGet(NWNX_Schema_ValidateInstanceByID(jInstance, JsonGetString(jResult)), "valid") == JSON_TRUE;
+    else if (JsonGetType(jResult) == JSON_TYPE_OBJECT)
+        return JsonObjectGet(NWNX_Schema_ValidateInstance(jInstance, jResult), "valid") == JSON_TRUE;
+
+    return FALSE;
+}
+
 /// @private Allows submission of a single record directly into the persistent `metrics_*`
 ///     tables.  It should be rare to require immediate metrics insertion into the persistent
 ///     tables as this is a much heavier opertion that using the buffer flushing process.
@@ -579,18 +652,30 @@ json metrics_GetSubstitutions(string sType)
 /// @param jData Metrics data.
 void metrics_SubmitMetric(string sType, string sTarget, string sSource, string sSchema, json jData)
 {
+    if (METRICS_REQUIRE_NWNX && !NWNXGetIsAvailable())
+    {
+        metrics_Debug(__FUNCTION__, "NWNX is required to submit metrics");
+        return;
+    }
+
     if (!metrics_IsTargetValid(sType, sTarget))
         return;
 
     if (sSource == "" || sSchema == "")
     {
-        metrics_Debug(__FUNCTION__, "sSource and sSchema must not be empty.");
+        metrics_Debug(__FUNCTION__, "sSource and sSchema must not be empty");
         return;
     }
 
     if (JsonGetType(jData) != JSON_TYPE_OBJECT)
     {
-        metrics_Debug(__FUNCTION__, "jData must be a valid json object.");
+        metrics_Debug(__FUNCTION__, "jData must be a valid json object");
+        return;
+    }
+
+    if (NWNXGetIsAvailable() && !metrics_ValidateInstance(jData, sSource, sSchema) == FALSE)
+    {
+        metrics_Debug(__FUNCTION__, "jData does not conform to the registered schema");
         return;
     }
 
@@ -600,7 +685,6 @@ void metrics_SubmitMetric(string sType, string sTarget, string sSource, string s
 
     json jMetrics = JsonObjectSet(JsonObject(), "target", JsonString(sTarget));
     jMetrics = JsonObjectSet(jMetrics, "data", jData);
-
     jGroup = JsonObjectSet(jGroup, "metrics", JsonArrayInsert(JsonArray(), jMetrics));
 
     metrics_MergeGroup(jGroup);
@@ -613,22 +697,28 @@ void metrics_SubmitMetric(string sType, string sTarget, string sSource, string s
 /// @param sSchema Name of the metric merge schema.
 /// @param jData Metrics data.
 /// @note User should generally use a convenience function and refrain from calling
-///     this function directly to prevent potentially errors when routing metrics to
+///     this function directly to prevent potential errors when routing metrics to
 ///     the desired target.
 void metrics_BufferMetric(string sType, string sTarget, string sSource, string sSchema, json jData)
 {
+    if (METRICS_REQUIRE_NWNX && !NWNXGetIsAvailable())
+    {
+        metrics_Debug(__FUNCTION__, "NWNX is required to submit metrics");
+        return;
+    }
+
     if (!metrics_IsTargetValid(sType, sTarget))
         return;
 
     if (sSource == "" || sSchema == "")
     {
-        metrics_Debug(__FUNCTION__, "sSource and sSchema must not be empty.");
+        metrics_Debug(__FUNCTION__, "sSource and sSchema must not be empty");
         return;
     }
 
     if (JsonGetType(jData) != JSON_TYPE_OBJECT)
     {
-        metrics_Debug(__FUNCTION__, "jData must be a valid json object.");
+        metrics_Debug(__FUNCTION__, "jData must be a valid json object");
         return;
     }
 
@@ -671,8 +761,19 @@ json metrics_GetMetricByPath(string sType, string sTarget, string sPath)
             sPath = "$." + sPath;
     }
 
+    /// @note Some metrics store multiple values to maintain the desired metrics,
+    ///     such as AVG, which stores a running total and running count to
+    ///     calculate the metric.  When retrieving metrics that contains multiple
+    ///     values, assume the desired metric is available in the `value` key
+    ///     within the object found at sPath.
     string s = r"
-        SELECT json(jsonb_extract(data, @path)) 
+        SELECT
+            CASE
+                WHEN json_type(jsonb_extract(data, @path)) = 'object'
+                AND jsonb_extract(data, @path || '.value') IS NOT NULL
+                THEN json(jsonb_extract(data, @path || '.value'))
+                ELSE json(jsonb_extract(data, @path))
+            END
         FROM $metrics_table
         WHERE $target_id = @target;
     ";
@@ -714,11 +815,17 @@ json metrics_GetMetricByKey(string sType, string sTarget, string sKey, string sH
         return JsonNull();
 
     string s = r"
-        SELECT json(jsonb_extract(data, fullkey)) 
-        FROM $metrics_table, json_tree($metrics_table.data) 
-        WHERE $target_id = @target 
-            AND key = @key 
-            AND fullkey LIKE @hint
+        SELECT
+            CASE
+                WHEN json_type(jsonb_extract(data, fullkey)) = 'object'
+                AND jsonb_extract(data, fullkey || '.value') IS NOT NULL
+                THEN json(jsonb_extract(data, fullkey || '.value'))
+                ELSE json(jsonb_extract(data, fullkey))
+            END
+        FROM $metrics_table, json_tree($metrics_table.data)
+        WHERE $target_id = @target
+        AND key = @key
+        AND fullkey LIKE @hint
         LIMIT 1;
     ";
     s = SubstituteStrings(s, metrics_GetSubstitutions(sType));
@@ -734,6 +841,12 @@ json metrics_GetMetricByKey(string sType, string sTarget, string sKey, string sH
 /// @param sType Metrics type: METRICS_TYPE_*.
 /// @param sTarget Unique ID of the target (player_id, character_id, 1)
 /// @param jSchema Metrics schema object.
+/// @warning This is an advanced-use function.  Any metrics that contain
+///     multiple values, such as AVG, will return the entire object with
+///     all values, not only the expected metrics.  It is the user's/plugin's
+///     responsibility to ensure the retrieved values are being used or
+///     displayed properly.  Displayed returned values as-is may not achieve
+///     the desired result.
 json metrics_GetMetricBySchema(string sType, string sTarget, json jSchema)
 {
     if (!metrics_IsTargetValid(sType, sTarget))
@@ -744,35 +857,38 @@ json metrics_GetMetricBySchema(string sType, string sTarget, json jSchema)
 
     string s = r"
         WITH RECURSIVE
-            target_data AS (
-                SELECT data 
-                FROM $metrics_table 
-                WHERE $target_id = @target
+            source_metrics AS (
+                SELECT data FROM $metrics_table 
+                WHERE $target_id = @target 
+                LIMIT 1
             ),
-            updates AS (
+            request_paths AS (
                 SELECT 
                     tree.fullkey AS path,
-                    jsonb_extract(td.data, tree.fullkey) AS new_val,
-                    ROW_NUMBER() OVER (ORDER BY tree.fullkey) AS seq
-                FROM json_tree(jsonb(@schema)) tree
-                JOIN target_data td
-                WHERE tree.atom IS NOT NULL 
-                  AND jsonb_extract(td.data, tree.fullkey) IS NOT NULL
+                    json_extract(sm.data, tree.fullkey) AS metrics_val,
+                    ROW_NUMBER() OVER (ORDER BY tree.id) AS seq
+                FROM json_tree(@schema) tree
+                CROSS JOIN source_metrics sm
+                -- FIX: Use type NOT IN ('object', 'array') to find all leaf slots
+                -- This includes JSON 'null', which has a tree.type of 'null'
+                WHERE tree.type NOT IN ('object', 'array')
+                AND json_type(sm.data, tree.fullkey) IS NOT NULL
             ),
-            apply_updates(current_data, next_seq) AS (
-                SELECT jsonb(@schema), 1
+            populated_json AS (
+                SELECT 0 AS seq, json(@schema) AS current_result
                 UNION ALL
                 SELECT 
-                    jsonb_set(a.current_data, u.path, u.new_val),
-                    a.next_seq + 1
-                FROM apply_updates a
-                JOIN updates u ON a.next_seq = u.seq
+                    rp.seq,
+                    json_set(pj.current_result, rp.path, rp.metrics_val)
+                FROM request_paths rp
+                JOIN populated_json pj ON rp.seq = pj.seq + 1
             )
-        SELECT json(current_data)
-        FROM apply_updates
-        ORDER BY next_seq DESC
+        SELECT current_result
+        FROM populated_json
+        ORDER BY seq DESC
         LIMIT 1;
     ";
+
     s = SubstituteStrings(s, metrics_GetSubstitutions(sType));
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@target", sTarget);
@@ -798,7 +914,7 @@ json metrics_GetMetricByRegisteredSchema(string sType, string sTarget, string sS
     }
 
     string s = r"
-        SELECT json(data) 
+        SELECT json(metrics_schema) 
         FROM metrics_schema 
         WHERE source = @source
             AND name = @name;
@@ -885,16 +1001,17 @@ void metrics_POST()
         {
             string s = r"
                 INSERT INTO player (player_id)
-                VALUES (@player_id)
+                VALUES (:player_id)
                 ON CONFLICT(player_id) DO NOTHING;
             ";
             sqlquery q = pw_PrepareCampaignQuery(s);
-            SqlBindString(q, "@player_id", sPlayerID);
+            SqlBindString(q, ":player_id", sPlayerID);
             SqlStep(q);
 
-            s = "SELECT COUNT(*) FROM player WHERE player_id = @player_id";
+            s = "SELECT COUNT(*) FROM player WHERE player_id = :player_id";
             q = pw_PrepareCampaignQuery(s);
-            SqlBindString(q, "@player_id", sPlayerID);
+            SqlBindString(q, ":player_id", sPlayerID);
+            
             if (SqlStep(q))
                 r1 = SqlGetInt(q, 0);
         } t1 = Timer(t1);
@@ -906,22 +1023,23 @@ void metrics_POST()
         int t2 = Timer();
         {
             string s = r"
-                INSERT INTO character (character_id, player_id)
-                VALUES (@char_id, @player_id)
+                INSERT INTO character (character_id, player_id, name)
+                SELECT :char_id, :player_id, :name
                 ON CONFLICT(character_id) DO NOTHING;
             ";
             sqlquery q = pw_PrepareCampaignQuery(s);
-            SqlBindString(q, "@char_id", sCharID);
-            SqlBindString(q, "@player_id", sPlayerID);
+            SqlBindString(q, ":char_id", sCharID);
+            SqlBindString(q, ":player_id", sPlayerID);
+            SqlBindString(q, ":name", "Metrics Test Character");
             SqlStep(q);
 
             s = r"
                 SELECT COUNT(*)
                 FROM character
-                WHERE character_id = @char_id
+                WHERE character_id = :char_id
             ";
             q = pw_PrepareCampaignQuery(s);
-            SqlBindString(q, "@char_id", sCharID);
+            SqlBindString(q, ":char_id", sCharID);
             if (SqlStep(q))
                 r2 = SqlGetInt(q, 0);
         } t2 = Timer(t2);
@@ -990,10 +1108,10 @@ void metrics_POST()
             string s = r"
                 SELECT COUNT(*)
                 FROM metrics_schema
-                WHERE source = @source
+                WHERE source = :source
             ";
             sqlquery q = pw_PrepareCampaignQuery(s);
-            SqlBindString(q, "@source", sSource);
+            SqlBindString(q, ":source", sSource);
             if (SqlStep(q))
                 r1 = SqlGetInt(q, 0);
         } t1 = Timer(t1);
@@ -1144,11 +1262,13 @@ void metrics_POST()
             // Test 4: GetPlayerMetricBySchema
             json jQuerySchema = JsonParse(r" { ""test_root"": { ""nested"": { ""val2"": null } } } ");
             jRes = metrics_GetPlayerMetricBySchema(sPlayerID, jQuerySchema);
-            r4 = JsonGetInt(JsonObjectGet(JsonObjectGet(JsonObjectGet(jRes, "test_root"), "nested"), "val2"));
+
+            //r4 = JsonGetInt(JsonObjectGet(JsonObjectGet(JsonObjectGet(jRes, "test_root"), "nested"), "val2"));
+            r4 = JsonGetInt(JsonPointer(jRes, "/test_root/nested/val2"));
 
             // Test 5: GetCharacterMetricByRegisteredSchema
             jRes = metrics_GetCharacterMetricByRegisteredSchema(sCharID, sSource, "schema_char");
-            r5 = JsonGetInt(JsonObjectGet(jRes, "$.test_root.val1"));
+            r5 = JsonGetInt(JsonPointer(jRes, "/test_root/val1"));
         } t2 = Timer(t2);
         t = Timer(t);
 
@@ -1193,22 +1313,22 @@ void metrics_POST()
 
         int t1 = Timer();
         {
-            string s = "DELETE FROM player WHERE player_id = @player_id";
+            string s = "DELETE FROM player WHERE player_id = :player_id";
             sqlquery q = pw_PrepareCampaignQuery(s);
-            SqlBindString(q, "@player_id", sPlayerID);
+            SqlBindString(q, ":player_id", sPlayerID);
             SqlStep(q);
 
-            s = "SELECT COUNT(*) FROM metrics_player WHERE player_id = @player_id";
-            q = pw_PrepareCampaignQuery(s);
-            SqlBindString(q, "@player_id", sPlayerID);
-            if (SqlStep(q))
-                r1 = SqlGetInt(q, 0);
+           s = "SELECT COUNT(*) FROM metrics_player WHERE player_id = :player_id";
+           q = pw_PrepareCampaignQuery(s);
+           SqlBindString(q, ":player_id", sPlayerID);
+           if (SqlStep(q))
+               r1 = SqlGetInt(q, 0);
 
-            s = "SELECT COUNT(*) FROM metrics_character WHERE character_id = @char_id";
-            q = pw_PrepareCampaignQuery(s);
-            SqlBindString(q, "@char_id", sCharID);
-            if (SqlStep(q))
-                r2 = SqlGetInt(q, 0);
+           s = "SELECT COUNT(*) FROM metrics_character WHERE character_id = :char_id";
+           q = pw_PrepareCampaignQuery(s);
+           SqlBindString(q, ":char_id", sCharID);
+           if (SqlStep(q))
+               r2 = SqlGetInt(q, 0);
         } t1 = Timer(t1);
 
         /// @test Test 2: Clean server data.
@@ -1280,16 +1400,142 @@ void metrics_POST()
 //                              Function Definitions
 // -----------------------------------------------------------------------------
 
+/// @private Register the metrics meta-schema to define authorized metrics
+///     operations.  If a plugin attempts to use a metrics operations not defined
+///     here, the instance will be rejected.
+void metrics_RegisterMetaSchema()
+{
+    json j = JsonParse(r"
+        {
+            ""$id"": ""urn:darksun_sot:metrics"",
+            ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+            ""type"": ""object"",
+            ""patternProperties"": {
+                "".*"": {
+                ""anyOf"": [
+                    { ""$ref"": ""#"" },
+                    {
+                    ""type"": ""string"",
+                    ""enum"": [
+                        ""ADD"", ""SUB"", ""MUL"", ""DIV"", ""MOD"",
+                        ""MAX"", ""MIN"", ""KEEP"", ""INCREMENT"", ""DECREMENT"",
+                        ""REPLACE"", ""AVG"", ""BIT_OR"", ""BIT_AND"", ""NON_ZERO"",
+                        ""CONCAT"", ""APPEND"", ""MERGE"", ""TOGGLE"", ""MIN_NZ"", ""ROUND""
+                    ]
+                    }
+                ]
+                }
+            },
+            ""additionalProperties"": false
+        }
+    ");
+
+    if (NWNXGetIsAvailable())
+        NWNX_Schema_RegisterMetaSchema(j);
+}
+
+int metrics_ValidateSchema(json jSchema)
+{
+    if (!NWNXGetIsAvailable())
+        return FALSE;
+
+    json j = JsonObjectGet(jSchema, "$schema");
+    if (JsonGetType(j) == JSON_TYPE_STRING && JsonGetString(j) == "")
+        JsonObjectSet(jSchema, "$schema", JsonString("https://json-schema.org/draft/2020-12/schema"));
+
+    return JsonObjectGet(NWNX_Schema_ValidateSchema(jSchema), "valid") == JSON_TRUE;
+}
+
+int metrics_ValidateInstanceByID(json jInstance, string sID = "urn:darksun_sot:metrics")
+{
+    if (!NWNXGetIsAvailable())
+        return FALSE;
+
+    return JsonObjectGet(NWNX_Schema_ValidateInstanceByID(jInstance, sID), "valid") == JSON_TRUE;
+}
+
+/// @private Create a validation schema from the metrics schema passed by the plugin.
+///     This schema will be used to validate each instance that's passed to the metrics
+///     system to ensure bad data is not being ingested into the metrics objects.
+json metrics_TransformSchema(json jSchema, string sSchema = "")
+{
+    if (JsonGetType(jSchema) == JSON_TYPE_NULL || jSchema == JsonObject())
+        return JsonNull();
+
+    if (sSchema != "")
+        sSchema = "urn:darksun_sot:metrics:" + sSchema;
+
+    string s = r"
+        WITH RECURSIVE
+            raw_tree AS (
+                SELECT * FROM json_tree(@schema)
+                WHERE fullkey != '$'
+            ),
+            transformed AS (
+                SELECT 
+                    t.id,
+                    CASE 
+                        WHEN t.type NOT IN ('object', 'array') THEN
+                            CASE 
+                                -- Integer Ops
+                                WHEN t.value IN ('BIT_OR', 'BIT_AND', 'INCREMENT', 'DECREMENT', 'MOD', 'ROUND', 'TOGGLE', 'MIN_NZ') 
+                                    THEN json_object('type', 'integer')
+                                -- Number Ops
+                                WHEN t.value IN ('ADD', 'SUB', 'MUL', 'DIV', 'MAX', 'MIN', 'KEEP', 'REPLACE', 'AVG', 'NON_ZERO') 
+                                    THEN json_object('type', 'number')
+                                -- String Ops
+                                WHEN t.value = 'CONCAT' 
+                                    THEN json_object('type', 'string')
+                                -- Collection Ops
+                                WHEN t.value = 'APPEND' 
+                                    THEN json_object('type', 'array', 'unevaluatedItems', json('false'))
+                                WHEN t.value = 'MERGE' 
+                                    THEN json_object('type', 'object', 'unevaluatedProperties', json('false'))
+                                ELSE json_quote(t.value)
+                            END
+                        WHEN t.type = 'object' THEN
+                            json_object('type', 'object', 'unevaluatedProperties', json('false'), 'minProperties', 1, 'properties', json_object())
+                        WHEN t.type = 'array' THEN
+                            json_object('type', 'array', 'unevaluatedItems', json('false'), 'prefixItems', json_array())
+                    END AS new_value,
+                    -- Handles nesting: .key -> .properties.key and [0] -> .prefixItems[0]
+                    REPLACE(REPLACE(t.fullkey, '.', '.properties.'), '[', '.prefixItems[') AS schema_path,
+                    ROW_NUMBER() OVER (ORDER BY t.id ASC) AS seq
+                FROM raw_tree t
+            ),
+            schema_folded AS (
+                SELECT 0 as seq, 
+                    json_patch(
+                        json_object(
+                            '$schema', 'https://json-schema.org/draft/2020-12/schema', 
+                            'type', 'object', 
+                            'unevaluatedProperties', json('false'),
+                            'minProperties', 1,
+                            'properties', json_object()
+                        ),
+                        CASE WHEN @id != '' THEN json_object('$id', @id) ELSE json_object() END
+                    ) AS result
+                UNION ALL
+                SELECT nr.seq, json_set(sf.result, nr.schema_path, json(nr.new_value))
+                FROM transformed nr
+                JOIN schema_folded sf ON nr.seq = sf.seq + 1
+            )
+        SELECT result FROM schema_folded ORDER BY seq DESC LIMIT 1;
+    ";
+
+    sqlquery q = pw_PrepareModuleQuery(s);
+    SqlBindJson(q, "@schema", jSchema);
+    SqlBindString(q, "@id", sSchema);
+
+    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
+}
+
 void metrics_CreateTables()
 {
     /// @brief The following tables are persistent and reside in the campaign/on-disk
     ///     persistent database.  All metrics tables are namespaced with `metrics_`.
 
     pw_BeginTransaction();
-
-    /// @note This is unlikely to be used, but in case we want to fully remove a player
-    ///     from the database, this will allow cascading deletes.
-    pw_ExecuteCampaignQuery("PRAGMA foreign_keys = ON;");
 
     /// @note Many of these tables have a `data` jsonb BLOB.  This is intended to carry
     ///     structured json data or, potentially, new data we did not plan for.  This
@@ -1304,10 +1550,20 @@ void metrics_CreateTables()
         CREATE TABLE IF NOT EXISTS metrics_player (
             player_id TEXT PRIMARY KEY COLLATE NOCASE,
             data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
-            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (player_id) REFERENCES player(player_id)
-                ON DELETE CASCADE
+            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    /// @note Cascade delete player metrics when a player record is deleted from
+    ///     the module's primary player database table.
+    s = r"
+        CREATE TRIGGER IF NOT EXISTS trg_delete_metrics_player
+        AFTER DELETE ON player
+        FOR EACH ROW
+        BEGIN
+            DELETE FROM metrics_player WHERE player_id = OLD.player_id;
+        END;
     ";
     pw_ExecuteCampaignQuery(s);
 
@@ -1319,10 +1575,20 @@ void metrics_CreateTables()
         CREATE TABLE IF NOT EXISTS metrics_character (
             character_id TEXT PRIMARY KEY COLLATE NOCASE,
             data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
-            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (character_id) REFERENCES character(character_id)
-                ON DELETE CASCADE
+            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+    ";
+    pw_ExecuteCampaignQuery(s);
+
+    /// @note Cascade delete character metrics when a character record is deleted from
+    ///     the module's primary character database table.
+    s = r"
+        CREATE TRIGGER IF NOT EXISTS trg_delete_metrics_character
+        AFTER DELETE ON character
+        FOR EACH ROW
+        BEGIN
+            DELETE FROM metrics_character WHERE character_id = OLD.character_id;
+        END;
     ";
     pw_ExecuteCampaignQuery(s);
 
@@ -1351,7 +1617,8 @@ void metrics_CreateTables()
         CREATE TABLE IF NOT EXISTS metrics_schema (
             source TEXT NOT NULL COLLATE NOCASE,
             name TEXT NOT NULL COLLATE NOCASE,
-            data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
+            metrics_schema BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(metrics_schema, 4)),
+            validation_schema BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(validation_schema, 4)),
             PRIMARY KEY (source, name) ON CONFLICT REPLACE
         ) WITHOUT ROWID;
     ";
@@ -1385,10 +1652,21 @@ void metrics_CreateTables()
     ";
     pw_ExecuteModuleQuery(s);
     pw_CommitTransaction(GetModule());
+
+    metrics_RegisterMetaSchema();
 }
 
-void metrics_RegisterSchema(string sSource, string sName, json jData)
+void metrics_RegisterSchema(string sSource, string sName, json jSchema)
 {
+    if (METRICS_REQUIRE_NWNX && !NWNXGetIsAvailable())
+    {
+        string s = "NWNX is required for metrics schema registration";
+        s+= "\n  Error Source: " + __FILE__ + " (" + __FUNCTION__ + ")";
+
+        Error(s);
+        return;
+    }
+
     metrics_Debug(__FUNCTION__, "Attempting to register metrics schema: " + sSource + "." + sName);
     
     if (sSource == "" || sName == "")
@@ -1402,26 +1680,63 @@ void metrics_RegisterSchema(string sSource, string sName, json jData)
         return;
     }
 
-    if (JsonGetType(jData) != JSON_TYPE_OBJECT)
+    if (JsonGetType(jSchema) != JSON_TYPE_OBJECT)
     {
-        string s = "Invalid schema data object type found during metrics schema registration";
+        string s = "Invalid schema argument found during metrics schema registration";
         s+= "\n  Error Source: " + __FILE__ + " (" + __FUNCTION__ + ")";
+        s+= "\n  jSchema: " + JsonDump(jSchema);
 
         Error(s);
         return;
     }
 
+    json jTransform = metrics_TransformSchema(jSchema, sSource + ":" + sName);
+    if (JsonGetType(jTransform) == JSON_TYPE_NULL)
+    {
+        string s = "Failed to transform schema during metrics registration";
+        s+= "\n  Error Source: " + __FILE__ + " (" + __FUNCTION__ + ")";
+        s+= "\n  jSchema: " + JsonDump(jSchema);
+        
+        Error(s);
+        return;
+    }
+
+    if (NWNXGetIsAvailable())
+    {
+        /// @note Treat the incoming schema as an instance to be validated by the
+        ///     metrics metaschema.
+        if (!metrics_ValidateInstanceByID(jSchema))
+        {
+            string s = "Schema instance does not conform to metrics meta-schema during metrics schema registration";
+            s+= "\n  Error Source: " + __FILE__ + " (" + __FUNCTION__ + ")";
+            s+= "\n  jSchema: " + JsonDump(jSchema);
+            
+            Error(s);
+            return;
+        }
+
+        /// @note The transformed schema should be a valid schema as defined by
+        ///     json-schema.org; validate it as a normal schema.
+        if (!metrics_ValidateSchema(jTransform))
+        {
+            string s = "Invalid schema found during metrics schema registration";
+            s+= "\n  Error Source: " + __FILE__ + " (" + __FUNCTION__ + ")";
+            s+= "\n  jSchema: " + JsonDump(jSchema);
+            
+            Error(s);
+            return;
+        }
+    }
+
     string s = r"
-        INSERT INTO metrics_schema (source, name, data)
-        SELECT @source, @name, 
-            (SELECT jsonb_group_object(fullkey, value) 
-             FROM json_tree(jsonb(@data)) 
-             WHERE atom IS NOT NULL);
+        INSERT INTO metrics_schema (source, name, metrics_schema, validation_schema)
+        VALUES (@source, @name, jsonb(@metrics_schema), jsonb(@validation_schema));
     ";
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@source", sSource);
     SqlBindString(q, "@name", sName);
-    SqlBindJson(q, "@data", jData);
+    SqlBindJson(q, "@metrics_schema", jSchema);
+    SqlBindJson(q, "@validation_schema", jTransform);
 
     SqlStep(q);
 }
@@ -1438,7 +1753,7 @@ void metrics_UnregisterSchema(string sSource, string sName)
     SqlStep(q);
 }
 
-json metrics_ViewSchemas(string sSource)
+json metrics_ListSchemas(string sSource)
 {
     if (sSource == "")
         return JsonArray();
@@ -1450,12 +1765,12 @@ json metrics_ViewSchemas(string sSource)
     return SqlStep(q) ? SqlGetJson(q, 0) : JsonArray();
 }
 
-json metrics_ViewSchema(string sSource, string sName)
+json metrics_GetSchema(string sSource, string sName)
 {
     if (sSource == "" || sName == "")
         return JsonNull();
 
-    string s = "SELECT json(data) FROM metrics_schema WHERE source = @source AND name = @name";
+    string s = "SELECT json(metrics_schema) FROM metrics_schema WHERE source = @source AND name = @name";
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@source", sSource);
     SqlBindString(q, "@name", sName);

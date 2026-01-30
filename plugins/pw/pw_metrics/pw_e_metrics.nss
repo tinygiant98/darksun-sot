@@ -61,12 +61,22 @@ void metrics_OnPlayerChat()
 void metrics_Flush_OnTimerExpire()
 {
     Notice("Metrics Sync Timer Expired.  Syncing metrics data...");
-
-
     metrics_FlushBuffer(METRICS_FLUSH_CHUNK_SIZE);
 }
 
 void metrics_OnModulePOST()
 {
     metrics_POST();
+}
+
+void metrics_OnPlayerDeleted()
+{
+    string sUUID = GetObjectUUID(OBJECT_SELF);
+    string s = r"
+        DELETE FROM player_metrics
+        WHERE player_id = :player_id;
+    ";
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, ":player_id", sUUID);
+    SqlStep(q);
 }
