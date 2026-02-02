@@ -74,16 +74,12 @@ void test_OnPlayerChat()
             if (SqlStep(q)) Notice("Found it! ->" + JsonDump(SqlGetJson(q, 1)));
             else Notice("Did not find it!");
 
-            return;
-
             s = r"
                 UPDATE player 
                 SET data = jsonb('{""health"": 100, ""mana"": 50}') 
                 WHERE player_id = 'unique_player_001';
             ";
             pw_ExecuteCampaignQuery(s);
-
-            return;
 
             s = r"
                 UPDATE player 
@@ -141,186 +137,133 @@ void test_OnPlayerChat()
 //    {
 //        ExecuteScript("cm_hcmode_onoff", oPC);
 //    }
-//    else if (HasChatOption(oPC, "schema"))
-//    {
-//        Notice("Attempting to run schema plugin validation test...");
-//
-//        json jSchema = JsonParse(r"
-//            {
-//                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
-//                ""$id"": ""urn:ds_sot:test_schema"",
-//                ""title"": ""TestSchema"",
-//                ""type"": ""object"",
-//                ""properties"": {
-//                    ""testId"": { ""type"": ""integer"", ""minimum"": 1 },
-//                    ""testName"": { ""type"": ""string"", ""minLength"": 3 }
-//                },
-//                ""required"": [""testId"", ""testName""]
-//            }
-//        ");
-//
-//        Notice("Validate the following schema against metaschema draft 2020-12");
-//        Notice(JsonDump(jSchema, 4));
-//
-//        int t = Timer();
-//        json jResult = NWNX_Schema_ValidateSchema(jSchema);
-//        t = Timer(t);
-//        
-//        Notice("Schema validation result: " + JsonDump(jResult));
-//        Notice("Validation took " + FloatToString(t/1000000f) + "s.");
-//
-//        jSchema = JsonParse(r"
-//            {
-//                ""$id"":""urn:ds_sot:test_schema"",
-//                ""$schema"":""https://json-schema.org/draft/2020-12/schema"",
-//                ""properties"":{
-//                    ""testId"":{
-//                        ""minimum"": ""one"",
-//                        ""type"":""integer""
-//                    },
-//                    ""testName"":{
-//                        ""minLength"": -5,
-//                        ""type"":""string""
-//                    }
-//                },
-//                ""required"":[
-//                    ""testId"",
-//                    ""testName""
-//                ],
-//                ""title"":""TestSchema"",
-//                ""type"":""object""
-//            }
-//        ");
-//        jResult = NWNX_Schema_ValidateSchema(jSchema);
-//        Notice("Schema validation result (expected failure): " + JsonDump(jResult, 4));
-//
-////        jSchema = JsonParse(r"
-////            {
-////                ""$schema"": ""json-schema.org"",
-////                ""$id"": ""urn:nwn:player_character"",
-////                ""title"": ""PlayerCharacter"",
-////                ""type"": ""object"",
-////                ""properties"": {
-////                    ""name"": { 
-////                        ""type"": ""string"", 
-////                        ""minLength"": 3, 
-////                        ""maxLength"": 20,
-////                        ""errorMessage"": {
-////                            ""minLength"": ""Name '${0}' is too short; it must be at least 3 characters."",
-////                            ""maxLength"": ""Name is too long; it cannot exceed 20 characters.""
-////                        }
-////                    },
-////                    ""level"": { 
-////                        ""type"": ""integer"", 
-////                        ""minimum"": 1, 
-////                        ""maximum"": 40,
-////                        ""errorMessage"": {
-////                            ""type"": ""Level must be a whole number."",
-////                            ""minimum"": ""Level ${0} is too low; the minimum is 1."",
-////                            ""maximum"": ""Level ${0} is too high; the level cap is 40.""
-////                        }
-////                    },
-////                    ""alignment"": { 
-////                        ""type"": ""string"", 
-////                        ""enum"": [""Lawful"", ""Neutral"", ""Chaotic""],
-////                        ""errorMessage"": ""Alignment must be Lawful, Neutral, or Chaotic.""
-////                    }
-////                },
-////                ""required"": [""name"", ""level""],
-////                ""errorMessage"": {
-////                    ""required"": {
-////                        ""name"": ""Please provide a character name."",
-////                        ""level"": ""You must specify a character level.""
-////                    }
-////                }
-////            }
-////        ");
-//
-//        jSchema = JsonParse(r"
-//            {
-//                ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
-//                ""$id"": ""urn:nwn:player_character"",
-//                ""title"": ""PlayerCharacter"",
-//                ""type"": ""object"",
-//                ""properties"": {
-//                    ""name"": { 
-//                        ""type"": ""string"", 
-//                        ""minLength"": 3, 
-//                        ""maxLength"": 20 
-//                    },
-//                    ""level"": { 
-//                        ""type"": ""integer"", 
-//                        ""minimum"": 1, 
-//                        ""maximum"": 40 
-//                    },
-//                    ""alignment"": { 
-//                        ""type"": ""string"", 
-//                        ""enum"": [""Lawful"", ""Neutral"", ""Chaotic""] 
-//                    }
-//                },
-//                ""required"": [""name"", ""level""]
-//            }
-//        ");
-//        jResult = NWNX_Schema_ValidateSchema(jSchema);
-//        Notice("Schema validation result: " + JsonDump(jResult, 4));
-//        NWNX_Schema_RegisterSchema(jSchema, TRUE);
-//
-//        json jInstance = JsonParse(r"
-//            {
-//                ""name"": ""Elminster"",
-//                ""level"": 35,
-//                ""alignment"": ""Neutral""
-//            }
-//        ");
-//        jResult = NWNX_Schema_ValidateInstanceByID(jInstance, "urn:nwn:player_character");
-//        Notice("Instance validation result: " + JsonDump(jResult, 4));
-//
-//        jInstance = JsonParse(r"
-//            {
-//                ""level"": 0,
-//                ""alignment"": ""Lawful""
-//            }
-//        ");
-////        jInstance = JsonParse(r"
-////            {
-////                ""name"": ""Al"",
-////                ""level"": 99,
-////                ""alignment"": ""Chaotic Evil""
-////            }
-////        ");
-//
-//        jResult = NWNX_Schema_ValidateInstanceByID(jInstance, "urn:nwn:player_character");
-//        Notice("Instance validation result (expected failure): " + JsonDump(jResult, 4));
-//
-//
-//
-//    }
-//    else if (HasChatOption(oPC, "nui"))
-//    {
-//        NWNX_Schema_RemoveSchema("urn:nwn:nui_master_schema:v1.0");
-//
-//        json j = JsonParse(ResManGetFileContents("nui_schema", RESTYPE_TXT));
-//        NWNX_Schema_RegisterSchema(j, TRUE);
-//
-//
-//        string s = "SELECT definition FROM nui_forms WHERE form = 'demo';";
-//        sqlquery q = SqlPrepareQueryCampaign("nui_form_data", s);
-//        if (SqlStep(q))
-//        {
-//            json jInstance = SqlGetJson(q, 0);
-//
-//            int t = Timer();
-//            json jResult = NWNX_Schema_ValidateInstanceByID(jInstance, "urn:nwn:nui_master_schema:v1.0");
-//            t = Timer(t);
-//            Notice("NUI Form validation result: " + JsonDump(jResult, 4));
-//            Notice("Validation took " + FloatToString(t/1000000.0) + "s.");
-//        }
+    }
+    else if (HasChatOption(oPC, "doc"))
+    {
+        // 1. Meta-Schema: A schema that defines rules for other schemas
+        // This meta-schema requires all schemas to have a "description" field.
+        json jMeta = JsonParse(r"{
+            ""$id"": ""https://example.com/meta"",
+            ""type"": ""object"",
+            ""required"": [""description""],
+            ""properties"": {
+                ""description"": { ""type"": ""string"" }
+            }
+        }");
+
+        Debug("1. Meta-Schema Registration");
+        Debug("Input: \n" + JsonDump(jMeta, 4));
+        json jMetaRes = NWNX_Schema_RegisterMetaSchema(jMeta);
+        Debug("Output: \n" + JsonDump(jMetaRes, 4));
+
+        // 1b. Meta-Schema Extension: Extending Draft 2020-12
+        // This meta-schema ensures that all schemas following it are not only valid 2020-12 schemas,
+        // but also MUST include a "title" property in their definition.
+        json jMetaExt = JsonParse(r"{
+            ""$id"": ""https://example.com/meta-extended"",
+            ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+            ""allOf"": [
+                { ""$ref"": ""https://json-schema.org/draft/2020-12/schema"" }
+            ],
+            ""required"": [""title""]
+        }");
+
+        Debug("\n1b. Meta-Schema Extension (2020-12 + title required)");
+        Debug("Input: \n" + JsonDump(jMetaExt, 4));
+        json jMetaExtRes = NWNX_Schema_RegisterMetaSchema(jMetaExt);
+        Debug("Output: \n" + JsonDump(jMetaExtRes, 4));
+
+        // 2. Schema Validation: Checks if a JSON is a valid schema and registers its $id if present.
+        // This schema follows our Meta-Schema rules (it has a description).
+        json jSchema = JsonParse(r"{
+            ""$id"": ""https://example.com/person"",
+            ""description"": ""A person schema"",
+            ""type"": ""object"",
+            ""required"": [""name""],
+            ""properties"": {
+                ""name"": { ""type"": ""string"" },
+                ""age"": { ""type"": ""integer"", ""minimum"": 0 }
+            }
+        }");
+
+        Debug("\n2. Schema Validation/Registration");
+        Debug("Input: \n" + JsonDump(jSchema, 4));
+        json jSchemaRes = NWNX_Schema_ValidateSchema(jSchema);
+        Debug("Output: \n" + JsonDump(jSchemaRes, 4));
+
+        // 2b. Schema Validation (Failing): Violates the Meta-Schema from 1b
+        // This schema is missing the "title" property required by https://example.com/meta-extended
+        json jInvalidSchema = JsonParse(r"{
+            ""$id"": ""https://example.com/invalid-person"",
+            ""$schema"": ""https://example.com/meta-extended"",
+            ""description"": ""Missing the required title field"",
+            ""type"": ""object""
+        }");
+
+        Debug("\n2b. Schema Validation (Fail - Missing 'title' property)");
+        Debug("Input: \n" + JsonDump(jInvalidSchema, 4));
+        json jInvalidSchemaRes = NWNX_Schema_ValidateSchema(jInvalidSchema);
+        Debug("Output: \n" + JsonDump(jInvalidSchemaRes, 4));
+
+        // 3. Instance Validation (Passing)
+        json jValid = JsonParse(r"{
+            ""name"": ""John Doe"",
+            ""age"": 30
+        }");
+
+        Debug("\n3. Instance Validation (Pass)");
+        Debug("Instance: \n" + JsonDump(jValid, 4));
+        json jValidRes = NWNX_Schema_ValidateInstance(jValid, jSchema);
+        Debug("Output: \n" + JsonDump(jValidRes, 4));
+
+        // 4. Instance Validation (Failing) - Demonstrating Verbosity Levels
+        json jInvalid = JsonParse(r"{
+            ""name"": 123,
+            ""age"": -5
+        }");
+
+        Debug("\n4a. Instance Validation (Fail - SILENT)");
+        json jResSilent = NWNX_Schema_ValidateInstance(jInvalid, jSchema, NWNX_SCHEMA_OUTPUT_VERBOSITY_SILENT);
+        Debug("Output: \n" + JsonDump(jResSilent, 4));
+
+        Debug("\n4b. Instance Validation (Fail - NORMAL)");
+        json jResNormal = NWNX_Schema_ValidateInstance(jInvalid, jSchema, NWNX_SCHEMA_OUTPUT_VERBOSITY_NORMAL);
+        Debug("Output: \n" + JsonDump(jResNormal, 4));
+
+        Debug("\n4c. Instance Validation (Fail - DEBUG)");
+        json jResDebug = NWNX_Schema_ValidateInstance(jInvalid, jSchema, NWNX_SCHEMA_OUTPUT_VERBOSITY_DEBUG);
+        Debug("Output: \n" + JsonDump(jResDebug, 4));
+
+        // 5. Validation By ID: Uses the cached schema registered in step 2.
+        Debug("\n5. Validation By ID (https://example.com/person)");
+        json jByIdRes = NWNX_Schema_ValidateInstanceByID(jValid, "https://example.com/person");
+        Debug("Output: \n" + JsonDump(jByIdRes, 4));
+    }
+    else if (HasChatOption(oPC, "nui"))
+    {
+        NWNX_Schema_RemoveSchema("urn:nwn:nui_master_schema:v1.0");
+
+        json j = JsonParse(ResManGetFileContents("nui_schema", RESTYPE_TXT));
+        NWNX_Schema_ValidateSchema(j, TRUE);
+
+
+        string s = "SELECT definition FROM nui_forms WHERE form = 'demo';";
+        sqlquery q = SqlPrepareQueryCampaign("nui_form_data", s);
+        if (SqlStep(q))
+        {
+            json jInstance = SqlGetJson(q, 0);
+
+            int t = Timer();
+            json jResult = NWNX_Schema_ValidateInstanceByID(jInstance, "urn:nwn:nui_master_schema:v1.0");
+            t = Timer(t);
+            Notice("NUI Form validation result: " + JsonDump(jResult, 4));
+            Notice("Validation took " + FloatToString(t/1000000.0) + "s.");
+        }
     }
     else if (HasChatOption(oPC, "schema"))
     {
         ExecuteScript("schema_test", oPC);
     }
-
 }
 
 void test_script_OnPlayerChat()

@@ -67,8 +67,8 @@ void pw_OnModuleLoad()
 
     CreateVariableTable(MODULE);
 
-    h2_SaveServerEpoch();
-    h2_RestoreSavedCalendar();
+    pw_SaveServerEpoch();
+    pw_RestoreServerTime();
     h2_SaveServerStartTime();
     h2_StartCharExportTimer();
     h2_StartSavePCLocationTimer();
@@ -96,10 +96,10 @@ void pw_OnClientEnter()
 
     int bIsDM = _GetIsDM(oPC);
 
-    if (GetStringLength(GetName(oPC)) > H2_MAX_LENGTH_PCNAME)
+    if (GetStringLength(GetName(oPC)) > PW_PC_MAX_NAME_LENGTH)
     {
         SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-        h2_BootPlayer(oPC, H2_TEXT_PCNAME_TOO_LONG);
+        pw_BootPlayer(oPC, H2_TEXT_PCNAME_TOO_LONG);
         return;
     }
 
@@ -110,28 +110,28 @@ void pw_OnClientEnter()
 //    if (sBannedByCDKey != "" || sBannedByIPAddress != "")
 //    {
 //        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-//        h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
+//        pw_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
 //        return;
 //    }
 //
 //    if (!bIsDM && h2_MaximumPlayersReached())
 //    {
 //        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-//        h2_BootPlayer(oPC, H2_TEXT_SERVER_IS_FULL, 10.0);
+//        pw_BootPlayer(oPC, H2_TEXT_SERVER_IS_FULL, 10.0);
 //        return;
 //    }
 //
 //    if (!bIsDM && GetLocalInt(MODULE, H2_MODULE_LOCKED))
 //    {
 //        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-//        h2_BootPlayer(oPC, H2_TEXT_MODULE_LOCKED, 10.0);
+//        pw_BootPlayer(oPC, H2_TEXT_MODULE_LOCKED, 10.0);
 //        return;
 //    }
 //
-//    if (!bIsDM && pw_GetPlayerState(oPC) == H2_PLAYER_STATE_RETIRED)
+//    if (!bIsDM && pw_GetCharacterState(oPC) == PW_CHARACTER_STATE_RETIRED)
 //    {
 //        SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-//        h2_BootPlayer(oPC, H2_TEXT_RETIRED_PC_BOOT, 10.0);
+//        pw_BootPlayer(oPC, H2_TEXT_RETIRED_PC_BOOT, 10.0);
 //        return;
 //    }
 //
@@ -141,7 +141,7 @@ void pw_OnClientEnter()
 //        if (registeredCharCount >= H2_REGISTERED_CHARACTERS_ALLOWED)
 //        {
 //            SetLocalInt(oPC, LOGIN_BOOT, TRUE);
-//            h2_BootPlayer(oPC, H2_TEXT_TOO_MANY_CHARS_BOOT, 10.0);
+//            pw_BootPlayer(oPC, H2_TEXT_TOO_MANY_CHARS_BOOT, 10.0);
 //            return;
 //        }
 //    }
@@ -151,7 +151,6 @@ void pw_OnClientEnter()
 //
 //    if (!bIsDM)
 //    {
-//        h2_SetPlayerID(oPC);
 //        h2_InitializePC(oPC);
 //    }
 //
@@ -179,15 +178,15 @@ void pw_OnClientLeave()
 void pw_OnPlayerDying()
 {
     object oPC = GetLastPlayerDying();
-    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_DEAD)
-        pw_SetPlayerState(oPC, H2_PLAYER_STATE_DYING);
+    if (pw_GetCharacterState(oPC) != PW_CHARACTER_STATE_DEAD)
+        pw_SetCharacterState(oPC, PW_CHARACTER_STATE_DYING);
 }
 
 void pw_OnPlayerDeath()
 {
     object oPC = GetLastPlayerDied();
     SetPlayerLocation(oPC, H2_LOCATION_LAST_DIED, GetLocation(oPC));
-    pw_SetPlayerState(oPC, H2_PLAYER_STATE_DEAD);
+    pw_SetCharacterState(oPC, PW_CHARACTER_STATE_DEAD);
     h2_RemoveEffects(oPC);
     string deathLog = GetName(oPC) + "_" + GetPCPlayerName(oPC) + H2_TEXT_LOG_PLAYER_HAS_DIED;
     deathLog += GetName(GetLastHostileActor(oPC));
@@ -201,7 +200,7 @@ void pw_OnPlayerDeath()
 void pw_OnPlayerReSpawn()
 {
     object oPC = GetLastRespawnButtonPresser();
-    pw_SetPlayerState(oPC, H2_PLAYER_STATE_ALIVE);
+    pw_SetCharacterState(oPC, PW_CHARACTER_STATE_ALIVE);
 }
 
 void pw_OnPlayerLevelUp()
@@ -281,4 +280,9 @@ void pw_SavePCLocation_OnTimerExpire()
         if (GetIsObjectValid(oPlayer) && _GetIsPC(oPlayer))
             h2_SavePCLocation(oPlayer);
     }
+}
+
+void pw_OnPlayerDeleted()
+{
+    
 }

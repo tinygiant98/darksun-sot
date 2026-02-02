@@ -336,10 +336,10 @@ void tr_KillEncounter(int nEncounterID = 0)
                     location lDestination = GetLocalLocation(oPC, TRAVEL_CREATURE_LOCATION);
                     SetLocalLocation(oCorpseToken, H2_LAST_DROP_LOCATION, lDestination);
                     oNewCorpse = CopyObject(oObject, lDestination);
-                    object oLootBag = GetLocalObject(oPC, H2_LOOT_BAG);
-                    object oNewLootBag = h2_CreateLootBag(oNewCorpse);
+                    object oLootBag = GetLocalObject(oPC, LOOT_BAG_RESREF);
+                    object oNewLootBag = loot_CreateLootBag(oNewCorpse);
                     h2_MovePossessorInventory(oLootBag, TRUE, oNewLootBag);
-                    SetLocalObject(oPC, H2_LOOT_BAG, oNewLootBag);
+                    SetLocalObject(oPC, LOOT_BAG_RESREF, oNewLootBag);
 
                     /*  TODO ALTERNATE METHOD, IF IT WORKS
                     AssignCommand(oObject, ClearAllActions());

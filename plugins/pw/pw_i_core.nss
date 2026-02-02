@@ -25,15 +25,18 @@
 
 #include "dlg_i_dialogs"
 
-const int H2_PLAYER_STATE_ALIVE = 0;
-const int H2_PLAYER_STATE_DYING = 1;
-const int H2_PLAYER_STATE_DEAD = 2;
-const int H2_PLAYER_STATE_STABLE = 3;
-const int H2_PLAYER_STATE_RECOVERING = 4;
-const int H2_PLAYER_STATE_RETIRED = 5;
+/// @todo do these belong here?
+const int PW_CHARACTER_STATE_ERROR = 0;
+const int PW_CHARACTER_STATE_ALIVE = 1;
+const int PW_CHARACTER_STATE_DYING = 2;
+const int PW_CHARACTER_STATE_DEAD = 3;
+const int PW_CHARACTER_STATE_STABLE = 4;
+const int PW_CHARACTER_STATE_RECOVERING = 5;
 
 //Returns the number of seconds elapsed since the server was started.
 int h2_GetSecondsSinceServerStart();
+
+string pw_GetSessionID();
 
 //Returns TRUE or FALSE depending on if location loc is valid.
 int h2_GetIsLocationValid(location loc);
@@ -71,7 +74,7 @@ void h2_DestroyNonDroppableItemsInInventory(object oPossessor);
 //If sMessage is not empty, the it will be send to the oPC prior to the boot.
 //The PCPlayerName of oPC and sMessage are sent to the DM channel and written to the server logs.
 //If oPC is invalid this function does nothing.
-void h2_BootPlayer(object oPC, string sMessage = "", float delay = 0.0);
+void pw_BootPlayer(object oPC, string sMessage = "", float delay = 0.0);
 
 //This function bans a player by their public CDKey.
 //It writes the ban information to the external database then boots the
@@ -114,10 +117,6 @@ void h2_SavePCAvailableFeats(object oPC);
 //Drops all henchman from oPC.
 void h2_DropAllHenchmen(object oPC);
 
-//Searchs the logged in PCs and returns the PC with the matching uniquePCID.
-//Returns OBJECT_INVALID if not found.
-object h2_FindPCWithGivenUniqueID(string uniquePCID);
-
 //Rolls a standard skill check for nSkill for oUser.
 //The return value is d20 + rank + modifiers.
 //If nBroadCastLevel = 0, only the DM channel gets the results.
@@ -133,9 +132,9 @@ void h2_SavePCLocation(object oPC);
 
 //This sets the current game calendar and time to the data and time values last saved in the
 //external database.
-void h2_RestoreSavedCalendar();
+void pw_RestoreServerTime();
 
-//Call this after the game date and time has been restored with h2_RestoreSavedCalendar.
+//Call this after the game date and time has been restored with pw_RestoreServerTime.
 //This saved the current date and time as the server start time. Used in calculated the elapsed time
 //passed for timers and various other effects.
 void h2_SaveServerStartTime();
@@ -155,11 +154,6 @@ void h2_AddPlayerDataMenuItem(string sMenuText, string sConvResRef);
 //which will survive server resets.
 void h2_CreatePlayerDataItem(object oPC);
 
-//Retrieves the next unused Unique Identifier ID for assignment to oPC.
-//The unique ID is the hexstring conversion (making it a string of length 10) of a uniquely assigned integer
-//(which even only counting positive integer values, allows for 2147483647 unique PCs over the life of your mod)
-string h2_GetNewUniquePCID();
-
 //Sends oPC to their last saved location.
 //Does nothing if oPC is invalid.
 void h2_SendPCToSavedLocation(object oPC);
@@ -178,11 +172,7 @@ void h2_InitializePC(object oPC);
 //This function is only ran if H2_STRIP_ON_FIRST_LOGIN = TRUE.
 void h2_StripOnFirstLogin(object oPC);
 
-//Checks if oPC has been assigned a uniquePCID (a hexstring based on a unique interger value)
-//If oPC does not have one, a new one is obtained and assigned.
-void h2_SetPlayerID(object oPC);
-
-//Returns TRUE if the number of non-DM PCs currently online equal the value set to H2_MAXIMUM_PLAYERS
+//Returns TRUE if the number of non-DM PCs currently online equal the value set to PW_MAX_PLAYERS
 //This function is used in determining if enough slots remain open for the DM Reserve amount.
 int h2_MaximumPlayersReached();
 
@@ -254,21 +244,60 @@ const string PW_KEY_CDKEY = "cdKey";
 const string PW_KEY_PLAYERNAME = "playerName";
 const string PW_KEY_CHARACTERNAME = "characterName";
 
-void pw_CreateTables()
+/// @brief Returns the unique session ID for the current server session.  Primarily used
+///     for server-unique data requirements, such as the audit trail/structured
+///     logging system.
+string pw_GetSessionID()
 {
-    /// @brief The following tables are persistent and reside in the campaign/on-disk
-    ///     persistent database.
+    string s = GetLocalString(GetModule(), "PW_SESSION_ID");
+    if (s == "")
+    {
+        s = GetRandomUUID();
+        SetLocalString(GetModule(), "PW_SESSION_ID", s);
+    }
 
-    //pw_BeginTransaction();
+    return s;
+}
 
-    /// @note This is unlikely to be used, but in case we want to fully remove a player
-    ///     from the database, this will allow cascading deletes.
+void pw_CreateTables(int bForce = FALSE)
+{
     pw_ExecuteCampaignQuery("PRAGMA foreign_keys = ON;");
+
+    /// @note This database schema is self-initializing, requiring no command from
+    ///     the user.  However, this may create multiple calls to create tables
+    ///     that may already exist.  Unless a force-redefinition is required, assume
+    ///     the tables have been created if the initialization variable is set or
+    ///     the table count matches the expectation.
+    /// @warning Passed bForce = TRUE will force all table creation queries to
+    ///     run, but WILL NOT overwrite current table definitions or delete any
+    ///     tables or data that currently exist.  bForce is available for testing
+    ///     and development and should not be used during production.
+    if (!bForce)
+    {
+        if (GetLocalInt(GetModule(), "PW_DATABASE_INITIALIZED") == TRUE)
+            return;
+        else
+        {
+            string s = r"
+                SELECT count(*)
+                FROM sqlite_master 
+                WHERE type = 'table' 
+                    AND name IN ('player', 'player_ip', 'player_cdkey', 'player_bans', 'character');
+            ";
+            sqlquery q = pw_PrepareCampaignQuery(s);
+            if (SqlStep(q) && SqlGetInt(q, 0) == 5)
+            {
+                SetLocalInt(GetModule(), "PW_DATABASE_INITIALIZED", TRUE);
+                return;
+            }
+        }
+    }
 
     /// @note Many of these tables have a `data` jsonb BLOB.  This is intended to carry
     ///     structured json data or, potentially, new data we did not plan for.  This
     ///     methodology prevents having to ALTER TABLE the definition and deal with
-    ///     versioning issues.
+    ///     versioning issues, but creates the burden of maintaing and modifying json-
+    ///     objects.
 
     /// @note The `player` table holds the basic information for the player (not characters).
     ///     `player` table entries are never deleted, only set to inactive (or `is_deleted` = 1).
@@ -298,25 +327,19 @@ void pw_CreateTables()
     s = r"
         CREATE TABLE IF NOT EXISTS player_ip (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            player_id INTEGER NOT NULL,
+            player_id TEXT NOT NULL COLLATE NOCASE,
             ip TEXT NOT NULL,
             first_used DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_used DATETIME DEFAULT CURRENT_TIMESTAMP,
             data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
             UNIQUE(player_id, ip),
-            FOREIGN KEY (player_id) REFERENCES player(id)
+            FOREIGN KEY (player_id) REFERENCES player(player_id)
                 ON DELETE CASCADE 
                 ON UPDATE CASCADE
         );
-    ";
-    pw_ExecuteCampaignQuery(s);
-
-    s = r"
+        
         CREATE INDEX IF NOT EXISTS idx_player_ip_ip ON player_ip(ip);
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_player_ip_player_id ON player_ip(player_id);
     ";
     pw_ExecuteCampaignQuery(s);
@@ -327,25 +350,19 @@ void pw_CreateTables()
     s = r"
         CREATE TABLE IF NOT EXISTS player_cdkey (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            player_id INTEGER NOT NULL,
+            player_id TEXT NOT NULL COLLATE NOCASE,
             cdkey TEXT NOT NULL,
             first_used DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_used DATETIME DEFAULT CURRENT_TIMESTAMP,
             data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
             UNIQUE(player_id, cdkey),
-            FOREIGN KEY (player_id) REFERENCES player(id)
+            FOREIGN KEY (player_id) REFERENCES player(player_id)
                 ON DELETE CASCADE 
                 ON UPDATE CASCADE
         );
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_player_cdkey_cdkey ON player_cdkey(cdkey);
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_player_cdkey_player_id ON player_cdkey(player_id);
     ";
     pw_ExecuteCampaignQuery(s);
@@ -357,7 +374,7 @@ void pw_CreateTables()
     s = r"
         CREATE TABLE IF NOT EXISTS player_bans (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            player_id INTEGER,
+            player_id TEXT NOT NULL COLLATE NOCASE,
             target_value TEXT NOT NULL COLLATE NOCASE,
             target_type TEXT NOT NULL COLLATE NOCASE,
             reason TEXT,
@@ -367,39 +384,25 @@ void pw_CreateTables()
             is_active INTEGER DEFAULT 1,
             data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4))
         );
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_player_bans_lookup 
         ON player_bans(target_value, target_type, is_active);
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_player_bans_player_id 
         ON player_bans(player_id) WHERE player_id IS NOT NULL;
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_player_bans_expiry 
         ON player_bans(expires_at) WHERE expires_at IS NOT NULL;
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE UNIQUE INDEX IF NOT EXISTS idx_prevent_duplicate_active_bans 
         ON player_bans(target_value, target_type) 
         WHERE is_active = 1;
     ";
-
-    s = r"
-        DROP VIEW IF EXISTS active_player_bans;
-    ";
     pw_ExecuteCampaignQuery(s);
 
     s = r"
+        DROP VIEW IF EXISTS active_player_bans;
+
         CREATE VIEW IF NOT EXISTS active_player_bans AS
         SELECT * FROM player_bans
         WHERE is_active = 1 
@@ -415,52 +418,31 @@ void pw_CreateTables()
         CREATE TABLE IF NOT EXISTS character (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             character_id TEXT UNIQUE NOT NULL,
-            player_id INTEGER NOT NULL,
+            player_id TEXT NOT NULL COLLATE NOCASE,
             name TEXT NOT NULL COLLATE NOCASE,
             first_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
             is_deleted INTEGER DEFAULT 0,
             data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4)),
-            FOREIGN KEY (player_id) REFERENCES player(id)
+            FOREIGN KEY (player_id) REFERENCES player(player_id)
                 ON DELETE CASCADE 
                 ON UPDATE CASCADE
         );
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_character_character_id ON character(character_id);
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_character_name ON character(name);
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_character_player_id ON character(player_id);
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_character_last_seen ON character(last_seen);
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_character_not_deleted ON character(is_deleted) WHERE is_deleted = 0;
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_active_character_name
         ON character(player_id, name)
         WHERE is_deleted = 0;
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE VIEW IF NOT EXISTS active_characters AS
         SELECT 
             p.name AS account_name,
@@ -468,109 +450,96 @@ void pw_CreateTables()
             c.name AS character_name,
             c.last_seen
         FROM character c
-        JOIN player p ON c.player_id = p.id
+        JOIN player p ON c.player_id = p.player_id
         WHERE c.is_deleted = 0;
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
         CREATE VIEW IF NOT EXISTS player_character_counts AS
         SELECT 
             p.name AS account_name,
             COUNT(c.id) AS active_character_count
         FROM player p
-        LEFT JOIN character c ON p.id = c.player_id AND c.is_deleted = 0
-        GROUP BY p.id;
+        LEFT JOIN character c ON p.player_id = c.player_id AND c.is_deleted = 0
+        GROUP BY p.player_id;
     ";
     pw_ExecuteCampaignQuery(s);
-    //pw_CommitTransaction();
 
     Notice("pw_CreateTables: Table Creation Complete.");
+    SetLocalInt(GetModule(), "PW_DATABASE_INITIALIZED", TRUE);
 }
 
-void pw_SetPlayerData(object oPC, string sKey, json jValue)
+void pw_DeletePlayer(object oPC)
 {
     if (!GetIsObjectValid(oPC))
         return;
 
-    if (sKey == "" || jValue == JsonNull())
-        return;
-
     string s = r"
-        INSERT INTO your_table (uuid, data) 
-        VALUES (:uuid, json_object(:key, :value))
-        ON CONFLICT(uuid) 
-        DO UPDATE SET data = json_set(data, '$.' || :key, :value);
+        DELETE FROM player
+        WHERE player_id = :player_id
+        RETURNING player_id;
     ";
-
-    sqlquery q = pw_PrepareQuery(s);
-    SqlBindString(q, ":uuid", GetObjectUUID(oPC));
-    SqlBindString(q, ":key", sKey);
-    SqlBindJson(q, ":value", jValue);
-
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, ":player_id", GetObjectUUID(oPC));
     SqlStep(q);
 }
 
-json pw_GetPlayerData(object oPC, string sKey)
+void pw_AddPlayer(object oPC)
 {
-    if (!GetIsObjectValid(oPC))
-        return JsonNull();
-
-    if (sKey == "")
-        return JsonNull();
+    if (!GetIsObjectValid(oPC) || !GetIsPC(oPC))
+        return;
 
     string s = r"
-        SELECT data -> ('$.' || :key) AS result
-        FROM your_table
-        WHERE uuid = :uuid;
+        INSERT INTO player (player_id)
+        VALUES (:player_id)
+        ON CONFLICT(player_id) DO NOTHING;
     ";
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, ":player_id", GetPCPlayerName(oPC));
+    SqlStep(q);
 
-    sqlquery q = pw_PrepareQuery(s);
-    SqlBindString(q, ":uuid", GetObjectUUID(oPC));
-    SqlBindString(q, ":key", sKey);
-
-    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
+    RunEvent("MODULE_EVENT_ON_PLAYER_REGISTERED", oPC);
 }
 
-void pw_DeletePlayerData(object oPC, string sKey)
+void pw_AddCharacter(object oPC)
 {
-    if (!GetIsObjectValid(oPC))
-        return;
-
-    if (sKey == "")
+    if (!GetIsObjectValid(oPC) || !GetIsPC(oPC))
         return;
 
     string s = r"
-        UPDATE your_table
-        SET data = json_remove(data, '$.' || :key)
-        WHERE uuid = :uuid;
+        INSERT INTO character (character_id, player_id, name)
+        VALUES (:character_id, :player_id, :name)
+        ON CONFLICT(character_id) DO NOTHING;
     ";
-
-    sqlquery q = pw_PrepareQuery(s);
-    SqlBindString(q, ":uuid", GetObjectUUID(oPC));
-    SqlBindString(q, ":key", sKey);
-
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, ":character_id", GetObjectUUID(oPC));
+    SqlBindString(q, ":player_id", GetPCPlayerName(oPC));
+    SqlBindString(q, ":name", GetName(oPC));
     SqlStep(q);
+
+    RunEvent("MODULE_EVENT_ON_CHARACTER_REGISTERED", oPC);
 }
 
 //This function saves the server start time before it is modified by any other functions.  It is called
 //  on module load before any other functions.  Calling this function after the server time has been
 //  modified by any other function will result in erroreous results for any calculation that uses
 //  the server epoch.  The following five functions are not original to HCR2.
-void h2_SaveServerEpoch()
+void pw_SaveServerEpoch()
 {
-    SetModuleString(H2_EPOCH, GetSystemTime());
+    SetModuleString(PW_SERVER_EPOCH, GetSystemTime());
 }
 
-string h2_GetServerEpoch()
+string pw_GetServerEpoch()
 {
-    return GetModuleString(H2_EPOCH);
+    return GetModuleString(PW_SERVER_EPOCH);
 }
 
-string h2_GetTimeSinceServerStart()
+string pw_GetTimeSinceServerStart()
 {
-    //string sTime = GetModuleString(H2_SERVER_START_TIME);
-    return GetSystemTimeDifference(h2_GetServerEpoch());
+    return GetSystemTimeDifference(pw_GetServerEpoch());
+}
+
+int pw_GetSecondsSinceServerStart()
+{
+    return FloatToInt(GetSystemTimeDifferenceIn(TIME_SECONDS, pw_GetServerEpoch()));
 }
 
 /// @todo THere's probably better methods than this nowadays.  Get something better.
@@ -659,7 +628,7 @@ void h2_DestroyNonDroppableItemsInInventory(object oPossessor)
     }
 }
 
-void h2_BootPlayer(object oPC, string sMessage = "", float delay = 0.0)
+void pw_BootPlayer(object oPC, string sMessage = "", float fDelay = 0.0)
 {
     if (!GetIsObjectValid(oPC))
         return;
@@ -667,10 +636,7 @@ void h2_BootPlayer(object oPC, string sMessage = "", float delay = 0.0)
     if (sMessage != "")
         SendMessageToPC(oPC, sMessage);
 
-    string sAdminMessage = GetPCPlayerName(oPC) + " BOOTED: " + sMessage;
-    SendMessageToAllDMs(sAdminMessage);
-    Debug(sAdminMessage);
-    DelayCommand(delay, BootPC(oPC, sMessage));
+    DelayCommand(fDelay, BootPC(oPC, sMessage));
     SetEventState(EVENT_STATE_DENIED);
 }
 
@@ -678,11 +644,9 @@ void h2_BanPlayerByCDKey(object oPC)
 {
     string sMessage = GetName(oPC) + "_" + GetPCPlayerName(oPC) + " banned by: " + GetName(OBJECT_SELF) + "_" + GetPCPlayerName(OBJECT_SELF);
 
-    // TODO
-    //SetDatabaseString(H2_BANNED_PREFIX + GetPCPublicCDKey(oPC), sMessage);
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
-    h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
+    pw_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
 }
 
 void h2_BanPlayerByIPAddress(object oPC)
@@ -693,7 +657,7 @@ void h2_BanPlayerByIPAddress(object oPC)
     //SetDatabaseString(H2_BANNED_PREFIX + GetPCIPAddress(oPC), sMessage);
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
-    h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
+    pw_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
 }
 
 void h2_RemoveEffects(object oCreature)
@@ -1275,19 +1239,6 @@ void h2_DropAllHenchmen(object oPC)
     }
 }
 
-object h2_FindPCWithGivenUniqueID(string uniquePCID)
-{
-    int i, nCount = CountObjectList(MODULE, PLAYER_ROSTER);
-    for (i = 0; i < nCount; i++)
-    {
-        object oPC = GetListObject(MODULE, i, PLAYER_ROSTER);
-        if (uniquePCID == GetPlayerString(oPC, H2_UNIQUE_PC_ID))
-            return oPC;
-    }
-
-    return OBJECT_INVALID;
-}
-
 int h2_SkillCheck(int nSkill, object oUser, int nBroadCastLevel = 1)
 {
     int nRank = GetSkillRank(nSkill, oUser);
@@ -1336,10 +1287,19 @@ int h2_SkillCheck(int nSkill, object oUser, int nBroadCastLevel = 1)
     return nRank + nRoll;
 }
 
-void h2_SaveCurrentCalendar()
+void pw_SaveServerTime()
 {
-    // TODO
-    //SetDatabaseString(H2_SERVER_TIME, GetSystemTime());
+    SetDatabaseString(PW_SERVER_TIME, GetSystemTime());
+}
+
+void pw_RestoreServerTime()
+{
+    string sTime = GetDatabaseString(PW_SERVER_TIME);
+
+    if (sTime == "")
+        pw_SaveServerTime();
+    else
+        _SetCalendar(sTime, TRUE, TRUE);
 }
 
 void h2_SavePCLocation(object oPC)
@@ -1350,16 +1310,7 @@ void h2_SavePCLocation(object oPC)
     SetPlayerLocation(oPC, H2_PC_SAVED_LOC, GetLocation(oPC));
 }
 
-void h2_RestoreSavedCalendar()
-{
-    // TODO
-    /*
-    string sTime = GetDatabaseString(H2_SERVER_TIME);
 
-    if (sTime != "")
-        _SetCalendar(sTime, TRUE, TRUE);
-    */
-}
 
 void h2_SaveServerStartTime()
 {
@@ -1403,20 +1354,6 @@ void h2_StartSavePCLocationTimer()
     }
 }
 
-// TODO swap to sm database
-string h2_GetNewUniquePCID()
-{
-    // TODO
-    /*
-    int nextID = GetDatabaseInt(H2_NEXT_UNIQUE_PC_ID);
-    string id = IntToHexString(nextID);
-
-    SetDatabaseInt(H2_NEXT_UNIQUE_PC_ID, ++nextID);
-    return id;
-    */
-    return "";
-}
-
 void h2_SendPCToSavedLocation(object oPC)
 {
     if (!GetIsObjectValid(oPC))
@@ -1432,35 +1369,6 @@ void h2_SendPCToSavedLocation(object oPC)
             SendMessageToPC(oPC, H2_TEXT_SEND_TO_SAVED_LOC);
             DelayCommand(H2_CLIENT_ENTER_JUMP_DELAY, AssignCommand(oPC, ActionJumpToLocation(savedLocation)));
         }
-    }
-}
-
-void h2_SetPlayerID(object oPC)
-{
-    string uniquepcid = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
-    string fullpcname = GetName(oPC) + "_" + GetPCPlayerName(oPC);
-    if (uniquepcid == "")
-    {
-        uniquepcid = h2_GetNewUniquePCID();
-        SetPlayerString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
-        // TODO
-        //SetDatabaseString(uniquepcid, fullpcname);
-    }
-    else
-    {
-        // TODO
-        /*
-        string storedName = GetDatabaseString(uniquepcid);
-        if (storedName != fullpcname)
-        {
-            string sMessage = fullpcname + H2_WARNING_INVALID_PLAYERID + storedName + H2_WARNING_ASSIGNED_NEW_PLAYERID;
-            Debug(sMessage);
-            SendMessageToAllDMs(sMessage);
-            uniquepcid = h2_GetNewUniquePCID();
-            SetPlayerString(oPC, H2_UNIQUE_PC_ID, uniquepcid);
-            SetDatabaseString(uniquepcid, fullpcname);
-        }
-        */
     }
 }
 
@@ -1483,31 +1391,30 @@ void h2_RegisterPC(object oPC)
     RunEvent(PW_EVENT_ON_CHARACTER_REGISTRATION, oPC);
 }
 
-/// @todo
-///     move to util_i_data or something?
-string util_GetFilenameFromMacro(string sFile)
+/// @brief Set a player-character's state.
+/// @param oPC Player-character object to change state for.
+/// @param nDesiredState Desired new state: PW_CHARACTER_STATE_*.
+/// @note If the character's state is change to PW_CHARACTER_STATE_ALIVE,
+///     the module-level event H2_EVENT_ON_PLAYER_LIVES is triggered.
+int pw_SetCharacterState(object oPC, int nDesiredState)
 {
-    return GetStringLeft(sFile, GetStringLength(sFile) - 4);
+    int nCurrentState = GetPlayerInt(oPC, PW_CHARACTER_STATE);
+    if (nDesiredState == nCurrentState)
+        return nCurrentState;
+
+    SetPlayerInt(oPC, PW_CHARACTER_STATE, nDesiredState);
+    if (nDesiredState == PW_CHARACTER_STATE_ALIVE)
+        RunEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC);
+
+    return nDesiredState;
 }
 
-int pw_SetPlayerState(object oPC, int nState)
+/// @brief Get the current state of a player-character.
+/// @param oPC Player-character object to retrieve state for.
+/// @returns State constant PW_CHARACTER_STATE_*.
+int pw_GetCharacterState(object oPC)
 {
-    string sFile = util_GetFilenameFromMacro("pw_i_core.nss");
-    if (GetConstantName("H2_PLAYER_STATE", JsonInt(nState), FALSE, sFile) != "")
-    {
-        SetPlayerInt(oPC, H2_PLAYER_STATE, nState);
-        if (nState == H2_PLAYER_STATE_ALIVE)
-            RunEvent(H2_EVENT_ON_PLAYER_LIVES, oPC, oPC);
-            
-        return nState;
-    }
-    else
-        return -1;
-}
-
-int pw_GetPlayerState(object oPC)
-{
-    return GetPlayerInt(oPC, H2_PLAYER_STATE);
+    return GetPlayerInt(oPC, PW_CHARACTER_STATE);
 }
 
 void h2_InitializePC(object oPC)
@@ -1515,7 +1422,7 @@ void h2_InitializePC(object oPC)
     SetPlotFlag(oPC, FALSE);
     SetImmortal(oPC, FALSE);
 
-    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_ALIVE)
+    if (pw_GetCharacterState(oPC) != PW_CHARACTER_STATE_ALIVE)
     {
         SetPlayerInt(oPC, H2_LOGIN_DEATH, TRUE);
         h2_MovePossessorInventory(oPC, TRUE);
@@ -1594,7 +1501,7 @@ void h2_StripOnFirstLogin(object oPC)
 /// @todo Need convenience functions for rosters and other containers
 int h2_MaximumPlayersReached()
 {
-    return (H2_MAXIMUM_PLAYERS > 0 && CountObjectList(GetModule(), PLAYER_ROSTER) >= H2_MAXIMUM_PLAYERS);
+    return (PW_MAX_PLAYERS > 0 && CountObjectList(GetModule(), PLAYER_ROSTER) >= PW_MAX_PLAYERS);
 }
 
 /// @todo can we do this with json?  yes, see pw_SetPlayerData()
@@ -1673,7 +1580,7 @@ void h2_MakePCRest(object oPC)
     h2_SavePCAvailableFeats(oPC);
     DelayCommand(1.0, AssignCommand(oPC, ActionRest(TRUE)));
 }
-
+/// @todo should this go into the hcr2 rest plugin?
 void h2_LimitPostRestHeal(object oPC, int postRestHealAmt)
 {
     int savedHP = GetPlayerInt(oPC, H2_PLAYER_HP);
@@ -1686,7 +1593,7 @@ void h2_LimitPostRestHeal(object oPC, int postRestHealAmt)
     }
 }
 
-int AssignRole(object oPC)
+int pw_AssignRole(object oPC)
 {
     DeletePlayerInt(oPC, IS_PC);
     DeletePlayerInt(oPC, IS_DM);

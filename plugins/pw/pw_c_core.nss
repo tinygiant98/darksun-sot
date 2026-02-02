@@ -4,22 +4,27 @@
 /// @brief  Persistent World System (configuration).
 /// ----------------------------------------------------------------------------
 
-//The combined length of any player-controlled character's first and last name must
-//  not exceed this value.  Player-controlled characters include player-characters
-//  and Dungeon Masters.  This check is accomplished before OnClientEnter hook scripts
-//  are run.  If the name length exceeds this value, the player is booted.  If booted,
-//  neither the OnClientEnter or OnClientLeave events are triggered.  The purpose of
-//  this restriction is to prevent ultra-long-name-based message flood exploits.
-//Default Value: 40
-const int H2_MAX_LENGTH_PCNAME = 40;
+/// @note Acknowledgement.  Configuration values here are based largely on Edward
+///     Beck's HCR2 setup.  The names of the constants have been changed to
+///     conform to the Persistent World naming conventions, but the values and
+///     purpose remain the same as in HCR2.
 
-//This value controls the number of slots on the server available for player characters.
-//  Setting this number to a value greater than 0 and a value less that the maximum
-//  allowed players on the server (nwserver) will allow "always available" DM slots.
-//  If a player logs in and this value is exceeded, that player will be booted.  A value
-//  of 0 means there are no reserved DM slots.  DM PCs do not count against this total.
-//Default value: 0
-const int H2_MAXIMUM_PLAYERS = 0;
+/// @brief The maximum length for a player-controlled character's name.  This restriction
+///     applies only to player-controlled characters, not dungeon masters.  Set this
+///     value to the maximum allowed length for a PC's name, including both first and
+///     last names.
+/// @note This check is accomplished before OnClientEnter hook scripts are run.
+///     If the name length exceeds this value, the player is booted.  If booted,
+///     neither the OnClientEnter or OnClientLeave events are triggered.
+const int PW_PC_MAX_NAME_LENGTH = 40;
+
+/// @brief The maximum number of players allowed on the server, excluding DM PCs.
+///     Setting this value to 0 means there is no limit beyond what the server
+///     itself allows.
+/// @note If this value is greater than 0, and the number of non-DM PCs exceeds
+///     this value when a new player attempts to log in, that player will be
+///     booted.
+const int PW_MAX_PLAYERS = 0;
 
 //This value controls whether a non-DM PC's location is periodically saved.
 //Default value: TRUE
@@ -39,6 +44,7 @@ const float H2_SAVE_PC_LOCATION_TIMER_INTERVAL = 180.0;
 //Default value: FALSE
 const int H2_STRIP_ON_FIRST_LOGIN = FALSE;
 
+/// @todo remove and use events instead...
 //Set this value to the interval duration in seconds that you want to export all characters.
 //You should only change this value if you are using a server vault.
 //Recommended settings are from 30.0 (seconds) to 300.0 (five minutes)

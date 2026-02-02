@@ -40,7 +40,7 @@ void h2_DeityRez(object oPC)
 
     ApplyEffectToObject(DURATION_TYPE_INSTANT, eRes, oPC);
     ApplyEffectToObject(DURATION_TYPE_INSTANT, eHeal, oPC);
-    pw_SetPlayerState(oPC, H2_PLAYER_STATE_ALIVE);
+    pw_SetCharacterState(oPC, PW_CHARACTER_STATE_ALIVE);
     SendMessageToPC(oPC, H2_TEXT_DEITY_REZZED);
     
     string deityRez = GetName(oPC) + "_" + GetPCPlayerName(oPC) + H2_TEXT_DM_DEITY_REZZED + GetDeity(oPC);
@@ -101,7 +101,7 @@ void deity_OnPlayerDeath()
     object oPC = GetLastPlayerDied();
 
     //if some other death subsystem set the player state back to alive before this one, no need to continue
-    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_DEAD)
+    if (pw_GetCharacterState(oPC) != PW_CHARACTER_STATE_DEAD)
         return;
 
     if (h2_CheckForDeityRez(oPC))

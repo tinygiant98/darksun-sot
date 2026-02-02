@@ -152,7 +152,7 @@ const string H2_REGISTERED_CHAR_SUFFIX = "_RC#";
 const string H2_REGISTERED = "H2_REGISTERED";
 
 const string H2_PLAYER_COUNT = "H2_PLAYER_COUNT";
-const string H2_PLAYER_STATE = "H2_PLAYERSTATE";
+const string PW_CHARACTER_STATE = "PW_CHARACTER_STATE";
 
 const string H2_CONVERSATION_RESREF = "ConversationResRef";
 const string H2_PLAYER_DATA_ITEM = "util_playerdata";
@@ -199,9 +199,9 @@ const string H2_SERVER_START_DAY = "H2_SERVER_START_DAY";
 const string H2_SERVER_START_HOUR = "H2_SERVER_START_HOUR";
 const string H2_SERVER_START_MINUTE = "H2_SERVER_START_MINUTE";
 
-const string H2_SERVER_TIME = "H2_SERVER_TIME";
+const string PW_SERVER_TIME = "PW_SERVER_TIME";
 const string H2_SERVER_START_TIME = "H2_SERVER_START_TIME";
-const string H2_EPOCH = "H2_EPOCH";
+const string PW_SERVER_EPOCH = "PW_SERVER_EPOCH";
 
 const string H2_EVENT_ON_PLAYER_LIVES = "OnPlayerLives";
 

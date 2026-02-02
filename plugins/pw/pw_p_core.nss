@@ -5,8 +5,60 @@
 /// ----------------------------------------------------------------------------
 
 #include "util_i_library"
+#include "util_i_argstack"
 #include "core_i_framework"
 #include "pw_e_core"
+
+/// @brief Library function to set character state.
+/// @note Before calling this function, the following values must be
+///     pushed onto the argument stack:
+///         oPC (object) - The player-character object whose state is to be changed.
+///         nDesiredState (int) - The desired character state PW_CHARACTER_STATE_*.
+/// @note This function pushes the following value onto the argument stack:
+///         nCurrentState (int) - The current state of the player-character object
+///             after nDesiredState has been applied.
+/// @warning Calling functions must use PopInt() to retrieve the current state in
+///     order to clear the argument stack.
+/// @returns The current character state, or PW_CHARACTER_STATE_ERROR on error.
+void SetCharacterState()
+{
+    object oPC = PopObject();
+    if (!GetIsObjectValid(oPC) || GetIsDM(oPC))
+    {
+        PushInt(PW_CHARACTER_STATE_ERROR);
+        return;
+    }
+
+    int nDesiredState = PopInt();
+    if (nDesiredState < PW_CHARACTER_STATE_ALIVE || nDesiredState > PW_CHARACTER_STATE_STABLE)
+    {
+        PushInt(PW_CHARACTER_STATE_ERROR);
+        return;
+    }
+
+    PushInt(pw_SetCharacterState(oPC, nDesiredState));
+}
+
+/// @brief Library function to retrieve a character state.
+/// @note Before calling this function, the following value must be
+///     pushed onto the argument stack:
+///         oPC (object) - The player-character object whose state is to be retrieved.
+/// @note This function pushes the following value onto the argument stack:
+///         nCurrentState (int) - The current state of the player-character object.
+/// @warning Calling functions must use PopInt() to retrieve the current state in
+///     order to clear the argument stack.
+/// @returns The current character state, or PW_CHARACTER_STATE_ERROR on error.
+void GetCharacterState()
+{
+    object oPC = PopObject();
+    if (!GetIsObjectValid(oPC) || GetIsDM(oPC))
+    {
+        PushInt(PW_CHARACTER_STATE_ERROR);
+        return;
+    }
+
+    PushInt(pw_GetCharacterState(oPC));
+}
 
 // -----------------------------------------------------------------------------
 //                           Library Definition
@@ -56,6 +108,10 @@ void OnLibraryLoad()
         RegisterLibraryScript("pw_SavePCLocation_OnTimerExpire", n++);
         RegisterLibraryScript("pw_ExportPCs_OnTimerExpire",      n++);
 
+        n = 200;
+        RegisterLibraryScript("SetCharacterState", n++);
+        RegisterLibraryScript("GetCharacterState", n++);
+
         LoadLibrariesByPattern("pw_p_*");
     }
 }
@@ -90,6 +146,12 @@ void OnLibraryScript(string sScript, int nEntry)
             if      (nEntry == n++) pw_SavePCLocation_OnTimerExpire();
             else if (nEntry == n++) pw_ExportPCs_OnTimerExpire();
         } break;
+
+        case 200:
+        {
+            if      (nEntry == n++) SetCharacterState();
+            else if (nEntry == n++) GetCharacterState();
+        }
 
         default: CriticalError("[" + __FILE__ + "]: Library function " + sScript + " not found; nEntry = " + IntToString(nEntry) + ")");
     }

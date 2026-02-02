@@ -152,7 +152,7 @@ const string H2_REGISTERED_CHAR_SUFFIX = "_RC#";
 const string H2_REGISTERED = "H2_REGISTERED";
 
 const string H2_PLAYER_COUNT = "H2_PLAYER_COUNT";
-const string H2_PLAYER_STATE = "H2_PLAYERSTATE";
+const string PW_CHARACTER_STATE = "H2_PLAYERSTATE";
 
 
 const string H2_CONVERSATION_RESREF = "ConversationResRef";

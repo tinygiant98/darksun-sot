@@ -76,10 +76,6 @@ void _DestroyObject(object oObject)
     
     string sTag = GetTag(oObject);
 
-    //Check for the one ring
-    if (sTag == "one_ring" || sTag == "unided_ring")
-        RunLibraryScript("PlaceOneRing", GetModule());
-
     //If the object is a placeable, destroy it's inventory
     if (GetObjectType(oObject) == OBJECT_TYPE_PLACEABLE)
     {

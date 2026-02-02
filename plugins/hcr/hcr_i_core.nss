@@ -64,7 +64,7 @@ void h2_DestroyNonDroppableItemsInInventory(object oPossessor);
 //If sMessage is not empty, the it will be send to the oPC prior to the boot.
 //The PCPlayerName of oPC and sMessage are sent to the DM channel and written to the server logs.
 //If oPC is invalid this function does nothing.
-void h2_BootPlayer(object oPC, string sMessage = "", float delay = 0.0);
+void pw_BootPlayer(object oPC, string sMessage = "", float delay = 0.0);
 
 //This function bans a player by their public CDKey.
 //It writes the ban information to the external database then boots the
@@ -171,11 +171,7 @@ void h2_InitializePC(object oPC);
 //This function is only ran if H2_STRIP_ON_FIRST_LOGIN = TRUE.
 void h2_StripOnFirstLogin(object oPC);
 
-//Checks if oPC has been assigned a uniquePCID (a hexstring based on a unique interger value)
-//If oPC does not have one, a new one is obtained and assigned.
-void h2_SetPlayerID(object oPC);
-
-//Returns TRUE if the number of non-DM PCs currently online equal the value set to H2_MAXIMUM_PLAYERS
+//Returns TRUE if the number of non-DM PCs currently online equal the value set to PW_MAX_PLAYERS
 //This function is used in determining if enough slots remain open for the DM Reserve amount.
 int h2_MaximumPlayersReached();
 
@@ -247,17 +243,17 @@ void h2_LimitPostRestHeal(object oPC, int postRestHealAmt);
 //  on module load before any other functions.  Calling this function after the server time has been
 //  modified by any other function will result in erroreous results for any calculation that uses
 //  the server epoch.  The following five functions are not original to HCR2.
-void h2_SaveServerEpoch()
+void pw_SaveServerEpoch()
 {
     SetModuleString(H2_EPOCH, GetSystemTime());
 }
 
-string h2_GetServerEpoch()
+string pw_GetServerEpoch()
 {
     return GetModuleString(H2_EPOCH);
 }
 
-string h2_GetTimeSinceServerStart()
+string pw_GetTimeSinceServerStart()
 {
     string sTime = GetModuleString(H2_SERVER_START_TIME);
     return GetSystemTimeDifference(sTime);
@@ -365,7 +361,7 @@ void h2_DestroyNonDroppableItemsInInventory(object oPossessor)
     }
 }
 
-void h2_BootPlayer(object oPC, string sMessage = "", float delay = 0.0)
+void pw_BootPlayer(object oPC, string sMessage = "", float delay = 0.0)
 {
     if (!GetIsObjectValid(oPC))
         return;
@@ -388,7 +384,7 @@ void h2_BanPlayerByCDKey(object oPC)
     //SetDatabaseString(H2_BANNED_PREFIX + GetPCPublicCDKey(oPC), sMessage);
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
-    h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
+    pw_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
 }
 
 void h2_BanPlayerByIPAddress(object oPC)
@@ -399,7 +395,7 @@ void h2_BanPlayerByIPAddress(object oPC)
     //SetDatabaseString(H2_BANNED_PREFIX + GetPCIPAddress(oPC), sMessage);
     SendMessageToAllDMs(sMessage);
     Debug(sMessage);
-    h2_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
+    pw_BootPlayer(oPC, H2_TEXT_YOU_ARE_BANNED);
 }
 
 void h2_RemoveEffects(object oCreature)
@@ -1126,12 +1122,6 @@ void h2_SendPCToSavedLocation(object oPC)
     }
 }
 
-/// @todo no reason not to use UUIDs.
-void h2_SetPlayerID(object oPC)
-{
-    GetObjectUUID(oPC);
-}
-
 string h2_GetPlayerID(object oPC)
 {
     return GetObjectUUID(oPC);
@@ -1158,7 +1148,7 @@ void h2_InitializePC(object oPC)
     SetPlotFlag(oPC, FALSE);
     SetImmortal(oPC, FALSE);
 
-    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_ALIVE)
+    if (pw_GetCharacterState(oPC) != PW_CHARACTER_STATE_ALIVE)
     {
         SetPlayerInt(oPC, H2_LOGIN_DEATH, TRUE);
         h2_MovePossessorInventory(oPC, TRUE);
@@ -1233,7 +1223,7 @@ void h2_StripOnFirstLogin(object oPC)
 
 int h2_MaximumPlayersReached()
 {
-    return (H2_MAXIMUM_PLAYERS > 0 && CountObjectList(GetModule(), PLAYER_ROSTER) >= H2_MAXIMUM_PLAYERS);
+    return (PW_MAX_PLAYERS > 0 && CountObjectList(GetModule(), PLAYER_ROSTER) >= PW_MAX_PLAYERS);
 }
 
 void h2_SavePersistentPCData(object oPC)
@@ -1323,7 +1313,7 @@ void h2_LimitPostRestHeal(object oPC, int postRestHealAmt)
     }
 }
 
-int AssignRole(object oPC)
+int pw_AssignRole(object oPC)
 {
     DeletePlayerInt(oPC, IS_PC);
     DeletePlayerInt(oPC, IS_DM);

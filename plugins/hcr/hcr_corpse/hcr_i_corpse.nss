@@ -10,9 +10,10 @@
 ///     created unintended consequences if used in the corpse system.
 
 #include "x2_inc_switches"
-#include "hcr_c_corpse"
-#include "hcr_i_core"
 #include "x0_i0_position"
+
+#include "hcr_c_corpse"
+#include "pw_i_core"
 
 // -----------------------------------------------------------------------------
 //                                   Constants
@@ -37,18 +38,18 @@ const string H2_CORPSE_TOKEN = "H2_CORPSE_TOKEN";
 /// @brief Move a dead character's corpse copy and clean up the death corpse
 ///     container whenever oCorpseToken is picked up by a PC.
 /// @param oCorpseToken The corpse token item being picked up.
-void h2_PickUpPlayerCorpse(object oCorpseToken);
+void corpse_PickUpCorpse(object oCorpseToken);
 
 /// @brief Move a dead character's corpse copy and create the death corpse
 ///     container whenever oCorpseToken is dropped by a PC.
 /// @param oCorpseToken The corpse token item being dropped.
-void h2_DropPlayerCorpse(object oCorpseToken);
+void corpse_DropCorpse(object oCorpseToken);
 
 /// @brief Handles the creation of the corpse copy of oPC, creation of the death
 ///     corpse container, and the token item used to move the corpse copy around by
 ///     other players when a character dies.
 /// @param oPC The player character that has died.
-void h2_CreatePlayerCorpse(object oPC);
+void corpse_CreateCorpse(object oPC);
 
 /// @brief Handle raising or ressurrection of a player character when a corpse
 ///     token is activated on an NPC target.
@@ -83,7 +84,7 @@ void h2_PerformOffLineRessurectionLogin(object oPC, location l);
 //                        Private Function Definitions
 // -----------------------------------------------------------------------------
 
-void h2_PickUpPlayerCorpse(object oCorpseToken)
+void corpse_PickUpCorpse(object oCorpseToken)
 {
     string uniquePCID = GetLocalString(oCorpseToken, H2_DEAD_PLAYER_ID);
     object oDC = GetObjectByTag(H2_CORPSE + uniquePCID);
@@ -96,7 +97,7 @@ void h2_PickUpPlayerCorpse(object oCorpseToken)
     }
 }
 
-void h2_DropPlayerCorpse(object oCorpseToken)
+void corpse_DropCorpse(object oCorpseToken)
 {
     string uniquePCID = GetLocalString(oCorpseToken, H2_DEAD_PLAYER_ID);
     object oDeathCorpse, oDC = GetObjectByTag(H2_CORPSE + uniquePCID);
@@ -116,7 +117,7 @@ void h2_DropPlayerCorpse(object oCorpseToken)
     DestroyObject(oCorpseToken);
 }
 
-void h2_CreatePlayerCorpse(object oPC)
+void corpse_CreateCorpse(object oPC)
 {
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     
@@ -257,7 +258,7 @@ void h2_RaiseSpellCastOnCorpseToken(int nSpellID, object oToken = OBJECT_INVALID
     if (GetIsObjectValid(oPC) && _GetIsPC(oPC))
     {
         SendMessageToPC(oPC, H2_TEXT_YOU_HAVE_BEEN_RESSURECTED);
-        pw_SetPlayerState(oPC, H2_PLAYER_STATE_ALIVE);
+        pw_SetCharacterState(oPC, PW_CHARACTER_STATE_ALIVE);
         AssignCommand(oPC, JumpToLocation(castLoc));
         sMessage += GetName(oPC) + "_" + GetPCPlayerName(oPC);
     }
@@ -284,7 +285,7 @@ void h2_PerformOffLineRessurectionLogin(object oPC, location l)
     /*
     string uniquePCID = GetPlayerString(oPC, H2_UNIQUE_PC_ID);
     DeleteDatabaseVariable(uniquePCID + H2_RESS_LOCATION);
-    pw_SetPlayerState(oPC, H2_PLAYER_STATE_ALIVE);
+    pw_SetCharacterState(oPC, PW_CHARACTER_STATE_ALIVE);
     SendMessageToPC(oPC, H2_TEXT_YOU_HAVE_BEEN_RESSURECTED);
     DelayCommand(H2_CLIENT_ENTER_JUMP_DELAY, AssignCommand(oPC, JumpToLocation(l)));
     if (H2_APPLY_XP_LOSS_FOR_RESS && !GetDatabaseInt(uniquePCID + H2_RESS_BY_DM))
@@ -358,7 +359,7 @@ void corpse_OnClientLeave()
         {
             location lLastDrop = GetLocalLocation(oItem, H2_LAST_DROP_LOCATION);
             object oNewToken = CopyObject(oItem, lLastDrop);
-            h2_DropPlayerCorpse(oNewToken);
+            corpse_DropCorpse(oNewToken);
         }
 
         oItem = GetNextItemInInventory(oPC);
@@ -370,14 +371,14 @@ void corpse_OnPlayerDeath()
     object oPC = GetLastPlayerDied();
     object oArea = GetArea(oPC);
 
-    if (pw_GetPlayerState(oPC) != H2_PLAYER_STATE_DEAD)
+    if (pw_GetCharacterState(oPC) != PW_CHARACTER_STATE_DEAD)
         return;
 
     if (GetLocalInt(oArea, H2_DO_NOT_CREATE_CORPSE_IN_AREA))
         return;
         
     if (!GetPlayerInt(oPC, H2_LOGIN_DEATH))
-        h2_CreatePlayerCorpse(oPC);
+        corpse_CreateCorpse(oPC);
 }
 
 void corpse_OnPlayerLives()
@@ -427,14 +428,14 @@ void corpse_pccorpseitem()
     else if (nEvent == X2_ITEM_EVENT_ACQUIRE)
     {
         oItem = GetModuleItemAcquired();
-        h2_PickUpPlayerCorpse(oItem);
+        corpse_PickUpCorpse(oItem);
     }
     else if (nEvent == X2_ITEM_EVENT_UNACQUIRE)
     {
         oItem = GetModuleItemLost();
         object oPossessor = GetItemPossessor(oItem);
         if (oPossessor == OBJECT_INVALID)
-            h2_DropPlayerCorpse(oItem);
+            corpse_DropCorpse(oItem);
         else if (GetObjectType(oPossessor) == OBJECT_TYPE_PLACEABLE)
         {
             oPC = GetModuleItemLostBy();
