@@ -174,11 +174,11 @@
   },
   "Tag": {
     "type": "cexostring",
-    "value": "h2_lootbag"
+    "value": "loot_lootbag"
   },
   "TemplateResRef": {
     "type": "resref",
-    "value": "h2_lootbag"
+    "value": "loot_lootbag"
   },
   "TrapDetectable": {
     "type": "byte",
