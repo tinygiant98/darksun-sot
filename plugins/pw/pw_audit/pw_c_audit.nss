@@ -17,6 +17,8 @@ const int AUDIT_ENABLE_SYSTEM = TRUE;
 /// @brief This setting determines the time, in real-world seconds, between
 ///     automatic syncs of audit data from the module's volatile sqlite
 ///     database to the persistent on-disk database.
+/// @note The flush timer will not run if no record are present in the
+///     record buffer.
 const float AUDIT_FLUSH_INTERVAL = 60f;
 
 /// @brief This setting determines the chunk size, in number of audit records,
@@ -29,7 +31,16 @@ const int AUDIT_FLUSH_CHUNK_SIZE = 250;
 ///     this period, records will be automatically purged from the audit trail.
 /// @note To keep a permanent record of a specific event, set its expiry to
 ///     NULL when creating the audit record.
-const string AUDIT_EXPIRY_DEFAULT_MODIFIER = "+30 days";
+const string AUDIT_EXPIRY_DEFAULT_MODIFIER = "+30 days,start of day";
+
+/// @brief Determines whether the audit system requires NWNX to function.  If
+///     NWNX's schema plugin is not available, the audit system will assume
+///     all schema and instances provided by users is valid, which can lead to
+///     undefined behavior. This setting *should* always be TRUE unless in
+///     testing and development.
+/// @warning If this setting is TRUE and NWNX is not available, no audit system
+///     functionality will be available.
+const int AUDIT_REQUIRE_NWNX = TRUE;
 
 /// @brief Keywords that indicate an audit record should be permanent (i.e.,
 ///     never expire).  Any record containing these keywords will not be purged.
@@ -37,6 +48,7 @@ json AUDIT_EXPIRY_PERMANENT_KEYWORDS = JsonParse(r"
     [
         ""permanent"",
         ""forever"",
+        ""none"",
         ""never"",
         ""null"",
         ""no""

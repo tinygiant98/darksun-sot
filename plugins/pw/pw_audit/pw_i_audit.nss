@@ -5,12 +5,13 @@
 /// ----------------------------------------------------------------------------
 
 #include "pw_c_audit"
-#include "pw_i_sql"
+#include "pw_i_core"
 #include "util_i_strings"
 #include "util_i_debug"
 #include "util_i_unittest"
 
 #include "core_i_framework"
+#include "nwnx_schema"
 
 // -----------------------------------------------------------------------------
 //                              System Constants
@@ -33,6 +34,23 @@ json jAuditTypes = JsonParse(r"
     ]
 ");
 
+/// @note Each audit record will consist of the following key:value pairs.  The values
+///     for these keys are sourced in various ways, however, the `details` key is
+///     normally provided by the calling plugin while all other fields are inserted
+///     by the audit system to ensure information uniformity.  Any change to this
+///     minimum record requires changes to audit_BuildRecord().
+json jMinimumRecord = JsonParse(r"
+    {
+        ""source"": null,
+        ""event"": null,
+        ""actor"": null,
+        ""expiry"": null,
+        ""timestamp"": null,
+        ""details"": null,
+        ""session_id"": null
+    }
+");
+
 const string AUDIT_EVENT_FLUSH_ON_TIMER_EXPIRE = "AUDIT_EVENT_FLUSH_ON_TIMER_EXPIRE";
 const string AUDIT_FLUSH_TIMER_ID = "AUDIT_FLUSH_TIMER_ID";
 
@@ -43,40 +61,58 @@ const string AUDIT_FLUSH_TIMER_ID = "AUDIT_FLUSH_TIMER_ID";
 /// @brief Called only during module startup from the audit source.  Ensures all
 ///     audit records tables are created in the on-disk campaign database and
 ///     creates the in-memory module database table used for buffering audit data.
-void audit_CreateTables();
+/// @param bForce If TRUE, database tables will be redefined if they do not already
+///     exist.  Any tables that already exist and contain data will not be redefined.
+void audit_CreateTables(int bForce = FALSE);
 
 /// @brief Gather logging data for game objects.  Used internally to gather `actor` data
-///     but accessible by users to collect appropriate data for targets and other game
-///     objects as required.
+///     but accessible by users to collect standardized data for targets and other game
+///     objects for inclusion in audit record details.
 /// @param o Object to gather logging data for.
 json audit_GetObjectData(object o);
-
-/// @brief Create a standard audit data object with the minimum required fields.
-/// @todo descriptions for all these have been changed!  Fix...
-/// @returns A JSON object containing the base audit data.
-json audit_GetMinimalRecord(string sSource, string sEvent, object oActor, json jDetail = JSON_NULL);
 
 /// @brief Register an audit schema to the audit source.  Registering an audit
 ///     schema allows a source to provide audit records to the audit database and define
 ///     how those audit records are integrated during syncing operations.
 /// @param sSource The name of the source providing the audit schema.
-/// @param sName The name of the audit schema.
-/// @param jData The audit schema object.
-/// @warning If a audit schema is registered using a source/name combination that
-///     already exists, the existing audit schema will be replaced with the schema
-///     contained in jData.
-/// @note When creating source-defined schema, if custom data is being tracked that
-///     will never be accessed by other sources and may be deleted at some point,
-///     ensure unique keys are used.  Namespaces, such as <source_*> work well in
-///     these cases.
-void audit_RegisterSchema(string sSource, string sEvent, json jData);
+/// @param sEvent The event the audit schema is designed for.
+/// @param jSchema The audit schema object.
+/// @param bRedefine If TRUE, allows redefinition of an existing schema.  If a audit
+///     schema is registered using a source/name combination that already exists, the
+///     existing audit schema will be replaced with the schema contained in jSchema.
+/// @note jSchema must be a schema that is valid against the audit_details metaschema
+///     and json-schema.org's draft 2020-12.  The following is the current metaschema
+///     for audit records details objects:
+/*
+    {
+        ""$id"": ""urn:darksun_sot:audit_details:metaschema"",
+        ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+        ""allOf"": [
+            { ""$ref"": ""https://json-schema.org/draft/2020-12/schema"" },
+            {
+                ""type"": ""object"",
+                ""minProperties"": 1
+            }
+        ]
+    }
+*/
+/// @note The following limitations should be honored when creating schema for audit
+///     records details:
+///     - $id is not required and will be overwritten
+///     - $schema is not required and will be overwritten
+///     - `details` objects must be json objects; any other object type (array, value, etc.)
+///         will automatically fail validation
+///     - `details` object must have at least 1 property defined in them.  If the user-
+///         provided schema include a minProperties setting greater than one, that setting
+///         will take precedence.
+void audit_RegisterSchema(string sSource, string sEvent, json jSchema, int bRedefine = FALSE);
 
 /// @brief Unregister (delete) an audit schema.
 /// @param sSource Source of the registered schema.
-/// @param sName Name of the registered schema.
+/// @param sEvent Name of the registered schema.
 void audit_UnregisterSchema(string sSource, string sEvent);
 
-/// @brief Retrieve a list of schema names registered by a source.
+/// @brief Retrieve a list of schema event names registered by a source.
 /// @param sSource Source of the registered schemas.
 /// @return A json array of strings containing the names of registered schemas.
 json audit_ViewSchemas(string sSource);
@@ -90,12 +126,34 @@ json audit_ViewSchema(string sSource, string sEvent);
 /// @brief Allows submission of a single record directly into the persistent `audit_trail`
 ///     table.  It should be rare to require immediate audit insertion into the persistent
 ///     tables as this is a much heavier opertion that using the buffer flushing process.
-/// @param jData Audit record.
-void audit_SubmitRecord(json jData);
+/// @param sSource The source of the audit record.
+/// @param sEvent The event name of the audit record.
+/// @param oActor The actor object responsible for the event; in most game events, this will
+///     be OBJECT_SELF, but can be defined as any game object, including the module object.
+/// @param jDetails The details json object as defined by the matching source/event schema.
+/// @param sExpiry Optional date/time group for when the audit record will be deleted from the
+///     database.  If not passed, the standard date modifiers in AUDIT_EXPIRY_DEFAULT_MODIFIER
+///     will be used.  Can be either of the following:
+///         - Date/time group in any acceptable sqlite format
+///         - Comma-sepearated list of date modifiers as defined by sqlite date functionality.
+/// @warning If the date (or result of date modification list) is in the past, the expiry will
+///     be ignored and the default expiry date modifiers will be used.
+void audit_SubmitRecord(string sSource, string sEvent, object oActor, json jDetails, string sExpiry = "");
 
 /// @brief Submits an audit record to the buffer for eventual syncing.
-/// @param jData Audit record.
-void audit_BufferRecord(json jData);
+/// @param sSource The source of the audit record.
+/// @param sEvent The event name of the audit record.
+/// @param oActor The actor object responsible for the event; in most game events, this will
+///     be OBJECT_SELF, but can be defined as any game object, including the module object.
+/// @param jDetails The details json object as defined by the matching source/event schema.
+/// @param sExpiry Optional date/time group for when the audit record will be deleted from the
+///     database.  If not passed, the standard date modifiers in AUDIT_EXPIRY_DEFAULT_MODIFIER
+///     will be used.  Can be either of the following:
+///         - Date/time group in any acceptable sqlite format
+///         - Comma-sepearated list of date modifiers as defined by sqlite date functionality.
+/// @warning If the date (or result of date modification list) is in the past, the expiry will
+///     be ignored and the default expiry date modifiers will be used.
+void audit_BufferRecord(string sSource, string sEvent, object oActor, json jDetails, string sExpiry = "");
 
 // -----------------------------------------------------------------------------
 //                          Private Function Definitions
@@ -156,6 +214,7 @@ void audit_SetFlushTimerInterval(float fInterval = AUDIT_FLUSH_INTERVAL)
     audit_CreateFlushTimer(fInterval);
 }
 
+/// @private Retrieve the current size of the audit buffer.
 int audit_GetBufferSize()
 {
     sqlquery q = pw_PrepareModuleQuery("SELECT COUNT(*) FROM audit_buffer");
@@ -244,6 +303,8 @@ int audit_IsTypeValid(string sType)
 /// @param jData Audit record.
 void audit_InsertRecord(string sType, json jData)
 {
+    audit_CreateTables();
+
     if (!audit_IsTypeValid(sType))
         return;
 
@@ -254,7 +315,6 @@ void audit_InsertRecord(string sType, json jData)
     }
 
     json jSubstitute = JsonObjectSet(JsonObject(), "audit_table", JsonString(sType));
-
     string s = r"
         INSERT INTO audit_$audit_table (data)
         VALUES (
@@ -282,11 +342,137 @@ void audit_InsertRecord(string sType, json jData)
     SqlStep(q);
 }
 
+/// @private Register the system schema required by all system functions.
+void audit_RegisterSystemSchema(int bForce = FALSE)
+{
+    if (!bForce)
+    {
+        if (GetLocalInt(GetModule(), "AUDIT_SYSTEMSCHEMA_INITIALIZED") == TRUE)
+            return;
+    }
+
+    /// @note This metaschema defines the basic structure of the `details` schema
+    ///     that will be defined by various users.  It only validates the `details`
+    ///     value of the audit record.
+    json jMetaSchema = JsonParse(r"
+        {
+            ""$id"": ""urn:darksun_sot:audit_details:metaschema"",
+            ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+            ""allOf"": [
+                { ""$ref"": ""https://json-schema.org/draft/2020-12/schema"" },
+                {
+                    ""type"": ""object"",
+                    ""minProperties"": 1
+                }
+            ]
+        }
+        ");
+
+    if (NWNXGetIsAvailable())
+        NWNX_Schema_RegisterMetaSchema(jMetaSchema);
+
+    string s = r"
+        INSERT INTO audit_schema (source, event, data)
+        VALUES ('system', :id, :data)
+        ON CONFLICT(source, event) DO UPDATE SET data = excluded.data;
+    ";
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, ":id", JsonGetString(JsonObjectGet(jMetaSchema, "$id")));
+    SqlBindJson(q, ":data", jMetaSchema);
+    SqlStep(q);
+
+    /// @note This schema defines the basic structure of a `details` instance that
+    ///     will be provided by various users.  It validatese the entire `details`
+    ///     instance, includign the optional `expiry` key.
+    /// @note When a user-provided `details` schema is registered, that schema is
+    ///     patched into this schema to create a custom validation schema for each
+    ///     user-defined schema.
+    json jInstanceSchema = JsonParse(r"
+        {
+            ""$id"": ""urn:darksun_sot:audit_details:instance"",
+            ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+            ""allOf"": [
+                { ""$ref"": ""https://json-schema.org/draft/2020-12/schema"" },
+                {
+                    ""type"": ""object"",
+                    ""properties"": {
+                        ""expiry"": { ""type"": [""string"", ""null""] },
+                        ""details"": {
+                            ""type"": ""object"",
+                            ""minProperties"": 1
+                        }
+                    },
+                    ""required"": [ ""details"" ],
+                    ""additionalProperties"": false
+                }
+            ]
+        }
+    ");
+
+    if (NWNXGetIsAvailable())
+        NWNX_Schema_RegisterMetaSchema(jMetaSchema);
+
+    SqlResetQuery(q, TRUE);
+    SqlBindString(q, ":id", JsonGetString(JsonObjectGet(jInstanceSchema, "$id")));
+    SqlBindJson(q, ":data", jInstanceSchema);
+    SqlStep(q);
+
+    /// @note This schema defines the structure of the entire audit record, including the
+    ///     user-defined `details` sections and all other fields defined by this
+    ///     system.  The user-provided `details` schema is not patched into this schema
+    ///     as the `details` instance should be validated before the final record is built.
+    json jRecord = JsonParse(r"
+        {
+            ""$id"": ""urn:darksun_sot:audit_record"",
+            ""$schema"": ""https://json-schema.org/draft/2020-12/schema"",
+            ""type"": ""object"",
+            ""properties"": {
+                ""source"": { ""type"": ""string"" },
+                ""event"": { ""type"": ""string"" },
+                ""expiry"": { 
+                    ""type"": ""string"",
+                    ""format"": ""date-time""
+                },
+                ""details"": {
+                    ""type"": ""object"",
+                    ""minProperties"": 1
+                },
+                ""actor"": {
+                    ""type"": ""object"",
+                    ""properties"": {
+                        ""type"": { ""type"": ""string"" }
+                    },
+                    ""required"": [ ""type"" ]
+                },
+                ""timestamp"": { 
+                    ""type"": ""string"",
+                    ""format"": ""date-time""
+                },
+                ""session_id"": {
+                    ""type"": ""string""
+                }
+            },
+            ""required"": [ ""source"", ""event"", ""expiry"", ""details"", ""actor"", ""timestamp"" ],
+            ""additionalProperties"": false
+        }
+    ");
+
+    if (NWNXGetIsAvailable())
+        NWNX_Schema_RegisterMetaSchema(jMetaSchema);
+
+    SqlResetQuery(q, TRUE);
+    SqlBindString(q, ":id", JsonGetString(JsonObjectGet(jRecord, "$id")));
+    SqlBindJson(q, ":data", jRecord);
+    SqlStep(q);
+
+    SetLocalInt(GetModule(), "AUDIT_SYSTEMSCHEMA_INITIALIZED", TRUE);
+}
+
 /// @private Add a location's position data to a json object.
 /// @param l Location to extract position from.
 /// @param jLocation JSON object to add position data to.
 /// @warning Only for use within the audit system. Do not call from an
-///     external source.
+///     external source.  jLocation is modified inplace.
 void audit_AddPositionToJson(location l, json jLocation)
 {
     json jPosition = JsonObject();
@@ -304,7 +490,7 @@ void audit_AddPositionToJson(location l, json jLocation)
 /// @param o Object whose location is to be converted.
 /// @param jData JSON object to add location data to.
 /// @warning Only for use within the audit system. Do not call from an
-///     external source.
+///     external source.  jData is modified inplace.
 void audit_AddLocationToJson(object o, json jData)
 {
     json jLocation = JsonObject();
@@ -340,6 +526,160 @@ string audit_ObjectTypeToString(object o)
     }
 
     return "invalid";
+}
+
+json audit_BuildRecord(string sSource, string sEvent, object oActor, json jDetail, string sExpiry = "")
+{
+    audit_CreateTables();
+
+    if (AUDIT_REQUIRE_NWNX && !NWNXGetIsAvailable())
+    {
+        audit_Debug(__FUNCTION__, "NWNX is required but not available");
+        return JsonNull();
+    }
+
+    if (NWNXGetIsAvailable())
+    {
+        string s = r"
+            SELECT json(data)
+            FROM audit_schema
+            WHERE source = @source
+                AND event = @event;
+        ";
+        sqlquery q = pw_PrepareCampaignQuery(s);
+        SqlBindString(q, "@source", sSource);
+        SqlBindString(q, "@event", sEvent);
+        if (SqlStep(q))
+        {
+            json jSchema = SqlGetJson(q, 0);
+            string sID = JsonGetString(JsonObjectGet(jSchema, "$id"));
+
+            /// @note JIT schema validation for details schema.  This prevents overwhelming the
+            ///     schema cache with unused schema.  Schema will only be validated when needed,
+            ///     but once validated, will remain immediately available for future use.
+            if (!NWNX_Schema_GetIsRegistered(sID))
+                NWNX_Schema_ValidateSchema(jSchema);
+
+            if (JsonObjectGet(NWNX_Schema_ValidateInstanceByID(jSchema, sID), "valid") == JSON_FALSE)
+            {
+                audit_Debug(__FUNCTION__, "jDetail does not validate against schema for source '" + sSource + "' event '" + sEvent + "'");
+                return JsonNull();
+            }
+        }
+    }
+
+    /// @note Most of this query has to do with sorting and calculating the expiry date.  The expiry can
+    ///     be a "hard" date-time group that defines a specific time, or it can be a list of date/time
+    ///     modifiers as defined by sqlite.  If the expiry is a list of modifiers, modifiers will be applied
+    ///     in the order they appear and will modify now().
+    /// @note Order of priority for expiry:
+    ///     1) permanent keyword as defined in AUDIT_EXPIRY_PERMANENT_KEYWORDS
+    ///     2) "hard" date/time specified in the details instance
+    ///     3) modifier list specified in the details instance
+    ///     4) "hard" date/time specified in the call to audit_SubmitRecord or audit_BufferRecord
+    ///     5) modifier list specified in the call to audit_SubmitRecord or audit_BufferRecord
+    ///     6) default modifier list defined in AUDIT_EXPIRY_DEFAULT_MODIFIER
+    string s = r"
+        WITH RECURSIVE
+            queue(priority, val, logic_tag) AS (
+                VALUES 
+                (1, json_extract(:audit_record, '$.expiry'), 'permanent_keywords'),
+                (2, json_extract(:audit_record, '$.expiry'), 'record_expiry'),
+                (4, :desired_expiry,                         'external_expiry'),
+                (6, :default_modifier,                       'default_expiry')
+            ),
+            normalized(priority, str, logic_tag, is_hard_date) AS (
+                SELECT 
+                priority,
+                lower(regexp_replace('\s*,\s*', 
+                    regexp_replace('([+-])\s+',
+                    regexp_replace('\s{2,}', trim(val), ' ', 0, 0),
+                    '$1', 0, 0),
+                ',', 0, 0)),
+                logic_tag,
+                (datetime(val, '+0 seconds') IS NOT NULL)
+                FROM queue
+                WHERE nullif(trim(val), '') IS NOT NULL
+            ),
+            walker(priority, current_dt, remaining, is_valid, logic_tag, is_hard_date) AS (
+                SELECT 
+                priority,
+                CASE WHEN is_hard_date THEN str ELSE datetime('now') END,
+                CASE WHEN is_hard_date THEN '' ELSE str || ',' END,
+                1, logic_tag, is_hard_date
+                FROM normalized
+                WHERE logic_tag != 'permanent_keywords'
+                UNION ALL
+                SELECT 
+                priority,
+                datetime(current_dt, substr(remaining, 1, instr(remaining, ',') - 1)),
+                substr(remaining, instr(remaining, ',') + 1),
+                (substr(remaining, 1, instr(remaining, ',') - 1) REGEXP '^([+-]?\d*\.?\d+ (days?|hours?|minutes?|seconds?|months?|years?)|[+-]?\d{2,4}-\d{2}-\d{2}(\s\d{2}:\d{2}(:\d{2}(\.\d+)?)?)?|[+-]?\d{2}:\d{2}(:\d{2}(\.\d+)?)?|ceiling|floor|start of (month|year|day)|weekday \d|unixepoch|julianday|auto|localtime|utc|subsecond|subsec)$'),
+                logic_tag, is_hard_date
+                FROM walker
+                WHERE remaining != '' AND is_valid = 1
+            ),
+            expiry_resolution(final_val) AS (
+                SELECT val FROM (
+                    -- P1: Keyword Check (e.g., never, none)
+                    SELECT 1 as p, 'none' as val FROM normalized 
+                    WHERE logic_tag = 'permanent_keywords' 
+                    AND str IN (SELECT value FROM json_each(:permanent_keywords))
+                    
+                    UNION ALL
+                    -- P2: Record Expiry - Hard Date (Must be in Future)
+                    SELECT 2, strftime('%Y-%m-%d %H:%M:%S+00:00', current_dt) FROM walker 
+                    WHERE logic_tag = 'record_expiry' AND is_hard_date = 1 
+                    AND remaining = '' AND current_dt > datetime('now')
+                    
+                    UNION ALL
+                    -- P3: Record Expiry - Modifiers (Must be in Future)
+                    SELECT 3, strftime('%Y-%m-%d %H:%M:%S+00:00', current_dt) FROM walker 
+                    WHERE logic_tag = 'record_expiry' AND is_hard_date = 0 
+                    AND remaining = '' AND is_valid = 1 AND current_dt > datetime('now')
+                    
+                    UNION ALL
+                    -- P4: External Expiry - Hard Date (Must be in Future)
+                    SELECT 4, strftime('%Y-%m-%d %H:%M:%S+00:00', current_dt) FROM walker 
+                    WHERE logic_tag = 'external_expiry' AND is_hard_date = 1 
+                    AND remaining = '' AND current_dt > datetime('now')
+                    
+                    UNION ALL
+                    -- P5: External Expiry - Modifiers (Must be in Future)
+                    SELECT 5, strftime('%Y-%m-%d %H:%M:%S+00:00', current_dt) FROM walker 
+                    WHERE logic_tag = 'external_expiry' AND is_hard_date = 0 
+                    AND remaining = '' AND is_valid = 1 AND current_dt > datetime('now')
+                    
+                    UNION ALL
+                    -- P6: Default Expiry Fallback
+                    SELECT 6, strftime('%Y-%m-%d %H:%M:%S+00:00', current_dt) FROM walker 
+                    WHERE logic_tag = 'default_expiry' AND remaining = '' AND is_valid = 1
+                ) ORDER BY p ASC LIMIT 1
+            )
+        SELECT json_set(
+            json(:minimal_record),
+            '$.source', :source,
+            '$.event', :event,
+            '$.actor', json(:actor),
+            '$.timestamp', strftime('%Y-%m-%d %H:%M:%S+00:00', 'now'),
+            '$.details', json(:audit_record),
+            '$.expiry', (SELECT final_val FROM expiry_resolution),
+            '$.session_id', :session_id
+        ) AS final_json_object;
+    ";
+
+    sqlquery q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, ":source", sSource);
+    SqlBindString(q, ":event", sEvent);
+    SqlBindString(q, ":desired_expiry", sExpiry);
+    SqlBindString(q, ":session_id", pw_GetSessionID());
+    SqlBindString(q, ":default_modifier", AUDIT_EXPIRY_DEFAULT_MODIFIER);
+    SqlBindJson(q, ":actor", audit_GetObjectData(oActor));
+    SqlBindJson(q, ":permanent_keywords", AUDIT_EXPIRY_PERMANENT_KEYWORDS);
+    SqlBindJson(q, ":minimal_record", jMinimumRecord);
+    SqlBindJson(q, ":audit_record", jDetail);
+    
+    return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
 }
 
 /// @private Perform unit tests for the entire audit record system including tests for
@@ -413,7 +753,7 @@ void audit_POST()
         jData = JsonObjectSet(jData, "test_id", JsonInt(1));
 
         /// @test Test 1: Submit audit records directly to audit_trail.
-        int t = Timer(); audit_SubmitRecord(jData); t = Timer(t);
+        int t = Timer(); /*audit_SubmitRecord(jData);*/ t = Timer(t);
 
         string s = r"
             SELECT COUNT(*)
@@ -440,7 +780,7 @@ void audit_POST()
         /// @test Test 1: Check audit_trail for record submitted via buffer flush.
         /// @note e1 = expected record count in audit_trail after flush
         int e1 = 1, r1;
-        int t1 = Timer(); audit_BufferRecord(jData); t1 = Timer(t1);
+        int t1 = Timer(); /*audit_BufferRecord(jData);*/ t1 = Timer(t1);
 
         string s = r"
             SELECT COUNT(*)
@@ -557,14 +897,43 @@ void audit_POST()
 //                        Public Function Definitions
 // -----------------------------------------------------------------------------
 
-void audit_CreateTables()
+void audit_CreateTables(int bForce = FALSE)
 {
     /// @brief The following tables are persistent and reside in the campaign/on-disk
     ///     persistent database.  All audit tables are namespaced with `audit_`.
 
-    pw_BeginTransaction();
+    /// @note This database schema is self-initializing, requiring no command from
+    ///     the user.  However, this may create multiple calls to create tables
+    ///     that may already exist.  Unless a force-redefinition is required, assume
+    ///     the tables have been created if the initialization variable is set or
+    ///     the table count matches the expectation.
+    /// @warning Passed bForce = TRUE will force all table creation queries to
+    ///     run, but WILL NOT overwrite current table definitions or delete any
+    ///     tables or data that currently exist.  bForce is available for testing
+    ///     and development and should not be used during production.
+    if (!bForce)
+    {
+        if (GetLocalInt(GetModule(), "AUDIT_DATABASE_INITIALIZED") == TRUE)
+            return;
+        else
+        {
+            string s = r"
+                SELECT count(*)
+                FROM sqlite_master 
+                WHERE type = 'table' 
+                    AND name IN ('audit_trail', 'audit_schema');
+            ";
+            sqlquery q = pw_PrepareCampaignQuery(s);
+            if (SqlStep(q) && SqlGetInt(q, 0) == 2)
+            {
+                SetLocalInt(GetModule(), "AUDIT_DATABASE_INITIALIZED", TRUE);
+                audit_RegisterSystemSchema();
+                return;
+            }
+        }
+    }
 
-    /// @note The `audit_logs` table holds all audit trail data for the server.  This table
+    /// @note The `audit_trail` table holds all audit trail data for the server.  This table
     ///     supports structured logging in the data BLOB and can contain any audit data
     ///     as defined by various plugins.  The audit plugin has function to help define
     ///     basic object keys that should be included with every structured logging entry.
@@ -577,36 +946,22 @@ void audit_CreateTables()
             target_id TEXT GENERATED ALWAYS AS (jsonb_extract(data, '$.target_id')) VIRTUAL,
             created_at INTEGER GENERATED ALWAYS AS (jsonb_extract(data, '$.created_at')) VIRTUAL
         );
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
-        CREATE INDEX IF NOT EXISTS idx_audit_log_event_type ON audit_trail(event_type);
-    ";
-    pw_ExecuteCampaignQuery(s);
+        CREATE INDEX IF NOT EXISTS idx_audit_trail_event_type ON audit_trail(event_type);
 
-    s = r"
-        CREATE INDEX IF NOT EXISTS idx_audit_actor ON audit_trail(actor_id) 
+        CREATE INDEX IF NOT EXISTS idx_audit_trail_actor ON audit_trail(actor_id) 
         WHERE actor_id IS NOT NULL;
-    ";
-    pw_ExecuteCampaignQuery(s);
 
-    s = r"
-        CREATE INDEX IF NOT EXISTS idx_audit_target ON audit_trail(target_id) 
+        CREATE INDEX IF NOT EXISTS idx_audit_trail_target ON audit_trail(target_id) 
         WHERE target_id IS NOT NULL;
+
+        CREATE INDEX IF NOT EXISTS idx_audit_trail_created_at ON audit_trail(created_at);
     ";
     pw_ExecuteCampaignQuery(s);
 
-    s = r"
-        CREATE INDEX IF NOT EXISTS idx_audit_created_at ON audit_trail(created_at);
-    ";
-    pw_ExecuteCampaignQuery(s);
-
-    /// @note The `audit_schema` table holds all defined audita schema provided by
-    ///     any audit provider.  This allows plugins to define their own audit,
-    ///     define audit behaviors, and allow seamless syncing with previously-
-    ///     existing audit without having to build the sync architecture within each
-    ///     source.
+    /// @note The `audit_schema` table holds all defined audit schema provided by
+    ///     any audit record provider.  This allows plugins to define their own audit
+    ///     record detail schema.
     /// @note Sources will be required to register their audit schema with the audit
     ///     schema manager to ensure their sync behavior can be controlled reliably.
     s = r"
@@ -618,37 +973,27 @@ void audit_CreateTables()
         ) WITHOUT ROWID;
     ";
     pw_ExecuteCampaignQuery(s);
-    pw_CommitTransaction();
 
-    /// @brief The following tables are temporary and reside in the module/in-memory
-    ///     database.  They are used as a high-speed buffer and synced to the
+    /// @brief The following table is temporary and resides in the module/in-memory
+    ///     database.  It is used as a high-speed buffer and synced to the
     ///     matching table in the campaign/on-disk database.
-
-    pw_BeginTransaction(GetModule());
-
-    /// @note The `audit_buffer` table holds temporary audit data for all players,
-    ///     characters and the server, identified by the `type` column.  Periodically,
-    ///     this table will be sync'd with the on-disk tables defined above and the
-    ///     temporary records deleted.
     s = r"
         CREATE TABLE IF NOT EXISTS audit_buffer (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             data BLOB NOT NULL DEFAULT (jsonb_object()) CHECK (json_valid(data, 4))
         );
-    ";
-    pw_ExecuteModuleQuery(s);
 
-    s = r"
         CREATE INDEX IF NOT EXISTS idx_audit_buffer_queue ON audit_buffer(id ASC);
     ";
     pw_ExecuteModuleQuery(s);
-    pw_CommitTransaction(GetModule());
+    SetLocalInt(GetModule(), "AUDIT_DATABASE_INITIALIZED", TRUE);
+
+    audit_RegisterSystemSchema();
 }
 
 json audit_GetObjectData(object o)
 {
     if (o == GetModule())
-        /// @note Module object
         return JsonParse(r"
             {
                 ""type"": ""module""
@@ -658,7 +1003,7 @@ json audit_GetObjectData(object o)
     {
         /// @note All player character objects, including dungeon masters.
         json jData = JsonObject();
-        JsonObjectSetInplace(jData, "type", JsonString("player"));
+        JsonObjectSetInplace(jData, "type", JsonString("player-character"));
         JsonObjectSetInplace(jData, "player_id", JsonString(GetPCPlayerName(o)));
         JsonObjectSetInplace(jData, "character_name", JsonString(GetName(o)));
         JsonObjectSetInplace(jData, "character_id", JsonString(GetObjectUUID(o)));
@@ -671,9 +1016,7 @@ json audit_GetObjectData(object o)
     }
     else if (GetIsObjectValid(o))
     {
-        /// @note All valid/existing non-player charcter game objects.
-        /// @todo Create a conversion function to change object_type to a human-
-        ///     readable object type.  Don't use constants ... too heavy.
+        /// @note All valid/existing non-player character game objects.
         json jData = JsonObject();
         JsonObjectSetInplace(jData, "type", JsonString("object"));
         JsonObjectSetInplace(jData, "object_type", JsonString(audit_ObjectTypeToString(o)));
@@ -699,112 +1042,16 @@ json audit_GetObjectData(object o)
         ");
 }
 
-json audit_GetMinimalRecord(string sSource, string sEvent, object oActor, json jDetail = JSON_NULL)
+void audit_RegisterSchema(string sSource, string sEvent, json jSchema, int bRedefine = FALSE)
 {
-    /// @todo modify all this logic to not get a minimal record for modification, but to
-    ///     instead create the final record for submission.
+    audit_CreateTables();
 
-    /// @todo let's build convenience functions for each of the types of events that
-    ///     will return a well-form details section.  This query will be for building the
-    ///     final record to prevent users from modifying the final form before submission,
-    ///     thus ensuring we always have the minimal data within each record.
-
-    string s = r"
-        WITH RECURSIVE
-        -- 1. Fetch schemas as before
-        schemas AS (
-            SELECT 
-                (SELECT data FROM audit_schema WHERE source = 'system' AND event = 'minimal_record') as skeleton,
-                (SELECT data FROM audit_schema WHERE source = :source AND event = :event) as event_schema
-        ),
-        -- 2. Parallel timeline for modifiers
-        timeline(type, idx, val, skeleton, event_schema) AS (
-            SELECT 'EVENT', -1, datetime('now'), s.skeleton, s.event_schema FROM schemas s
-            UNION ALL
-            SELECT 'SKELETON', -1, datetime('now'), s.skeleton, s.event_schema FROM schemas s
-            UNION ALL
-            SELECT t.type, m.id, datetime(t.val, m.value), t.skeleton, t.event_schema
-            FROM timeline t
-            JOIN json_each(
-                CASE WHEN t.type = 'EVENT' 
-                    THEN json_extract(t.event_schema, '$.expiry_modifier') 
-                    ELSE json_extract(t.skeleton, '$.expiry_modifier') 
-                END
-            ) m ON m.id = t.idx + 1
-        ),
-        -- 3. Consolidate results
-        candidates AS (
-            SELECT 
-                skeleton, event_schema,
-                json_extract(event_schema, '$.expiry') as e_abs,
-                json_extract(skeleton, '$.expiry') as s_abs,
-                (SELECT val FROM timeline WHERE type = 'EVENT' ORDER BY idx DESC LIMIT 1) as e_mod_final,
-                (SELECT val FROM timeline WHERE type = 'SKELETON' ORDER BY idx DESC LIMIT 1) as s_mod_final
-            FROM timeline LIMIT 1
-        )
-        -- 4. Final Winner Logic with Variable Keywords
-        SELECT 
-            jsonb_patch(
-                jsonb_patch(jsonb(skeleton), jsonb(event_schema)),
-                jsonb_object(
-                    'source', :source,
-                    'event', :event,
-                    'timestamp', NULL,
-                    'expiry', CASE 
-                        -- Priority 1: Event Absolute (Check against dynamic variable list)
-                        WHEN EXISTS (SELECT 1 FROM json_each(:perm_keywords) WHERE value = e_abs) THEN NULL
-                        WHEN datetime(e_abs, '+0 seconds') IS e_abs AND datetime(e_abs) > datetime('now') THEN datetime(e_abs)
-                        
-                        -- Priority 2 & 3: Modifiers (Future-validated)
-                        WHEN e_mod_final > datetime('now') THEN e_mod_final
-                        WHEN s_mod_final > datetime('now') THEN s_mod_final
-                        
-                        -- Priority 4: Skeleton Absolute (Lowest priority)
-                        WHEN EXISTS (SELECT 1 FROM json_each(:perm_keywords) WHERE value = s_abs) THEN NULL
-                        WHEN datetime(s_abs, '+0 seconds') IS s_abs AND datetime(s_abs) > datetime('now') THEN datetime(s_abs)
-                        
-                        -- Default Fallback (Using variable)
-                        ELSE datetime('now', :default_modifier)
-                    END
-                )
-            ) AS final_default_object
-        FROM candidates;
-    ";
-
-    sqlquery q = pw_PrepareCampaignQuery(s);
-    SqlBindString(q, ":source", sSource);
-    SqlBindString(q, ":event", sEvent);
-    SqlBindString(q, ":default_modifier", AUDIT_EXPIRY_DEFAULT_MODIFIER);
-    SqlBindJson(q, ":perm_keywords", AUDIT_EXPIRY_PERMANENT_KEYWORDS);
-
-    if (SqlStep(q))
+    if (AUDIT_REQUIRE_NWNX && !NWNXGetIsAvailable())
     {
-        json jRecord = SqlGetJson(q, 0);
-        return JsonObjectSet(jRecord, "actor", audit_GetObjectData(oActor));
+        audit_Debug(__FUNCTION__, "NWNX is required to register audit schema");
+        return;
     }
 
-    return JsonNull();
-}
-
-/// @todo Need to do schema validation here to ensure it's all valid against my primary structured logging schema.
-/// sSource should be the plugin/system where  the schema is sourced. Cannot be empty.
-///     sEvent should be the logging event the schema is assigned to.  This event name will be included as the
-///     `event` key in the structured log record.  It cannot be empty.
-///  jData should be the json object that will be checked against the standard schema
-///  *Can* contain:
-///     source
-///     event
-///     expiry (date/modifiers)
-///  *Must* contain:
-///     details object
-/// Each record will also contain a timestamp and actor, but those will be provided at the time of logging, not
-///     during schema registration.
-/// Here we'll check jdata against two schema, the first will be the overall, with a details section, in case the
-///     user wants to specify source, event, expiry and other options, along with details.  The second will
-///     the schema against just a details section, in case they want to use defaults and only provide the details
-///     section of the schema.
-void audit_RegisterSchema(string sSource, string sEvent, json jData)
-{
     audit_Debug(__FUNCTION__, "Attempting to register audit schema: " + sSource + "." + sEvent);
     
     if (sSource == "" || sEvent == "")
@@ -818,32 +1065,98 @@ void audit_RegisterSchema(string sSource, string sEvent, json jData)
         return;
     }
 
-    if (JsonGetType(jData) != JSON_TYPE_OBJECT)
-    {
-        string s = "Invalid schema data object type found during audit schema registration";
-        s+= "\n  Error Source: " + __FILE__ + " (" + __FUNCTION__ + ")";
-
-        Error(s);
-        return;
-    }
-
     string s = r"
-        INSERT INTO audit_schema (source, event, data)
-        SELECT @source, @event, 
-            (SELECT jsonb_group_object(fullkey, value) 
-             FROM json_tree(jsonb(@data)) 
-             WHERE atom IS NOT NULL);
+        SELECT json(data)
+        FROM audit_schema
+        WHERE source = @source
+            AND event = @event;
     ";
     sqlquery q = pw_PrepareCampaignQuery(s);
     SqlBindString(q, "@source", sSource);
-    SqlBindString(q, "@name", sEvent);
-    SqlBindJson(q, "@data", jData);
+    SqlBindString(q, "@event", sEvent);
+    if (SqlStep(q) && !bRedefine)
+    {
+        audit_Debug(__FUNCTION__, "Schema already registered and redefine not set: " + sSource + "." + sEvent);
+        return;
+    }
 
+    if (NWNXGetIsAvailable())
+    {
+        json jResult = NWNX_Schema_ValidateSchema(jSchema);
+        if (JsonObjectGet(jResult, "valid") == JSON_FALSE)
+        {
+            audit_Debug(__FUNCTION__, "Schema validation failed during audit schema registration");
+            audit_Debug(__FUNCTION__, JsonDump(jResult, 4));
+            return;
+        }
+    }
+
+    s = r"
+        WITH
+            base_schema AS (
+                SELECT json(data) AS schema
+                FROM audit_schema
+                WHERE source = 'system'
+                AND event = 'urn:darksun_sot:audit_details:instance'
+            ),
+            normalized_user_schema AS (
+                SELECT
+                    json_set(
+                        json_set(
+                            json_set(
+                                :user_schema,
+                                '$.type', 'object'
+                            ),
+                            '$.minProperties',
+                            CASE
+                                WHEN json_extract(:user_schema, '$.minProperties') IS NULL
+                                    OR json_extract(:user_schema, '$.minProperties') < 1
+                                THEN 1
+                                ELSE json_extract(:user_schema, '$.minProperties')
+                            END
+                        ),
+                        '$.$id', :new_id
+                    ) AS details_schema
+            ),
+            patched_schema AS (
+                SELECT
+                    json_set(
+                        schema,
+                        '$.allOf[1].properties.details',
+                        details_schema
+                    ) AS final_schema
+                FROM base_schema, normalized_user_schema
+            )
+        SELECT final_schema FROM patched_schema;
+    ";
+    q = pw_PrepareCampaignQuery(s);
+    SqlBindJson(q, ":user_schema", jSchema);
+    SqlBindString(q, ":new_id", "urn:darksun_sot:audit_details:" + sSource + "_" + sEvent);
+    if (SqlStep(q))
+        jSchema = SqlGetJson(q, 0);
+    else
+    {
+        audit_Debug(__FUNCTION__, "Failed to patch user schema into base schema during audit schema registration");
+        return;
+    }
+
+    s = r"
+        INSERT INTO audit_schema (source, event, data)
+        VALUES (@source, @event, jsonb(@data))
+        ON CONFLICT(source, event) DO UPDATE SET
+            data = jsonb(excluded.data);
+    ";
+    q = pw_PrepareCampaignQuery(s);
+    SqlBindString(q, "@source", sSource);
+    SqlBindString(q, "@event", sEvent);
+    SqlBindJson(q, "@data", jSchema);
     SqlStep(q);
 }
 
 void audit_UnregisterSchema(string sSource, string sEvent)
 {
+    audit_CreateTables();
+
     if (sSource == "" || sEvent == "")
     {
         string s = "Invalid source or schema name found during audit schema unregistration";
@@ -864,10 +1177,15 @@ void audit_UnregisterSchema(string sSource, string sEvent)
     SqlBindString(q, "@source", sSource);
     SqlBindString(q, "@event", sEvent);
     SqlStep(q);
+
+    if (NWNXGetIsAvailable())
+        NWNX_Schema_RemoveSchema("urn:darksun_sot:audit_details:" + sSource + "_" + sEvent);
 }
 
 json audit_ViewSchemas(string sSource)
 {
+    audit_CreateTables();
+
     string s = r"
         SELECT json_group_array(name)
         FROM audit_schema
@@ -881,6 +1199,8 @@ json audit_ViewSchemas(string sSource)
 
 json audit_ViewSchema(string sSource, string sEvent)
 {
+    audit_CreateTables();
+
     string s = r"
         SELECT json(data)
         FROM audit_schema
@@ -893,12 +1213,12 @@ json audit_ViewSchema(string sSource, string sEvent)
     return SqlStep(q) ? SqlGetJson(q, 0) : JsonNull();
 }
 
-void audit_SubmitRecord(json jData)
+void audit_SubmitRecord(string sSource, string sEvent, object oActor, json jDetails, string sExpiry = "")
 {
-    audit_InsertRecord(AUDIT_TYPE_TRAIL, jData);
+    audit_InsertRecord(AUDIT_TYPE_TRAIL, audit_BuildRecord(sSource, sEvent, oActor, jDetails, sExpiry));
 }
 
-void audit_BufferRecord(json jData)
+void audit_BufferRecord(string sSource, string sEvent, object oActor, json jDetails, string sExpiry = "")
 {
-    audit_InsertRecord(AUDIT_TYPE_BUFFER, jData);
+    audit_InsertRecord(AUDIT_TYPE_BUFFER, audit_BuildRecord(sSource, sEvent, oActor, jDetails, sExpiry));
 }

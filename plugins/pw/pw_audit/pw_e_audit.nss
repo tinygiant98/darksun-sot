@@ -17,8 +17,6 @@
 
 void audit_OnModuleLoad()
 {
-    /// @note Ensure all required metrics tables exist, both on disk and in the
-    ///     module's volatile sqlite database.
     audit_CreateTables();
 }
 
@@ -79,5 +77,89 @@ void audit_OnPlayerChat()
         j = audit_GetObjectData(GetFirstObjectInArea(GetArea(oPC)));
         Debug("[AUDIT] Area Data: \n" + JsonDump(j, 4));
     }
+    else if (HasChatOption(oPC, "testes"))
+    {
 
+        // [1] Define a details schema (no $id or $schema)
+        json jDetailsSchema = JsonParse(r"
+            {
+                ""type"": ""object"",
+                ""properties"": {
+                    ""foo"": { ""type"": ""string"" },
+                    ""bar"": { ""type"": ""integer"" }
+                },
+                ""required"": [ ""foo"" ],
+                ""minProperties"": 1
+            }
+        ");
+
+        // [2] Register the details schema for a test event
+        audit_RegisterSchema("test_source", "test_event", jDetailsSchema);
+
+        // [3] Build a valid details instance for the schema
+        json jDetailsInstance = JsonParse(r"
+            {
+                ""foo"": ""hello"",
+                ""bar"": 42
+            }
+        ");
+
+        audit_SubmitRecord("test_source", "test_event", oPC, jDetailsInstance);
+
+
+    }
+    else if (HasChatOption(oPC, "schema"))
+    {
+        json j = JsonParse(r"
+            {
+                ""$id"": ""urn:example:valid_audit_details"",
+                ""$schema"": ""urn:darksun_sot:audit_details"",
+                ""expiry"": ""2026-01-31T12:00:00Z"",
+                ""details"": {
+                    ""type"": ""object"",
+                    ""properties"": {
+                        ""foo"": { ""type"": ""string"" }
+                    },
+                    ""required"": [ ""foo"" ]
+                }
+            }
+        ");
+
+        if (NWNXGetIsAvailable())
+        {
+            json jResult = NWNX_Schema_ValidateSchema(j);
+
+            if (JsonObjectGet(jResult, "valid") == JSON_TRUE)
+                Debug("[1] [AUDIT] Valid audit details schema.");
+            else
+            {
+                Debug("[1] [AUDIT] INVALID audit details schema.");
+                Debug(JsonDump(jResult, 4));
+            }
+        }
+
+        j = JsonParse(r"
+            {
+                ""$id"": ""urn:example:invalid_audit_details"",
+                ""$schema"": ""urn:darksun_sot:audit_details"",
+                ""expiry"": ""2026-01-31T12:00:00Z"",
+                ""details"": {
+                    ""type"": ""object""
+                }
+            }
+        ");
+
+        if (NWNXGetIsAvailable())
+        {
+            json jResult = NWNX_Schema_ValidateSchema(j);
+
+            if (JsonObjectGet(jResult, "valid") == JSON_TRUE)
+                Debug("[2] [AUDIT] Valid audit details schema.");
+            else
+            {
+                Debug("[2] [AUDIT] INVALID audit details schema.");
+                Debug(JsonDump(jResult, 4));
+            }
+        }
+    }
 }
