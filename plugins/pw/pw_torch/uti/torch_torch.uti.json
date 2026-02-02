@@ -6,7 +6,7 @@
   },
   "BaseItem": {
     "type": "int",
-    "value": 24
+    "value": 15
   },
   "Charges": {
     "type": "byte",
@@ -18,7 +18,7 @@
   },
   "Cost": {
     "type": "dword",
-    "value": 3002
+    "value": 0
   },
   "Cursed": {
     "type": "byte",
@@ -27,7 +27,7 @@
   "DescIdentified": {
     "type": "cexolocstring",
     "value": {
-      "0": "One pint of oil. Use this to refill a lantern. You can also  throw it like alchemist's fire, but  it's not guarunteed to ignite properly."
+      "0": "A standard disposable torch. It   had only a limited amount of burn life. Carry several if you plan to be in the dark for a while."
     }
   },
   "Description": {
@@ -43,12 +43,12 @@
   "LocalizedName": {
     "type": "cexolocstring",
     "value": {
-      "0": "Oil Flask"
+      "0": "Torch"
     }
   },
   "ModelPart1": {
     "type": "byte",
-    "value": 62
+    "value": 0
   },
   "PaletteID": {
     "type": "byte",
@@ -69,38 +69,7 @@
         },
         "CostTable": {
           "type": "byte",
-          "value": 3
-        },
-        "CostValue": {
-          "type": "word",
-          "value": 13
-        },
-        "Param1": {
-          "type": "byte",
-          "value": 255
-        },
-        "Param1Value": {
-          "type": "byte",
-          "value": 0
-        },
-        "PropertyName": {
-          "type": "word",
-          "value": 15
-        },
-        "Subtype": {
-          "type": "word",
-          "value": 359
-        }
-      },
-      {
-        "__struct_id": 0,
-        "ChanceAppear": {
-          "type": "byte",
-          "value": 100
-        },
-        "CostTable": {
-          "type": "byte",
-          "value": 3
+          "value": 18
         },
         "CostValue": {
           "type": "word",
@@ -108,19 +77,19 @@
         },
         "Param1": {
           "type": "byte",
-          "value": 255
+          "value": 9
         },
         "Param1Value": {
           "type": "byte",
-          "value": 0
+          "value": 1
         },
         "PropertyName": {
           "type": "word",
-          "value": 15
+          "value": 44
         },
         "Subtype": {
           "type": "word",
-          "value": 336
+          "value": 0
         }
       }
     ]
@@ -135,10 +104,10 @@
   },
   "Tag": {
     "type": "cexostring",
-    "value": "h2_oilflask"
+    "value": "torch_torch"
   },
   "TemplateResRef": {
     "type": "resref",
-    "value": "h2_oilflask"
+    "value": "torch_torch"
   }
 }

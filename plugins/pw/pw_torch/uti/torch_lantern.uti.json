@@ -104,10 +104,10 @@
   },
   "Tag": {
     "type": "cexostring",
-    "value": "h2_lantern"
+    "value": "torch_lantern"
   },
   "TemplateResRef": {
     "type": "resref",
-    "value": "h2_lantern"
+    "value": "torch_lantern"
   }
 }
