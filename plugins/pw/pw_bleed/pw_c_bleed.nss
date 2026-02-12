@@ -47,7 +47,7 @@ string bleed_GetText(string sTextID, json jSubstitutes = JSON_NULL)
     string sText;
     switch (HashString(sTextID))
     {
-        case BLEED_TEXT_RECOVERED_FROM_DYING: sText = "You have become revived and are no longer in danger of bleeding to death."; break;
+        case BLEED_TEXT_RECOVERED_FROM_DYING: sText = "You have been revived and are no longer in danger of bleeding to death."; break;
         case BLEED_TEXT_PLAYER_STABILIZED: sText = "Your wounds have stopped bleeding, and you are stable, but still unconcious."; break;
         case BLEED_TEXT_WOUNDS_BLEED: sText = "Your wounds continue to bleed. You get ever closer to death."; break;
         case BLEED_TEXT_FIRST_AID_SUCCESS: sText = "You have sucessfully rendered aid."; break;
@@ -57,7 +57,7 @@ string bleed_GetText(string sTextID, json jSubstitutes = JSON_NULL)
         case BLEED_TEXT_DOES_NOT_NEED_AID: sText = "This person is not in need of any aid."; break;
         case BLEED_TEXT_ATTEMPT_LONG_TERM_CARE: sText = "You have attempted to provide long-term care to this person."; break;
         case BLEED_TEXT_RECEIVE_LONG_TERM_CARE: sText = "An attempt to provide you with long-term care has been made."; break;
-        case BLEED_TEXT_CANNOT_USE_ON_SELF: sText = "You cannot render first aid on yourselfq."; break;
+        case BLEED_TEXT_CANNOT_USE_ON_SELF: sText = "You cannot render first aid on yourself."; break;
         default: return "";
     }
 
@@ -87,7 +87,7 @@ float bleed_GetBleedCheckInterval(object oPC)
 /// @return The interval, in seconds of real time, between self-recovery checks.
 float bleed_GetBleedStableInterval(object oPC)
 {
-    return bleed_GetBleedCheckInterval(oPC) * 2.0;
+    return bleed_GetBleedCheckInterval(oPC) * 2f;
 }
 
 /// @brief The return value of this function defines the chance a player
